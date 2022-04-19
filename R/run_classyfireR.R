@@ -1,6 +1,3 @@
-library(data.table)
-library(purrr)
-library(classyfireR)
 
 # This function takes in a data.table with columns "PREFERRED_NAME", "CASRN", and "INCHIKEY"
 # and runs the the classyFireR API call for each chemical in the data.table.
@@ -57,7 +54,7 @@ classify_datatable <- function(datatable){
 # looking at the rows missing a classification and attempting to classify
 # via the associated SMILES string if present
 
-#' Takes in a data.table previously classified by classify_datatable, and adds missing classifications through SMILES
+#' Classify chemicals from input data.table using SMILES
 #'
 #' @param datatable A data.table that is the output from classify_datatable.
 #' @return A data.table object with classification information for each row.
