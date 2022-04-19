@@ -1,0 +1,252 @@
+# This generates the number of descendants for each node. The edges are stored
+# in a two column data.frame, with the first column indicating the parent and
+# the second column indicating the child. Internal numbering of nodes is given
+# by tips first and then nodes, with the root given by the first node of the
+# internal nodes. The output also includes the number of children for each node
+# and the node level.
+
+#' Generates a data.frame of the number of descendants for each node of the input tree
+#'
+#' @param tree A phylo object
+#' @return data.frame consisting of the node number, descendants, children, and level
+generate_descendants <- function(tree){
+  if (!inherits(tree, 'phylo')){
+    stop("Please input an object of 'phylo' class!")
+  }
+
+  node_levels <- get_levels(tree)
+  descendant_numbers <- data.frame(node = 1:dim(node_levels)[[1]],
+                                   descendants = 0,
+                                   children = 0,
+                                   level = node_levels[, 'level'])
+  for (i in max(node_levels[, 'level']):0){
+    # get the tips/internal nodes at level i
+    current_indices <- node_levels[node_levels$level == i, 'node']
+    # filter out tips
+    current_indices <- current_indices[current_indices > length(tree$tip.label)]
+    for (j in seq_along(current_indices)){
+      # Find the children of the current node
+      current_children <- tree$edge[tree$edge[, 1] == current_indices[[j]], 2]
+      # Get number of children
+      number_of_children <- length(current_children)
+      # Get descendant numbers of children
+      descendants_of_children <- descendant_numbers[current_children, 'descendants']
+      # Calculate total descendants
+      total_descendants <- number_of_children + sum(descendants_of_children)
+      # Record in the data.frame
+      descendant_numbers[current_indices[[j]], 'descendants'] <- total_descendants
+      descendant_numbers[current_indices[[j]], 'children'] <- number_of_children
+
+    }
+  }
+  return(descendant_numbers)
+}
+
+# This function creates a data.frame and records the level of each node,
+# starting at the root and exploring each successive level of depth. It takes in
+# a rooted tree as an input. It returns a data.frame of length equal to the
+# number of nodes of the tree, and depth of each node with values ranging from
+# 0 (the root) to the maximum depth of all the nodes, inclusive.
+
+#' Generates a data.frame of node levels for input rooted tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @return data.frame consisting of the node number, and the level of each node
+#' @import ape
+get_levels <- function(tree){
+  if(!ape::is.rooted(tree))
+    stop('Input tree must be rooted!')
+  root_number = as.integer(length(tree$tip.label) + 1)
+  node_levels <- data.frame(node = 1:(dim(tree$edge)[[1]] + 1),
+                            level = 0)
+  level <- 0
+  current_level <- c(root_number)
+  while(length(current_level) > 0){
+    node_levels[current_level, 'level'] <- level
+    children <- tree$edge[tree$edge[, 1] %in% current_level, 2]
+    current_level <- children
+    level <- level + 1
+  }
+  return(node_levels)
+}
+
+# This function takes in a rooted-tree 'phylo' object and returns a data.frame
+# with information of descendants, children, tree level, and a log-based
+# information content for each node. The log-based information content assigns
+# to each node the value 1 - log(1+descendants)/log(total nodes), giving tips a
+# value of 1, the root a value of 0, and monotonically decreasing in value
+# from tip to root.
+
+#' Generates a data.frame of information content
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @return data.frame consisting of node number, children, descendants, level, and information content for each node
+#' @export
+#' @import ape
+generate_information_content <- function(tree, log_descendants = TRUE){
+  if (!inherits(tree, 'phylo')){
+    stop("Please input an object of 'phylo' class!")
+  }
+
+  if (!ape::is.rooted(tree)){
+    stop('Please input a rooted tree!')
+  }
+
+  if (log_descendants){
+    descendants <- generate_descendants(tree)
+    n_node <- dim(descendants)[[1]]
+    descendants$log_descendants <- 1 - (log(1 + descendants$descendants)/log(n_node))
+    return(descendants)
+  }
+}
+
+# This function checks to see if the rooted tree has an information content attached.
+# If not, it then attaches one based on type of information content requested.
+
+#' Attaches information content if missing for input tree
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param log_descendants Alternate parameter determining type of information content to use.
+#' @return phylo object with information content data.frame attached
+#' @export
+#' @import ape
+attach_information_content <- function(tree, log_descendants = TRUE){
+  if (!inherits(tree, 'phylo')){
+    stop("Please input an object of 'phylo' class!")
+  }
+
+  if (!ape::is.rooted(tree)){
+    stop("Please input a rooted tree!")
+  }
+
+  if (!is.null(tree$IC)){
+    indices <- which(names(tree$IC) %in% c('node', 'descendants', 'children', 'level'))
+    if (length(indices) < 4){
+      warning('Missing columns in tree$IC!')
+      return(tree)
+    }
+  }
+
+  tree$IC <- generate_information_content(tree = tree, log_descendants = log_descendants)
+
+  return(tree)
+}
+
+# This function takes in a tree and two labels and returns the Jaccard distance
+# of the nodes corresponding to the labels within the tree.
+general_Jaccard_dist <- function(tree, label_A, label_B){
+  tree_labels <- c(tree$tip.label, tree$node.label)
+  index_A <- which(label_A == tree_labels)
+  index_B <- which(label_B == tree_labels)
+
+  if ((length(index_A) + length(index_B)) == 0){
+    stop('Please input correct labels for Label_A and Label_B')
+  } else if ((length(index_A) + length(index_B)) == 1){
+    if (length(index_A) == 0){
+      stop('Please input correct label for label_A')
+    }
+    stop('Please input correct label for label_B')
+  }
+
+  # Get path labels for label_A and label_B
+  ancestors_A <- c(label_A, get_ancestors(tree, label_A))
+  ancestors_B <- c(label_B, get_ancestors(tree, label_B))
+
+  # Get node numbers for label_A and label_B paths
+  ancestors_indices_A <- which(tree_labels %in% ancestors_A)
+  ancestors_indices_B <- which(tree_labels %in% ancestors_B)
+  common_ancestors <- intersect(ancestors_A, ancestors_B)
+
+  # Find the node number of the MRCA, it will be in the order of the ancestors_A
+  # which starts at the current label and goes back to the root
+  index_C <- which(tree_labels == common_ancestors[[1]])
+  label_C <- tree_labels[[index_C]]
+
+  level_A <- length(ancestors_A) - 1
+  level_B <- length(ancestors_B) - 1
+  level_C <- length(common_ancestors) - 1
+
+  # In the case both label_A and label_B are the root
+  if ((level_A + level_B) == 0) {return(0)}
+
+  return((level_A + level_B - 2*level_C)/(level_A + level_B - level_C))
+}
+
+# This function takes in a tree and two labels and returns the Jaccard
+# similarity of the two labels within the tree
+general_Jaccard_similarity <- function(tree, label_A, label_B){
+  return(1 - general_Jaccard_dist(tree, label_A, label_B))
+}
+
+# This function takes in a tree and two labels and returns the Resnik similarity
+# of the two labels within the tree.
+general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
+  labels <- c(tree$tip.label, tree$node.label)
+  if (is.null(label_A) | is.null(label_B)){
+    if (is.null(node_A) | is.null(node_B)){
+      stop('Please input a pair of labels or a pair of node numbers')
+    } else {
+      index1 <- node_A
+      index2 <- node_B
+    }
+  } else {
+    index1 <- which(labels == label_A)
+    index2 <- which(labels == label_B)
+  }
+
+  # Get the common ancestors. This may include either of the nodes corresponding
+  # to the input node labels/numbers.
+  commonAncestors <- intersect(c(labels[[index1]],unname(get_ancestors(tree, nodeNumber = index1))),
+                               c(labels[[index2]], unname(get_ancestors(tree, nodeNumber = index2))))
+
+  MRCA <- which(labels %in% commonAncestors[[1]])
+  value <- tree$IC[MRCA, 'log_descendants']
+
+  return(value)
+}
+
+# This function takes in a tree and two labels and returns the Lin similarity
+# of the two labels within the tree.
+general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
+  labels <- c(tree$tip.label, tree$node.label)
+  if (is.null(label_A) | is.null(label_B)){
+    if (is.null(node_A) | is.null(node_B)){
+      stop('Please input a pair of labels or a pair of node numbers')
+    } else {
+      index_A <- node_A
+      index_B <- node_B
+    }
+  } else {
+    index_A <- which(labels == label_A)
+    index_B <- which(labels == label_B)
+  }
+
+  resSim <- general_Resnik_similarity(tree, node_A = index_A, node_B = index_B)
+  denominator <- sum(tree$IC[c(index_A, index_B), 'log_descendants'])
+  return(ifelse(denominator == 0, 1, 2*resSim/denominator))
+}
+
+# This function takes in a tree and two labels and returns the Jiang-Conrath
+# similarity of the two labels within the tree.
+general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
+  labels <- c(tree$tip.label, tree$node.label)
+  if (is.null(label_A) | is.null(label_B)){
+    if (is.null(node_A) | is.null(node_B)){
+      stop('Please input a pair of labels or a pair of node numbers')
+    } else {
+      index_A <- node_A
+      index_B <- node_B
+    }
+  } else {
+    index_A <- which(labels == label_A)
+    index_B <- which(labels == label_B)
+  }
+
+  resSim <- general_Resnik_similarity(tree, node_A = index_A, node_B = index_B)
+  informationSum <- sum(tree$IC[c(index_A, index_B), 'log_descendants'])
+  return(1 - ((informationSum - 2*resSim)/2))
+}
+
+#generate_similarity_matrix <- function(tree, Jac_sim = TRUE){
+#
+#}
