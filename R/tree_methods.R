@@ -132,8 +132,40 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   return(tree)
 }
 
+#' Generates a list of ancestors for a given node in a tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label The node label.
+#' @param node_number Alternate parameter, the number of the given node.
+#' @return A list of nodes back to the root of ancestors for the given node.
+get_ancestors <- function(tree, label, nodeNumber = NULL){
+  if (!is.null(nodeNumber)){
+    ifelse(is.numeric(nodeNumber) & (nodeNumber %in% 1:(1 + length(tree$edge))), index <- nodeNumber, stop('Please input a correct value for nodeNumber'))
+  } else {
+    if (label %in% c(tree$tip.label, tree$node.label)){
+      index <- which(c(tree$tip.label, tree$node.label) == label)
+    } else {
+      stop(paste0('Label `', label, '` belongs neither to a node nor a tip!'))
+    }
+  }
+  ancestor_nodes <- c()
+  temp <- tree$edge[tree$edge[, 2] == index, 1]
+  while(length(temp) > 0){
+    ancestor_nodes <- c(ancestor_nodes, temp)
+    temp <- tree$edge[tree$edge[, 2] == temp, 1]}
+  return(sapply(ancestor_nodes, function(t) {tree$node.label[[t-length(tree$tip.label)]]}))
+}
+
+
 # This function takes in a tree and two labels and returns the Jaccard distance
 # of the nodes corresponding to the labels within the tree.
+
+#' This determines the Jaccard distance for two input node labels in a given tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label_A The first label.
+#' @param label_B The second label.
+#' @return The Jaccard distance of the label sets for the root to node path.
 general_Jaccard_dist <- function(tree, label_A, label_B){
   tree_labels <- c(tree$tip.label, tree$node.label)
   index_A <- which(label_A == tree_labels)
@@ -174,12 +206,28 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 
 # This function takes in a tree and two labels and returns the Jaccard
 # similarity of the two labels within the tree
+
+#' This determines the Jaccard similarity for two input node labels in a given tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label_A The first label.
+#' @param label_B The second label.
+#' @return The Jaccard distance of the label sets for the root to node path.
 general_Jaccard_similarity <- function(tree, label_A, label_B){
   return(1 - general_Jaccard_dist(tree, label_A, label_B))
 }
 
 # This function takes in a tree and two labels and returns the Resnik similarity
 # of the two labels within the tree.
+
+#' This determines the Resnik similarity for two input nodes in a given tree.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' @param label_A The first node label.
+#' @param label_B The second node label.
+#' @param node_A Alternate parameter, the first node number.
+#' @param node_B Alternate parameter, the second node number.
+#' @return The Resnik similarity in the given tree of the pair of nodes.
 general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -207,6 +255,15 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
 
 # This function takes in a tree and two labels and returns the Lin similarity
 # of the two labels within the tree.
+
+#' This determines the Lin similarity for two input nodes in a given tree.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' @param label_A The first node label.
+#' @param label_B The second node label.
+#' @param node_A Alternate parameter, the first node number.
+#' @param node_B Alternate parameter, the second node number.
+#' @return The Lin similarity in the given tree of the pair of nodes.
 general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -228,6 +285,15 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
 
 # This function takes in a tree and two labels and returns the Jiang-Conrath
 # similarity of the two labels within the tree.
+
+#' This determines the Jiang and Conrath similarity for two input nodes in a given tree.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' @param label_A The first node label.
+#' @param label_B The second node label.
+#' @param node_A Alternate parameter, the first node number.
+#' @param node_B Alternate parameter, the second node number.
+#' @return The Jiang and Conrath similarity in the given tree of the pair of nodes.
 general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
