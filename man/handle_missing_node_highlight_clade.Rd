@@ -6,6 +6,7 @@
 \usage{
 handle_missing_node_highlight_clade(
   tree,
+  tree_object,
   list_superclasses,
   tree_visual,
   i,
@@ -14,6 +15,8 @@ handle_missing_node_highlight_clade(
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
+
+\item{tree_object}{A phylo object representing the entire taxonomy from which parameter 'tree' is derived.}
 
 \item{list_superclasses}{A list of superclasses to be highlighted.}
 

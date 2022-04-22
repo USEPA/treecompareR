@@ -4,10 +4,19 @@
 \alias{handle_missing_node_show_clade}
 \title{Helper function to display clade label associated with missing node.}
 \usage{
-handle_missing_node_show_clade(tree, list_superclasses, tree_visual, i, color)
+handle_missing_node_show_clade(
+  tree,
+  tree_object,
+  list_superclasses,
+  tree_visual,
+  i,
+  color
+)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
+
+\item{tree_object}{A phylo object representing the entire taxonomy from which the parameter 'tree' is derived.}
 
 \item{list_superclasses}{A list of superclasses to be labeled.}
 

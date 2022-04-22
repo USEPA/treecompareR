@@ -6,6 +6,7 @@
 \usage{
 generate_tree_cluster(
   tree,
+  tree_object,
   htmap,
   row_cluster,
   column_cluster,
@@ -19,6 +20,8 @@ generate_tree_cluster(
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
+
+\item{tree_object}{A phylo object representing the entire taxonomy from which the parameter 'tree' is derived.}
 
 \item{htmap}{A ComplexHeatmap object.}
 
