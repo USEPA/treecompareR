@@ -1,4 +1,52 @@
 
+
+#' Helper function for determining number of labels in a given data set
+#'
+#' @param datatable A data.table object of chemical classifications
+#' @return Number of occurrences of each label in the parameter 'datatable'.
+#' @import data.table
+
+label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
+  if (!chemont){
+    top_level <- names(datatable)[[1]]
+    complete_labels <- 'TO BE DETERMINED'
+    return('TBD')
+  }
+
+  complete_labels <- c(unlist(datatable[kingdom != '', .(unique(kingdom),
+                                                      unique(superclass),
+                                                      unique(class),
+                                                      unique(subclass),
+                                                      unique(level5),
+                                                      unique(level6),
+                                                      unique(level7),
+                                                      unique(level8),
+                                                      unique(level9),
+                                                      unique(level10),
+                                                      unique(level11)),
+                                        by = .(PREFERRED_NAME)][, PREFERRED_NAME := NULL]))
+  complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
+  unique_labels <- unique(complete_labels)
+
+  if (log) {
+    unique_complete_label_numbers <- sapply(unique_labels, function(t){
+      log10(length(which(complete_labels %in% t)))
+      })
+  } else {
+    unique_complete_label_numbers <- sapply(unique_labels, function(t){
+      length(which(complete_labels %in% t))
+      })
+  }
+  return (list(unique_complete_label_numbers, complete_labels))
+}
+
+
+
+
+
+
+
+
 #' Generate a heatmap from input matrix and indices.
 #'
 #' @param tree_object A phylo object representing a rooted tree.
@@ -24,10 +72,13 @@ generate_heatmap <- function(tree_object, matrix, row_indices, column_indicess, 
       stop('The classification levels for the row data and column data do not match!')
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
-  row_labels <- 'foo1'
-  row_label_numbers <- 'foo'
-  column_labels <- 'bar1'
-  column_label_numbers <- 'bar'
+  row_label_data <- label_numbers(row_data)
+  row_label_numbers <- row_label_data[[1]]
+  row_labels <- row_label_data[[2]]
+
+  column_label_data <- label_numbers(column_data)
+  column_label_numbers <- column_label_data[[1]]
+  column_labels <- column_label_data[[2]]
 
 
   heatmap <- ComplexHeatmap::Heatmap(matrix = matrix[row_indices, column_indices],
