@@ -320,7 +320,8 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 #' @export
 generate_similarity_matrix <- function(tree, similarity = NULL){
   ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
-  tree_labels <- c(tree$tip.label, tree$node.label)
+  Nnode = length(tree$node.label)
+  tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
   N <- length(tree_labels)
 
   sim_matrix <- matrix(nrow = N, ncol = N)
