@@ -8,7 +8,7 @@ generate_heatmap(
   tree_object,
   matrix,
   row_indices,
-  column_indicess,
+  column_indices,
   row_data,
   column_data,
   name = "Name",
@@ -25,6 +25,8 @@ generate_heatmap(
 
 \item{row_indices}{The row indices for the matrix.}
 
+\item{column_indices}{The column indices for the matrix.}
+
 \item{row_data}{A data.table object of chemical classifications.}
 
 \item{column_data}{A data.table object of chemical classifications.}
@@ -34,8 +36,6 @@ generate_heatmap(
 \item{row_split}{Number of clusters for rows.}
 
 \item{row_title}{Title for rows.}
-
-\item{column_indices}{The column indices for the matrix.}
 
 \item{col_split}{Number of cluster for columns.}
 

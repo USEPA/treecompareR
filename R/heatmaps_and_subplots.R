@@ -13,7 +13,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
     return('TBD')
   }
 
-  complete_labels <- c(unlist(datatable[kingdom != '', .(unique(kingdom),
+  complete_labels <- c(unlist(unname(datatable[kingdom != '', .(unique(kingdom),
                                                       unique(superclass),
                                                       unique(class),
                                                       unique(subclass),
@@ -24,14 +24,23 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                                       unique(level9),
                                                       unique(level10),
                                                       unique(level11)),
-                                        by = .(PREFERRED_NAME)][, PREFERRED_NAME := NULL]))
-  complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
+                                        by = .(PREFERRED_NAME)][, PREFERRED_NAME := NULL])))
+  print(length(complete_labels))
+  empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
+  if (length(empty_indices) > 0){
+    complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
+  }
+
+  complete_labels <- complete_labels[-which(sapply(complete_labels, is.na))]
+
+  print(length(complete_labels))
   unique_labels <- unique(complete_labels)
 
   if (log) {
     unique_complete_label_numbers <- sapply(unique_labels, function(t){
       log10(length(which(complete_labels %in% t)))
       })
+    print(length(unique_complete_label_numbers))
   } else {
     unique_complete_label_numbers <- sapply(unique_labels, function(t){
       length(which(complete_labels %in% t))
@@ -65,38 +74,56 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @import ComplexHeatmap
 #' @import circlize
 #' @import viridis
+#' @import grid
 
 
-generate_heatmap <- function(tree_object, matrix, row_indices, column_indicess, row_data, column_data, name = 'Name', row_split = 1, column_split = 1, row_title = 'Row title', column_title = 'Column title') {
-  if (identical(unlist(names(row_data)), unlist(names(column_data))))
+generate_heatmap <- function(tree_object, matrix, row_indices, column_indices, row_data, column_data, name = 'Name', row_split = 1, column_split = 1, row_title = 'Row title', column_title = 'Column title') {
+  if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
   row_label_data <- label_numbers(row_data)
   row_label_numbers <- row_label_data[[1]]
   row_labels <- row_label_data[[2]]
+  row_anno_indices <- match(dimnames(matrix)[[2]][row_indices], row_labels)
+  row_na_indices <- which(sapply(row_anno_indices, is.na))
+  if (length(row_na_indices) > 0){
+    row_anno_indices <- row_anno_indices[-row_na_indices]
+  }
 
   column_label_data <- label_numbers(column_data)
   column_label_numbers <- column_label_data[[1]]
   column_labels <- column_label_data[[2]]
+  column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
+  column_na_indices <- which(sapply(column_anno_indices, is.na))
+  if (length(column_na_indices) > 0){
+    column_anno_indices <- column_anno_indices[-column_na_indices]
+  }
 
 
-  heatmap <- ComplexHeatmap::Heatmap(matrix = matrix[row_indices, column_indices],
+  matrix_row_indices <- intersect(which(dimnames(matrix)[[2]] %in% row_labels), row_indices)
+  matrix_column_indices <- intersect(which(dimnames(matrix)[[2]] %in% column_labels), column_indices)
+
+
+
+  heatmap <- ComplexHeatmap::Heatmap(#matrix = matrix[row_indices, column_indices],
+                                     matrix = matrix[matrix_row_indices, matrix_column_indices],
                                      name = name,
                                      col = circlize::colorRamp2(seq(0, 1, len = 20), viridis::viridis(20, option = 'C')),
 
                                      # NEED TO ADD HELPER FUNCTIONS FOR THIS
-                                     top_annotation = HeatmapAnnotation(col_log_count_bar = anno_barplot(column_label_numbers[match(dimnames(matrix)[[2]][column_indices], column_labels)]),
-                                                                        annontation_name_rot = 45,
+                                     top_annotation = HeatmapAnnotation(#col_log_count_bar = anno_barplot(column_label_numbers[match(dimnames(matrix)[[2]][column_indices], column_labels)]),
+                                                                        col_log_count_bar = anno_barplot(column_label_numbers[column_anno_indices]),
+                                                                        annotation_name_rot = 45,
                                                                         annotation_label = c('log(col count) bars'),
-                                                                        annotation_name_gp = gpar(fontsize = 8)
+                                                                        annotation_name_gp = grid::gpar(fontsize = 8)
                                      ),
-                                     left_annotation = row_annotation(row_log_count_bar = anno_barplot(row_label_numbers[match(dimnames(matrix)[[1]][row_indices], row_labels)],
-                                                                      axis_param = list(direction = 'reverse')
-                                                                      ),
+                                     left_annotation = rowAnnotation(#row_log_count_bar = anno_barplot(row_label_numbers[match(dimnames(matrix)[[1]][row_indices], row_labels)],
+                                                                      row_log_count_bar = anno_barplot(row_label_numbers[row_anno_indices],
+                                                                      axis_param = list(direction = 'reverse')),
                                                                       annotation_name_rot = 45,
                                                                       annotation_label = c('log(row count) bars'),
-                                                                      annotation_name_gp = gpar(fontsize = 8)
+                                                                      annotation_name_gp = grid::gpar(fontsize = 8)
                                                                       ),
                                      show_row_names = FALSE,
                                      show_column_names = FALSE,
@@ -105,9 +132,9 @@ generate_heatmap <- function(tree_object, matrix, row_indices, column_indicess, 
                                      )
   heatmap <- draw(heatmap,
                   row_title = row_title,
-                  row_title_gp = gpar(fontsize = 10, fontface = 'bold'),
+                  row_title_gp = grid::gpar(fontsize = 10, fontface = 'bold'),
                   column_title = column_title,
-                  column_title_gp = gpar(fontsize = 10, fontface = 'bold'))
+                  column_title_gp = grid::gpar(fontsize = 10, fontface = 'bold'))
 }
 
 
