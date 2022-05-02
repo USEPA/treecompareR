@@ -157,6 +157,17 @@ get_ancestors <- function(tree, label, nodeNumber = NULL){
 }
 
 
+#' Returns the tree level of the given node
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label The node label.
+#' @param node_number Alternate parameter, the number of the given node.
+#' @return The level of the node from the root of the tree.
+get_tip_level <- function(tree, label, nodeNumber = NULL){
+  return(length(get_ancestors(tree = tree, label = label, nodeNumber = nodeNumber)))
+}
+
+
 # This function takes in a tree and two labels and returns the Jaccard distance
 # of the nodes corresponding to the labels within the tree.
 
