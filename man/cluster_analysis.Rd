@@ -4,7 +4,14 @@
 \alias{cluster_analysis}
 \title{Helper function that returns superclasses or classes for specified clusters in heatmap}
 \usage{
-cluster_analysis(htmap, row_cluster, column_cluster, level = 2, tree = NULL)
+cluster_analysis(
+  htmap,
+  row_cluster,
+  column_cluster,
+  level = 2,
+  tree_object,
+  tree = NULL
+)
 }
 \arguments{
 \item{htmap}{A ComplexHeatmap object with hierarchical clustering.}
@@ -14,6 +21,8 @@ cluster_analysis(htmap, row_cluster, column_cluster, level = 2, tree = NULL)
 \item{column_cluster}{Index for the column cluster.}
 
 \item{level}{Alternate parameter indicating the level of depth for labels.}
+
+\item{tree_object}{A phylo object representing a root tree, the taxonomy being investigated.}
 
 \item{tree}{Alternate parameter, a phylo object representing a rooted tree, for restricting the labels.}
 }

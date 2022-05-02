@@ -167,28 +167,29 @@ generate_heatmap <- function(tree_object, matrix, row_indices, column_indices, r
 #' @param row_cluster Index for the row cluster.
 #' @param column_cluster Index for the column cluster.
 #' @param level Alternate parameter indicating the level of depth for labels.
+#' @param tree_object A phylo object representing a root tree, the taxonomy being investigated.
 #' @param tree Alternate parameter, a phylo object representing a rooted tree, for restricting the labels.
 #' @return A list of labels for the row and column clusters, based on the level specified.
 #' @import stats
 #' @import ComplexHeatmap
-cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree = NULL){
+cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree_object, tree = NULL){
   if (!is.null(tree)){
     tree_labels <- c(tree$tip.label, tree$node.label)
   }
   # get row levels for row cluster (restrict to tree if tree is given)
   row_names <- dimnames(htmap@ht_list[[1]]@matrix)[[1]][stats::order.dendrogram(ComplexHeatmap::row_dend(htmap)[[row_cluster]])]
   if (is.null(tree)){
-    row_levels <- sort(unique(sapply(row_names, get_tip_level)))
+    row_levels <- sort(unique(sapply(row_names, get_tip_level, tree = tree_object)))
   } else {
-    row_levels <- sort(unique(sapply(intersect(tree_labels, row_names), get_tip_level)))
+    row_levels <- sort(unique(sapply(intersect(tree_labels, row_names), get_tip_level, tree = tree_object)))
   }
 
   # get column levels for column cluster
   column_names <- dimnames(htmap@ht_list[[1]]@matrix)[[2]][stats::order.dendrogram(ComplexHeatmap::column_dend(htmap)[[column_cluster]])]
   if (is.null(tree)){
-    column_levels <- sort(unique(sapply(column_names, get_tip_level)))
+    column_levels <- sort(unique(sapply(column_names, get_tip_level, tree = tree_object)))
   } else {
-    column_levels <- sort(unique(sapply(intersect(tree_labels, column_names), get_tip_level)))
+    column_levels <- sort(unique(sapply(intersect(tree_labels, column_names), get_tip_level, tree = tree_object)))
   }
 
   if (level == 2){
@@ -196,7 +197,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     if (is.null(tree)) {
       row_superclass <- sapply(row_levels, function(q) {
         unique(unlist((sapply(row_names[which(sapply(row_names, function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-2]
@@ -210,7 +211,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     } else {
       row_superclass <- sapply(row_levels, function(q) {
         unique(unlist((sapply(intersect(tree_labels, row_names)[which(sapply(intersect(tree_labels, row_names), function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-2]
@@ -227,7 +228,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     if (is.null(tree)) {
       column_superclass <- sapply(column_levels, function(q) {
         unique(unlist((sapply(column_names[which(sapply(column_names, function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-2]
@@ -241,7 +242,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     } else {
       column_superclass <- sapply(column_levels, function(q) {
         unique(unlist((sapply(intersect(tree_labels, column_names)[which(sapply(intersect(tree_labels, column_names), function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-2]
@@ -260,7 +261,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     if (is.null(tree)){
       row_class <- sapply(row_levels, function(q) {
         unique(unlist((sapply(row_names[which(sapply(row_names, function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-3]
@@ -274,7 +275,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     } else {
       row_class <- sapply(row_levels, function(q) {
         unique(unlist((sapply(intersect(tree_labels, row_names)[which(sapply(intersect(tree_labels, row_names), function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-3]
@@ -291,7 +292,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     if (is.null(tree)){
       column_class <- sapply(column_levels, function(q) {
         unique(unlist((sapply(column_names[which(sapply(column_names, function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-3]
@@ -305,7 +306,7 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
     } else {
       column_class <- sapply(column_levels, function(q) {
         unique(unlist((sapply(intersect(tree_labels, column_names)[which(sapply(intersect(tree_labels, column_names), function(t) {
-          unname(get_tip_level(t))
+          unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
           get_ancestors(tree_object, s)[q-3]
@@ -349,8 +350,8 @@ handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses,
 
   temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% list_superclasses[[i]]), type = 'all')], tree_labels)
   #print(temp_descendants)
-  shallow_level <- min(sapply(temp_descendants, get_tip_level))
-  shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level) == shallow_level)]
+  shallow_level <- min(sapply(temp_descendants, get_tip_level, tree = tree_object))
+  shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
   middle <- (length(shallow_descendants)+1)%/% 2
   #print(middle)
   for (j in seq_along(shallow_descendants)){
@@ -389,8 +390,8 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
   tree_labels <- c(tree$tip.label, tree$node.label)
   temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% list_superclasses[[i]]), type = 'all')], tree_labels)
   #print(temp_descendants)
-  shallow_level <- min(sapply(temp_descendants, get_tip_level))
-  shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level) == shallow_level)]
+  shallow_level <- min(sapply(temp_descendants, get_tip_level, tree = tree_object))
+  shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
   middle <- (length(shallow_descendants)+1)%/% 2
   if (length(shallow_descendants) == 0) {
     print('whomp')
@@ -436,7 +437,7 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @import ggtree
 #' @import phangorn
 #' @import ape
-generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
+generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, row_name = 'Row data set', column_name = 'Column data set',  isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
   # get tree labels
   tree_labels <- c(tree$tip.label, tree$node.label)
   # get row labels
@@ -446,9 +447,9 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
   # get shared labels
   shared_labels <- intersect(row_labels, column_labels)
   # get row superclasses
-  row_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree = tree)[1])))
+  row_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree)[1])))
   # get column superclasses
-  column_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree = tree)[2])))
+  column_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree)[2])))
   # shared superclasses
   shared_superclasses <- intersect(row_superclasses, column_superclasses)
   # cut shared superclasses from row and column lists
@@ -471,7 +472,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
   #print(color_selection)
   color_values <- c("row" = "#053061", "column" = "#d73027", "both" = "#2d004b")[color_selection]
   #print(color_values)
-  color_labels <- c('TSCA', 'NSSS', 'TSCA and NSSS')[color_selection]
+  color_labels <- c(row_name, column_name, paste(row_name, 'and', column_name))[color_selection]
   #print(color_labels)
 
 
@@ -584,7 +585,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
 
   # if isolating tree
   if (isolate_subtree) {
-    superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree = tree))))
+    superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree))))
     ancestors <- tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% superclasses)))))]
     descendants <- tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% superclasses),type = 'tips')))]
     #print(paste('Desc', length(descendants)))
@@ -596,9 +597,9 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
     for (l in seq_along(missing_superclasses)){
       temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% missing_superclasses[[l]]), type = 'all')], tree_labels)
       #print(paste('length of temp desc for l = ', l, ':', length(temp_descendants)))
-      shallow_level <- min(sapply(temp_descendants, get_tip_level))
+      shallow_level <- min(sapply(temp_descendants, get_tip_level, tree = tree_object))
       #print(shallow_level)
-      shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level) == shallow_level)]
+      shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
       #print(paste('there are this many shallow descendants', length(shallow_descendants)))
       ancestors <- unique(c(ancestors, tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% shallow_descendants)))))]))
       descendants <- unique(c(descendants, tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% shallow_descendants),type = 'tips')))]))
@@ -712,7 +713,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                                                               fill = '#fde0ef',
                                                               alpha = .6)
           } else {
-            tree_visual_sub <- handle_missing_node_highlight_clade(subtree, tree_object, row_superclasses, tree_visual_sub , i, "#fde0ef")
+            tree_visual_sub <- handle_missing_node_highlight_clade(subtree, tree_object, shared_superclasses, tree_visual_sub , i, "#fde0ef")
           }
         }
       }

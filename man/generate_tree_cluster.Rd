@@ -10,6 +10,8 @@ generate_tree_cluster(
   htmap,
   row_cluster,
   column_cluster,
+  row_name = "Row data set",
+  column_name = "Column data set",
   isolate_subtree = FALSE,
   show_labels = FALSE,
   show_clades = TRUE,
