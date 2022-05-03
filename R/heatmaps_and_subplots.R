@@ -77,9 +77,18 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @import grid
 
 
-generate_heatmap <- function(tree_object, matrix, row_indices, column_indices, row_data, column_data, name = 'Name', row_split = 1, column_split = 1, row_title = 'Row title', column_title = 'Column title') {
+generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = 1, column_split = 1, row_title = 'Row title', column_title = 'Column title') {
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
+
+  if (is.na(row_indices)){
+    row_indices <- 1:dim(matrix)[[1]]
+  }
+
+  if (is.na(column_indices)){
+    column_indices <- 1:dim(matrix)[[2]]
+  }
+
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
   row_label_data <- label_numbers(row_data)
@@ -156,10 +165,6 @@ generate_heatmap <- function(tree_object, matrix, row_indices, column_indices, r
 
 
 
-
-#############################################################
-#NEED TO SPECIFY get_tip_level() FOR THE FUNCTION BELOW!!!!!#
-#############################################################
 
 #' Helper function that returns superclasses or classes for specified clusters in heatmap
 #'
@@ -326,11 +331,6 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
 
 
 
-#############################################################
-#NEED TO SPECIFY get_tip_level() FOR THE FUNCTION BELOW!!!!!#
-#############################################################
-
-
 #' Helper function to display clade label associated with missing node.
 #'
 #' @param tree A phylo object representing a rooted tree.
@@ -370,10 +370,6 @@ handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses,
 
 }
 
-#############################################################
-#NEED TO SPECIFY get_tip_level() FOR THE FUNCTION BELOW!!!!!#
-#############################################################
-
 #' Helper function to display clade highlight associated with missing node.
 #'
 #' @param tree A phylo object representing a rooted tree.
@@ -409,12 +405,9 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 
 
 ################################################################################
-## CHECK THAT THE drop.tip FUCNTION CALL ON LINE 454 IS USING ape OR tree.io !##
+## CHECK THAT THE drop.tip FUCNTION CALL ON LINE 594 IS USING ape OR tree.io !##
 ################################################################################
 
-#############################################################
-#NEED TO SPECIFY get_tip_level() FOR THE FUNCTION BELOW!!!!!#
-#############################################################
 
 #' Generate tree visuals highlighting specified row and column cluster from a heatmap.
 #'

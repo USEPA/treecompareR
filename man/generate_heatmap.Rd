@@ -7,8 +7,8 @@
 generate_heatmap(
   tree_object,
   matrix,
-  row_indices,
-  column_indices,
+  row_indices = NA,
+  column_indices = NA,
   row_data,
   column_data,
   name = "Name",
