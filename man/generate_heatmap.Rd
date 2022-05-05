@@ -12,8 +12,8 @@ generate_heatmap(
   row_data,
   column_data,
   name = "Name",
-  row_split = 1,
-  column_split = 1,
+  row_split = NULL,
+  column_split = NULL,
   row_title = "Row title",
   column_title = "Column title"
 )

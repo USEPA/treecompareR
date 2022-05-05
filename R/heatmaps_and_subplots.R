@@ -77,7 +77,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @import grid
 
 
-generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = 1, column_split = 1, row_title = 'Row title', column_title = 'Column title') {
+generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title') {
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
 
@@ -87,6 +87,14 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 
   if (is.na(column_indices)){
     column_indices <- 1:dim(matrix)[[2]]
+  }
+
+  if (!(is.integer(row_split) & row_split > 1)){
+    row_split <- NULL
+  }
+
+  if (!(is.integer(column_split) & column_split > 1)) {
+    column_split <- NULL
   }
 
   taxonomy_names <- names(row_data)
