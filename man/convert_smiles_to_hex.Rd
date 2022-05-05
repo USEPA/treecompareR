@@ -4,7 +4,7 @@
 \alias{convert_smiles_to_hex}
 \title{Helper function for converting SMILES string to API acceptable format}
 \usage{
-convert_smiles_to_hex(smiles)
+convert_smiles_to_hex(smiles = NULL)
 }
 \arguments{
 \item{smiles}{A string representing a chemical in SMILES format}

@@ -72,7 +72,10 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
 #' @param smiles A string representing a chemical in SMILES format
 #' @return A string converted for use in API calls.
 #' @import stringr
-convert_smiles_to_hex <- function(smiles){
+convert_smiles_to_hex <- function(smiles = NULL){
+  if (is.null(smiles)){
+    smiles <- readline('Input a SMILES string:')
+  }
     hex_replacement <- c('[(]' = '%28',
                             '[)]' = '%29',
                             '\\[' = '%5b',
