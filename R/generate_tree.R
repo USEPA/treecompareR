@@ -7,10 +7,14 @@
 #' @param rooted Whether the tree is rooted or not.
 #' @param max_deg The maximum degree any node can have.
 #' @param min_deg The minimum degree any node can have (aside from the root, if rooted)
+#' @param seed A seed to allow for replication of results.
 #' @return A 'phylo' object representing the generated tree.
 #' @export
 #' @import ape
-generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL){
+generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA){
+  if (!is.na(seed)){
+    set.seed(seed = seed)
+  }
   n <- as.integer(n)
   if (!is.null(max_deg)){
     max_deg <- as.integer(max_deg)
@@ -31,20 +35,20 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL)
   if (n < 3 && !rooted)
     stop("an unrooted tree must have at least 3 tips")
   if (n < 4)
-    return(rtree(n, rooted = rooted))
+    return(ape::rtree(n, rooted = rooted))
   # Start with two leaves and build on after
   nb <- n - 2L
   if (is.null(max_deg)){
     if (is.null(min_deg)){
-      partition <- generate_partition_2(nb)
+      partition <- generate_partition_2(nb, seed = seed)
     } else {
-      partition <- generate_partition_2(nb, min_deg = (min_deg-1))
+      partition <- generate_partition_2(nb, min_deg = (min_deg-1), seed = seed)
     }
   } else {
     if (is.null(min_deg)){
-      partition <- generate_partition_2(nb, max_deg = (max_deg-1))
+      partition <- generate_partition_2(nb, max_deg = (max_deg-1), seed = seed)
     } else {
-      partition <- generate_partition_3(n = nb, max_deg = (max_deg-1), min_deg = (min_deg - 1))
+      partition <- generate_partition_3(n = nb, max_deg = (max_deg-1), min_deg = (min_deg - 1), seed = seed)
     }
   }
   # Select the number of surviving choices for splitting and adding new nodes
@@ -123,13 +127,17 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL)
 
 #' Generates a partition of a positive integer with each element at least 2.
 #' @param n positive integer at least 2.
+#' @param seed A seed to allow for replication of results.
 #' @return A vector of integers each at least 2 and with sum equal to the input.
 #' @export
-generate_partition <- function(n){
+generate_partition <- function(n, seed = NA){
   if(!is.integer(n) | n < 2)
     stop('Please input an integer at least 2!')
   # if n = 2 or 3, return itself
   if (n < 4) return(n)
+  if(!is.na(seed)){
+    set.seed(seed)
+  }
   partition <- c()
   total <- n
   # Test whether to
@@ -163,10 +171,14 @@ generate_partition <- function(n){
 #' @param n Positive integer.
 #' @param max_deg Maximal value an element of the partition can take.
 #' @param min_deg Minimal value an element of the partition can take.
+#' @param seed A seed to allow for replication of results.
 #' @return Vector of generated partition.
-generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0){
+generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0, seed = NA){
   if(!is.integer(n) | n < 1)
     stop('Please input an integer at least 1!')
+  if(!is.na(seed)){
+    set.seed(seed)
+  }
   if(!is.null(max_deg)){
     max_deg <- as.integer(max_deg)
     if(is.na(max_deg) | max_deg < 1)
@@ -238,9 +250,10 @@ generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0){
 #' @param n positive integer.
 #' @param max_deg Maximum value an element of the partition can take.
 #' @param min_deg Minimum value an element of the partition can take.
+#' @param seed A seed to allow for replication of results.
 #' @return Vector with partition or error in case specified partition is impossible.
 #' @export
-generate_partition_3 <- function(n, max_deg, min_deg){
+generate_partition_3 <- function(n, max_deg, min_deg, seed = NA){
   # Creating a partition x_1 + \cdots + x_k = n, min_deg <= x_j <= max_deg
   # bounds ceiling(n/max_deg) <= k <= floor(n/min_deg). For now, we sample k
   # uniformly and later determine the actual distribution of such partitions.
@@ -254,7 +267,9 @@ generate_partition_3 <- function(n, max_deg, min_deg){
     stop(paste('Such a partition of', n, 'with values between', min_deg,
                'and', max_deg, 'is not possible to construct!'))
   }
-
+  if(!is.na(seed)){
+    set.seed(seed)
+  }
   if (lower == upper){
     k <- lower
   } else {
@@ -283,4 +298,22 @@ generate_partition_3 <- function(n, max_deg, min_deg){
   x_values <- y_values + min_deg
 
   return(x_values)
+}
+
+#' Function to generate several trees
+#'
+#' @param n_trees The number of trees to generate.
+#' @param simulation_seed Optional parameter to allow for replciation of simulations.
+#' @param ... Parameters passed to the generate_topology() function.
+#' @return A list of 'phylo' objects, each representing a simulated tree.
+#' @export
+simulate_trees <- function(n_trees = 1, simulation_seed = NA, ...) {
+  if(!is.na(simulation_seed)){
+    set.seed(simulation_seed)
+  }
+  runs <- c()
+  for (i in 1:n_trees) {
+    runs <- c(runs, generate_topology(...))
+  }
+  return(runs)
 }

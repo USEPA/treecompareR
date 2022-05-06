@@ -4,7 +4,7 @@
 \alias{generate_topology}
 \title{Generates a random tree with internal nodes of degree at least two.}
 \usage{
-generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL)
+generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA)
 }
 \arguments{
 \item{n}{The number of tips, a positive integer.}
@@ -14,6 +14,8 @@ generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL)
 \item{max_deg}{The maximum degree any node can have.}
 
 \item{min_deg}{The minimum degree any node can have (aside from the root, if rooted)}
+
+\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 A 'phylo' object representing the generated tree.

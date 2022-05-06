@@ -4,7 +4,7 @@
 \alias{generate_partition_2}
 \title{Generates a partition with optional constraints placed on it.}
 \usage{
-generate_partition_2(n, max_deg = NULL, min_deg = 0)
+generate_partition_2(n, max_deg = NULL, min_deg = 0, seed = NA)
 }
 \arguments{
 \item{n}{Positive integer.}
@@ -12,6 +12,8 @@ generate_partition_2(n, max_deg = NULL, min_deg = 0)
 \item{max_deg}{Maximal value an element of the partition can take.}
 
 \item{min_deg}{Minimal value an element of the partition can take.}
+
+\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 Vector of generated partition.

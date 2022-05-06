@@ -4,10 +4,12 @@
 \alias{generate_partition}
 \title{Generates a partition of a positive integer with each element at least 2.}
 \usage{
-generate_partition(n)
+generate_partition(n, seed = NA)
 }
 \arguments{
 \item{n}{positive integer at least 2.}
+
+\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 A vector of integers each at least 2 and with sum equal to the input.
