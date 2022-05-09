@@ -1,9 +1,10 @@
 ---
 title: "trees_and_similarity"
 author:
-  - name: Paul Kruse
-  - affiliation: United States Environmental Protection Agency
-  - email: kruse.paul@epa.gov
+  - name: "Paul Kruse"
+    affiliation: "United States Environmental Protection Agency"
+    email: "kruse.paul@epa.gov"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{trees_and_similarity}
@@ -31,7 +32,7 @@ A graph is a pair $(V, E)$ where $V$ denotes a set of nodes and $E$ denotes a se
 
 A tree may or may not have a specific node denoted as a root. In this discussion, we will consider trees with a root, and the root will be attached to two nodes. The degree of a node is the number of nodes directly connected to it by edges. The root in the trees we are considering has degree 2. The nodes that have degree 1 are called tips or leaves. 
 
-To illustrate an example of a tree, we display below a rooted tree with 8 tips. We use the `generate_topology` function to generate a rooted tree with 8 tips and then we use ggtree to display the tree and label the nodes.
+To illustrate an example of a tree, we display below a rooted tree with 8 tips. We use the `generate_topology()` function to generate a rooted tree with 8 tips and then we use ggtree to display the tree and label the nodes.
 
 ```{r, fig.align = 'center'}
 tip_8 <- treecompareR::generate_topology(n = 8, rooted = TRUE, seed = 42)
@@ -62,6 +63,42 @@ tip_8_depth <- ggtree(tip_8)  + geom_tiplab() + geom_nodelab() +
 tip_8_depth
 ```
 
+If we would like to generate trees with specified properties, we can go so using the `generate_topology()` function. This function will build trees, rooted or not, with a specified number of tips. Moreover, we can set limits on the degree of the nodes. Note that for some combinations of number of tips, minimum, and maximum allowed degree, no such trees exist satisfying these properties (the trees this function can produce always have a node with degree 2, the root if rooted, and otherwise a generic node if not rooted).
+
+
+Below we generate a few examples of trees.
+
+```{r, fig.align='center', fig.dim=c(6,3)}
+tips_10 <- generate_topology(n = 10, rooted = TRUE, max_deg = 4, seed = 42L)
+ggtree(tips_10) + geom_nodelab() + geom_tiplab()
+```
+
+In this example, we created a rooted tree with 10 tips and a maximum degree of 4. We use a different layout in this diagram to emphasize that the tree is unrooted.
+
+```{r, fig.align='center', message=FALSE, fig.dim=c(5,5), fig.keep='all'}
+tips_12_unrooted <- generate_topology(n = 12, min_deg = 3, seed = 42L)
+ggtree(tips_12_unrooted, layout = 'daylight') + geom_nodelab() + geom_tiplab() + 
+  vexpand(.2, direction = -1)
+```
+
+We now show an example of a tree that cannot be constructed as specified.
+
+```{r}
+tip2_15 <- tryCatch(
+  {
+    generate_topology(n = 15, rooted = TRUE, min_deg = 5, max_deg = 5, seed = 42L)
+  },
+  error = function(cond){
+    message('Error for generating this tree: \n')
+    message(cond$message)
+    #print(str(cond))
+    return(NA)
+  })
+if (!is.na(tip2_15)){
+  tip2_15
+}
+```
+The `generate_topology()` function generates trees using a partition approach and in the previous example, a partition of the 13 remaining tips (15 - 2 from the original branch of two tips) cannot be achieved with a degree of 5 for each internal node (the partition function will reduce the min/max degrees by 1 during its call).
 
 # Similarity measures
 
@@ -70,7 +107,7 @@ If we want to compare the nodes for a given tree, there are a variety of methods
 
 ## Jaccard similarity
 
-For instance, consider tips `t5` and `t8`. The root-to-node path for `t5` consists of nodes $\{\text{n1, n2, n3, t5}\}$ and the root-to-node path for `t8` consists of nodes $\{\text{n1, n2, t8}\}$. The shared portion of the path is given by the nodes $\{\text{n1, n2}\}$. The lengths of these paths are 3, 2, and 1, respectively. We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared vertex in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). In the case of `t5` and `t8`, $\text{sim}_{\text{Jac}}(\text{t5, t8}) = \frac{1}{3 + 2 - 1} = \frac{1}{4}$. This notion of similarity is known as Jaccard similarity, and the function `general_Jaccard_similarity` takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+For instance, consider tips `t5` and `t8`. The root-to-node path for `t5` consists of nodes $\{\text{n1, n2, n3, t5}\}$ and the root-to-node path for `t8` consists of nodes $\{\text{n1, n2, t8}\}$. The shared portion of the path is given by the nodes $\{\text{n1, n2}\}$. The lengths of these paths are 3, 2, and 1, respectively. We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). In the case of `t5` and `t8`, $\text{sim}_{\text{Jac}}(\text{t5, t8}) = \frac{1}{3 + 2 - 1} = \frac{1}{4}$. This notion of similarity is known as Jaccard similarity, and the function `general_Jaccard_similarity()` takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
 
 ```{r}
 general_Jaccard_similarity(tip_8, 't5', 't8')
@@ -81,7 +118,7 @@ If we would like to determine the Jaccard similarity for each pair of nodes, we 
 tip_8_Jaccard_sim <- generate_similarity_matrix(tip_8, similarity = general_Jaccard_similarity)
 tip_8_Jaccard_sim
 ```
-This method relates the lengths of the paths of both vertices from the root with the length of the path of their most recent common ancestor to the root. However, it does not take into account any information on the number of children or descendants either vertex has. So a pair of vertices that are tips and a pair of vertices that are internal nodes with several descendants may end up having the same level of similarity as defined by this method. To take into account such node-specific information, we introduce the notion of information content.
+This method relates the lengths of the paths of both nodes from the root with the length of the path of their most recent common ancestor to the root. However, it does not take into account any information on the number of children or descendants either node has. So a pair of nodes that are tips and a pair of nodes that are internal nodes with several descendants may end up having the same level of similarity as defined by this method. To take into account such node-specific information, we introduce the notion of information content.
 
 ## Information Content
 
