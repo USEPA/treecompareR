@@ -75,7 +75,7 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
   edge[1:2 + N] <- TIPS[1:2]
   i <- 1L
 
-  print(partition)
+  #print(partition)
   #print(x)
   #print(breaks)
   #print(add_tips)
