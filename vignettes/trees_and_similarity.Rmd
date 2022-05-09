@@ -83,4 +83,40 @@ To generate the information content for a tree, we can use the function `attach_
 tip_8 <- attach_information_content(tip_8)
 tip_8$IC
 ```
-This function also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content.
+This function also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
+
+Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
+
+The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j))$. Note that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. 
+
+Below we display the matrix of Resnik similarity measures for the current tree. Note that we do not include the root of the tree in this as the information content of the root is zero so paired with any other node, this Resnik similarity would be zero.
+
+```{r}
+tip_8_Resnik_sim <- generate_similarity_matrix(tip_8, similarity = general_Resnik_similarity)
+tip_8_Resnik_sim
+```
+Notice that `t4` has similarity values 0 for all nodes aside from itself. When a pair of nodes are compared with the root as the most recent common ancestor, the similarity value will always be zero. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants).
+
+There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in Resnik. The first we examine is called Lin similarity.
+
+This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}$. Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $0 < \text{IC}(v_i) + \text\{IC}(v_j) \leq 2$ so $1 \leq \frac{2}{\text{IC}(v_i) + \text\{IC}(v_j)}$ from which it follows that $\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j)$. 
+
+The Lin similarity values of pairs of nodes of the current tree are displayed below in the matrix. Like in the previous case, we do not consider pairing the root of the tree with other nodes given the relation with Resnik similarity. We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
+
+```{r}
+tip_8_Lin_sim <- generate_similarity_matrix(tip_8, similarity = general_Lin_similarity)
+tip_8_Lin_sim
+```
+An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j)$. Taking the difference yields The following inequality $0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2$. Dividing by 2 restricts the values this expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}$. This was developed by Jaing and Conrath and is thus named.
+
+Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this does not necessarily return a value of zero. In fact, rewriting the expression for this similarity measure, we see that it is equal to $\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$ since $\text{IC}(v_i) + \text{IC}(v_j) \leq 2$. One thing this reflects is that if a pair of such nodes represents a large portion of the tree, they are more likely to be closer to the root and thus more related to each other. Such a pair with very few ancestors will be less likely to be close in general, and thus less similar.
+
+We display the matrix of similarity values below for Jiang and Conrath similarity.
+
+```{r}
+tip_8_JiangConrath_sim <- generate_similarity_matrix(tip_8, similarity = general_JiangConrath_similarity)
+tip_8_JiangConrath_sim
+```
+When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $\text{IC}(v_i) = \text{IC}(v_j) = 1$, $\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j)$. Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
+
+
