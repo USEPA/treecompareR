@@ -19,46 +19,58 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+devtools::load_all()
 #library(treecompareR)
 ```
 
+# Background
+
 We begin this discussion on trees and similarity by covering a few basic ideas about trees and similarity measures.
 
-A graph is a pair $(V, E)$ where $V$ denotes a set of vertices and $E$ denotes a set of edges. In the following, we are only considering undirected graphs, so we may view each edge as an unordered pair of two vertices. A tree is a connected graph that is acyclic. For each pair of vertices $v_i$ and $v_j$, there is a sequence of edges $e_{i_1}, \dots , e_{i_k}$ connecting the vertices. Moreover, since the graph is acyclic, there is a single unique path between any pair of distinct vertices. We denote by $|V|$ and $|E|$ the number of vertices and edges, respectively. It is a fact that for a tree with $n$ vertices, $|V| = n$, the number of edges is $n-1$, $|E| = n-1$. 
+A graph is a pair $(V, E)$ where $V$ denotes a set of nodes and $E$ denotes a set of edges. In the following, we are only considering undirected graphs, so we may view each edge as an unordered pair of two nodes. A tree is a connected graph that is acyclic. For each pair of nodes $v_i$ and $v_j$, there is a sequence of adjacent edges $e_{i_1}, \dots , e_{i_k}$ connecting the nodes. Moreover, since the graph is acyclic, there is a single unique path between any pair of distinct nodes. We denote by $|V|$ and $|E|$ the number of nodes and edges, respectively. It is a fact that for a tree with $n$ nodes, $|V| = n$, the number of edges is $n-1$, $|E| = n-1$. 
 
-A tree may or may not have a specific vertex denoted as a root. In this discussion, we will consider trees with a root, and the root will be attached to two vertices. The degree of a vertex is the number of vertices directly connected to it by edges. The root in the trees we are considering has degree 2. The vertices that have degree 1 are called tips or leaves. 
+A tree may or may not have a specific node denoted as a root. In this discussion, we will consider trees with a root, and the root will be attached to two nodes. The degree of a node is the number of nodes directly connected to it by edges. The root in the trees we are considering has degree 2. The nodes that have degree 1 are called tips or leaves. 
 
-To illustrate an example of a tree, we display below a rooted tree with 8 tips. We use ggtree to display the tree, and label the vertices.
+To illustrate an example of a tree, we display below a rooted tree with 8 tips. We use the `generate_topology` function to generate a rooted tree with 8 tips and then we use ggtree to display the tree and label the nodes.
 
-```{r}
+```{r, fig.align = 'center'}
 tip_8 <- treecompareR::generate_topology(n = 8, rooted = TRUE, seed = 42)
 tip_8_visual <- ggtree(tip_8) + layout_circular() + geom_tiplab() + geom_nodelab()
 tip_8_visual
 ```
-Observe that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the layout_circular() mode.
+
+Observe that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the `layout_circular()` mode.
 
 Also, observe that the tree `tip_8` is an object of class `phylo`.
 
 ```{r}
 str(tip_8)
 ```
-The edge table has two columns, with each row giving a pair of vertices that represent an edge. The root is given by the first node in the node.label list. Numbering of nodes for `phylo` objects starts with the tips and then the nodes, with the root at the beginning of the node numbering for rooted trees.
+The edge table has two columns, with each row giving a pair of nodes that represent an edge. The root is given by the first node in the `node.label` list. Numbering of nodes for `phylo` objects starts with the tips and and followed by the nodes, with the root at the beginning of the node numbering for rooted trees.
 
 In a rooted tree, we may refer to the depth of a node, which is just the length of the path from the root to the node. We can visualize it in the following diagram with the root at the left, the tips at the right, and intermediary nodes in between.
 
-```{r}
-ggtree(tip_8) + theme_tree2() + geom_tiplab() + geom_nodelab() 
+```{r, fig.align = 'center', fig.dim = c(6, 3)}
+tip_8$edge.length <- get_levels(tip_8)$level[tip_8$edge[, 2]]
+
+tip_8_depth <- ggtree(tip_8)  + geom_tiplab() + geom_nodelab() + 
+  geom_point2(aes(color = as.factor(get_levels(tip_8)$level))) + 
+  scale_color_manual(name = 'Node depth', 
+                       values = c('0' = 'red', '1' = 'blue', '2' = 'yellow', '3' = 'green')
+                       ) + 
+  hexpand(.2, direction = 1)
+tip_8_depth
 ```
 
 
-## Similarity measures
+# Similarity measures
 
 
 If we want to compare the nodes for a given tree, there are a variety of methods to do so. We can first consider the set of paths the root to each each node and examine these. We first look at one method that examines the edges of the tree.
 
-# Jaccard similarity
+## Jaccard similarity
 
-For instance, consider tips `t5` and `t8`. The root-to-node path for `t5` consists of nodes $\{\text{n1, n2, n3, t5}\}$ and the root-to-node path for `t8` consists of nodes $\{\text{n1, n2, t8}\}$. The shared portion of the path is given by the nodes $\{\text{n1, n2}\}$. The lengths of these paths are 3, 2, and 1, respectively. We can relate these in the following expression $\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{|l(mrca(v_1, v_2))|}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared vertex in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). In the case of `t5` and `t8`, $\text{sim}_{\text{Jac}}(\text{t5, t8}) = \frac{1}{3 + 2 - 1} = \frac{1}{4}$. This notion of similarity is known as Jaccard similarity, and the function `general_Jaccard_similarity` takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+For instance, consider tips `t5` and `t8`. The root-to-node path for `t5` consists of nodes $\{\text{n1, n2, n3, t5}\}$ and the root-to-node path for `t8` consists of nodes $\{\text{n1, n2, t8}\}$. The shared portion of the path is given by the nodes $\{\text{n1, n2}\}$. The lengths of these paths are 3, 2, and 1, respectively. We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared vertex in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). In the case of `t5` and `t8`, $\text{sim}_{\text{Jac}}(\text{t5, t8}) = \frac{1}{3 + 2 - 1} = \frac{1}{4}$. This notion of similarity is known as Jaccard similarity, and the function `general_Jaccard_similarity` takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
 
 ```{r}
 general_Jaccard_similarity(tip_8, 't5', 't8')
@@ -71,9 +83,9 @@ tip_8_Jaccard_sim
 ```
 This method relates the lengths of the paths of both vertices from the root with the length of the path of their most recent common ancestor to the root. However, it does not take into account any information on the number of children or descendants either vertex has. So a pair of vertices that are tips and a pair of vertices that are internal nodes with several descendants may end up having the same level of similarity as defined by this method. To take into account such node-specific information, we introduce the notion of information content.
 
-# Information Content
+## Information Content
 
-Some trees may come with a probability distribution attaching probabilities to each node such that the sum of all node probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In fact, we can look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for tips to have a higher value than their ancestors, with the root having the minimum value. One way we can do this is by taking the ratio of number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes and then evaluating a monotonically decreasing function on this. In particular, for node $v_i$, define $\text{IC}{v_i} = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{log(|V|)}$ where $V_{v_i}$ denotes the number of descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree. In the case that $v_i$ is a leaf it has no descendants, so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $\text{IC}(v_i) = 1 - \frac{log(1 + |\text{V}_{v_i})}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0$. Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{v_j}|$ and since the function $f(x) = 1 - \frac{1 + x}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties. 
+Some trees may come with a probability distribution attaching probabilities to each node such that the sum of all node probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In fact, we can look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for tips to have a higher value than their ancestors, with the root having the minimum value. One way we can do this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes, evaluating a monotonically decreasing function on these values, and examining their ratio. In particular, for node $v_i$, define $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree. In the case that $v_i$ is a tip, it has no descendants so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties. 
 
 One way to frame the concept of information content is the idea that the less likely a node appears in a generic path starting from the root and ending at an arbitrary node, the more information it tells when we know the node is one a path given to us. So for instance, the only path a tip can exist on is the unique path connecting it with the root. However, for an ancestor of a tip, there are more paths that include this node, so knowing the ancestor is on a path gives less information about what the path might be. Since every path starting at the root includes the root, knowing the root is on the path yields no information.
 
@@ -87,7 +99,9 @@ This function also includes the number of descendants, children, and the level f
 
 Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
 
-The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j))$. Note that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. 
+## Resnik Similarity
+
+The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $$\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j)).$$ Note that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. 
 
 Below we display the matrix of Resnik similarity measures for the current tree. Note that we do not include the root of the tree in this as the information content of the root is zero so paired with any other node, this Resnik similarity would be zero.
 
@@ -95,11 +109,13 @@ Below we display the matrix of Resnik similarity measures for the current tree. 
 tip_8_Resnik_sim <- generate_similarity_matrix(tip_8, similarity = general_Resnik_similarity)
 tip_8_Resnik_sim
 ```
-Notice that `t4` has similarity values 0 for all nodes aside from itself. When a pair of nodes are compared with the root as the most recent common ancestor, the similarity value will always be zero. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants).
+Notice that `t4` has similarity values 0 for all nodes aside from itself. When a pair of nodes are compared with the root as their most recent common ancestor, the similarity value will always be zero. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants).
 
 There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in Resnik. The first we examine is called Lin similarity.
 
-This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}$. Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $0 < \text{IC}(v_i) + \text\{IC}(v_j) \leq 2$ so $1 \leq \frac{2}{\text{IC}(v_i) + \text\{IC}(v_j)}$ from which it follows that $\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j)$. 
+## Lin Similarity
+
+This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \text{IC}(v_i) + \text{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}$$ from which it follows that $$\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$ 
 
 The Lin similarity values of pairs of nodes of the current tree are displayed below in the matrix. Like in the previous case, we do not consider pairing the root of the tree with other nodes given the relation with Resnik similarity. We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
 
@@ -107,9 +123,12 @@ The Lin similarity values of pairs of nodes of the current tree are displayed be
 tip_8_Lin_sim <- generate_similarity_matrix(tip_8, similarity = general_Lin_similarity)
 tip_8_Lin_sim
 ```
-An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j)$. Taking the difference yields The following inequality $0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2$. Dividing by 2 restricts the values this expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}$. This was developed by Jaing and Conrath and is thus named.
 
-Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this does not necessarily return a value of zero. In fact, rewriting the expression for this similarity measure, we see that it is equal to $\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$ since $\text{IC}(v_i) + \text{IC}(v_j) \leq 2$. One thing this reflects is that if a pair of such nodes represents a large portion of the tree, they are more likely to be closer to the root and thus more related to each other. Such a pair with very few ancestors will be less likely to be close in general, and thus less similar.
+## Jiang and Conrath Similarity
+
+An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j).$$ Taking the difference yields The following inequality $$0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath and is thus named.
+
+Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this does not necessarily return a value of zero. In fact, rewriting the expression for this similarity measure, we see that it is equal to $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$$ since $$\text{IC}(v_i) + \text{IC}(v_j) \leq 2.$$ One thing this reflects is that if a pair of such nodes represents a large portion of the tree, they are more likely to be closer to the root and thus more related to each other. Such a pair with very few ancestors will be less likely to be close in general, and thus less similar.
 
 We display the matrix of similarity values below for Jiang and Conrath similarity.
 
@@ -117,6 +136,6 @@ We display the matrix of similarity values below for Jiang and Conrath similarit
 tip_8_JiangConrath_sim <- generate_similarity_matrix(tip_8, similarity = general_JiangConrath_similarity)
 tip_8_JiangConrath_sim
 ```
-When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $\text{IC}(v_i) = \text{IC}(v_j) = 1$, $\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j)$. Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
+When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
 
 
