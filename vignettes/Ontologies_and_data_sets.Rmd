@@ -1,0 +1,136 @@
+---
+title: "Ontologies_and_data_sets"
+author:
+  - name: "Paul Kruse"
+    affiliation: "United States Environmental Protection Agency"
+    email: "kruse.paul@epa.gov"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Ontologies_and_data_sets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+devtools::load_all()
+#library(treecompareR)
+```
+
+# Introduction
+
+In this vignette we introduce how to build an ontology with a taxonomic structure in R and how to classify entries from a data set using this ontology. The case study we will explore is the ChemOnt ontology, the underlying structure of the chemical classification tool [ClassyFire](http://classyfire.wishartlab.com/). 
+
+# Building the taxonomy from an ontology
+
+An ontology is a useful tool that provides a organizational framework to relate particular ideas. The Linnean system is an early example of an ontology, with the goal of organizing living creatures into a sensible framework. More recently, the [Gene Ontology](http://geneontology.org/) has undergone major development with the goal of creating a computational model of biological systems from molecular to organism level.
+
+The ontology we will study in this vignette is the ChemOnt ontology of ClassyFire. This has a taxonomy structure, that of a rooted tree, where for any pair of labels either one is a child (or descendant) of the other or they share a common ancestor. The labels of the ontology, with their identification number and their parent identification name can be found at [ChemOnt tax nodes](http://classyfire.wishartlab.com/tax_nodes.json). We download this and read it (as of writing this, May 10, 2022).
+
+```{r}
+library(jsonlite)
+tax_nodes <- jsonlite::read_json('http://classyfire.wishartlab.com/tax_nodes.json')
+length(tax_nodes)
+tax_nodes[[1]]
+str(tax_nodes[[1]])
+```
+
+Observe that there are 4825 entries in `tax_nodes` and each entry is a list of length three, with entries `name`, `chemont_id`, and `parent_chemont_id`. We need to collect this information and organize it. To do so, we now build a data.frame from this list. The column names will be `Name`, `ID`, and `Parent_ID`. We first set the `parent_chemont_id` value of the first entry in `tax_nodes` to `NA` so that we can read in the list correctly.
+
+```{r}
+tax_nodes[[1]]$parent_chemont_id <- NA
+chemont_taxnodes <- data.frame('Name' = sapply(tax_nodes, function(t) {t[[1]]}),
+                               'ID' = sapply(tax_nodes, function(t) {t[[2]]}),
+                               'Parent_ID' = sapply(tax_nodes, function(t) {t[[3]]}))
+head(chemont_taxnodes)
+```
+
+Now, we can read in this data.frame using `generate_tree()` to build the taxonomy.
+
+```{r}
+chemont_taxonomy <- generate_tree(dataframe = chemont_taxnodes)
+str(chemont_taxonomy)
+```
+
+What `generate_tree()` returns is a list of two objects, a phylo object and a dataframe used in creating the phylo object. With the phylo object, we can apply tree methods and visualizations to explore and display its structure.
+
+Alternatively, we can run `generate_tree()` on a JSON file. The column names from the dataframe `chemont_taxnodes` - `Name`, `ID`, `Parent_ID` - need to be the names for each entry in the JSON file. We convert the dataframe `chemont_taxnodes` to JSON format and read it in using `generate_tree()`. Then we verify that indeed the output matches the output from using the dataframe.
+
+```{r}
+chemont_taxnodes_JSON <- jsonlite::toJSON(chemont_taxnodes)
+
+chemont_taxonomy_2 <- generate_tree(chemont_taxnodes_JSON)
+
+identical(chemont_taxonomy, chemont_taxonomy_2)
+```
+
+We now isolate the tree structure and produce a simple visualization.
+
+```{r, fig.align='center', fig.dim=c(6,4)}
+chemont_tree <- chemont_taxonomy[[1]]
+ggtree(chemont_tree) + layout_circular()
+```
+
+This is a very dense diagram, as there are 4825 nodes including the root which is centered. We now turn our attention to classifying data sets of chemical entries and using those classifications to produce visualizations within the above tree.
+
+# Classifying data
+
+The ClassyFire tool takes in chemical identifiers, such as a SMILES string or an InChIKey, and returns a classification of that chemical. Currently, one can manually enter a list of SMILES of InChIKeys using the web application of [ClassyFire](http://classyfire.wishartlab.com/queries/new). However, for a more programmatic approach, there is an API available for more automated use. The package [classyfireR](https://cran.r-project.org/web/packages/classyfireR/index.html) was designed for use with the API and we use this with some functions from treecompareR to quickly classify data sets.
+
+## Classifying by InChIKey
+
+The function `classify_datatable()` takes in a data.table of chemicals that will be classified using ClassyFire. The data.table must contain columns with the names `PREFERRED_NAME`, `CASRN`, `INCHIKEY`. Additional columns are permitted, provided they do not match with any of the taxonomic level names of ClassyFire - `kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`, `level7`, `level8`, `level9`, `level10`, `level11`. 
+
+In the event that `CASRN` and `InChIKey` data for each chemical is missing we can retrieve this data, when available, using a batch search from the [CompTox Dashboard](https://comptox.epa.gov/dashboard/batch-search). However, for a more programmatic approach, we use the API of the [Hazard Comparison Dashboard](https://hazard.sciencedataexperts.com/#/). 
+
+Using the Hazard Comparison Dashboard API approach, we feed in a list of `DTXSID`, `CAS`, `SMILES`, `NAME` information and are returned in a`HazardComparisonDashboard` object, which consists of a list with entries for `dtxsid`, `casrn`, `name`, `smiles`, `inchikey`. From this, we can then construct the data.table for use with `classify_datatable()`. In the event that a chemical remains unclassified, we can feed the classified data.table from `classify_datatable()` into the function `classify_by_smiles` which will try to classify the unclassified chemicals using their SMILES strings. Once completed, a data.table is return, with all chemicals having been classified either through their InChIKey or SMILES, or unclassified.
+
+In the `data` folder, we read in a csv file `Chemical List BIOSOLIDS-2022-05-10.csv` which contains a set of 726 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [biosolids](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS) and was downloaded as a csv file on May 10, 2022.
+
+```{r}
+library(data.table)
+biosolids <- data.table(read.csv('../data/Chemical List BIOSOLIDS-2022-05-10.csv'))
+biosolids[1:2]
+names(biosolids)
+```
+We replace the column `PREFERRED.NAME` with `PREFERRED_NAME` and then feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
+
+```{r, eval=FALSE}
+setnames(biosolids, old = c('PREFERRED.NAME'), new = c('PREFERRED_NAME'))
+biosolids_classified <- classify_datatable(biosolids)
+biosolids_classified <- classify_by_smiles(biosolids_classified)
+```
+
+We then take a look at the classified chemicals and isolate which chemicals did not receive any classification.
+
+```{r}
+head(biosolids_classified)
+biosolids_classified[kingdom == '',]
+```
+
+Notice that in the case of the chemicals that did receive a classification, there are taxonomic labels from ChemOnt in the last 11 columns, some with more labels than others. These labels give the ClassyFire classification for each chemical.
+
+We now demonstrate how to gather the necessary information using `get_chemical_identifiers()` if there is missing data corresponding to the columns `PREFERRED_NAME`, `CASRN`, `INCHIKEY`. In the following example, we collect just the CASRNs from the biosolids list and use these as the starting point. We then apply the `get_chemical_identifiers()` function to this list to get the relevant chemical information. Then we run ClassyFire on this.
+
+```{r}
+biosolids_casrn <- biosolids[, CASRN]
+biosolids_casrn_identifiers <- purrr::map(biosolids_casrn, get_chemical_identifiers)
+biosolids_2 <- data.table(PREFERRED_NAME = unname(purrr::map(biosolids_casrn_identifiers, function(t) {
+  ifelse(!is.null(t), t@meta$name, NULL)})),
+                          CASRN = unname(purrr::map(biosolids_casrn_identifiers, function(t) {
+                            ifelse(!is.null(t), t@meta$casrn, NULL)})),
+                          INCHIKEY = unname(purrr::map(biosolids_casrn_identifiers, function(t) {
+                            ifelse(!is.null(t), t@meta$inchikey, NULL)})))
+biosolids_2_classified <- classify_datatable(biosolids_2)
+biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
+```
+
+
+
