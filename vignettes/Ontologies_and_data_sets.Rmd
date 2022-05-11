@@ -96,7 +96,7 @@ In the `data` folder, we read in a csv file `Chemical List BIOSOLIDS-2022-05-10.
 
 ```{r}
 library(data.table)
-biosolids <- data.table(read.csv('../data/Chemical List BIOSOLIDS-2022-05-10.csv'))
+biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[1:2]
 names(biosolids)
 ```
