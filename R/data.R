@@ -23,7 +23,7 @@
 #' \item{X..ToxCast.Active.1}
 #' \item{Total.Assays"}
 #' }
-'Chemical List BIOSOLIDS-2022-05-10.csv'
+'chemical_list_biosolids_2022_05_10'
 
 
 
