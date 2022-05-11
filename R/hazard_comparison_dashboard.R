@@ -67,6 +67,39 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
 
 }
 
+#' A function to collect chemical identifiers and store them in a data.table.
+#'
+#' @param input_list A list of input values valid for `get_chemical_identifiers()`
+#' @return A data.table with the input list as a column, and chemical identifiers as subsequent columns
+#' @export
+#' @import data.table
+batch_chemical_identifiers <- function(input_list){
+  new_table <- data.table('INPUT' = input_list,
+                          'DTXSID' = character(length(input_list)),
+                          'CASRN' = character(length(input_list)),
+                          'PREFERRED_NAME' = character(length(input_list)),
+                          'SMILES' = character(length(input_list)),
+                          'INCHIKEY' = character(length(input_list)))
+
+  list_of_identifiers <- purrr::map(input_list, get_chemical_identifiers)
+
+  for (i in seq_along(list_of_identifiers)){
+    if (is.null(list_of_identifiers[[i]])){
+      new_row <- rep('', 5)
+    } else {
+      current_item <- list_of_identifiers[[i]]@meta
+      new_row <- list(current_item$dtxsid, current_item$casrn, current_item$name, current_item$smiles, current_item$inchikey)
+      null_indices <- which(sapply(new_row, is.null))
+      new_row[null_indices] <- ''
+    }
+    new_table[INPUT == input_list[[i]], c('DTXSID', 'CASRN', 'PREFERRED_NAME', 'SMILES', 'INCHIKEY') := as.list(new_row)]
+  }
+
+  return(new_table)
+}
+
+
+
 #' Helper function for converting SMILES string to API acceptable format
 #'
 #' @param smiles A string representing a chemical in SMILES format
