@@ -1,3 +1,33 @@
+#' Sample US EPA CompTox Dashboard results for a data set
+#'
+#' A data set containing a list of 726 chemicals with related information
+#'
+#' @format A csv representing 726 rows and 18 columns
+#' \describe{
+#' \item{ï..DTXSID}
+#' \item{PREFERRED_NAME}
+#' \item{CASRN}
+#' \item{INCHIKEY}
+#' \item{IUPAC.NAME}
+#' \item{SMILES}
+#' \item{INCHI.STRING}
+#' \item{MOLECULAR.FORMULA}
+#' \item{AVERAGE.MASS}
+#' \item{MONOISOTOPIC.MASS}
+#' \item{X..of.SOURCES}
+#' \item{X..OF.PUBMED.ARTICLES}
+#' \item{PUBCHEM.DATA.SOURCES}
+#' \item{CPDAT.COUNT}
+#' \item{QC.Level}
+#' \item{X..ToxCast.Active}
+#' \item{X..ToxCast.Active.1}
+#' \item{Total.Assays"}
+#' }
+'Chemical List BIOSOLIDS-2022-05-10.csv'
+
+
+
+
 #' Parent and child data for chemont tree
 #'
 #' A data set containing the information required to build the chemont tree.
