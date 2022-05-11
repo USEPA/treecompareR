@@ -139,5 +139,7 @@ setdiff(biosolids_2_classified[kingdom != '', unique(CASRN)], biosolids_classifi
 ```
 We can observe that using the information provided from the CompTox dashboard directly, 691 of 726 chemicals were classified. Using just the CASRN values as inputs, collecting relevant data from the Hazard Comparison Dashboard API, and running ClassyFire on this data resulted in the classification of 686 of 726 chemicals. Note that there were 682 chemicals in common that were classified with 9 in the first method not in the second, 4 in the second method not in the first. This means that if we were to combine both sets of classified data, there would be 695 of 725 chemicals with classifications. Potential sources of discrepancies in these numbers included different availability of data contained in the CompTox Dashboard and the Hazard Comparison Dashboard. The underlying conclusion though is that these two methods yield two different pathways for attaining chemical classification programmatically and are similar in their level of success.
 
+Once we have classifications available for the chemicals in a data set, there a variety of avenues we can use to explore the 
+chemical space represented by the data.
 
 
