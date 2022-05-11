@@ -5,10 +5,14 @@
 #' This function returns the terminal classification label for classified chemicals
 #'
 #' @param data A data.table of classified chemicals.
-#' @param tip An alternate parameter controlling whether to include only tip labels.
-#' @param labels An alternate parameter giving a list of the classification levels when not using ClassyFire classified data.
-#' @param tree An alternate parameter giving a different tree structure if not using ChemOnt taxonomy.
-#' @return A new data.table, augmenting the input data.table with a column consisting of the terminal labels.
+#' @param tip An alternate parameter controlling whether to include only tip
+#'   labels.
+#' @param labels An alternate parameter giving a list of the classification
+#'   levels when not using ClassyFire classified data.
+#' @param tree An alternate parameter giving a different tree structure if not
+#'   using ChemOnt taxonomy.
+#' @return A new data.table, augmenting the input data.table with a column
+#'   consisting of the terminal labels.
 #' @export
 #' @import data.table
 add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
@@ -17,7 +21,7 @@ add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
                          'level5', 'level6', 'level7', 'level8',
                          'level9', 'level10', 'level11')
   }
-  print(labels)
+
   # Check to see if the table already has a terminal_label column
   if('terminal_label' %in% names(data))
     return(data)
@@ -35,14 +39,16 @@ add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
 #' Helper function to return the terminal label for `add_terminal_label()`
 #'
 #' @param t A data.table with classification data.
-#' @param tip Alternate parameter for determining whether to only return tip labels.
+#' @param tip Alternate parameter for determining whether to only return tip
+#'   labels.
 #' @param tax_level_labels Parameter giving classification levels.
-#' @param tree Alternate parameter for giving a taxonomy tree different from ChemOnt.
+#' @param tree Alternate parameter for giving a taxonomy tree different from
+#'   ChemOnt.
 #' @return A string giving the terminal label.
 #' @import data.table
 terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
   labels <- t[1, .SD, .SDcols = which(names(t) %in% tax_level_labels)]
-  print(labels)
+
   if (is.null(tree)){
     tree <- chemont_tree
   }
@@ -54,8 +60,8 @@ terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
   }
 
 
-  index <- which(sapply(labels, function(t) {return(is.na(t) | t == '')}))
-  print(index)
+  index <- which(unname(sapply(labels, function(t) {return(is.na(t) | t == '')})))
+
   if(length(index) == 0){
     return(labels[length(tax_level_labels)])
   }
@@ -69,9 +75,12 @@ terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
 #' Returns unique labels in a classified data for a given taxonomy level
 #'
 #' @param data A data.table with data that has been classified by some taxonomy.
-#' @param level_label A string indicating a taxonomy level of the classified data.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if not using ClassyFire taxonomy.
-#' @return The unique labels corresponding to the given level and classified data.
+#' @param level_label A string indicating a taxonomy level of the classified
+#'   data.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @return The unique labels corresponding to the given level and classified
+#'   data.
 #' @import data.table
 get_label_level <- function(data, level_label, tax_level_labels = NULL){
   if (is.null(tax_level_labels)){
@@ -98,7 +107,8 @@ get_label_level <- function(data, level_label, tax_level_labels = NULL){
 #' Helper function for retrieving labels in a data.table of classified chemicals
 #'
 #' @param data A data.table consisting of classified chemicals.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if not using ClassyFire taxonomy.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
 #' @return A list of classification labels for each level of taxonomy.
 get_labels <- function(data, tax_level_labels = NULL){
   if (is.null(tax_level_labels)){
@@ -120,7 +130,8 @@ get_label_length <- function(label_list){
 }
 
 
-#' This function takes in a (list of) data.table(s) and returns figures illustrating the label numbers by taxonomy level.
+#' This function takes in a (list of) data.table(s) and returns figures
+#' illustrating the label numbers by taxonomy level.
 #'
 #' @param data A data.table or list of data.tables with chemicals and their
 #'   classification data.
@@ -188,16 +199,20 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 }
 
 
-#' This function takes in one or two data.tables consisting of chemicals with classification data and returns a tree diagram indiacting the subtree(s) induced by the data.table(s).
+#' This function takes in one or two data.tables consisting of chemicals with
+#' classification data and returns a tree diagram indiacting the subtree(s)
+#' induced by the data.table(s).
 #'
 #' @param data_1 A data.table consisting of classification data for chemicals.
-#' @param data_2 An alternate parameter giving a second data.table with classification data for chemicals.
+#' @param data_2 An alternate parameter giving a second data.table with
+#'   classification data for chemicals.
 #' @param name_1 An alternate parameter giving the name of `data.table_1`.
 #' @param name_2 An alternate parameter giving the name of `data.table_1`.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
-#' @return A ggtree object showing the subtree induced by `data_1` (and `data_2` if supplied, and their intersection.).
+#' @return A ggtree object showing the subtree induced by `data_1` (and `data_2`
+#'   if supplied, and their intersection.).
 #' @export
 #' @import phangorn
 #' @import ggtree
@@ -284,15 +299,19 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 
 }
 
-#' This function takes a data.table of classified chemicals and returns a tree with optional tree diagram
+#' This function takes a data.table of classified chemicals and returns a tree
+#' with optional tree diagram
 #'
 #' @param data A data.table with classification data for chemicals.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @param show_tips An alternate parameter determining whether tip labels are displayed.
-#' @param no_plot An alternate parameter for returning only the pruned tree without the tree visual.
-#' @return A pruned tree or list consisting of a pruned tree and ggtree diagram of the pruned tree.
+#' @param show_tips An alternate parameter determining whether tip labels are
+#'   displayed.
+#' @param no_plot An alternate parameter for returning only the pruned tree
+#'   without the tree visual.
+#' @return A pruned tree or list consisting of a pruned tree and ggtree diagram
+#'   of the pruned tree.
 #' @export
 #' @import ape
 #' @import ggtree
@@ -339,14 +358,18 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 # name and produces a circular plot with boxplots displaying values from the
 # specified column grouped by each value in `terminal_label`
 
-#' This function takes in a data.table of chemicals with classification data and additional numeric data and displays selected numeric data grouped by tip label on data-induced subtree.
+#' This function takes in a data.table of chemicals with classification data and
+#' additional numeric data and displays selected numeric data grouped by tip
+#' label on data-induced subtree.
 #'
-#' @param data A data.table consisting of classification data and additional numeric data.
+#' @param data A data.table consisting of classification data and additional
+#'   numeric data.
 #' @param col A specified numeric column for use in displaying boxplots.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @return A ggtree object consisting of subtree induced by data and boxplots corresponding to specified numeric column of data.
+#' @return A ggtree object consisting of subtree induced by data and boxplots
+#'   corresponding to specified numeric column of data.
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
