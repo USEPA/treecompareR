@@ -54,7 +54,7 @@ terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
   }
 
 
-  index <- which(sapply(labels, function(t) {return(is.na(t) | t == '')})
+  index <- which(sapply(labels, function(t) {return(is.na(t) | t == '')}))
   print(index)
   if(length(index) == 0){
     return(labels[length(tax_level_labels)])
