@@ -2,7 +2,9 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{display_subtree}
 \alias{display_subtree}
-\title{This function takes in one or two data.tables consisting of chemicals with classification data and returns a tree diagram indiacting the subtree(s) induced by the data.table(s).}
+\title{This function takes in one or two data.tables consisting of chemicals with
+classification data and returns a tree diagram indiacting the subtree(s)
+induced by the data.table(s).}
 \usage{
 display_subtree(
   data_1,
@@ -16,7 +18,8 @@ display_subtree(
 \arguments{
 \item{data_1}{A data.table consisting of classification data for chemicals.}
 
-\item{data_2}{An alternate parameter giving a second data.table with classification data for chemicals.}
+\item{data_2}{An alternate parameter giving a second data.table with
+classification data for chemicals.}
 
 \item{name_1}{An alternate parameter giving the name of \code{data.table_1}.}
 
@@ -28,8 +31,11 @@ display_subtree(
 not using ClassyFire taxonomy.}
 }
 \value{
-A ggtree object showing the subtree induced by \code{data_1} (and \code{data_2} if supplied, and their intersection.).
+A ggtree object showing the subtree induced by \code{data_1} (and \code{data_2}
+if supplied, and their intersection.).
 }
 \description{
-This function takes in one or two data.tables consisting of chemicals with classification data and returns a tree diagram indiacting the subtree(s) induced by the data.table(s).
+This function takes in one or two data.tables consisting of chemicals with
+classification data and returns a tree diagram indiacting the subtree(s)
+induced by the data.table(s).
 }

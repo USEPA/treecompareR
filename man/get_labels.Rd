@@ -9,7 +9,8 @@ get_labels(data, tax_level_labels = NULL)
 \arguments{
 \item{data}{A data.table consisting of classified chemicals.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if not using ClassyFire taxonomy.}
+\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
+not using ClassyFire taxonomy.}
 }
 \value{
 A list of classification labels for each level of taxonomy.

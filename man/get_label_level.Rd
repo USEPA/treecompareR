@@ -9,12 +9,15 @@ get_label_level(data, level_label, tax_level_labels = NULL)
 \arguments{
 \item{data}{A data.table with data that has been classified by some taxonomy.}
 
-\item{level_label}{A string indicating a taxonomy level of the classified data.}
+\item{level_label}{A string indicating a taxonomy level of the classified
+data.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if not using ClassyFire taxonomy.}
+\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
+not using ClassyFire taxonomy.}
 }
 \value{
-The unique labels corresponding to the given level and classified data.
+The unique labels corresponding to the given level and classified
+data.
 }
 \description{
 Returns unique labels in a classified data for a given taxonomy level

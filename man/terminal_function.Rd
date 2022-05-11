@@ -9,11 +9,13 @@ terminal_function(t, tip = FALSE, tax_level_labels, tree = NULL)
 \arguments{
 \item{t}{A data.table with classification data.}
 
-\item{tip}{Alternate parameter for determining whether to only return tip labels.}
+\item{tip}{Alternate parameter for determining whether to only return tip
+labels.}
 
 \item{tax_level_labels}{Parameter giving classification levels.}
 
-\item{tree}{Alternate parameter for giving a taxonomy tree different from ChemOnt.}
+\item{tree}{Alternate parameter for giving a taxonomy tree different from
+ChemOnt.}
 }
 \value{
 A string giving the terminal label.

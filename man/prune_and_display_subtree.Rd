@@ -2,7 +2,8 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{prune_and_display_subtree}
 \alias{prune_and_display_subtree}
-\title{This function takes a data.table of classified chemicals and returns a tree with optional tree diagram}
+\title{This function takes a data.table of classified chemicals and returns a tree
+with optional tree diagram}
 \usage{
 prune_and_display_subtree(
   data,
@@ -20,13 +21,17 @@ not using ClassyFire taxonomy.}
 
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 
-\item{show_tips}{An alternate parameter determining whether tip labels are displayed.}
+\item{show_tips}{An alternate parameter determining whether tip labels are
+displayed.}
 
-\item{no_plot}{An alternate parameter for returning only the pruned tree without the tree visual.}
+\item{no_plot}{An alternate parameter for returning only the pruned tree
+without the tree visual.}
 }
 \value{
-A pruned tree or list consisting of a pruned tree and ggtree diagram of the pruned tree.
+A pruned tree or list consisting of a pruned tree and ggtree diagram
+of the pruned tree.
 }
 \description{
-This function takes a data.table of classified chemicals and returns a tree with optional tree diagram
+This function takes a data.table of classified chemicals and returns a tree
+with optional tree diagram
 }

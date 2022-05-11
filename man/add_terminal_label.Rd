@@ -9,14 +9,18 @@ add_terminal_label(data, tip = FALSE, labels = NULL, tree = NULL)
 \arguments{
 \item{data}{A data.table of classified chemicals.}
 
-\item{tip}{An alternate parameter controlling whether to include only tip labels.}
+\item{tip}{An alternate parameter controlling whether to include only tip
+labels.}
 
-\item{labels}{An alternate parameter giving a list of the classification levels when not using ClassyFire classified data.}
+\item{labels}{An alternate parameter giving a list of the classification
+levels when not using ClassyFire classified data.}
 
-\item{tree}{An alternate parameter giving a different tree structure if not using ChemOnt taxonomy.}
+\item{tree}{An alternate parameter giving a different tree structure if not
+using ChemOnt taxonomy.}
 }
 \value{
-A new data.table, augmenting the input data.table with a column consisting of the terminal labels.
+A new data.table, augmenting the input data.table with a column
+consisting of the terminal labels.
 }
 \description{
 This function returns the terminal classification label for classified chemicals

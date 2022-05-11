@@ -2,7 +2,8 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{label_bars}
 \alias{label_bars}
-\title{This function takes in a (list of) data.table(s) and returns figures illustrating the label numbers by taxonomy level.}
+\title{This function takes in a (list of) data.table(s) and returns figures
+illustrating the label numbers by taxonomy level.}
 \usage{
 label_bars(data = NULL, tax_level_labels = NULL)
 }
@@ -19,5 +20,6 @@ level for each data.table and the second showing the number of labels by
 data.table for each taxonomy level.
 }
 \description{
-This function takes in a (list of) data.table(s) and returns figures illustrating the label numbers by taxonomy level.
+This function takes in a (list of) data.table(s) and returns figures
+illustrating the label numbers by taxonomy level.
 }

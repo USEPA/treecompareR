@@ -2,12 +2,15 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{circ_tree_boxplot}
 \alias{circ_tree_boxplot}
-\title{This function takes in a data.table of chemicals with classification data and additional numeric data and displays selected numeric data grouped by tip label on data-induced subtree.}
+\title{This function takes in a data.table of chemicals with classification data and
+additional numeric data and displays selected numeric data grouped by tip
+label on data-induced subtree.}
 \usage{
 circ_tree_boxplot(data, col, tax_level_labels = NULL, tree = NULL)
 }
 \arguments{
-\item{data}{A data.table consisting of classification data and additional numeric data.}
+\item{data}{A data.table consisting of classification data and additional
+numeric data.}
 
 \item{col}{A specified numeric column for use in displaying boxplots.}
 
@@ -17,8 +20,11 @@ not using ClassyFire taxonomy.}
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 }
 \value{
-A ggtree object consisting of subtree induced by data and boxplots corresponding to specified numeric column of data.
+A ggtree object consisting of subtree induced by data and boxplots
+corresponding to specified numeric column of data.
 }
 \description{
-This function takes in a data.table of chemicals with classification data and additional numeric data and displays selected numeric data grouped by tip label on data-induced subtree.
+This function takes in a data.table of chemicals with classification data and
+additional numeric data and displays selected numeric data grouped by tip
+label on data-induced subtree.
 }
