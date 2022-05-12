@@ -417,3 +417,90 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
                                                                     ncol = 2))
   return(circ_plot)
 }
+
+
+# This function takes in two data sets, creates the subtree induced by data_1,
+# and colors the tips based on the number of chemicals from data_2 are in the
+# set of chemicals from data_1 grouped by tip.
+
+#' This function takes in two data.tables, plots the subtree induced by the
+#' first and colors the tips based on the proportion of chemicalsfrom the second
+#' that make up the chemials from the first, grouped by tip label.
+#'
+#' @param data_1 A data.table of chemicals, classifications, and column `terminal_label`.
+#' @param data_2 A data.table of chemicals, classifications, and column `terminal_label`
+#' @param name_1 Alternate parameter for name of first data.table.
+#' @param name_2 Alternate parameter for name of second data.table.
+#' @param show_labels Alternate parameter indicating whether to show tip labels.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @return A ggtree plot.
+#' @export
+#' @import data.table
+#' @import ggtree
+#' @import ggtreeExtra
+#' @import ggplot2
+#'
+leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', show_labels = FALSE, tax_level_labels = NULL, tree = NULL){
+  # Find all the terminal_label values from data_1.
+  terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
+
+  # For each terminal_label value, determine the chemicals from data_2 that are
+  # also in data_1. This checks using the INCHIKEY of each chemical.
+  label_percentages <- sapply(terminal_labels, function(t) {
+    data_1_chemicals <- data_1[terminal_label == t, unique(INCHIKEY)]
+    data_2_chemicals <- data_2[terminal_label == t, unique(INCHIKEY)]
+    shared_chemicals <- intersect(data_1_chemicals, data_2_chemicals)
+    return(length(shared_chemicals)/length(data_1_chemicals))
+  })
+
+  label_data <- data.frame(label = terminal_labels,
+                           percentages = unname(label_percentages),
+                           data_1_numbers <- unname(sapply(terminal_labels, function(t) {
+                             length(data_1[terminal_label == t, unique(INCHIKEY)])
+                           })),
+                           data_2_numbers <- unname(sapply(terminal_labels, function(t) {
+                             length(intersect(data_1[terminal_label == t, unique(INCHIKEY)],
+                                              data_2[terminal_label == t, unique(INCHIKEY)]))
+                           }
+                           ))
+  )
+  names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
+
+  #print(label_data)
+
+  data_1_tree <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, no_plot = TRUE)
+
+  if (length(data_1_tree$tip.label) <= 200){
+    tip_size = 3
+  } else if (length(data_1_tree$tip.label) <= 500){
+    tip_size = 1.5
+  } else {
+    tip_size = .5
+  }
+
+  #tree <- full_join(data_1_tree, label_data, by = 'label')
+
+  tree_plot <- ggtree(data_1_tree, layout = 'circular') %<+% label_data
+  tree_plot <- tree_plot + ggtitle(paste0(name_1, ' subtree'))
+
+  tree_plot <- tree_plot + geom_tippoint(aes(color = percentages), size = tip_size)
+  tree_plot <- tree_plot +
+    scale_color_viridis_c(name = paste0('Percentage of ',name_1, ' chemicals that are ', name_2, ' chemicals'),
+                          option = 'plasma')
+
+  if (show_labels){
+    tree_plot <- tree_plot + geom_tiplab(aes(color = percentages), size = 1)
+  } else {
+    tree_plot <- tree_plot + ggtreeExtra::geom_fruit(geom = geom_tile,
+                                        mapping = aes(color = percentages),
+                                        width = 10,
+                                        height = .1,
+                                        offset = 0.1)
+  }
+
+  return(list(tree_plot, label_data))
+
+}
+
