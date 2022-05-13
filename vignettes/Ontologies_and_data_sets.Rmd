@@ -142,4 +142,32 @@ We can observe that using the information provided from the CompTox dashboard di
 Once we have classifications available for the chemicals in a data set, there a variety of avenues we can use to explore the 
 chemical space represented by the data.
 
+For instance, we can show the subtree of the ChemOnt tree representing the classifications of the data set. We often refer to this subtree as induced by the data set.
 
+```{r}
+display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
+```
+
+Notice that the full ChemOnt tree is displayed, with branches and tip labels colored depending on whterh they are included among the labels represented by the data set.
+
+If we want to look at just the subtree and prune away any label not included in the subtree, we can do so. The following function returns both the `phylo` object representing the tree and the tree diagram, though we can choose to include only the phylo object. We can also choose to include the tips. We demonstrate the diagram with and without the tips. Suppressing the tips can be really useful when there are a lot of branches as the diagram can get cluttered otherwise.
+
+```{r}
+prune_and_display_subtree(biosolids_classified)
+prune_and_display_subtree(biosolids_classified, show_tips = FALSE)
+```
+
+If there is numeric data attached to the chemical data, such as `AVERAGE.MASS` in `biosolids_classifed`, we can plot this in boxplots that accompany the tree diagram as the following example demonstrates. This requires supplying a data.table that has a `terminal_label` column for grouping together classifications.
+
+```{r}
+biosolids_classified_terminal <- add_terminal_label(biosolids_classified)
+circ_tree_boxplot(biosolids_classified_terminal, col = 'AVERAGE.MASS')
+```
+
+We may also be interested in looking at the number of unique labels for each taxonomic level for a data set or several data sets. In the following exmaple, we look at just the biosolids data set.
+
+```{r}
+label_bars(biosolids_classified_terminal)
+```
+
+Note that in the second diagram, the facets corresponding to levels 9, 10, and 11 are empty. This is due to the fact that there are no classifications of chemicals that have labels down to level9 (and thus subsequent levels).
