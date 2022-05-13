@@ -2,7 +2,9 @@
 
 #' Helper function for determining number of labels in a given data set
 #'
-#' @param datatable A data.table object of chemical classifications
+#' @param datatable A data.table object of chemical classifications.
+#' @param chemont Alternate parameter indicating whether ChemOnt taxonomy is used.
+#' @param log Alternate parameter indicating whether numbers are reported as is or as their log.
 #' @return Number of occurrences of each label in the parameter 'datatable'.
 #' @import data.table
 
@@ -66,9 +68,9 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @param column_data A data.table object of chemical classifications.
 #' @param name Name of the heatmap
 #' @param row_split Number of clusters for rows.
-#' @param col_split Number of cluster for columns.
+#' @param column_split Number of cluster for columns.
 #' @param row_title Title for rows.
-#' @param col_title Title for columns.
+#' @param column_title Title for columns.
 #' @return A Heatmap object.
 #' @export
 #' @import ComplexHeatmap
@@ -424,6 +426,8 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @param htmap A ComplexHeatmap object.
 #' @param row_cluster Index for row cluster of htmap to be illustrated.
 #' @param column_cluster Index for column cluster of htmap to be illustrated.
+#' @param row_name Alternate parameter for name of row data set.
+#' @param column_name Alternte parameter for name of column data set.
 #' @param isolate_subtree Alternate parameter for pruning tree diagram to create a second diagram.
 #' @param show_labels Alternate parameter specifying whether to show tip labels.
 #' @param show_clades Alternate parameter for labeling superclass clades.

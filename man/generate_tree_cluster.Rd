@@ -31,6 +31,10 @@ generate_tree_cluster(
 
 \item{column_cluster}{Index for column cluster of htmap to be illustrated.}
 
+\item{row_name}{Alternate parameter for name of row data set.}
+
+\item{column_name}{Alternte parameter for name of column data set.}
+
 \item{isolate_subtree}{Alternate parameter for pruning tree diagram to create a second diagram.}
 
 \item{show_labels}{Alternate parameter specifying whether to show tip labels.}

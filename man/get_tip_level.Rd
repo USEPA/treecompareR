@@ -4,7 +4,7 @@
 \alias{get_tip_level}
 \title{Returns the tree level of the given node}
 \usage{
-get_tip_level(tree, label, nodeNumber = NULL)
+get_tip_level(tree, label, node_number = NULL)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}

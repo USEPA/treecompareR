@@ -80,6 +80,7 @@ get_levels <- function(tree){
 #' Generates a data.frame of information content
 #'
 #' @param tree A phylo object representing a rooted tree.
+#' @param log_descendants Alternate parameter for specifying type of information content.
 #' @return data.frame consisting of node number, children, descendants, level, and information content for each node
 #' @export
 #' @import ape
@@ -138,9 +139,9 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return A list of nodes back to the root of ancestors for the given node.
-get_ancestors <- function(tree, label, nodeNumber = NULL){
-  if (!is.null(nodeNumber)){
-    ifelse(is.numeric(nodeNumber) & (nodeNumber %in% 1:(1 + length(tree$edge))), index <- nodeNumber, stop('Please input a correct value for nodeNumber'))
+get_ancestors <- function(tree, label, node_number = NULL){
+  if (!is.null(node_number)){
+    ifelse(is.numeric(node_number) & (node_number %in% 1:(1 + length(tree$edge))), index <- node_number, stop('Please input a correct value for node_number'))
   } else {
     if (label %in% c(tree$tip.label, tree$node.label)){
       index <- which(c(tree$tip.label, tree$node.label) == label)
@@ -163,8 +164,8 @@ get_ancestors <- function(tree, label, nodeNumber = NULL){
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return The level of the node from the root of the tree.
-get_tip_level <- function(tree, label, nodeNumber = NULL){
-  return(length(get_ancestors(tree = tree, label = label, nodeNumber = nodeNumber)))
+get_tip_level <- function(tree, label, node_number = NULL){
+  return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
 }
 
 

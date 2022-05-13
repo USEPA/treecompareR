@@ -4,7 +4,7 @@
 \alias{get_ancestors}
 \title{Generates a list of ancestors for a given node in a tree.}
 \usage{
-get_ancestors(tree, label, nodeNumber = NULL)
+get_ancestors(tree, label, node_number = NULL)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}

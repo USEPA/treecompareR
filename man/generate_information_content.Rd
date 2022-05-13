@@ -8,6 +8,8 @@ generate_information_content(tree, log_descendants = TRUE)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
+
+\item{log_descendants}{Alternate parameter for specifying type of information content.}
 }
 \value{
 data.frame consisting of node number, children, descendants, level, and information content for each node

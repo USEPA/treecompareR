@@ -35,11 +35,11 @@ generate_heatmap(
 
 \item{row_split}{Number of clusters for rows.}
 
+\item{column_split}{Number of cluster for columns.}
+
 \item{row_title}{Title for rows.}
 
-\item{col_split}{Number of cluster for columns.}
-
-\item{col_title}{Title for columns.}
+\item{column_title}{Title for columns.}
 }
 \value{
 A Heatmap object.
