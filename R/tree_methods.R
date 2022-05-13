@@ -328,7 +328,7 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 #' Generates a similarity matrix for a given tree and similarity measure
 #' @param tree A phylo object representing a rooted tree.
 #' @param similarity A similarity measure function that requires as inputs a tree, label_A, and label_B
-#' @return A similarity matrix, which is a symmetric matrix with values in [0,1].
+#' @return A similarity matrix, which is a symmetric matrix with values in \eqn{[0,1]}.
 #' @export
 generate_similarity_matrix <- function(tree, similarity = NULL){
   ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)

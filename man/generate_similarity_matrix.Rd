@@ -12,7 +12,7 @@ generate_similarity_matrix(tree, similarity = NULL)
 \item{similarity}{A similarity measure function that requires as inputs a tree, label_A, and label_B}
 }
 \value{
-A similarity matrix, which is a symmetric matrix with values in \link{0,1}.
+A similarity matrix, which is a symmetric matrix with values in \eqn{[0,1]}.
 }
 \description{
 Generates a similarity matrix for a given tree and similarity measure
