@@ -142,6 +142,7 @@ get_label_length <- function(label_list){
 #'   data.table for each taxonomy level.
 #' @export
 #' @import data.table
+#' @import tidyr
 #' @import ggplot2
 label_bars <- function(data = NULL, tax_level_labels = NULL){
   if (is.null(data))
@@ -174,7 +175,7 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
   df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_labels(t, tax_level_labels)))))
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
-    pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
+    tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
   transformed_df$count_sums <- as.numeric(transformed_df$count_sums)
   transformed_df$tax_levels <- factor(transformed_df$tax_levels, levels = tax_level_labels)
 
@@ -244,7 +245,7 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
   analytes_data <- data.frame(node = 1:length(tree_labels),
                               dataset_1 = data_1_subtree)
 
-  print(summary(analytes_data))
+  #print(summary(analytes_data))
 
   if (is.null(name_1)){
     name_1 <- 'Set 1'
