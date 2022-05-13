@@ -17,3 +17,24 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Imports: 
+    ape,
+    circlize,
+    classyfireR,
+    clisymbols,
+    ComplexHeatmap,
+    crayon,
+    data.table,
+    data.tree,
+    ggplot2,
+    ggtree,
+    ggtreeExtra,
+    httr,
+    jsonlite,
+    methods,
+    phangorn,
+    phytools,
+    purrr,
+    stringr,
+    tidyr,
+    viridis
