@@ -256,8 +256,8 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
 
   # Get the common ancestors. This may include either of the nodes corresponding
   # to the input node labels/numbers.
-  commonAncestors <- intersect(c(labels[[index1]],unname(get_ancestors(tree, nodeNumber = index1))),
-                               c(labels[[index2]], unname(get_ancestors(tree, nodeNumber = index2))))
+  commonAncestors <- intersect(c(labels[[index1]],unname(get_ancestors(tree, node_number = index1))),
+                               c(labels[[index2]], unname(get_ancestors(tree, node_number = index2))))
 
   MRCA <- which(labels %in% commonAncestors[[1]])
   value <- tree$IC[MRCA, 'log_descendants']
