@@ -504,3 +504,76 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 
 }
 
+
+#' This function creates two plots that show a visual comparison of the subtrees induced by two data sets
+#'
+#' @param data_1 A data.table of chemicals and their classifications.
+#' @param data_2 A data.table of chemicals and their classifications.
+#' @param name_1 An alternate parameter giving the name of the first data set.
+#' @param name_2 An alternate parameter giving the name of the second data set.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @param show_tips An alternate parameter determining whether to show tip labels.
+#' @return A list of two ggtree objects.
+#' @export
+#' @import ggtree
+data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = NULL, tree = NULL, show_tips = TRUE){
+  # Prune subtrees for each data set.
+  tree_1 <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
+  tree_2 <- prune_and_display_subtree(data_2, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
+
+  # Get all taxonomy labels associated with the data
+  data_labels_1 <- setNames(unlist(get_labels(data_1)), NULL)
+  data_labels_2 <- setNames(unlist(get_labels(data_2)), NULL)
+
+  # Create membership tables
+  membership_1 <- data.frame(node = 1:length(c(tree_1$tip.label, tree_1$node.label)),
+                             membership = c(tree_1$tip.label, tree_1$node.label) %in% data_labels_2)
+  membership_2 <- data.frame(node = 1:length(c(tree_2$tip.label, tree_2$node.label)),
+                             membership = c(tree_2$tip.label, tree_2$node.label) %in% data_labels_1)
+
+  # Create tree plots
+  plot_1 <- ggtree(tree_1) %<+% membership_1 +
+    aes(color = membership) +
+    layout_circular() +
+    scale_color_manual(name = paste('Labels from', name_2, 'that are in', name_1),
+                       labels = c('True', 'False'),
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc'))
+
+  plot_2 <- ggtree(tree_2) %<+% membership_2 +
+    aes(color = membership) +
+    layout_circular() +
+    scale_color_manual(name = paste('Labels from', name_1, 'that are in', name_2),
+                       labels = c('True', 'False'),
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc'))
+
+  if (show_tips){
+    # Adjust the tip label size depending on the number of tips of the tree
+    if (length(tree_1$tip.label) <= 200){
+      tip_size_1 = 3
+    } else if (length(tree_1$tip.label) <= 500){
+      tip_size_1 = 1.5
+    } else {
+      tip_size_1 = .5
+    }
+
+    # Adjust the tip label size depending on the number of tips of the tree
+    if (length(tree_2$tip.label) <= 200){
+      tip_size_2 = 3
+    } else if (length(tree_1$tip.label) <= 500){
+      tip_size_2 = 1.5
+    } else {
+      tip_size_2 = .5
+    }
+
+    plot_1 <- plot_1 + geom_tiplab(size = tip_size_1)
+    plot_2 <- plot_2 + geom_tiplab(size = tip_size_2)
+  }
+
+
+  return(list(plot_1, plot_2))
+}
+
+
+
