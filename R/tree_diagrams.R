@@ -27,11 +27,11 @@ add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
     return(data)
   indices <- which(names(data) %in% labels)
   if (length(indices) != length(labels))
-    stop('Missing col(s) \n', paste(base::setdiff(classyfire_labels, names(data)[indices], collapse = '\n', '!')))
+    stop('Missing col(s) \n', paste(base::setdiff(labels, names(data)[indices], collapse = '\n', '!')))
 
 
   new_dt <- copy(data)
-  new_dt[, terminal_label := terminal_function(t = .SD, tip = tip, tax_level_labels = labels, tree = tree), by = 1:nrow(new_dt)]
+  new_dt[, c("terminal_label") := terminal_function(t = .SD, tip = tip, tax_level_labels = labels, tree = tree), by = 1:nrow(new_dt)]
 
   return(new_dt)
 }
@@ -176,8 +176,8 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
     tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
-  transformed_df$count_sums <- as.numeric(transformed_df$count_sums)
-  transformed_df$tax_levels <- factor(transformed_df$tax_levels, levels = tax_level_labels)
+  transformed_df["count_sums"] <- as.numeric(transformed_df$count_sums)
+  transformed_df["tax_levels"] <- factor(transformed_df$tax_levels, levels = tax_level_labels)
 
   plot_1 <- ggplot(transformed_df) +
     facet_wrap(~dataset, scales = 'free') +
@@ -262,11 +262,11 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
     data_2_subtree[select_data_2] <- TRUE
     data_2_subtree[data_2_all] <- TRUE
 
-    analytes_data$dataset_2 <- data_2_subtree
+    analytes_data["dataset_2"] <- data_2_subtree
 
     all_cohort <- ifelse(data_1_subtree, 0L, 2L) + ifelse(data_2_subtree, 0L, 1L)
 
-    analytes_data$cohort <- as.character(all_cohort)
+    analytes_data["cohort"] <- as.character(all_cohort)
 
     print(summary(analytes_data))
 
@@ -386,9 +386,9 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
   index <- which(names(new_data) %in% col)
   new_data[, index] <- as.numeric(new_data[, index])
   new_data <- new_data[!is.na(new_data[, index]),]
-  new_data$grp <- new_data$terminal_label
-  new_data$val <- new_data[, index]
-  new_data$node <- new_data$terminal_label
+  new_data["grp"] <- new_data$terminal_label
+  new_data["val"] <- new_data[, index]
+  new_data["node"] <- new_data$terminal_label
 
   #summary(new_data)
 
