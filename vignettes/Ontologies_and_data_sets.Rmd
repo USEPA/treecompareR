@@ -100,17 +100,17 @@ biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[1:2]
 names(biosolids)
 ```
-We replace the column `PREFERRED.NAME` with `PREFERRED_NAME` and then feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
+We feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
 
-```{r, eval = FALSE, results='hide'}
-setnames(biosolids, old = c('PREFERRED.NAME'), new = c('PREFERRED_NAME'))
+```{r, message=FALSE, results='hide'}
+#setnames(biosolids, old = c('PREFERRED.NAME'), new = c('PREFERRED_NAME'))
 biosolids_classified <- classify_datatable(biosolids)
 biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
 
 We then take a look at the classified chemicals and isolate which chemicals did not receive any classification.
 
-```{r, eval = FALSE}
+```{r}
 head(biosolids_classified)
 biosolids_classified[kingdom == '',]
 ```
@@ -119,7 +119,7 @@ Notice that in the case of the chemicals that did receive a classification, ther
 
 We now demonstrate how to gather the necessary information using `get_chemical_identifiers()` if there is missing data corresponding to the columns `PREFERRED_NAME`, `CASRN`, `INCHIKEY`. In the following example, we collect just the CASRNs from the biosolids list and use these as the starting point. We then apply the `get_chemical_identifiers()` function to this list to get the relevant chemical information. Then we run ClassyFire on this.
 
-```{r, eval = FALSE, results='hide'}
+```{r, message=FALSE, results='hide'}
 biosolids_casrn <- biosolids[, CASRN]
 
 biosolids_2 <- batch_chemical_identifiers(biosolids_casrn)
@@ -129,7 +129,7 @@ biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
 
 Observe that there is considerable agreement with the classified chemicals using both approaches.
 
-```{r, eval = FALSE}
+```{r}
 biosolids_classified[kingdom != '', .N]
 biosolids_2_classified[kingdom != '', .N]
 length(intersect(biosolids_classified[kingdom != '', unique(CASRN)], biosolids_2_classified[kingdom != '', unique(CASRN)]))
@@ -144,7 +144,7 @@ chemical space represented by the data.
 
 For instance, we can show the subtree of the ChemOnt tree representing the classifications of the data set. We often refer to this subtree as induced by the data set.
 
-```{r, eval = FALSE}
+```{r, fig.align='center', fig.dim=c(6,4)}
 display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
 ```
 
@@ -152,21 +152,21 @@ Notice that the full ChemOnt tree is displayed, with branches and tip labels col
 
 If we want to look at just the subtree and prune away any label not included in the subtree, we can do so. The following function returns both the `phylo` object representing the tree and the tree diagram, though we can choose to include only the phylo object. We can also choose to include the tips. We demonstrate the diagram with and without the tips. Suppressing the tips can be really useful when there are a lot of branches as the diagram can get cluttered otherwise.
 
-```{r, eval = FALSE}
+```{r, fig.align='center', fig.dim=c(6,4)}
 prune_and_display_subtree(biosolids_classified)
 prune_and_display_subtree(biosolids_classified, show_tips = FALSE)
 ```
 
 If there is numeric data attached to the chemical data, such as `AVERAGE.MASS` in `biosolids_classifed`, we can plot this in boxplots that accompany the tree diagram as the following example demonstrates. This requires supplying a data.table that has a `terminal_label` column for grouping together classifications.
 
-```{r, eval = FALSE}
+```{r, fig.align='center', fig.dim=c(6,4)}
 biosolids_classified_terminal <- add_terminal_label(biosolids_classified)
-circ_tree_boxplot(biosolids_classified_terminal, col = 'AVERAGE.MASS')
+circ_tree_boxplot(biosolids_classified_terminal, col = 'AVERAGE_MASS')
 ```
 
 We may also be interested in looking at the number of unique labels for each taxonomic level for a data set or several data sets. In the following exmaple, we look at just the biosolids data set.
 
-```{r, eval = FALSE}
+```{r, fig.align='center', fig.dim=c(6,4)}
 label_bars(biosolids_classified_terminal)
 ```
 
