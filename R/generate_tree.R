@@ -11,6 +11,7 @@
 #' @return A 'phylo' object representing the generated tree.
 #' @export
 #' @importFrom ape rtree
+#' @importFrom ape root.phylo
 generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA){
   if (!is.na(seed)){
     set.seed(seed = seed)
@@ -111,7 +112,7 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
   phy <- reorder(phy)
 
   if (rooted)
-    phy <- root.phylo(phy, node = ROOT)
+    phy <- ape::root.phylo(phy, node = ROOT)
 
   phy
 }
