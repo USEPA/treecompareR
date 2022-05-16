@@ -1,10 +1,10 @@
 Package: treecompareR
-Title: What the Package Does (One Line, Title Case)
+Title: Tree Visualizations of Chemical Space
 Version: 0.0.0.9000
 Authors@R: 
     person("Paul", "Kruse", , "kruse.paul@epa.gov", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           comment = c(ORCID = "0000-0001-5516-9717"))
+Description: This package provides a framework for visualizing taxonomies and comparing data sets through taxonomies. Originally written with the ChemOnt ontology of ClassyFire in mind, it generalizes to other classification schemes. The package includes programmatic chemical classification, tree analysis, and functionality for tree visualization of chemical classifications of data sets.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
