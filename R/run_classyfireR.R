@@ -8,7 +8,7 @@
 #' @return A data.table object with classifications attached to each row of input data.table
 #' @export
 #' @import data.table
-#' @import purrr
+#' @importFrom purrr map
 #' @import classyfireR
 classify_datatable <- function(datatable){
   INCHIKEY <- NULL
@@ -61,7 +61,7 @@ classify_datatable <- function(datatable){
 #' @return A data.table object with classification information for each row.
 #' @export
 #' @import data.table
-#' @import purrr
+#' @importFrom purrr map2
 #' @import classyfireR
 classify_by_smiles <- function(datatable){
   INCHIKEY <- NULL
