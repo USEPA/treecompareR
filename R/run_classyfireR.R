@@ -11,6 +11,7 @@
 #' @import purrr
 #' @import classyfireR
 classify_datatable <- function(datatable){
+  INCHIKEY <- NULL
   if (!data.table::is.data.table(datatable)){
     stop('Input must be a data.table object!')
   }
@@ -63,6 +64,8 @@ classify_datatable <- function(datatable){
 #' @import purrr
 #' @import classyfireR
 classify_by_smiles <- function(datatable){
+  INCHIKEY <- NULL
+  SMILES <- NULL
   if (!data.table::is.data.table(datatable)){
     stop('Input must be a data.table object!')
   }

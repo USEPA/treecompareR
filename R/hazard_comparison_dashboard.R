@@ -74,6 +74,7 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
 #' @export
 #' @import data.table
 batch_chemical_identifiers <- function(input_list){
+  INPUT <- NULL
   new_table <- data.table('INPUT' = input_list,
                           'DTXSID' = character(length(input_list)),
                           'CASRN' = character(length(input_list)),

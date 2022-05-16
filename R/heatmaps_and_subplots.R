@@ -9,6 +9,18 @@
 #' @import data.table
 
 label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
+  kingdom <- NULL
+  superclass <- NULL
+  class <- NULL
+  subclass <- NULL
+  level5 <- NULL
+  level6 <- NULL
+  level7 <- NULL
+  level8 <- NULL
+  level9 <- NULL
+  level10 <- NULL
+  level11 <- NULL
+  PREFERRED_NAME <- NULL
   if (!chemont){
     top_level <- names(datatable)[[1]]
     complete_labels <- 'TO BE DETERMINED'
@@ -26,7 +38,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                                       unique(level9),
                                                       unique(level10),
                                                       unique(level11)),
-                                        by = .(PREFERRED_NAME)][, PREFERRED_NAME := NULL])))
+                                        by = .(PREFERRED_NAME)][, c('PREFERRED_NAME') := NULL])))
   print(length(complete_labels))
   empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
   if (length(empty_indices) > 0){
@@ -443,6 +455,7 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @import phangorn
 #' @import ape
 generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, row_name = 'Row data set', column_name = 'Column data set',  isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
+  label <- NULL
   # get tree labels
   tree_labels <- c(tree$tip.label, tree$node.label)
   # get row labels

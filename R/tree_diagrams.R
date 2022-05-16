@@ -145,6 +145,10 @@ get_label_length <- function(label_list){
 #' @import tidyr
 #' @import ggplot2
 label_bars <- function(data = NULL, tax_level_labels = NULL){
+  tax_levels <- NULL
+  count_sums <- NULL
+  dataset <- NULL
+
   if (is.null(data))
     stop('Please input data!')
   if (data.table::is.data.table(data)){
@@ -218,6 +222,9 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #' @import phangorn
 #' @import ggtree
 display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL, tree = NULL, tax_level_labels = NULL){
+  cohort <- NULL
+  dataset_1 <- NULL
+
   if (is.null(tax_level_labels)){
     tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
                           'level5', 'level6', 'level7', 'level8',
@@ -242,8 +249,8 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
   data_1_subtree[select_data_1] <- TRUE
   data_1_subtree[data_1_all] <- TRUE
 
-  analytes_data <- data.frame(node = 1:length(tree_labels),
-                              dataset_1 = data_1_subtree)
+  analytes_data <- data.frame('node' = 1:length(tree_labels))
+  analytes_data[['dataset_1']] <- data_1_subtree
 
   #print(summary(analytes_data))
 
@@ -262,11 +269,11 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
     data_2_subtree[select_data_2] <- TRUE
     data_2_subtree[data_2_all] <- TRUE
 
-    analytes_data["dataset_2"] <- data_2_subtree
+    analytes_data[["dataset_2"]] <- data_2_subtree
 
     all_cohort <- ifelse(data_1_subtree, 0L, 2L) + ifelse(data_2_subtree, 0L, 1L)
 
-    analytes_data["cohort"] <- as.character(all_cohort)
+    analytes_data[["cohort"]] <- as.character(all_cohort)
 
     print(summary(analytes_data))
 
@@ -375,6 +382,10 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #' @import ggtree
 #' @import ggtreeExtra
 circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
+  val <- NULL
+  terminal_label <- NULL
+  grp <- NULL
+
   if (!(col %in% names(data)))
     stop(paste('The column', col, 'is not in the input data!'))
 
@@ -386,9 +397,9 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
   index <- which(names(new_data) %in% col)
   new_data[, index] <- as.numeric(new_data[, index])
   new_data <- new_data[!is.na(new_data[, index]),]
-  new_data["grp"] <- new_data$terminal_label
-  new_data["val"] <- new_data[, index]
-  new_data["node"] <- new_data$terminal_label
+  new_data[["grp"]] <- new_data$terminal_label
+  new_data[["val"]] <- new_data[, index]
+  new_data[["node"]] <- new_data$terminal_label
 
   #summary(new_data)
 
@@ -445,6 +456,9 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
 #'
 leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', show_labels = FALSE, tax_level_labels = NULL, tree = NULL){
   # Find all the terminal_label values from data_1.
+  terminal_label <- NULL
+  INCHIKEY <- NULL
+  percentages <- NULL
   terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
 
   # For each terminal_label value, determine the chemicals from data_2 that are
@@ -456,12 +470,12 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
     return(length(shared_chemicals)/length(data_1_chemicals))
   })
 
-  label_data <- data.frame(label = terminal_labels,
-                           percentages = unname(label_percentages),
-                           data_1_numbers <- unname(sapply(terminal_labels, function(t) {
+  label_data <- data.frame('label' = terminal_labels,
+                           'percentages' = unname(label_percentages),
+                           'data_1_numbers' <- unname(sapply(terminal_labels, function(t) {
                              length(data_1[terminal_label == t, unique(INCHIKEY)])
                            })),
-                           data_2_numbers <- unname(sapply(terminal_labels, function(t) {
+                           'data_2_numbers' <- unname(sapply(terminal_labels, function(t) {
                              length(intersect(data_1[terminal_label == t, unique(INCHIKEY)],
                                               data_2[terminal_label == t, unique(INCHIKEY)]))
                            }
@@ -520,6 +534,7 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 #' @export
 #' @import ggtree
 data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = NULL, tree = NULL, show_tips = TRUE){
+  membership <- NULL
   # Prune subtrees for each data set.
   tree_1 <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
   tree_2 <- prune_and_display_subtree(data_2, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
@@ -529,10 +544,10 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
   data_labels_2 <- setNames(unlist(get_labels(data_2)), NULL)
 
   # Create membership tables
-  membership_1 <- data.frame(node = 1:length(c(tree_1$tip.label, tree_1$node.label)),
-                             membership = c(tree_1$tip.label, tree_1$node.label) %in% data_labels_2)
-  membership_2 <- data.frame(node = 1:length(c(tree_2$tip.label, tree_2$node.label)),
-                             membership = c(tree_2$tip.label, tree_2$node.label) %in% data_labels_1)
+  membership_1 <- data.frame('node' = 1:length(c(tree_1$tip.label, tree_1$node.label)),
+                             'membership' = c(tree_1$tip.label, tree_1$node.label) %in% data_labels_2)
+  membership_2 <- data.frame('node' = 1:length(c(tree_2$tip.label, tree_2$node.label)),
+                             'membership' = c(tree_2$tip.label, tree_2$node.label) %in% data_labels_1)
 
   # Create tree plots
   plot_1 <- ggtree(tree_1) %<+% membership_1 +
