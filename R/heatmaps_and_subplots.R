@@ -454,7 +454,7 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @import ggplot2
 #' @import ggtree
 #' @import phangorn
-#' @import ape
+#' @importFrom ape drop.tip
 generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, row_name = 'Row data set', column_name = 'Column data set',  isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
   label <- NULL
   # get tree labels

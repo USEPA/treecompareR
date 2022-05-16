@@ -10,7 +10,7 @@
 #' @param seed A seed to allow for replication of results.
 #' @return A 'phylo' object representing the generated tree.
 #' @export
-#' @import ape
+#' @importFrom ape rtree
 generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA){
   if (!is.na(seed)){
     set.seed(seed = seed)

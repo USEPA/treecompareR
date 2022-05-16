@@ -52,7 +52,7 @@ generate_descendants <- function(tree){
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @return data.frame consisting of the node number, and the level of each node
-#' @import ape
+#' @importFrom ape is.rooted
 get_levels <- function(tree){
   if(!ape::is.rooted(tree))
     stop('Input tree must be rooted!')
@@ -83,7 +83,7 @@ get_levels <- function(tree){
 #' @param log_descendants Alternate parameter for specifying type of information content.
 #' @return data.frame consisting of node number, children, descendants, level, and information content for each node
 #' @export
-#' @import ape
+#' @importFrom ape is.rooted
 generate_information_content <- function(tree, log_descendants = TRUE){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")
@@ -110,7 +110,7 @@ generate_information_content <- function(tree, log_descendants = TRUE){
 #' @param log_descendants Alternate parameter determining type of information content to use.
 #' @return phylo object with information content data.frame attached
 #' @export
-#' @import ape
+#' @importFrom ape is.rooted
 attach_information_content <- function(tree, log_descendants = TRUE){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")

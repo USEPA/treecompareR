@@ -142,7 +142,7 @@ get_label_length <- function(label_list){
 #'   data.table for each taxonomy level.
 #' @export
 #' @import data.table
-#' @import tidyr
+#' @importFrom tidyr pivot_longer
 #' @import ggplot2
 label_bars <- function(data = NULL, tax_level_labels = NULL){
   tax_levels <- NULL
@@ -321,7 +321,7 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 #' @return A pruned tree or list consisting of a pruned tree and ggtree diagram
 #'   of the pruned tree.
 #' @export
-#' @import ape
+#' @importFrom ape drop.tip
 #' @import ggtree
 prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL, show_tips = TRUE, no_plot = FALSE) {
   if (is.null(tax_level_labels)){
