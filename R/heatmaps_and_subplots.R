@@ -21,6 +21,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
   level10 <- NULL
   level11 <- NULL
   PREFERRED_NAME <- NULL
+  . <- NULL
   if (!chemont){
     top_level <- names(datatable)[[1]]
     complete_labels <- 'TO BE DETERMINED'
