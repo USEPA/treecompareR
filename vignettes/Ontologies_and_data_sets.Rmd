@@ -92,7 +92,7 @@ In the event that `CASRN` and `InChIKey` data for each chemical is missing we ca
 
 Using the Hazard Comparison Dashboard API approach, we feed in a list of `DTXSID`, `CAS`, `SMILES`, `NAME` information and are returned in a`HazardComparisonDashboard` object, which consists of a list with entries for `dtxsid`, `casrn`, `name`, `smiles`, `inchikey`. From this, we can then construct the data.table for use with `classify_datatable()`. In the event that a chemical remains unclassified, we can feed the classified data.table from `classify_datatable()` into the function `classify_by_smiles` which will try to classify the unclassified chemicals using their SMILES strings. Once completed, a data.table is return, with all chemicals having been classified either through their InChIKey or SMILES, or unclassified.
 
-In the `data` folder, we read in a csv file `Chemical List BIOSOLIDS-2022-05-10.csv` which contains a set of 726 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [biosolids](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS) and was downloaded as a csv file on May 10, 2022.
+In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.rda` which contains a set of 726 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [biosolids](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS) and was downloaded as a csv file on May 10, 2022.
 
 ```{r}
 library(data.table)
@@ -103,9 +103,9 @@ names(biosolids)
 We feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
 
 ```{r, message=FALSE, results='hide'}
-#setnames(biosolids, old = c('PREFERRED.NAME'), new = c('PREFERRED_NAME'))
 biosolids_classified <- classify_datatable(biosolids)
-biosolids_classified <- classify_by_smiles(biosolids_classified)
+# Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
+#biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
 
 We then take a look at the classified chemicals and isolate which chemicals did not receive any classification.
@@ -124,7 +124,8 @@ biosolids_casrn <- biosolids[, CASRN]
 
 biosolids_2 <- batch_chemical_identifiers(biosolids_casrn)
 biosolids_2_classified <- classify_datatable(biosolids_2)
-biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
+# Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
+#biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
 ```
 
 Observe that there is considerable agreement with the classified chemicals using both approaches.
@@ -171,3 +172,67 @@ label_bars(biosolids_classified_terminal)
 ```
 
 Note that in the second diagram, the facets corresponding to levels 9, 10, and 11 are empty. This is due to the fact that there are no classifications of chemicals that have labels down to level9 (and thus subsequent levels).
+
+To illustrate these visualizations and their functionality more effectively, we need to use multiple data sets. We load in a second data set.
+
+In the `data` folder, we read in a rda file `chemical_list_USGSWATER_2022_05_17.rda` which contains a set of 707 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [usgswater](https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER) and was downloaded as a xlsx file on May 17, 2022.
+
+```{r}
+usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
+usgswater[1:2,]
+names(usgswater)
+```
+
+We then classify these chemicals. We also add the terminal label to the data.table.
+
+```{r}
+usgswater_classified <- classify_datatable(usgswater)
+usgswater_classified <- classify_by_smiles(usgswater_classified)
+
+usgswater_classified_terminal <- add_terminal_label(usgswater_classified)
+```
+
+Now that we have a classified data.table with a terminal_label column attached, we can start exploring how to use multiple data sets in visualizations.
+
+The first will involve the label_bars function. We create a named list and feed this into the function as demonstrated below. Note, it is important that the input data is in a *list* and not just a vector.
+
+```{r}
+data_list <- list(biosolids_classified_terminal, usgswater_classified_terminal)
+names(data_list) <- c('Biosolids', 'USGS water')
+
+label_bars(data_list)
+```
+
+The first diagram gives a sense of how the labels are represented for each data set by taxonomic level. The second diagram compares the number of labels per taxonomic level across data sets to show how they are similar or contrasting.
+
+Next, we explore the subtrees represented by these data sets.
+
+```{r}
+display_subtree(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```
+
+Observe that this figure displays both subtrees and their intersection, coloring branches accordingly. We examine this overlap a little more closely.
+
+```{r}
+data_set_subtrees(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```
+
+
+
+If we would like to gauge how this overlap in each induced subtree relates to the number of chemicals with shared classifications common to both data sets, we can display this information in the following diagram.
+
+```{r}
+leaf_fraction_subtree(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```
+
+The function first returns a data.frame of terminal labels of the biosolids data set, and the percentage of  chemicals from the biosolids data set that are also in the USGS water data set, grouped by terminal label. In addition, the number of chemicals with a given label in the biosolids data set is displayed as well as the number of shared chemicals by label from the USGS water data set. The second item returned by the function is the subtree induced by the biosolids data set, with tips colored based on the terminal label percentages described in the data.frame.
+
+We reverse the roles of the data sets and repeat the function to finish this example.
+
+```{r}
+leaf_fraction_subtree(data_1  = usgswater_classified_terminal, data_2 = biosolids_classified_terminal, name_1 = 'USGS water', name_2 = 'Biosolids')
+```
+
+Observe that in both data sets, the label `Cyclohexyl halides` are represented 4 times, so the corresponding tip is colored yellow. 
+
+
