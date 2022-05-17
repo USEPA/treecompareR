@@ -66,6 +66,7 @@ classify_datatable <- function(datatable){
 classify_by_smiles <- function(datatable){
   INCHIKEY <- NULL
   SMILES <- NULL
+  kingdom <- NULL
   if (!data.table::is.data.table(datatable)){
     stop('Input must be a data.table object!')
   }
@@ -82,9 +83,8 @@ classify_by_smiles <- function(datatable){
   new_table <- copy(datatable)
 
   # Get unique SMILES strings and remove NA values
-  SMILES_str <- new_table[is.na(INCHIKEY), unique(SMILES)]
+  SMILES_str <- new_table[is.na(INCHIKEY) | kingdom == '', unique(SMILES)]
   SMILES_str <- SMILES_str[!is.na(SMILES_str)]
-
 
   if (length(SMILES_str)==0) return(new_table)
 
