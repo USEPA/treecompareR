@@ -82,9 +82,10 @@ classify_by_smiles <- function(datatable){
   # Copy data.table
   new_table <- copy(datatable)
 
-  # Get unique SMILES strings and remove NA values
+  # Get unique SMILES strings and remove NA values, '' values
   SMILES_str <- new_table[is.na(INCHIKEY) | kingdom == '', unique(SMILES)]
   SMILES_str <- SMILES_str[!is.na(SMILES_str)]
+  SMILES_str <- SMILES_str[sapply(SMILES_str, function(t) {t != ''})]
 
   if (length(SMILES_str)==0) return(new_table)
 
@@ -96,6 +97,7 @@ classify_by_smiles <- function(datatable){
                                    input = s,
                                    structure)},
                      error = function(e) {
+                       print(s)
                        message(e)
                        return(NULL)}
     )
