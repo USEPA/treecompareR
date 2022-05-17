@@ -25,6 +25,32 @@
 #' }
 'chemical_list_biosolids_2022_05_10'
 
+#' Sample US EPA CompTox Dashboard results for a data set
+#'
+#' A data set containing a list of 707 chemicals with related information
+#'
+#' @format A csv representing 707 rows and 18 columns
+#' \describe{
+#' \item{DTXSID}{A chemical identifier}
+#' \item{PREFERRED_NAME}{A character string of the name}
+#' \item{CASRN}{A character string of the CASRN identifier}
+#' \item{INCHIKEY}{A character of the InChIKey identifier}
+#' \item{IUPAC_NAME}{A character string of the IUPAC identifier}
+#' \item{SMILES}{A character string of the SMILES identifier}
+#' \item{INCHI_STRING}{A character string of the InCh String identifer}
+#' \item{MOLECULAR_FORMULA}{A character string of the molecular formula}
+#' \item{AVERAGE_MASS}{The molecular mass}
+#' \item{MONOISOTOPIC_MASS}{The monoisotopic mass}
+#' \item{NUMBER_OF_SOURCES}{Number of references}
+#' \item{NUMBER_OF_PUBMED_ARTICLES}{Number of articles in which the chemical is referenced}
+#' \item{PUBCHEM_DATA_SOURCES}{Number of references in the PubChem database}
+#' \item{CPDAT_COUNT}{Number of references in the CPDAT}
+#' \item{QC_Level}{Character giving quality control level of data}
+#' \item{NUMBER_ToxCast_Active}{Number of taxcast active}
+#' \item{PERCENT_ToxCast_Active}{Percent of toxcast active}
+#' \item{Total_Assays}{Total assays referencing the chemical}
+#' }
+'chemical_list_USGSWATER_2022_05_17'
 
 
 
