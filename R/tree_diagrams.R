@@ -275,7 +275,7 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 
     analytes_data[["cohort"]] <- as.character(all_cohort)
 
-    print(summary(analytes_data))
+    #print(summary(analytes_data))
 
 
     if (is.null(name_2)){
