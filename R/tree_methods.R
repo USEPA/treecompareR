@@ -350,3 +350,6 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
   return(sim_matrix)
 
 }
+
+
+#' This function simulates trees for similarity.
