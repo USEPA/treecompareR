@@ -362,6 +362,8 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @param tree A phylo object representing a rooted tree.
 #' @param data_1 A data.table of chemicals with classifications.
 #' @param data_2 A data.table of chemicals with classifications.
+#' @param data_1_indices Alternate parameter giving indices of nodes of a subtree of `tree`.
+#' @param data_2_indices Alternate parameter giving indices of nodes of a subtree of `tree`.
 #' @param name_1 An alternate parameter for the name of `data_1`.
 #' @param name_2 An alternate parameter for the name of `data_2`.
 #' @param label_number Number of labels to use to build the simulated trees.
@@ -377,7 +379,7 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @export
 #' @importFrom data.table is.data.table
 #' @importFrom phangorn Ancestors
-MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
+MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
     set.seed(seed)
   }
@@ -387,8 +389,12 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'data_set_1', n
     stop('Please input a label_number less than the number of nodes and tips!')
   }
   if (!(data.table::is.data.table(data_1) & data.table::is.data.table(data_2))){
-    stop('Please input a data.table object for each of the `data_1` and `data_2` parameters!')
-  }
+    if (is.null(data_1_indices) | is.null(data_2_indices)){
+      stop('Please input either indices for `data_1_indices` and `data_2_indices` or data.table objects for `data_1` and `data_2`')
+    } else {
+      stop('Please input a data.table object for each of the `data_1` and `data_2` parameters!')
+    }
+      }
   if (is.null(Jaccard) & is.null(Resnik) & is.null(Lin) & is.null(JiangConrath)){
     stop('Please input a similarity matrix for at least one of Jaccard, Resnik, Lin, and JiangConrath parameters!')
   }
@@ -411,11 +417,20 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'data_set_1', n
 
   dimnames <- c(tree$tip.label, tree$node.label)
 
-  dataset_1_labels <- unlist(get_labels(data = data_1))
-  dataset_1_indices <- which(dimnames %in% dataset_1_labels)
+  if (is.data.table(data_1) & is.data.table(data_2)) {
+    dataset_1_labels <- unlist(get_labels(data = data_1))
+    dataset_1_indices <- which(dimnames %in% dataset_1_labels)
 
-  dataset_2_labels <- unlist(get_labels(data = data_2))
-  dataset_2_indices <- which(dimnames %in% dataset_2_labels)
+    dataset_2_labels <- unlist(get_labels(data = data_2))
+    dataset_2_indices <- which(dimnames %in% dataset_2_labels)
+  } else {
+    dataset_1_labels <- dimnames[data_1_indices]
+    dataset_1_indices <- data_1_indices
+
+    dataset_2_labels <- dimnames[data_2_indices]
+    dataset_2_labels <- data_2_indices
+  }
+
 
   for (i in 1:repetition){
     if (only_tips) {

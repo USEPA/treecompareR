@@ -8,6 +8,8 @@ MonteCarlo_similarity(
   tree,
   data_1,
   data_2,
+  data_1_indices = NULL,
+  data_2_indices = NULL,
   name_1 = "data_set_1",
   name_2 = "data_set_2",
   label_number = 100,
@@ -26,6 +28,10 @@ MonteCarlo_similarity(
 \item{data_1}{A data.table of chemicals with classifications.}
 
 \item{data_2}{A data.table of chemicals with classifications.}
+
+\item{data_1_indices}{Alternate parameter giving indices of nodes of a subtree of \code{tree}.}
+
+\item{data_2_indices}{Alternate parameter giving indices of nodes of a subtree of \code{tree}.}
 
 \item{name_1}{An alternate parameter for the name of \code{data_1}.}
 
