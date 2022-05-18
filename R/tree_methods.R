@@ -178,6 +178,7 @@ get_tip_level <- function(tree, label, node_number = NULL){
 #' @param label_A The first label.
 #' @param label_B The second label.
 #' @return The Jaccard distance of the label sets for the root to node path.
+#' @export
 general_Jaccard_dist <- function(tree, label_A, label_B){
   tree_labels <- c(tree$tip.label, tree$node.label)
   index_A <- which(label_A == tree_labels)
@@ -225,6 +226,7 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 #' @param label_A The first label.
 #' @param label_B The second label.
 #' @return The Jaccard distance of the label sets for the root to node path.
+#' @export
 general_Jaccard_similarity <- function(tree, label_A, label_B){
   return(1 - general_Jaccard_dist(tree, label_A, label_B))
 }
@@ -240,6 +242,7 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Resnik similarity in the given tree of the pair of nodes.
+#' @export
 general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -276,6 +279,7 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Lin similarity in the given tree of the pair of nodes.
+#' @export
 general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -306,6 +310,7 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Jiang and Conrath similarity in the given tree of the pair of nodes.
+#' @export
 general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -353,3 +358,45 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 
 
 #' This function simulates trees for similarity.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param data_1 A data.table of chemicals with classifications.
+#' @param data_2 A data.table of chemicals with classifications.
+#' @param name_1 An alternate parameter for the name of `data_1`.
+#' @param name_2 An alternate parameter for the name of `data_2`.
+#' @param label_number Number of labels to use to build the simulated trees.
+#' @param repetition Number of simulated trees to build.
+#' @param seed Alternate parameter to allow for replication of results.
+#' @param only_tips Alternate parameter restricting starting labels to tips or
+#'   to tips and internal nodes.
+#' @return A data.frame with similarity values for each simulation.
+#' @export
+#'
+MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'Data set 1', name_2 =  'Data set 2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE){
+  if (!is.na(seed) & is.integer(seed)){
+    set.seed(seed)
+  }
+  if(only_tips & (label_number > length(tree$tip.label))){
+    stop('Please input a label_number less than the number of tips!')
+  } else if (label_number > (length(tree$tip.label) + length(tree$node.label))) {
+    stop('Please input a label_number less than the number of nodes and tips!')
+  }
+  if (!(data.table::is.data.table(data_1) & data.table::is.data.table(data_2))){
+    stop('Please input a data.table object for each of the `data_1` and `data_2` parameters!')
+  }
+
+  simulation_dataframe <- data.frame(Jaccard_all = double(),
+                                     Resnik_all = double(),
+                                     Lin_all = double(),
+                                     JiangConrath_all = double(),
+                                     Jaccard_all_data_set_1 = double(),
+                                     Resnik_all_data_set_1 = double(),
+                                     Lin_all_data_set_1 = double(),
+                                     JiangConrath_all_data_set_1 = double(),
+                                     Jaccard_all_data_set_2 = double(),
+                                     Resnik_all_data_set_2 = double(),
+                                     Lin_all_data_set_2 = double(),
+                                     JiangConrath_all_data_set_2 = double(),
+                                     all_nodes = integer(),
+                                     all_tips = integer())
+}
