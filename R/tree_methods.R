@@ -369,10 +369,15 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @param seed Alternate parameter to allow for replication of results.
 #' @param only_tips Alternate parameter restricting starting labels to tips or
 #'   to tips and internal nodes.
+#' @param Jaccard The Jaccard similarity matrix for `tree`.
+#' @param Resnik The Resnik similarity matrix for `tree`.
+#' @param Lin The Lin similarity matrix for `tree`.
+#' @param JiangConrath The JiangConrath similarity matrix for `tree`.
 #' @return A data.frame with similarity values for each simulation.
 #' @export
-#'
-MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'Data set 1', name_2 =  'Data set 2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE){
+#' @importFrom data.table is.data.table
+#' @importFrom phangorn Ancestors
+MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
     set.seed(seed)
   }
@@ -383,6 +388,9 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'Data set 1', n
   }
   if (!(data.table::is.data.table(data_1) & data.table::is.data.table(data_2))){
     stop('Please input a data.table object for each of the `data_1` and `data_2` parameters!')
+  }
+  if (is.null(Jaccard) & is.null(Resnik) & is.null(Lin) & is.null(JiangConrath)){
+    stop('Please input a similarity matrix for at least one of Jaccard, Resnik, Lin, and JiangConrath parameters!')
   }
 
   simulation_dataframe <- data.frame(Jaccard_all = double(),
@@ -399,4 +407,75 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, name_1 = 'Data set 1', n
                                      JiangConrath_all_data_set_2 = double(),
                                      all_nodes = integer(),
                                      all_tips = integer())
+
+
+  dimnames <- c(tree$tip.label, tree$node.label)
+
+  dataset_1_labels <- unlist(get_labels(data = data_1))
+  dataset_1_indices <- which(dimnames %in% dataset_1_labels)
+
+  dataset_2_labels <- unlist(get_labels(data = data_2))
+  dataset_2_indices <- which(dimnames %in% dataset_2_labels)
+
+  for (i in 1:repetition){
+    if (only_tips) {
+      label_start <- sample(tree$tip.label, label_number)
+    } else {
+      label_start <- sample(dimnames, label_number)
+    }
+
+    label_start_nodes <- sapply(label_start, function(t) {
+      match(t, dimnames)
+    })
+
+    label_branches <- sapply(label_start_nodes, function(t) {
+      if (!is.na(t)) {
+        phangorn::Ancestors(t, x = tree)
+      }
+    })
+    label_ancestors <-unique(unlist(label_branches))
+
+    label_all_nodes <- dimnames[union(label_start_nodes, unlist(label_branches))]
+    label_all_tips <- label_start[which(label_start %in% tree$tip.label)]
+
+    all_node_indices <- which(dimnames %in% label_all_nodes)
+    all_tip_indices <- which(dimnames %in% label_all_tips)
+
+    new_row <- double(14L)
+
+    if (!is.null(Jaccard)){
+      new_row[[1]] <- mean(Jaccard[all_node_indices, all_node_indices][upper.tri(Jaccard[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[5]] <- mean(Jaccard[all_tip_indices, dataset_1_indices][upper.tri(Jaccard[all_tip_indices, dataset_1_indices], diag = TRUE)])
+      new_row[[9]] <- mean(Jaccard[all_tip_indices, dataset_2_indices][upper.tri(Jaccard[all_tip_indices, dataset_2_indices], diag = TRUE)])
+    }
+
+    if (!is.null(Resnik)){
+      new_row[[2]] <- mean(Resnik[all_node_indices, all_node_indices][upper.tri(Resnik[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[6]] <- mean(Resnik[all_tip_indices, dataset_1_indices][upper.tri(Resnik[all_tip_indices, dataset_1_indices], diag = TRUE)])
+      new_row[[10]] <- mean(Resnik[all_tip_indices, dataset_2_indices][upper.tri(Resnik[all_tip_indices, dataset_2_indices], diag = TRUE)])
+    }
+
+    if (!is.null(Lin)){
+      new_row[[3]] <- mean(Lin[all_node_indices, all_node_indices][upper.tri(Lin[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[7]] <- mean(Lin[all_tip_indices, dataset_1_indices][upper.tri(lin[all_tip_indices, dataset_1_indices], diag = TRUE)])
+      new_row[[11]] <- mean(Lin[all_tip_indices, dataset_2_indices][upper.tri(Lin[all_tip_indices, dataset_2_indices], diag = TRUE)])
+    }
+
+    if (!is.null(JiangConrath)){
+      new_row[[4]] <- mean(JiangConrath[all_node_indices, all_node_indices][upper.tri(JiangConrath[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[8]] <- mean(JiangConrath[all_tip_indices, dataset_1_indices][upper.tri(JiangConrath[all_tip_indices, dataset_1_indices], diag = TRUE)])
+      new_row[[12]] <- mean(JiangConrath[all_tip_indices, dataset_2_indices][upper.tri(JiangConrath[all_tip_indices, dataset_2_indices], diag = TRUE)])
+    }
+
+    new_row[[13]] <- length(all_node_indices)
+    new_row[[14]] <- length(all_tip_indices)
+
+    simulation_dataframe[i, ] <- new_row
+  }
+
+  names(simulation_datafram)[5:8] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_1)
+  names(simulation_datafram)[9:12] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_2)
+
+  return(simulation_dataframe)
 }
+

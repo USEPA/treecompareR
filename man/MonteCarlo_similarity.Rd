@@ -8,12 +8,16 @@ MonteCarlo_similarity(
   tree,
   data_1,
   data_2,
-  name_1 = "Data set 1",
-  name_2 = "Data set 2",
+  name_1 = "data_set_1",
+  name_2 = "data_set_2",
   label_number = 100,
   repetition = 10,
   seed = NA_real_,
-  only_tips = FALSE
+  only_tips = FALSE,
+  Jaccard = NULL,
+  Resnik = NULL,
+  Lin = NULL,
+  JiangConrath = NULL
 )
 }
 \arguments{
@@ -35,6 +39,14 @@ MonteCarlo_similarity(
 
 \item{only_tips}{Alternate parameter restricting starting labels to tips or
 to tips and internal nodes.}
+
+\item{Jaccard}{The Jaccard similarity matrix for \code{tree}.}
+
+\item{Resnik}{The Resnik similarity matrix for \code{tree}.}
+
+\item{Lin}{The Lin similarity matrix for \code{tree}.}
+
+\item{JiangConrath}{The JiangConrath similarity matrix for \code{tree}.}
 }
 \value{
 A data.frame with similarity values for each simulation.
