@@ -89,7 +89,7 @@ get_label_level <- function(data, level_label, tax_level_labels = NULL){
                           'level9', 'level10', 'level11')
   }
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
-    stop('Please input a valid label!')
+    stop(paste('Please input a valid label!', level_label))
 
   # Collect the labels
   labels <- data[, sapply(.SD, unique), .SDcols = c(level_label)]
@@ -118,6 +118,48 @@ get_labels <- function(data, tax_level_labels = NULL){
   }
   labels <- sapply(tax_level_labels, function(t) {get_label_level(data, t, tax_level_labels)})
   labels
+}
+
+#' Helper function to determine number of occurrences for each label
+#'
+#' @param data A data.table of chemicals with classifications.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not  using ClassyFire taxonomy
+#' @return A named list of chemical labels and their number of occurrences.
+get_number_of_labels <- function(data, tax_level_labels = NULL){
+  if (is.null(tax_level_labels)){
+    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
+                          'level5', 'level6', 'level7', 'level8',
+                          'level9', 'level10', 'level11')
+  }
+
+  labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
+
+  N <- sum(sapply(labels, length))
+
+  number_of_labels <- integer(N)
+  names(number_of_labels) <- unlist(unname(labels))
+
+  #print(names(number_of_labels))
+
+  for (i in seq_along(tax_level_labels)){
+    #print(paste('There are ', length(labels[[i]]), 'levels'))
+    #print(labels[[i]])
+
+    for (j in seq_along(labels[[i]])){
+      index <- which(names(number_of_labels) == labels[[i]][[j]])
+      #print(paste(tax_level_labels[[i]], labels[[i]][[j]]))
+      #print(names(labels)[[i]])
+      #print(labels[[i]][[j]])
+      #print(index)
+      #print(data[, .(names(labels)[[i]])])
+      #print(data[, .SD, .SDcols = c(names(labels)[[i]])])
+      number_of_labels[[index]] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
+      #print(length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]])))
+    }
+  }
+
+  return(number_of_labels)
 }
 
 #' A helper function that returns the number of labels per level.
