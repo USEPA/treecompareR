@@ -30,6 +30,9 @@ get_cutoffs(
 
 \item{counts}{An alternate parameter giving the counts of occurrence for each label.}
 }
+\value{
+Named list of percentage of data represented by similarity values.
+}
 \description{
 This function gives cutoffs for similarity level and subtree representation
 }

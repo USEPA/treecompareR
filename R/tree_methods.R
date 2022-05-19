@@ -503,6 +503,8 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @param cutoff An alternate parameter giving the cutoff percentage value.
 #' @param labels An alternate parameter giving a list of node labels corresponding to a subtree of `tree`.
 #' @param counts An alternate parameter giving the counts of occurrence for each label.
+#' @return Named list of percentage of data represented by similarity values.
+#' @export
 get_cutoffs <- function(tree, matrix, data, tax_levels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
     if (is.null(tax_levels)){
@@ -510,10 +512,34 @@ get_cutoffs <- function(tree, matrix, data, tax_levels = NULL, neighbors = 3, cu
                       'level5', 'level6', 'level7', 'level8',
                       'level9', 'level10', 'level11')
     }
-
-    labels <- get_labels(data = data, tax_levels = tax_levels)
+    counts <- get_number_of_labels(data = data, tax_levels = tax_levels)
+    labels <- names(counts)
+    #labels <- get_labels(data = data, tax_levels = tax_levels)
   }
 
 
   indices <- which(dimnames(matrix)[[1]] %in% labels)
-}
+
+  temp_mat <- mat[indices, indices]
+
+  average_val <- unname(apply(temp_mat, MARGIN = 1, function(t) {sum(sort(t, decreasing = TRUE)[1:3])/3}))
+
+  total = sum(counts)
+
+  temp_counts <- counts[order(average_val, decreasing = TRUE)]
+
+  unique_avgs <- sort(unique(average_val))
+
+  margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
+
+  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_three, decreasing = TRUE) > (t - margin)])/total})
+
+  names(percentages) <- rev(unique_avgs)
+
+  if (!is.na(cutoff)) {
+    # returns maximum value that achieves cutoff percentage threshold
+    return(names(percentages)[[min(which(percentages >= cutoff))]])
+  } else {
+    return(percentages)
+  }
+  }
