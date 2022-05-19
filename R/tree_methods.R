@@ -505,34 +505,35 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @param counts An alternate parameter giving the counts of occurrence for each label.
 #' @return Named list of percentage of data represented by similarity values.
 #' @export
-get_cutoffs <- function(tree, matrix, data, tax_levels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
+get_cutoffs <- function(tree, mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
-    if (is.null(tax_levels)){
-      tax_levels <- c('kingdom', 'superclass', 'class', 'subclass',
+    if (is.null(tax_level_labels)){
+      tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
                       'level5', 'level6', 'level7', 'level8',
                       'level9', 'level10', 'level11')
     }
-    counts <- get_number_of_labels(data = data, tax_levels = tax_levels)
+    counts <- get_number_of_labels(data = data, tax_level_labels = tax_level_labels)
     labels <- names(counts)
     #labels <- get_labels(data = data, tax_levels = tax_levels)
   }
 
 
-  indices <- which(dimnames(matrix)[[1]] %in% labels)
-
+  indices <- which(dimnames(mat)[[1]] %in% labels)
+  print(indices)
   temp_mat <- mat[indices, indices]
 
   average_val <- unname(apply(temp_mat, MARGIN = 1, function(t) {sum(sort(t, decreasing = TRUE)[1:3])/3}))
-
+  print(average_val)
   total = sum(counts)
 
   temp_counts <- counts[order(average_val, decreasing = TRUE)]
-
+  print(temp_counts)
   unique_avgs <- sort(unique(average_val))
+  print(unique_avgs)
 
   margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
 
-  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_three, decreasing = TRUE) > (t - margin)])/total})
+  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_val, decreasing = TRUE) > (t - margin)])/total})
 
   names(percentages) <- rev(unique_avgs)
 
