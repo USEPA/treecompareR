@@ -494,3 +494,26 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
   return(simulation_dataframe)
 }
 
+#' This function gives cutoffs for similarity level and subtree representation
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param matrix A similarity matrix corresponding to `tree`.
+#' @param data A data.table of chemicals with classifications.
+#' @param neighbors A parameter giving how many neighbors to use for finding label average values.
+#' @param cutoff An alternate parameter giving the cutoff percentage value.
+#' @param labels An alternate parameter giving a list of node labels corresponding to a subtree of `tree`.
+#' @param counts An alternate parameter giving the counts of occurrence for each label.
+get_cutoffs <- function(tree, matrix, data, tax_levels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
+  if (is.data.table(data)){
+    if (is.null(tax_levels)){
+      tax_levels <- c('kingdom', 'superclass', 'class', 'subclass',
+                      'level5', 'level6', 'level7', 'level8',
+                      'level9', 'level10', 'level11')
+    }
+
+    labels <- get_labels(data = data, tax_levels = tax_levels)
+  }
+
+
+  indices <- which(dimnames(matrix)[[1]] %in% labels)
+}
