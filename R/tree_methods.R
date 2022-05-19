@@ -499,11 +499,16 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @param tree A phylo object representing a rooted tree.
 #' @param matrix A similarity matrix corresponding to `tree`.
 #' @param data A data.table of chemicals with classifications.
-#' @param neighbors A parameter giving how many neighbors to use for finding label average values.
+#' @param neighbors A parameter giving how many neighbors to use for finding
+#'   label average values.
 #' @param cutoff An alternate parameter giving the cutoff percentage value.
-#' @param labels An alternate parameter giving a list of node labels corresponding to a subtree of `tree`.
-#' @param counts An alternate parameter giving the counts of occurrence for each label.
+#' @param labels An alternate parameter giving a list of node labels
+#'   corresponding to a subtree of `tree`.
+#' @param counts An alternate parameter giving the counts of occurrence for each
+#'   label.
 #' @return Named list of percentage of data represented by similarity values.
+#'   The names are the similarity values. The values of the list are percentages
+#'   of data represented by allowing similarity values equal to the names.
 #' @export
 get_cutoffs <- function(tree, mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
@@ -514,22 +519,22 @@ get_cutoffs <- function(tree, mat, data, tax_level_labels = NULL, neighbors = 3,
     }
     counts <- get_number_of_labels(data = data, tax_level_labels = tax_level_labels)
     labels <- names(counts)
-    #labels <- get_labels(data = data, tax_levels = tax_levels)
+
   }
 
 
   indices <- which(dimnames(mat)[[1]] %in% labels)
-  print(indices)
+
   temp_mat <- mat[indices, indices]
 
   average_val <- unname(apply(temp_mat, MARGIN = 1, function(t) {sum(sort(t, decreasing = TRUE)[1:3])/3}))
-  print(average_val)
+
   total = sum(counts)
 
   temp_counts <- counts[order(average_val, decreasing = TRUE)]
-  print(temp_counts)
+
   unique_avgs <- sort(unique(average_val))
-  print(unique_avgs)
+
 
   margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
 

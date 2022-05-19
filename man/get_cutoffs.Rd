@@ -6,9 +6,9 @@
 \usage{
 get_cutoffs(
   tree,
-  matrix,
+  mat,
   data,
-  tax_levels = NULL,
+  tax_level_labels = NULL,
   neighbors = 3,
   cutoff = NA_real_,
   labels = NULL,
@@ -18,20 +18,25 @@ get_cutoffs(
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{matrix}{A similarity matrix corresponding to \code{tree}.}
-
 \item{data}{A data.table of chemicals with classifications.}
 
-\item{neighbors}{A parameter giving how many neighbors to use for finding label average values.}
+\item{neighbors}{A parameter giving how many neighbors to use for finding
+label average values.}
 
 \item{cutoff}{An alternate parameter giving the cutoff percentage value.}
 
-\item{labels}{An alternate parameter giving a list of node labels corresponding to a subtree of \code{tree}.}
+\item{labels}{An alternate parameter giving a list of node labels
+corresponding to a subtree of \code{tree}.}
 
-\item{counts}{An alternate parameter giving the counts of occurrence for each label.}
+\item{counts}{An alternate parameter giving the counts of occurrence for each
+label.}
+
+\item{matrix}{A similarity matrix corresponding to \code{tree}.}
 }
 \value{
 Named list of percentage of data represented by similarity values.
+The names are the similarity values. The values of the list are percentages
+of data represented by allowing similarity values equal to the names.
 }
 \description{
 This function gives cutoffs for similarity level and subtree representation
