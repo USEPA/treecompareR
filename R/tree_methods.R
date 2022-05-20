@@ -13,10 +13,12 @@
 #' @param tree A phylo object
 #' @return data.frame consisting of the node number, descendants, children, and
 #'   level
+#' @export
 #'
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
 #' generate_descendants(tree = tree)
 #'
 generate_descendants <- function(tree){
@@ -175,7 +177,7 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return A list of nodes back to the root of ancestors for the given node.
-#'
+#' @export
 #'
 #' @examples
 #'
@@ -210,6 +212,7 @@ get_ancestors <- function(tree, label, node_number = NULL){
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return The level of the node from the root of the tree.
+#' @export
 #'
 #' @examples
 #'
@@ -242,8 +245,8 @@ get_tip_level <- function(tree, label, node_number = NULL){
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#' general_Jaccard_distance(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Jaccard_distance(tree = tree, label_A = 'n3', label_B = 't8')
+#' general_Jaccard_dist(tree = tree, label_A = 't2', label_B = 't4')
+#' general_Jaccard_dist(tree = tree, label_A = 'n3', label_B = 't8')
 #'
 general_Jaccard_dist <- function(tree, label_A, label_B){
   tree_labels <- c(tree$tip.label, tree$node.label)
@@ -670,7 +673,7 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @export
 #'
 #' @examples
-#' dt <- classify_datatable(chemical_list_biosolids_2022_05_10)
+#' dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 #' dt <- classify_by_smiles(dt)
 #'
 #' get_cutoffs(mat = chemont_jaccard, data = dt)

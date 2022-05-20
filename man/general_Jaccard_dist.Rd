@@ -27,8 +27,8 @@ information on Jaccard distance, please consult
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
-general_Jaccard_distance(tree = tree, label_A = 't2', label_B = 't4')
-general_Jaccard_distance(tree = tree, label_A = 'n3', label_B = 't8')
+general_Jaccard_dist(tree = tree, label_A = 't2', label_B = 't4')
+general_Jaccard_dist(tree = tree, label_A = 'n3', label_B = 't8')
 
 }
 \seealso{

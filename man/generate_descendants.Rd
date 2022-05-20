@@ -20,6 +20,7 @@ node of the input tree.
 \examples{
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
 generate_descendants(tree = tree)
 
 }
