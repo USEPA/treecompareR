@@ -5,10 +5,20 @@
 # internal nodes. The output also includes the number of children for each node
 # and the node level.
 
-#' Generates a data.frame of the number of descendants for each node of the input tree
+#' Generate descendants
+#'
+#' This function generates a data.frame of the number of descendants for each
+#' node of the input tree.
 #'
 #' @param tree A phylo object
-#' @return data.frame consisting of the node number, descendants, children, and level
+#' @return data.frame consisting of the node number, descendants, children, and
+#'   level
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#' generate_descendants(tree = tree)
+#'
 generate_descendants <- function(tree){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")

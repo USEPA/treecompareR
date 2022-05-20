@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{generate_descendants}
 \alias{generate_descendants}
-\title{Generates a data.frame of the number of descendants for each node of the input tree}
+\title{Generate descendants}
 \usage{
 generate_descendants(tree)
 }
@@ -10,8 +10,16 @@ generate_descendants(tree)
 \item{tree}{A phylo object}
 }
 \value{
-data.frame consisting of the node number, descendants, children, and level
+data.frame consisting of the node number, descendants, children, and
+level
 }
 \description{
-Generates a data.frame of the number of descendants for each node of the input tree
+This function generates a data.frame of the number of descendants for each
+node of the input tree.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+generate_descendants(tree = tree)
+
 }

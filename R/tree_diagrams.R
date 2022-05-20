@@ -2,7 +2,10 @@
 
 
 
-#' This function returns the terminal classification label for classified chemicals
+#' Add terminal label
+#'
+#' This function takes in a data.table of chemicals and their classifications
+#' and determines the terminal classification label for each chemical.
 #'
 #' @param data A data.table of classified chemicals.
 #' @param tip An alternate parameter controlling whether to include only tip
@@ -36,7 +39,12 @@ add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
   return(new_dt)
 }
 
-#' Helper function to return the terminal label for `add_terminal_label()`
+#' Terminal label function
+#'
+#' This is a helper function to return the terminal label for
+#' \code{\link{add_terminal_label()}}. It returns the terminal label for an
+#' input data.table consisting of a single row, a chemical with its
+#' classification.
 #'
 #' @param t A data.table with classification data.
 #' @param tip Alternate parameter for determining whether to only return tip
@@ -72,7 +80,11 @@ terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
   return(labels[[(index[[1]] - 1)]])
 }
 
-#' Returns unique labels in a classified data for a given taxonomy level
+#' Label level
+#'
+#' This function takes in a data.table of chemicals with classification data and
+#' a taxonomy level, and returns all the unique labels for the given taxonomy
+#' level.
 #'
 #' @param data A data.table with data that has been classified by some taxonomy.
 #' @param level_label A string indicating a taxonomy level of the classified
@@ -104,7 +116,10 @@ get_label_level <- function(data, level_label, tax_level_labels = NULL){
 }
 
 
-#' Helper function for retrieving labels in a data.table of classified chemicals
+#' Get labels
+#'
+#' This is a helper function for retrieving labels in a data.table of classified
+#' chemicals, grouped by taxonomy level.
 #'
 #' @param data A data.table consisting of classified chemicals.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
@@ -120,7 +135,10 @@ get_labels <- function(data, tax_level_labels = NULL){
   labels
 }
 
-#' Helper function to determine number of occurrences for each label
+#' Number of labels
+#'
+#' This is a helper function to determine number of occurrences for each label
+#' in a data.table containing chemicals and their classification data.
 #'
 #' @param data A data.table of chemicals with classifications.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
@@ -162,7 +180,10 @@ get_number_of_labels <- function(data, tax_level_labels = NULL){
   return(number_of_labels)
 }
 
-#' A helper function that returns the number of labels per level.
+#' Label length
+#'
+#' This is a helper function that returns the number of labels per taxonomy
+#' level for a given data.table of chemicals and their classification data.
 #'
 #' @param label_list A named list of labels corresponding to taxonomy levels.
 #' @return The number of labels per taxonomy level.
@@ -172,6 +193,8 @@ get_label_length <- function(label_list){
 }
 
 
+#' Label bars
+#'
 #' This function takes in a (list of) data.table(s) and returns figures
 #' illustrating the label numbers by taxonomy level.
 #'

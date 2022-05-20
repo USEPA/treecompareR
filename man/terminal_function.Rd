@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{terminal_function}
 \alias{terminal_function}
-\title{Helper function to return the terminal label for \code{add_terminal_label()}}
+\title{Terminal label function}
 \usage{
 terminal_function(t, tip = FALSE, tax_level_labels, tree = NULL)
 }
@@ -21,5 +21,8 @@ ChemOnt.}
 A string giving the terminal label.
 }
 \description{
-Helper function to return the terminal label for \code{add_terminal_label()}
+This is a helper function to return the terminal label for
+\code{\link{add_terminal_label()}}. It returns the terminal label for an
+input data.table consisting of a single row, a chemical with its
+classification.
 }

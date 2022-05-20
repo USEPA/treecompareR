@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{add_terminal_label}
 \alias{add_terminal_label}
-\title{This function returns the terminal classification label for classified chemicals}
+\title{Add terminal label}
 \usage{
 add_terminal_label(data, tip = FALSE, labels = NULL, tree = NULL)
 }
@@ -23,5 +23,6 @@ A new data.table, augmenting the input data.table with a column
 consisting of the terminal labels.
 }
 \description{
-This function returns the terminal classification label for classified chemicals
+This function takes in a data.table of chemicals and their classifications
+and determines the terminal classification label for each chemical.
 }

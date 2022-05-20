@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{get_number_of_labels}
 \alias{get_number_of_labels}
-\title{Helper function to determine number of occurrences for each label}
+\title{Number of labels}
 \usage{
 get_number_of_labels(data, tax_level_labels = NULL)
 }
@@ -16,5 +16,6 @@ not  using ClassyFire taxonomy}
 A named list of chemical labels and their number of occurrences.
 }
 \description{
-Helper function to determine number of occurrences for each label
+This is a helper function to determine number of occurrences for each label
+in a data.table containing chemicals and their classification data.
 }

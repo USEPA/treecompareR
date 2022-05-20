@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{get_label_level}
 \alias{get_label_level}
-\title{Returns unique labels in a classified data for a given taxonomy level}
+\title{Label level}
 \usage{
 get_label_level(data, level_label, tax_level_labels = NULL)
 }
@@ -20,5 +20,7 @@ The unique labels corresponding to the given level and classified
 data.
 }
 \description{
-Returns unique labels in a classified data for a given taxonomy level
+This function takes in a data.table of chemicals with classification data and
+a taxonomy level, and returns all the unique labels for the given taxonomy
+level.
 }

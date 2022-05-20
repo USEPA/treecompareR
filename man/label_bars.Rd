@@ -2,8 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{label_bars}
 \alias{label_bars}
-\title{This function takes in a (list of) data.table(s) and returns figures
-illustrating the label numbers by taxonomy level.}
+\title{Label bars}
 \usage{
 label_bars(data = NULL, tax_level_labels = NULL)
 }

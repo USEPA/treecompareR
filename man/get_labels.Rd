@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{get_labels}
 \alias{get_labels}
-\title{Helper function for retrieving labels in a data.table of classified chemicals}
+\title{Get labels}
 \usage{
 get_labels(data, tax_level_labels = NULL)
 }
@@ -16,5 +16,6 @@ not using ClassyFire taxonomy.}
 A list of classification labels for each level of taxonomy.
 }
 \description{
-Helper function for retrieving labels in a data.table of classified chemicals
+This is a helper function for retrieving labels in a data.table of classified
+chemicals, grouped by taxonomy level.
 }

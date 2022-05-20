@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{get_label_length}
 \alias{get_label_length}
-\title{A helper function that returns the number of labels per level.}
+\title{Label length}
 \usage{
 get_label_length(label_list)
 }
@@ -13,5 +13,6 @@ get_label_length(label_list)
 The number of labels per taxonomy level.
 }
 \description{
-A helper function that returns the number of labels per level.
+This is a helper function that returns the number of labels per taxonomy
+level for a given data.table of chemicals and their classification data.
 }
