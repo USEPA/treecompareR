@@ -29,7 +29,7 @@ The Resnik similarity in the given tree of the pair of nodes.
 }
 \description{
 This determines the Resnik similarity for two input nodes in a given tree.
-This use the formulation as described in
+This uses the formulation as described in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 }

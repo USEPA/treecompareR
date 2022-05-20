@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_tip_level}
 \alias{get_tip_level}
-\title{Returns the tree level of the given node}
+\title{Tree level}
 \usage{
 get_tip_level(tree, label, node_number = NULL)
 }
@@ -17,5 +17,12 @@ get_tip_level(tree, label, node_number = NULL)
 The level of the node from the root of the tree.
 }
 \description{
-Returns the tree level of the given node
+This function returns the tree level of the given node in a rooted tree.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+get_tip_level(tree = tree, label = 't2')
+get_tip_level(tree = tree, label = 'n1')
 }

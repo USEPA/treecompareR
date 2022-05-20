@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_levels}
 \alias{get_levels}
-\title{Generates a data.frame of node levels for input rooted tree.}
+\title{Generate tree levels}
 \usage{
 get_levels(tree)
 }
@@ -13,5 +13,14 @@ get_levels(tree)
 data.frame consisting of the node number, and the level of each node
 }
 \description{
-Generates a data.frame of node levels for input rooted tree.
+This function generates a data.frame of node levels for input rooted tree.
+The data.frame has a row corresponding to each tip and internal node. It
+records the depth from the root of each node.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+get_levels(tree = tree)
+
 }

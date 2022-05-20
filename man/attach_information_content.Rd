@@ -2,18 +2,29 @@
 % Please edit documentation in R/tree_methods.R
 \name{attach_information_content}
 \alias{attach_information_content}
-\title{Attaches information content if missing for input tree}
+\title{Attach information content}
 \usage{
 attach_information_content(tree, log_descendants = TRUE)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{log_descendants}{Alternate parameter determining type of information content to use.}
+\item{log_descendants}{Alternate parameter determining type of information
+content to use.}
 }
 \value{
 phylo object with information content data.frame attached
 }
 \description{
-Attaches information content if missing for input tree
+This function attaches information content if missing for input tree. This
+uses the formulation as described in
+\href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+tree <- attach_information_content(tree = tree)
+
 }

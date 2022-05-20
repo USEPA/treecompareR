@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_ancestors}
 \alias{get_ancestors}
-\title{Generates a list of ancestors for a given node in a tree.}
+\title{Ancestors}
 \usage{
 get_ancestors(tree, label, node_number = NULL)
 }
@@ -18,4 +18,11 @@ A list of nodes back to the root of ancestors for the given node.
 }
 \description{
 Generates a list of ancestors for a given node in a tree.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+get_ancestors(tree = tree, label = 't2')
+get_ancestors(tree = tree, label = 'n1')
 }

@@ -2,18 +2,31 @@
 % Please edit documentation in R/tree_methods.R
 \name{generate_information_content}
 \alias{generate_information_content}
-\title{Generates a data.frame of information content}
+\title{Generate information content.}
 \usage{
 generate_information_content(tree, log_descendants = TRUE)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{log_descendants}{Alternate parameter for specifying type of information content.}
+\item{log_descendants}{Alternate parameter for specifying type of information
+content.}
 }
 \value{
-data.frame consisting of node number, children, descendants, level, and information content for each node
+data.frame consisting of node number, children, descendants, level,
+and information content for each node
 }
 \description{
-Generates a data.frame of information content
+This function generates a data.frame of information content for the input
+tree. This uses the formulation as described in
+\href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+Intrinsic Information Content Metric for Semantic Similarity in WordNet}. The
+data.frame also includes the depth of each tip and internal node.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+generate_information_content(tree = tree)
+
 }

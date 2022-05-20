@@ -42,17 +42,22 @@ generate_descendants <- function(tree){
   return(descendant_numbers)
 }
 
-# This function creates a data.frame and records the level of each node,
-# starting at the root and exploring each successive level of depth. It takes in
-# a rooted tree as an input. It returns a data.frame of length equal to the
-# number of nodes of the tree, and depth of each node with values ranging from
-# 0 (the root) to the maximum depth of all the nodes, inclusive.
-
-#' Generates a data.frame of node levels for input rooted tree.
+#' Generate tree levels
+#'
+#' This function generates a data.frame of node levels for input rooted tree.
+#' The data.frame has a row corresponding to each tip and internal node. It
+#' records the depth from the root of each node.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @return data.frame consisting of the node number, and the level of each node
 #' @importFrom ape is.rooted
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' get_levels(tree = tree)
+#'
 get_levels <- function(tree){
   if(!ape::is.rooted(tree))
     stop('Input tree must be rooted!')
@@ -70,20 +75,28 @@ get_levels <- function(tree){
   return(node_levels)
 }
 
-# This function takes in a rooted-tree 'phylo' object and returns a data.frame
-# with information of descendants, children, tree level, and a log-based
-# information content for each node. The log-based information content assigns
-# to each node the value 1 - log(1+descendants)/log(total nodes), giving tips a
-# value of 1, the root a value of 0, and monotonically decreasing in value
-# from tip to root.
-
-#' Generates a data.frame of information content
+#' Generate information content.
+#'
+#' This function generates a data.frame of information content for the input
+#' tree. This uses the formulation as described in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}. The
+#' data.frame also includes the depth of each tip and internal node.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param log_descendants Alternate parameter for specifying type of information content.
-#' @return data.frame consisting of node number, children, descendants, level, and information content for each node
+#' @param log_descendants Alternate parameter for specifying type of information
+#'   content.
+#' @return data.frame consisting of node number, children, descendants, level,
+#'   and information content for each node
 #' @export
 #' @importFrom ape is.rooted
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' generate_information_content(tree = tree)
+#'
 generate_information_content <- function(tree, log_descendants = TRUE){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")
@@ -101,16 +114,27 @@ generate_information_content <- function(tree, log_descendants = TRUE){
   }
 }
 
-# This function checks to see if the rooted tree has an information content attached.
-# If not, it then attaches one based on type of information content requested.
 
-#' Attaches information content if missing for input tree
+#' Attach information content
+#'
+#' This function attaches information content if missing for input tree. This
+#' uses the formulation as described in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param log_descendants Alternate parameter determining type of information content to use.
+#' @param log_descendants Alternate parameter determining type of information
+#'   content to use.
 #' @return phylo object with information content data.frame attached
 #' @export
 #' @importFrom ape is.rooted
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' tree <- attach_information_content(tree = tree)
+#'
 attach_information_content <- function(tree, log_descendants = TRUE){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")
@@ -133,12 +157,22 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   return(tree)
 }
 
+#' Ancestors
+#'
 #' Generates a list of ancestors for a given node in a tree.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return A list of nodes back to the root of ancestors for the given node.
+#'
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' get_ancestors(tree = tree, label = 't2')
+#' get_ancestors(tree = tree, label = 'n1')
 get_ancestors <- function(tree, label, node_number = NULL){
   if (!is.null(node_number)){
     ifelse(is.numeric(node_number) & (node_number %in% 1:(1 + length(tree$edge))), index <- node_number, stop('Please input a correct value for node_number'))
@@ -158,12 +192,21 @@ get_ancestors <- function(tree, label, node_number = NULL){
 }
 
 
-#' Returns the tree level of the given node
+#' Tree level
+#'
+#' This function returns the tree level of the given node in a rooted tree.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param label The node label.
 #' @param node_number Alternate parameter, the number of the given node.
 #' @return The level of the node from the root of the tree.
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' get_tip_level(tree = tree, label = 't2')
+#' get_tip_level(tree = tree, label = 'n1')
 get_tip_level <- function(tree, label, node_number = NULL){
   return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
 }
@@ -263,7 +306,7 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
 #' Resnik similarity
 #'
 #' This determines the Resnik similarity for two input nodes in a given tree.
-#' This use the formulation as described in
+#' This uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #'
@@ -311,7 +354,7 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
 #' Lin similarity
 #'
 #' This determines the Lin similarity for two input nodes in a given tree. This
-#' use the formulation as described in
+#' uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #'
@@ -353,7 +396,7 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
 #' Jiang and Conrath similarity
 #'
 #' This determines the Jiang and Conrath similarity for two input nodes in a
-#' given tree. This use the formulation as described in
+#' given tree. This uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #'
