@@ -330,11 +330,27 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
   return(1 - ((informationSum - 2*resSim)/2))
 }
 
-#' Generates a similarity matrix for a given tree and similarity measure
+#' Similarity matrix generator
+#'
+#' This function takes in a tree and a similarity measure function, and
+#' generates a similarity matrix for the given tree and similarity measure. The
+#' matrix is symmetric, with rows and columns given by the tip and internal node
+#' labels in the ordering given by the tree.
+#'
 #' @param tree A phylo object representing a rooted tree.
-#' @param similarity A similarity measure function that requires as inputs a tree, label_A, and label_B
-#' @return A similarity matrix, which is a symmetric matrix with values in \eqn{[0,1]}.
+#' @param similarity A similarity measure function that requires as inputs a
+#'   tree, label_A, and label_B
+#' @return A similarity matrix, which is a symmetric, with values in
+#'   \eqn{[0,1]}.
 #' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
+#' generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
+#'
 generate_similarity_matrix <- function(tree, similarity = NULL){
   ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
   Nnode = length(tree$node.label)
@@ -357,13 +373,21 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 }
 
 
-#' This function simulates trees for similarity.
+#' Random subtree similarity simulation
+#'
+#' This function takes in a tree, two data sets (or indices representing two
+#' subtrees of the tree) and creates random subtrees, calculates their
+#' similarity values, and returns the results in a data.frame. This function
+#' allows for comparison of the similarity of the input data sets (or subtrees)
+#' with similarity of random subtrees of specified sizes.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param data_1 A data.table of chemicals with classifications.
 #' @param data_2 A data.table of chemicals with classifications.
-#' @param data_1_indices Alternate parameter giving indices of nodes of a subtree of `tree`.
-#' @param data_2_indices Alternate parameter giving indices of nodes of a subtree of `tree`.
+#' @param data_1_indices Alternate parameter giving indices of nodes of a
+#'   subtree of `tree`.
+#' @param data_2_indices Alternate parameter giving indices of nodes of a
+#'   subtree of `tree`.
 #' @param name_1 An alternate parameter for the name of `data_1`.
 #' @param name_2 An alternate parameter for the name of `data_2`.
 #' @param label_number Number of labels to use to build the simulated trees.
@@ -375,10 +399,23 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @param Resnik The Resnik similarity matrix for `tree`.
 #' @param Lin The Lin similarity matrix for `tree`.
 #' @param JiangConrath The JiangConrath similarity matrix for `tree`.
-#' @return A data.frame with similarity values for each simulation.
+#' @return A data.frame with similarity values for each simulation. The
+#'   similarity values reported in each row is the mean similarity value for the
+#'   corresponding data set/simulated tree given by the column.
 #' @export
 #' @importFrom data.table is.data.table
 #' @importFrom phangorn Ancestors
+#'
+#' @examples
+#' dt1 <- classify_datatable(chemical_list_biosolids_2022_05_10)
+#' dt1 <- classify_by_smiles(dt1)
+#'
+#' dt2 <- classify_datatable(chemical_list_USGSWATER_2022_05_17)
+#' dt2 <- classify_by_smiles(dt2)
+#'
+#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
+#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
+#'
 MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
     set.seed(seed)
@@ -494,21 +531,35 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
   return(simulation_dataframe)
 }
 
-#' This function gives cutoffs for similarity level and subtree representation
+#' Similarity cutoffs
 #'
-#' @param matrix A similarity matrix corresponding to a similarity measure and a rooted tree .
+#' This function gives cutoffs for similarity values and percent of
+#' representation of a data set. The function determines what percentage of a
+#' data set that is represented by the induced subtree of the data set for various values of a
+#' fixed similarity measure.
+#'
+#' @param matrix A similarity matrix corresponding to a similarity measure and a
+#'   rooted tree .
 #' @param data A data.table of chemicals with classifications.
 #' @param neighbors A parameter giving how many neighbors to use for finding
 #'   label average values.
 #' @param cutoff An alternate parameter giving the cutoff percentage value.
 #' @param labels An alternate parameter giving a list of node labels
-#'   corresponding to a subtree of `tree`.
+#'   corresponding to a subtree of a rooted tree..
 #' @param counts An alternate parameter giving the counts of occurrence for each
 #'   label.
 #' @return Named list of percentage of data represented by similarity values.
 #'   The names are the similarity values. The values of the list are percentages
 #'   of data represented by allowing similarity values equal to the names.
 #' @export
+#'
+#' @examples
+#' dt <- classify_datatable(chemical_list_biosolids_2022_05_10)
+#' dt <- classify_by_smiles(dt)
+#'
+#' get_cutoffs(mat = chemont_jaccard, data = dt)
+#' get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
+#'
 get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
     if (is.null(tax_level_labels)){

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{MonteCarlo_similarity}
 \alias{MonteCarlo_similarity}
-\title{This function simulates trees for similarity.}
+\title{Random subtree similarity simulation}
 \usage{
 MonteCarlo_similarity(
   tree,
@@ -29,9 +29,11 @@ MonteCarlo_similarity(
 
 \item{data_2}{A data.table of chemicals with classifications.}
 
-\item{data_1_indices}{Alternate parameter giving indices of nodes of a subtree of \code{tree}.}
+\item{data_1_indices}{Alternate parameter giving indices of nodes of a
+subtree of \code{tree}.}
 
-\item{data_2_indices}{Alternate parameter giving indices of nodes of a subtree of \code{tree}.}
+\item{data_2_indices}{Alternate parameter giving indices of nodes of a
+subtree of \code{tree}.}
 
 \item{name_1}{An alternate parameter for the name of \code{data_1}.}
 
@@ -55,8 +57,25 @@ to tips and internal nodes.}
 \item{JiangConrath}{The JiangConrath similarity matrix for \code{tree}.}
 }
 \value{
-A data.frame with similarity values for each simulation.
+A data.frame with similarity values for each simulation. The
+similarity values reported in each row is the mean similarity value for the
+corresponding data set/simulated tree given by the column.
 }
 \description{
-This function simulates trees for similarity.
+This function takes in a tree, two data sets (or indices representing two
+subtrees of the tree) and creates random subtrees, calculates their
+similarity values, and returns the results in a data.frame. This function
+allows for comparison of the similarity of the input data sets (or subtrees)
+with similarity of random subtrees of specified sizes.
+}
+\examples{
+dt1 <- classify_datatable(chemical_list_biosolids_2022_05_10)
+dt1 <- classify_by_smiles(dt1)
+
+dt2 <- classify_datatable(chemical_list_USGSWATER_2022_05_17)
+dt2 <- classify_by_smiles(dt2)
+
+MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
+MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
+
 }

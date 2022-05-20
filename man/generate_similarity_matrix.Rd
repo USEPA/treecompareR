@@ -2,18 +2,31 @@
 % Please edit documentation in R/tree_methods.R
 \name{generate_similarity_matrix}
 \alias{generate_similarity_matrix}
-\title{Generates a similarity matrix for a given tree and similarity measure}
+\title{Similarity matrix generator}
 \usage{
 generate_similarity_matrix(tree, similarity = NULL)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{similarity}{A similarity measure function that requires as inputs a tree, label_A, and label_B}
+\item{similarity}{A similarity measure function that requires as inputs a
+tree, label_A, and label_B}
 }
 \value{
-A similarity matrix, which is a symmetric matrix with values in \eqn{[0,1]}.
+A similarity matrix, which is a symmetric, with values in
+\eqn{[0,1]}.
 }
 \description{
-Generates a similarity matrix for a given tree and similarity measure
+This function takes in a tree and a similarity measure function, and
+generates a similarity matrix for the given tree and similarity measure. The
+matrix is symmetric, with rows and columns given by the tip and internal node
+labels in the ordering given by the tree.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
+generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
+
 }

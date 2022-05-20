@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_cutoffs}
 \alias{get_cutoffs}
-\title{This function gives cutoffs for similarity level and subtree representation}
+\title{Similarity cutoffs}
 \usage{
 get_cutoffs(
   mat,
@@ -23,12 +23,13 @@ label average values.}
 \item{cutoff}{An alternate parameter giving the cutoff percentage value.}
 
 \item{labels}{An alternate parameter giving a list of node labels
-corresponding to a subtree of \code{tree}.}
+corresponding to a subtree of a rooted tree..}
 
 \item{counts}{An alternate parameter giving the counts of occurrence for each
 label.}
 
-\item{matrix}{A similarity matrix corresponding to a similarity measure and a rooted tree .}
+\item{matrix}{A similarity matrix corresponding to a similarity measure and a
+rooted tree .}
 }
 \value{
 Named list of percentage of data represented by similarity values.
@@ -36,5 +37,16 @@ The names are the similarity values. The values of the list are percentages
 of data represented by allowing similarity values equal to the names.
 }
 \description{
-This function gives cutoffs for similarity level and subtree representation
+This function gives cutoffs for similarity values and percent of
+representation of a data set. The function determines what percentage of a
+data set that is represented by the induced subtree of the data set for various values of a
+fixed similarity measure.
+}
+\examples{
+dt <- classify_datatable(chemical_list_biosolids_2022_05_10)
+dt <- classify_by_smiles(dt)
+
+get_cutoffs(mat = chemont_jaccard, data = dt)
+get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
+
 }
