@@ -496,8 +496,7 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 
 #' This function gives cutoffs for similarity level and subtree representation
 #'
-#' @param tree A phylo object representing a rooted tree.
-#' @param matrix A similarity matrix corresponding to `tree`.
+#' @param matrix A similarity matrix corresponding to a similarity measure and a rooted tree .
 #' @param data A data.table of chemicals with classifications.
 #' @param neighbors A parameter giving how many neighbors to use for finding
 #'   label average values.
@@ -510,7 +509,7 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #'   The names are the similarity values. The values of the list are percentages
 #'   of data represented by allowing similarity values equal to the names.
 #' @export
-get_cutoffs <- function(tree, mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
+get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
     if (is.null(tax_level_labels)){
       tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
@@ -522,12 +521,31 @@ get_cutoffs <- function(tree, mat, data, tax_level_labels = NULL, neighbors = 3,
 
   }
 
+  if (!is.numeric(neighbors)){
+    warning('Setting `neighbors` to have value 3...')
+    neighbors = 3
+  }
+
+  if (neighbors - as.integer(neighbors) > 0){
+    if (as.integer(neighbors) < 2){
+      warning('Neighbors must be greater than 1! Setting value to 3...')
+      neighbors = 3
+    } else {
+      neighbors <- as.integer(neighbors)
+    }
+  } else if (neighbors < 2){
+    warning('Neighbors must be greater than 1! Setting value to 3...')
+    neighbors = 3
+  }
+
+
+
 
   indices <- which(dimnames(mat)[[1]] %in% labels)
 
   temp_mat <- mat[indices, indices]
 
-  average_val <- unname(apply(temp_mat, MARGIN = 1, function(t) {sum(sort(t, decreasing = TRUE)[1:3])/3}))
+  average_val <- unname(apply(temp_mat, MARGIN = 1, function(t) {sum(sort(t, decreasing = TRUE)[1:neighbors])/neighbors}))
 
   total = sum(counts)
 

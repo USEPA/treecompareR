@@ -5,7 +5,6 @@
 \title{This function gives cutoffs for similarity level and subtree representation}
 \usage{
 get_cutoffs(
-  tree,
   mat,
   data,
   tax_level_labels = NULL,
@@ -16,8 +15,6 @@ get_cutoffs(
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
-
 \item{data}{A data.table of chemicals with classifications.}
 
 \item{neighbors}{A parameter giving how many neighbors to use for finding
@@ -31,7 +28,7 @@ corresponding to a subtree of \code{tree}.}
 \item{counts}{An alternate parameter giving the counts of occurrence for each
 label.}
 
-\item{matrix}{A similarity matrix corresponding to \code{tree}.}
+\item{matrix}{A similarity matrix corresponding to a similarity measure and a rooted tree .}
 }
 \value{
 Named list of percentage of data represented by similarity values.
