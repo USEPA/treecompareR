@@ -1,15 +1,20 @@
 
-# This function takes in a data.table with columns "PREFERRED_NAME", "CASRN", and "INCHIKEY"
-# and runs the the classyFireR API call for each chemical in the data.table.
-
-#' Classify chemicals from input data.table using InChIKey
+#' InChIKey classification
 #'
-#' @param datatable A data.table with columns 'PREFERRED_NAME', 'CASRN', 'INCHIKEY
-#' @return A data.table object with classifications attached to each row of input data.table
+#' This function uses the ClassyFire API to classify chemicals from an input
+#' data.table using the InChIKey chemical identifier.
+#'
+#' @param datatable A data.table with columns 'PREFERRED_NAME', 'CASRN',
+#'   'INCHIKEY
+#' @return A data.table object with classifications attached to each row of
+#'   input data.table
 #' @export
 #' @import data.table
 #' @importFrom purrr map
 #' @import classyfireR
+#'
+#' @seealso \code{\link{classify_by_smiles}}
+#'
 classify_datatable <- function(datatable){
   INCHIKEY <- NULL
   if (!data.table::is.data.table(datatable)){
@@ -55,7 +60,11 @@ classify_datatable <- function(datatable){
 # looking at the rows missing a classification and attempting to classify
 # via the associated SMILES string if present
 
-#' Classify chemicals from input data.table using SMILES
+#' SMILES string classification
+#'
+#' This function takes a data.table of chemicals and classifications from
+#' \code{\link{classify_datatable}} and attempts to classify chemicals from the
+#' input data.table using SMILES strings that are missing classification data.
 #'
 #' @param datatable A data.table that is the output from classify_datatable.
 #' @return A data.table object with classification information for each row.
@@ -63,6 +72,9 @@ classify_datatable <- function(datatable){
 #' @import data.table
 #' @importFrom purrr map2
 #' @import classyfireR
+#'
+#' @seealso \code{\link{classify_datatable}}
+#'
 classify_by_smiles <- function(datatable){
   INCHIKEY <- NULL
   SMILES <- NULL

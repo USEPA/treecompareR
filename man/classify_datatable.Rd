@@ -2,16 +2,22 @@
 % Please edit documentation in R/run_classyfireR.R
 \name{classify_datatable}
 \alias{classify_datatable}
-\title{Classify chemicals from input data.table using InChIKey}
+\title{InChIKey classification}
 \usage{
 classify_datatable(datatable)
 }
 \arguments{
-\item{datatable}{A data.table with columns 'PREFERRED_NAME', 'CASRN', 'INCHIKEY}
+\item{datatable}{A data.table with columns 'PREFERRED_NAME', 'CASRN',
+'INCHIKEY}
 }
 \value{
-A data.table object with classifications attached to each row of input data.table
+A data.table object with classifications attached to each row of
+input data.table
 }
 \description{
-Classify chemicals from input data.table using InChIKey
+This function uses the ClassyFire API to classify chemicals from an input
+data.table using the InChIKey chemical identifier.
+}
+\seealso{
+\code{\link{classify_by_smiles}}
 }

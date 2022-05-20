@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_classyfireR.R
 \name{classify_by_smiles}
 \alias{classify_by_smiles}
-\title{Classify chemicals from input data.table using SMILES}
+\title{SMILES string classification}
 \usage{
 classify_by_smiles(datatable)
 }
@@ -13,5 +13,10 @@ classify_by_smiles(datatable)
 A data.table object with classification information for each row.
 }
 \description{
-Classify chemicals from input data.table using SMILES
+This function takes a data.table of chemicals and classifications from
+\code{\link{classify_datatable}} and attempts to classify chemicals from the
+input data.table using SMILES strings that are missing classification data.
+}
+\seealso{
+\code{\link{classify_datatable}}
 }
