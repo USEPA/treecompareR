@@ -269,6 +269,8 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 }
 
 
+#' Display subtree
+#'
 #' This function takes in one or two data.tables consisting of chemicals with
 #' classification data and returns a tree diagram indiacting the subtree(s)
 #' induced by the data.table(s).
@@ -372,8 +374,11 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 
 }
 
-#' This function takes a data.table of classified chemicals and returns a tree
-#' with optional tree diagram
+#' Prune and display subtree
+#'
+#' This function takes a data.table of chemicals and their classification data,
+#' and returns the data-induced subtree with an optional tree diagram of the
+#' subtree.
 #'
 #' @param data A data.table with classification data for chemicals.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
@@ -427,13 +432,11 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   return(list(pruned_tree, tree_plot))
 }
 
-# This function takes in a data.table with column `terminal_label`, and a column
-# name and produces a circular plot with boxplots displaying values from the
-# specified column grouped by each value in `terminal_label`
-
+#' Circular tree with boxplots
+#'
 #' This function takes in a data.table of chemicals with classification data and
-#' additional numeric data and displays selected numeric data grouped by tip
-#' label on data-induced subtree.
+#' additional numeric data, and displays selected numeric data grouped by tip
+#' label on the data-induced subtree of the classification taxonomy.
 #'
 #' @param data A data.table consisting of classification data and additional
 #'   numeric data.
@@ -496,13 +499,11 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
 }
 
 
-# This function takes in two data sets, creates the subtree induced by data_1,
-# and colors the tips based on the number of chemicals from data_2 are in the
-# set of chemicals from data_1 grouped by tip.
-
+#' Leaf fraction subtree
+#'
 #' This function takes in two data.tables, plots the subtree induced by the
-#' first and colors the tips based on the proportion of chemicalsfrom the second
-#' that make up the chemials from the first, grouped by tip label.
+#' first data.table and colors the tips based on the proportion of chemicals from the second data.table
+#' that make up the chemicals from the first, grouped by tip (or terminal) label.
 #'
 #' @param data_1 A data.table of chemicals, classifications, and column `terminal_label`.
 #' @param data_2 A data.table of chemicals, classifications, and column `terminal_label`
@@ -518,6 +519,8 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
 #' @import ggtree
 #' @import ggtreeExtra
 #' @import ggplot2
+#'
+#' @seealso \code{\link{add_terminal_label}}
 #'
 leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', show_labels = FALSE, tax_level_labels = NULL, tree = NULL){
   # Find all the terminal_label values from data_1.
@@ -585,7 +588,13 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 }
 
 
-#' This function creates two plots that show a visual comparison of the subtrees induced by two data sets
+#' Compare data set subtrees
+#'
+#' This function takes in two data.tables of chemicals with classification data,
+#' and creates two plots each of which show a visual comparison of the subtrees
+#' induced by two data sets. The visual comparison consists of branches of one
+#' data-induced subtree colored and labeled based on whether they are
+#' represented by chemicals from the other data set.
 #'
 #' @param data_1 A data.table of chemicals and their classifications.
 #' @param data_2 A data.table of chemicals and their classifications.
@@ -594,7 +603,8 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @param show_tips An alternate parameter determining whether to show tip labels.
+#' @param show_tips An alternate parameter determining whether to show tip
+#'   labels.
 #' @return A list of two ggtree objects.
 #' @export
 #' @import ggtree

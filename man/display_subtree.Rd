@@ -2,9 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{display_subtree}
 \alias{display_subtree}
-\title{This function takes in one or two data.tables consisting of chemicals with
-classification data and returns a tree diagram indiacting the subtree(s)
-induced by the data.table(s).}
+\title{Display subtree}
 \usage{
 display_subtree(
   data_1,

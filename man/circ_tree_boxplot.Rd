@@ -2,9 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{circ_tree_boxplot}
 \alias{circ_tree_boxplot}
-\title{This function takes in a data.table of chemicals with classification data and
-additional numeric data and displays selected numeric data grouped by tip
-label on data-induced subtree.}
+\title{Circular tree with boxplots}
 \usage{
 circ_tree_boxplot(data, col, tax_level_labels = NULL, tree = NULL)
 }
@@ -25,6 +23,6 @@ corresponding to specified numeric column of data.
 }
 \description{
 This function takes in a data.table of chemicals with classification data and
-additional numeric data and displays selected numeric data grouped by tip
-label on data-induced subtree.
+additional numeric data, and displays selected numeric data grouped by tip
+label on the data-induced subtree of the classification taxonomy.
 }

@@ -2,8 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{prune_and_display_subtree}
 \alias{prune_and_display_subtree}
-\title{This function takes a data.table of classified chemicals and returns a tree
-with optional tree diagram}
+\title{Prune and display subtree}
 \usage{
 prune_and_display_subtree(
   data,
@@ -32,6 +31,7 @@ A pruned tree or list consisting of a pruned tree and ggtree diagram
 of the pruned tree.
 }
 \description{
-This function takes a data.table of classified chemicals and returns a tree
-with optional tree diagram
+This function takes a data.table of chemicals and their classification data,
+and returns the data-induced subtree with an optional tree diagram of the
+subtree.
 }

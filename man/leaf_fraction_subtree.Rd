@@ -2,9 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{leaf_fraction_subtree}
 \alias{leaf_fraction_subtree}
-\title{This function takes in two data.tables, plots the subtree induced by the
-first and colors the tips based on the proportion of chemicalsfrom the second
-that make up the chemials from the first, grouped by tip label.}
+\title{Leaf fraction subtree}
 \usage{
 leaf_fraction_subtree(
   data_1,
@@ -37,6 +35,9 @@ A ggtree plot.
 }
 \description{
 This function takes in two data.tables, plots the subtree induced by the
-first and colors the tips based on the proportion of chemicalsfrom the second
-that make up the chemials from the first, grouped by tip label.
+first data.table and colors the tips based on the proportion of chemicals from the second data.table
+that make up the chemicals from the first, grouped by tip (or terminal) label.
+}
+\seealso{
+\code{\link{add_terminal_label}}
 }

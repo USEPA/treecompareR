@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{data_set_subtrees}
 \alias{data_set_subtrees}
-\title{This function creates two plots that show a visual comparison of the subtrees induced by two data sets}
+\title{Compare data set subtrees}
 \usage{
 data_set_subtrees(
   data_1,
@@ -28,11 +28,16 @@ not using ClassyFire taxonomy.}
 
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 
-\item{show_tips}{An alternate parameter determining whether to show tip labels.}
+\item{show_tips}{An alternate parameter determining whether to show tip
+labels.}
 }
 \value{
 A list of two ggtree objects.
 }
 \description{
-This function creates two plots that show a visual comparison of the subtrees induced by two data sets
+This function takes in two data.tables of chemicals with classification data,
+and creates two plots each of which show a visual comparison of the subtrees
+induced by two data sets. The visual comparison consists of branches of one
+data-induced subtree colored and labeled based on whether they are
+represented by chemicals from the other data set.
 }
