@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{general_Jaccard_dist}
 \alias{general_Jaccard_dist}
-\title{This determines the Jaccard distance for two input node labels in a given tree.}
+\title{Jaccard distance}
 \usage{
 general_Jaccard_dist(tree, label_A, label_B)
 }
@@ -17,5 +17,20 @@ general_Jaccard_dist(tree, label_A, label_B)
 The Jaccard distance of the label sets for the root to node path.
 }
 \description{
-This determines the Jaccard distance for two input node labels in a given tree.
+This determines the Jaccard distance for two input node labels in a given
+tree. For each node, there is a set of labels along the unique path from the
+root to the label. These sets are compared using Jaccard distance. For more
+information on Jaccard distance, please consult
+\href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+general_Jaccard_distance(tree = tree, label_A = 't2', label_B = 't4')
+general_Jaccard_distance(tree = tree, label_A = 'n3', label_B = 't8')
+
+}
+\seealso{
+\code{\link{general_Jaccard_similarity}}
 }

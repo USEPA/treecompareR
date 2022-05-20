@@ -169,16 +169,29 @@ get_tip_level <- function(tree, label, node_number = NULL){
 }
 
 
-# This function takes in a tree and two labels and returns the Jaccard distance
-# of the nodes corresponding to the labels within the tree.
-
-#' This determines the Jaccard distance for two input node labels in a given tree.
+#' Jaccard distance
+#'
+#' This determines the Jaccard distance for two input node labels in a given
+#' tree. For each node, there is a set of labels along the unique path from the
+#' root to the label. These sets are compared using Jaccard distance. For more
+#' information on Jaccard distance, please consult
+#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param label_A The first label.
 #' @param label_B The second label.
 #' @return The Jaccard distance of the label sets for the root to node path.
 #' @export
+#'
+#' @seealso \code{\link{general_Jaccard_similarity}}
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' general_Jaccard_distance(tree = tree, label_A = 't2', label_B = 't4')
+#' general_Jaccard_distance(tree = tree, label_A = 'n3', label_B = 't8')
+#'
 general_Jaccard_dist <- function(tree, label_A, label_B){
   tree_labels <- c(tree$tip.label, tree$node.label)
   index_A <- which(label_A == tree_labels)
@@ -220,29 +233,56 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 # This function takes in a tree and two labels and returns the Jaccard
 # similarity of the two labels within the tree
 
-#' This determines the Jaccard similarity for two input node labels in a given tree.
+#' Jaccard similarity
+#'
+#' This determines the Jaccard similarity for two input node labels in a given
+#' tree. For each node, there is a set of labels along the unique path from the
+#' root to the label. These sets are compared using Jaccard similarity. For more
+#' information on Jaccard similarity, please consult
+#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param label_A The first label.
 #' @param label_B The second label.
 #' @return The Jaccard distance of the label sets for the root to node path.
 #' @export
+#'
+#' @seealso \code{\link{general_Jaccard_distance}}
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' general_Jaccard_similarity(tree = tree, label_A = 't2', label_B = 't4')
+#' general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#'
 general_Jaccard_similarity <- function(tree, label_A, label_B){
   return(1 - general_Jaccard_dist(tree, label_A, label_B))
 }
 
-# This function takes in a tree and two labels and returns the Resnik similarity
-# of the two labels within the tree.
-
-#' This determines the Resnik similarity for two input nodes in a given tree.
+#' Resnik similarity
 #'
-#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' This determines the Resnik similarity for two input nodes in a given tree.
+#' This use the formulation as described in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information
+#'   content attribute IC.
 #' @param label_A The first node label.
 #' @param label_B The second node label.
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Resnik similarity in the given tree of the pair of nodes.
 #' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
+#' general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#'
 general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -268,18 +308,29 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
   return(value)
 }
 
-# This function takes in a tree and two labels and returns the Lin similarity
-# of the two labels within the tree.
-
-#' This determines the Lin similarity for two input nodes in a given tree.
+#' Lin similarity
 #'
-#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' This determines the Lin similarity for two input nodes in a given tree. This
+#' use the formulation as described in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information
+#'   content attribute IC.
 #' @param label_A The first node label.
 #' @param label_B The second node label.
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Lin similarity in the given tree of the pair of nodes.
 #' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' general_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
+#' general_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#'
 general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
@@ -299,18 +350,30 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
   return(ifelse(denominator == 0, 1, 2*resSim/denominator))
 }
 
-# This function takes in a tree and two labels and returns the Jiang-Conrath
-# similarity of the two labels within the tree.
-
-#' This determines the Jiang and Conrath similarity for two input nodes in a given tree.
+#' Jiang and Conrath similarity
 #'
-#' @param tree A phylo object representing a rooted tree, with an information content attribute IC.
+#' This determines the Jiang and Conrath similarity for two input nodes in a
+#' given tree. This use the formulation as described in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#'
+#' @param tree A phylo object representing a rooted tree, with an information
+#'   content attribute IC.
 #' @param label_A The first node label.
 #' @param label_B The second node label.
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
-#' @return The Jiang and Conrath similarity in the given tree of the pair of nodes.
+#' @return The Jiang and Conrath similarity in the given tree of the pair of
+#'   nodes.
 #' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
+#' general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#'
 general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){

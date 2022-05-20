@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{general_JiangConrath_similarity}
 \alias{general_JiangConrath_similarity}
-\title{This determines the Jiang and Conrath similarity for two input nodes in a given tree.}
+\title{Jiang and Conrath similarity}
 \usage{
 general_JiangConrath_similarity(
   tree,
@@ -13,7 +13,8 @@ general_JiangConrath_similarity(
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree, with an information content attribute IC.}
+\item{tree}{A phylo object representing a rooted tree, with an information
+content attribute IC.}
 
 \item{label_A}{The first node label.}
 
@@ -24,8 +25,20 @@ general_JiangConrath_similarity(
 \item{node_B}{Alternate parameter, the second node number.}
 }
 \value{
-The Jiang and Conrath similarity in the given tree of the pair of nodes.
+The Jiang and Conrath similarity in the given tree of the pair of
+nodes.
 }
 \description{
-This determines the Jiang and Conrath similarity for two input nodes in a given tree.
+This determines the Jiang and Conrath similarity for two input nodes in a
+given tree. This use the formulation as described in
+\href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+}
+\examples{
+
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+
+general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
+general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+
 }
