@@ -366,9 +366,28 @@ simulate_trees <- function(n_trees = 1, simulation_seed = NA, ...) {
   if(!is.na(simulation_seed)){
     set.seed(simulation_seed)
   }
-  runs <- c()
+  runs <- list(n_trees)
   for (i in 1:n_trees) {
-    runs <- c(runs, generate_topology(...))
+    new_tree <- tryCatch(
+      {
+        generate_topology(...)
+        },
+      error = function(e) {
+        message(paste(e, '\n'))
+        return(NA)
+      }#,
+      #warning = function(w){
+      #  message(w)
+      #}
+    )
+    #print(str(new_tree))
+    #print(length(new_tree))
+    if (length(new_tree) > 1){
+      runs[[i]] <- new_tree
+    } else {
+      stop('There was an error... see above!')
+    }
+
   }
   return(runs)
 }
