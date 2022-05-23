@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_tree.R
 \name{generate_partition}
 \alias{generate_partition}
-\title{Generates a partition of a positive integer with each element at least 2.}
+\title{Partition generator}
 \usage{
 generate_partition(n, seed = NA)
 }
@@ -15,5 +15,13 @@ generate_partition(n, seed = NA)
 A vector of integers each at least 2 and with sum equal to the input.
 }
 \description{
-Generates a partition of a positive integer with each element at least 2.
+This function generates a partition of an input positive integer. Each
+constituent of the partition has value at least 2.
+2.
+}
+\examples{
+
+generate_partition(n = 4, seed = 42)
+generate_partition(n = 4, seed = 24)
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_tree.R
 \name{generate_topology}
 \alias{generate_topology}
-\title{Generates a random tree with internal nodes of degree at least two.}
+\title{Generate topology}
 \usage{
 generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA)
 }
@@ -13,7 +13,8 @@ generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA)
 
 \item{max_deg}{The maximum degree any node can have.}
 
-\item{min_deg}{The minimum degree any node can have (aside from the root, if rooted)}
+\item{min_deg}{The minimum degree any node can have (aside from the root, if
+rooted).}
 
 \item{seed}{A seed to allow for replication of results.}
 }
@@ -21,5 +22,9 @@ generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA)
 A 'phylo' object representing the generated tree.
 }
 \description{
-Generates a random tree with internal nodes of degree at least two.
+This function generates a rooted tree with internal nodes of degree at least
+two. The sampling of potential topologies and labels assigned to each
+topology are not completely random. The root is degree two, and all other
+internal nodes have degrees (potentially) governed by the alternate
+parameters \code{max_deg} and \code{min_deg}.
 }

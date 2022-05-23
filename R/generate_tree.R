@@ -1,17 +1,23 @@
 
-# In this function, we generate a random tree with a specified number of tips.
-# The internal nodes have degree at least 2 while the root is given degree 2.
-
-#' Generates a random tree with internal nodes of degree at least two.
+#' Generate topology
+#'
+#' This function generates a rooted tree with internal nodes of degree at least
+#' two. The sampling of potential topologies and labels assigned to each
+#' topology are not completely random. The root is degree two, and all other
+#' internal nodes have degrees (potentially) governed by the alternate
+#' parameters `max_deg` and `min_deg`.
+#'
 #' @param n The number of tips, a positive integer.
 #' @param rooted Whether the tree is rooted or not.
 #' @param max_deg The maximum degree any node can have.
-#' @param min_deg The minimum degree any node can have (aside from the root, if rooted)
+#' @param min_deg The minimum degree any node can have (aside from the root, if
+#'   rooted).
 #' @param seed A seed to allow for replication of results.
 #' @return A 'phylo' object representing the generated tree.
 #' @export
 #' @importFrom ape rtree
 #' @importFrom ape root.phylo
+#'
 generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA){
   if (!is.na(seed)){
     set.seed(seed = seed)
@@ -126,14 +132,31 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
 # sum equal to the input positive integer. This does not return the input
 # integer unless it is 2, 3, and possibly 4.
 
-#' Generates a partition of a positive integer with each element at least 2.
+#' Partition generator
+#'
+#' This function generates a partition of an input positive integer. Each
+#' constituent of the partition has value at least 2.
+#' 2.
+#'
 #' @param n positive integer at least 2.
 #' @param seed A seed to allow for replication of results.
 #' @return A vector of integers each at least 2 and with sum equal to the input.
 #' @export
+#'
+#' @examples
+#'
+#' generate_partition(n = 4, seed = 42)
+#' generate_partition(n = 4, seed = 24)
+#'
 generate_partition <- function(n, seed = NA){
-  if(!is.integer(n) | n < 2)
+  if(!is.numeric(n) | as.integer(n) < 2)
     stop('Please input an integer at least 2!')
+  if (n - as.integer(n) > 0){
+    warning(paste('Setting n =', as.integer(n)))
+    n <- as.integer(n)
+  }
+
+
   # if n = 2 or 3, return itself
   if (n < 4) return(n)
   if(!is.na(seed)){
