@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_tree.R
 \name{generate_partition_2}
 \alias{generate_partition_2}
-\title{Generates a partition with optional constraints placed on it.}
+\title{Partition generator 2}
 \usage{
 generate_partition_2(n, max_deg = NULL, min_deg = 0, seed = NA)
 }
@@ -19,5 +19,12 @@ generate_partition_2(n, max_deg = NULL, min_deg = 0, seed = NA)
 Vector of generated partition.
 }
 \description{
-Generates a partition with optional constraints placed on it.
+This function generates a partition with optional constraints placed on it.
+If no such partition can be generated, the function stops and reports this.
+}
+\examples{
+
+generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 4)
+generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 2)
+
 }

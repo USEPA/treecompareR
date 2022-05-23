@@ -191,15 +191,29 @@ generate_partition <- function(n, seed = NA){
 # the partition. If min_deg > max_deg or min_deg = max_deg and max_deg does not
 # divide n, an error is thrown. If min_deg > n, min_deg is set to 0.
 
-#' Generates a partition with optional constraints placed on it.
+#' Partition generator 2
+#'
+#' This function generates a partition with optional constraints placed on it.
+#' If no such partition can be generated, the function stops and reports this.
+#'
 #' @param n Positive integer.
 #' @param max_deg Maximal value an element of the partition can take.
 #' @param min_deg Minimal value an element of the partition can take.
 #' @param seed A seed to allow for replication of results.
 #' @return Vector of generated partition.
+#'
+#' @examples
+#'
+#' generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 4)
+#' generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 2)
+#'
 generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0, seed = NA){
-  if(!is.integer(n) | n < 1)
+  if(!is.numeric(n) | as.integer(n) < 1)
     stop('Please input an integer at least 1!')
+  if (n - as.integer(n) > 0){
+    warning(paste('Setting n =', as.integer(n)))
+    n <- as.integer(n)
+  }
   if(!is.na(seed)){
     set.seed(seed)
   }
@@ -221,6 +235,17 @@ generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0, seed = NA){
         stop('The min_deg and max_deg are equal, but n is not a multiple!')
       } else {
         return(rep(min_deg, n %/% min_deg))
+      }
+    } else if (min_deg > 0){
+      lower <- min(ceiling(n/max_deg), floor(n/min_deg))
+      upper <- max(ceiling(n/max_deg), floor(n/min_deg))
+
+      # For lower <= j <= upper, if there is no such j for which
+      # min_deg*j <= n <= max_deg*j, then it is not possible to create a partition
+      # with the input parameters.
+      if(!any((((lower:upper)*min_deg) <= n) & (((lower:upper)*max_deg) >= n))){
+        stop(paste('Such a partition of', n, 'with values between', min_deg,
+                   'and', max_deg, 'is not possible to construct!'))
       }
     }
     #else if (max_deg == (2*min_deg)) {
