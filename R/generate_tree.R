@@ -291,23 +291,25 @@ generate_partition_2 <- function(n, max_deg = NULL, min_deg = 0, seed = NA){
   return(partition)
 }
 
-# This function handles the case where both a max degree and a min degree are
-# setting constraints on the partition of n. We assume that n, min_deg, max_deg
-# are all positive integers.
-
-#' Generates partition of positive integer, with optional constraints to partition.
+#' Partition generator 3
+#'
+#' This function generates a partition of an input positive integer subject to
+#' both minimum degree and maximum degree constraints.
+#'
 #' @param n positive integer.
 #' @param max_deg Maximum value an element of the partition can take.
 #' @param min_deg Minimum value an element of the partition can take.
 #' @param seed A seed to allow for replication of results.
-#' @return Vector with partition or error in case specified partition is impossible.
+#' @return Vector with partition or error in case specified partition is
+#'   impossible.
 #' @export
+#'
 generate_partition_3 <- function(n, max_deg, min_deg, seed = NA){
   # Creating a partition x_1 + \cdots + x_k = n, min_deg <= x_j <= max_deg
   # bounds ceiling(n/max_deg) <= k <= floor(n/min_deg). For now, we sample k
   # uniformly and later determine the actual distribution of such partitions.
-  lower <- ceiling(n/max_deg)
-  upper <- floor(n/min_deg)
+  lower <- min(floor(n/min_deg), ceiling(n/max_deg))
+  upper <- max(floor(n/min_deg), ceiling(n/max_deg))
 
   # For lower <= j <= upper, if there is no such j for which
   # min_deg*j <= n <= max_deg*j, then it is not possible to create a partition

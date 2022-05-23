@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_tree.R
 \name{generate_partition_3}
 \alias{generate_partition_3}
-\title{Generates partition of positive integer, with optional constraints to partition.}
+\title{Partition generator 3}
 \usage{
 generate_partition_3(n, max_deg, min_deg, seed = NA)
 }
@@ -16,8 +16,10 @@ generate_partition_3(n, max_deg, min_deg, seed = NA)
 \item{seed}{A seed to allow for replication of results.}
 }
 \value{
-Vector with partition or error in case specified partition is impossible.
+Vector with partition or error in case specified partition is
+impossible.
 }
 \description{
-Generates partition of positive integer, with optional constraints to partition.
+This function generates a partition of an input positive integer subject to
+both minimum degree and maximum degree constraints.
 }
