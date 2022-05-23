@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_taxonomy_tree.R
 \name{SetPlotHeight}
 \alias{SetPlotHeight}
-\title{Helper function for fast tree construction}
+\title{Plot height}
 \usage{
 SetPlotHeight(node, rootHeight = 100)
 }
@@ -15,5 +15,8 @@ SetPlotHeight(node, rootHeight = 100)
 A data.tree object with plotHeight attribute.
 }
 \description{
-Helper function for fast tree construction
+This helper function allows for fast tree construction. See
+\href{https://github.com/gluc/data.tree/issues/92#issuecomment-299571142}{Slow
+conversion between data.tree and Newick format} for background on this helper
+function.#'
 }

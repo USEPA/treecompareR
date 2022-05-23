@@ -3,20 +3,31 @@
 # relationships in a taxonomy. The JSON file should have three pieces of data
 # for each entry: 'Name', 'ID', 'Parent_ID'
 
-#' Reads in JSON file with parent-child relationship for taxonomy
+#' Parent-child relationship
+#'
+#' This is a helper function that reads in a JSON file with the parent-child
+#' relationships describing a taxonomy and returns a data.frame with this data.
+#'
 #' @param file_name Path to JSON file
 #' @return A data.frame with parent-object relationships.
-#' @import jsonlite
+#' @importFrom jsonlite fromJSON
+#'
 get_parent_child <- function(file_name){
   temp <- jsonlite::fromJSON(txt = file_name)
   names(temp) <- c('Name', 'ID', 'Parent_ID')
   temp
 }
 
-#' Helper function for creating tree
+#' Path to root
+#'
+#' This helper function generates a path from the root to a given node from a
+#' data.frame of parent-child relationships. This is used in creating a tree
+#' based off of the data.frame of parent-child relationships.
+#'
 #' @param df data.frame with parent-child relationships
 #' @param x Numeric identification number for node
 #' @return Path from node to root, as a string delimited by '/'.
+#'
 get_path_to_root <- function(df, x){
   if (x < 0){
     return('root_')
@@ -33,11 +44,18 @@ get_path_to_root <- function(df, x){
 
 # Slow conversion workaround suggested on github
 
-#' Helper function for fast tree construction
+#' Plot height
+#'
+#' This helper function allows for fast tree construction. See
+#' \href{https://github.com/gluc/data.tree/issues/92#issuecomment-299571142}{Slow
+#' conversion between data.tree and Newick format} for background on this helper
+#' function.#'
+#'
 #' @param node A data.tree object.
 #' @param rootHeight A positive number placeholder for root height, default 100.
 #' @return A data.tree object with plotHeight attribute.
 #' @import data.tree
+#'
 SetPlotHeight <- function(node, rootHeight = 100) {
 
   #traverse from leaves towards root to calculate the height and store it in height2
@@ -64,7 +82,11 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 
 
 
-#' Convert ontology from data.frame to 'phylo' object.
+#' Generate tree
+#'
+#' This function will convert taxonomy relationships from a data.frame to a
+#' 'phylo' object. In addition to the 'phylo' object, there is a data.frame
+#' returned that includes data relevant to the creation of the 'phylo' object.
 #'
 #' @param file_dir A path to a JSON file
 #' @param dataframe An optional data.frame containing parent_child relationship
@@ -73,6 +95,7 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #' @export
 #' @import data.tree
 #' @import phytools
+#'
 generate_tree <- function(file_dir, dataframe = NULL){
   if (is.null(dataframe)){
     # Read in the JSON file with 'Name', 'ID', and 'Parent_ID' information

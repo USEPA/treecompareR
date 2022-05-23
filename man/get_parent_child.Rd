@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_taxonomy_tree.R
 \name{get_parent_child}
 \alias{get_parent_child}
-\title{Reads in JSON file with parent-child relationship for taxonomy}
+\title{Parent-child relationship}
 \usage{
 get_parent_child(file_name)
 }
@@ -13,5 +13,6 @@ get_parent_child(file_name)
 A data.frame with parent-object relationships.
 }
 \description{
-Reads in JSON file with parent-child relationship for taxonomy
+This is a helper function that reads in a JSON file with the parent-child
+relationships describing a taxonomy and returns a data.frame with this data.
 }

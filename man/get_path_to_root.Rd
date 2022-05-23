@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_taxonomy_tree.R
 \name{get_path_to_root}
 \alias{get_path_to_root}
-\title{Helper function for creating tree}
+\title{Path to root}
 \usage{
 get_path_to_root(df, x)
 }
@@ -15,5 +15,7 @@ get_path_to_root(df, x)
 Path from node to root, as a string delimited by '/'.
 }
 \description{
-Helper function for creating tree
+This helper function generates a path from the root to a given node from a
+data.frame of parent-child relationships. This is used in creating a tree
+based off of the data.frame of parent-child relationships.
 }

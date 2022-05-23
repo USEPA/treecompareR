@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate_taxonomy_tree.R
 \name{generate_tree}
 \alias{generate_tree}
-\title{Convert ontology from data.frame to 'phylo' object.}
+\title{Generate tree}
 \usage{
 generate_tree(file_dir, dataframe = NULL)
 }
@@ -16,5 +16,7 @@ A list containing a 'phylo' object and data.frame with useful
 information for building the phylo object.
 }
 \description{
-Convert ontology from data.frame to 'phylo' object.
+This function will convert taxonomy relationships from a data.frame to a
+'phylo' object. In addition to the 'phylo' object, there is a data.frame
+returned that includes data relevant to the creation of the 'phylo' object.
 }
