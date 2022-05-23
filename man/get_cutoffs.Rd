@@ -43,10 +43,10 @@ data set that is represented by the induced subtree of the data set for various 
 fixed similarity measure.
 }
 \examples{
-dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
+\donttest{dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 dt <- classify_by_smiles(dt)
 
 get_cutoffs(mat = chemont_jaccard, data = dt)
-get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
+get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)}
 
 }

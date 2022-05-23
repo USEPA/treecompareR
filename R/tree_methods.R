@@ -62,6 +62,7 @@ generate_descendants <- function(tree){
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @return data.frame consisting of the node number, and the level of each node
+#' @export
 #' @importFrom ape is.rooted
 #'
 #' @examples
@@ -526,14 +527,14 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @importFrom phangorn Ancestors
 #'
 #' @examples
-#' dt1 <- classify_datatable(chemical_list_biosolids_2022_05_10)
+#' \donttest{dt1 <- classify_datatable(data.table(chemical_list_biosolids_2022_05_10))
 #' dt1 <- classify_by_smiles(dt1)
 #'
-#' dt2 <- classify_datatable(chemical_list_USGSWATER_2022_05_17)
+#' dt2 <- classify_datatable(data.table(chemical_list_USGSWATER_2022_05_17))
 #' dt2 <- classify_by_smiles(dt2)
 #'
 #' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
-#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
+#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
 #'
 MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
@@ -673,11 +674,11 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @export
 #'
 #' @examples
-#' dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
+#' \donttest{dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 #' dt <- classify_by_smiles(dt)
 #'
 #' get_cutoffs(mat = chemont_jaccard, data = dt)
-#' get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
+#' get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)}
 #'
 get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
