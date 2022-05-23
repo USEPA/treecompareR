@@ -2,14 +2,15 @@
 % Please edit documentation in R/generate_tree.R
 \name{simulate_trees}
 \alias{simulate_trees}
-\title{Function to generate several trees}
+\title{Tree simulator}
 \usage{
 simulate_trees(n_trees = 1, simulation_seed = NA, ...)
 }
 \arguments{
 \item{n_trees}{The number of trees to generate.}
 
-\item{simulation_seed}{Optional parameter to allow for replciation of simulations.}
+\item{simulation_seed}{Optional parameter to allow for replication of
+simulations.}
 
 \item{...}{Parameters passed to the generate_topology() function.}
 }
@@ -17,5 +18,5 @@ simulate_trees(n_trees = 1, simulation_seed = NA, ...)
 A list of 'phylo' objects, each representing a simulated tree.
 }
 \description{
-Function to generate several trees
+This function generates several trees subject to input constraints.
 }

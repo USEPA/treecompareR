@@ -351,13 +351,17 @@ generate_partition_3 <- function(n, max_deg, min_deg, seed = NA){
   return(x_values)
 }
 
-#' Function to generate several trees
+#' Tree simulator
+#'
+#' This function generates several trees subject to input constraints.
 #'
 #' @param n_trees The number of trees to generate.
-#' @param simulation_seed Optional parameter to allow for replciation of simulations.
+#' @param simulation_seed Optional parameter to allow for replication of
+#'   simulations.
 #' @param ... Parameters passed to the generate_topology() function.
 #' @return A list of 'phylo' objects, each representing a simulated tree.
 #' @export
+#'
 simulate_trees <- function(n_trees = 1, simulation_seed = NA, ...) {
   if(!is.na(simulation_seed)){
     set.seed(simulation_seed)
