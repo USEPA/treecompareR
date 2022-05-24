@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{cluster_analysis}
 \alias{cluster_analysis}
-\title{Helper function that returns superclasses or classes for specified clusters in heatmap}
+\title{Heatmap cluster analysis}
 \usage{
 cluster_analysis(
   htmap,
@@ -22,13 +22,19 @@ cluster_analysis(
 
 \item{level}{Alternate parameter indicating the level of depth for labels.}
 
-\item{tree_object}{A phylo object representing a root tree, the taxonomy being investigated.}
+\item{tree_object}{A phylo object representing a root tree, the taxonomy
+being investigated.}
 
-\item{tree}{Alternate parameter, a phylo object representing a rooted tree, for restricting the labels.}
+\item{tree}{Alternate parameter, a phylo object representing a rooted tree,
+for restricting the labels.}
 }
 \value{
-A list of labels for the row and column clusters, based on the level specified.
+A list of labels for the row and column clusters, based on the level
+specified.
 }
 \description{
-Helper function that returns superclasses or classes for specified clusters in heatmap
+This is a helper function that returns superclasses or classes for specified
+clusters in \code{\link{generate_tree_cluster}}. This is used for providing
+visual identification of different clades based on the specified taxonomic
+level.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{generate_heatmap}
 \alias{generate_heatmap}
-\title{Generate a heatmap from input matrix and indices.}
+\title{Generate similarity heatmap}
 \usage{
 generate_heatmap(
   tree_object,
@@ -21,7 +21,8 @@ generate_heatmap(
 \arguments{
 \item{tree_object}{A phylo object representing a rooted tree.}
 
-\item{matrix}{A matrix of similarity measure values derived from parameter 'tree_object'.}
+\item{matrix}{A matrix of similarity measure values derived from parameter
+\code{tree_object}.}
 
 \item{row_indices}{The row indices for the matrix.}
 
@@ -45,5 +46,10 @@ generate_heatmap(
 A Heatmap object.
 }
 \description{
-Generate a heatmap from input matrix and indices.
+This function generates a heatmap from an input similarity matrix and
+indices. If row data and column data are used instead, indices are generated
+from their classification labels and the labels of the similarity matrix.
+}
+\seealso{
+\code{\link{generate_tree_cluster}}
 }

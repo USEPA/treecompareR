@@ -670,7 +670,7 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #' @param mat A similarity matrix corresponding to a similarity measure and a
 #'   rooted tree .
 #' @param data A data.table of chemicals with classifications.
-#' @param tax_level_labels Parameter giving classification levels./
+#' @param tax_level_labels Parameter giving classification levels.
 #' @param neighbors A parameter giving how many neighbors to use for finding
 #'   label average values.
 #' @param cutoff An alternate parameter giving the cutoff percentage value.

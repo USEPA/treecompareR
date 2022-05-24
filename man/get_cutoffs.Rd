@@ -20,7 +20,7 @@ rooted tree .}
 
 \item{data}{A data.table of chemicals with classifications.}
 
-\item{tax_level_labels}{Parameter giving classification levels./}
+\item{tax_level_labels}{Parameter giving classification levels.}
 
 \item{neighbors}{A parameter giving how many neighbors to use for finding
 label average values.}

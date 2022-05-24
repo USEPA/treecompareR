@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{generate_tree_cluster}
 \alias{generate_tree_cluster}
-\title{Generate tree visuals highlighting specified row and column cluster from a heatmap.}
+\title{Generate tree cluster}
 \usage{
 generate_tree_cluster(
   tree,
@@ -23,7 +23,8 @@ generate_tree_cluster(
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{tree_object}{A phylo object representing the entire taxonomy from which the parameter 'tree' is derived.}
+\item{tree_object}{A phylo object representing the entire taxonomy from which
+the parameter \code{tree} is derived.}
 
 \item{htmap}{A ComplexHeatmap object.}
 
@@ -35,7 +36,8 @@ generate_tree_cluster(
 
 \item{column_name}{Alternte parameter for name of column data set.}
 
-\item{isolate_subtree}{Alternate parameter for pruning tree diagram to create a second diagram.}
+\item{isolate_subtree}{Alternate parameter for pruning tree diagram to create
+a second diagram.}
 
 \item{show_labels}{Alternate parameter specifying whether to show tip labels.}
 
@@ -43,7 +45,8 @@ generate_tree_cluster(
 
 \item{highlight_clades}{Alternate parameter for labeling superclass clades.}
 
-\item{point_size}{Alternate parameter for size of tip points of represented tips.}
+\item{point_size}{Alternate parameter for size of tip points of represented
+tips.}
 
 \item{bar_size}{Alternate parameter for size of bars highlighting clades.}
 }
@@ -51,5 +54,12 @@ generate_tree_cluster(
 A ggtree object or list of ggtree objects.
 }
 \description{
-Generate tree visuals highlighting specified row and column cluster from a heatmap.
+This function generates tree visuals highlighting specified row and column
+clusters produced from \code{\link{generate_heatmap}}. The \code{tree} parameter
+gives an underlying tree that will be used in the plots. A second plot may
+also be produced that prunes away extraneous superclasses to highlight only
+the portions of the tree with labels present.
+}
+\seealso{
+\code{\link{generate_heatmap}}
 }

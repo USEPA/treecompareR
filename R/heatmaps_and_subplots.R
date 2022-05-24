@@ -1,11 +1,13 @@
 
 
-#' Helper function for determining number of labels in a given data set
+#' Label numbers
+#'
+#' This is a helper function, use for determining number of labels in a given data set per taxonomical level.
 #'
 #' @param datatable A data.table object of chemical classifications.
 #' @param chemont Alternate parameter indicating whether ChemOnt taxonomy is used.
 #' @param log Alternate parameter indicating whether numbers are reported as is or as their log.
-#' @return Number of occurrences of each label in the parameter 'datatable'.
+#' @return Number of occurrences of each label in the parameter `datatable`.
 #' @import data.table
 
 label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
@@ -71,10 +73,15 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 
 
 
-#' Generate a heatmap from input matrix and indices.
+#' Generate similarity heatmap
+#'
+#' This function generates a heatmap from an input similarity matrix and
+#' indices. If row data and column data are used instead, indices are generated
+#' from their classification labels and the labels of the similarity matrix.
 #'
 #' @param tree_object A phylo object representing a rooted tree.
-#' @param matrix A matrix of similarity measure values derived from parameter 'tree_object'.
+#' @param matrix A matrix of similarity measure values derived from parameter
+#'   `tree_object`.
 #' @param row_indices The row indices for the matrix.
 #' @param column_indices The column indices for the matrix.
 #' @param row_data A data.table object of chemical classifications.
@@ -90,8 +97,9 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @import circlize
 #' @import viridis
 #' @import grid
-
-
+#'
+#' @seealso \code{\link{generate_tree_cluster}}
+#'
 generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title') {
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
@@ -189,15 +197,23 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 
 
 
-#' Helper function that returns superclasses or classes for specified clusters in heatmap
+#' Heatmap cluster analysis
+#'
+#' This is a helper function that returns superclasses or classes for specified
+#' clusters in \code{\link{generate_tree_cluster}}. This is used for providing
+#' visual identification of different clades based on the specified taxonomic
+#' level.
 #'
 #' @param htmap A ComplexHeatmap object with hierarchical clustering.
 #' @param row_cluster Index for the row cluster.
 #' @param column_cluster Index for the column cluster.
 #' @param level Alternate parameter indicating the level of depth for labels.
-#' @param tree_object A phylo object representing a root tree, the taxonomy being investigated.
-#' @param tree Alternate parameter, a phylo object representing a rooted tree, for restricting the labels.
-#' @return A list of labels for the row and column clusters, based on the level specified.
+#' @param tree_object A phylo object representing a root tree, the taxonomy
+#'   being investigated.
+#' @param tree Alternate parameter, a phylo object representing a rooted tree,
+#'   for restricting the labels.
+#' @return A list of labels for the row and column clusters, based on the level
+#'   specified.
 #' @import stats
 #' @import ComplexHeatmap
 cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree_object, tree = NULL){
@@ -354,10 +370,16 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
 
 
 
-#' Helper function to display clade label associated with missing node.
+#' Handle missing node show clade
+#'
+#' This is a helper function to display clade labels associated with missing
+#' nodes after pruning a tree. Missing nodes occur when a node from an original
+#' tree loses all but one child in the pruning process and is thus no longer
+#' considered a node in the subtree.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param tree_object A phylo object representing the entire taxonomy from which the parameter 'tree' is derived.
+#' @param tree_object A phylo object representing the entire taxonomy from which
+#'   the parameter `tree` is derived.
 #' @param list_superclasses A list of superclasses to be labeled.
 #' @param tree_visual A ggtree object that will have clades labeled.
 #' @param i The index for which list_superclasses element will be labeled.
@@ -366,6 +388,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
 #' @import phangorn
 #' @import ggplot2
 #' @import ggtree
+#'
+#' @seealso \code{\link{handle_missing_node_highlight_clade}}
+#'
 handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses, tree_visual, i, color){
   #print(paste('superclasses:', list_superclasses))
   tree_labels <- c(tree$tip.label, tree$node.label)
@@ -393,10 +418,16 @@ handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses,
 
 }
 
-#' Helper function to display clade highlight associated with missing node.
+#' Handle missing node highlight clade
+#'
+#' This is a helper function to highlight clades associated with missing nodes
+#' after pruning a tree. Missing nodes occur when a node from an original tree
+#' loses all but one child in the pruning process and is thus no longer
+#' considered a node in the subtree.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param tree_object A phylo object representing the entire taxonomy from which parameter 'tree' is derived.
+#' @param tree_object A phylo object representing the entire taxonomy from which
+#'   parameter `tree` is derived.
 #' @param list_superclasses A list of superclasses to be highlighted.
 #' @param tree_visual A ggtree object that will have clades highlighted.
 #' @param i The index for which list_superclasses element will be highlighted.
@@ -405,6 +436,9 @@ handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses,
 #' @import phangorn
 #' @import ggplot2
 #' @import ggtree
+#'
+#' @seealso \code{\link{handle_missing_node_show_clade}}
+#'
 handle_missing_node_highlight_clade <- function(tree, tree_object, list_superclasses, tree_visual, i, color){
   tree_labels <- c(tree$tip.label, tree$node.label)
   temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% list_superclasses[[i]]), type = 'all')], tree_labels)
@@ -432,20 +466,29 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 ################################################################################
 
 
-#' Generate tree visuals highlighting specified row and column cluster from a heatmap.
+#' Generate tree cluster
+#'
+#' This function generates tree visuals highlighting specified row and column
+#' clusters produced from \code{\link{generate_heatmap}}. The `tree` parameter
+#' gives an underlying tree that will be used in the plots. A second plot may
+#' also be produced that prunes away extraneous superclasses to highlight only
+#' the portions of the tree with labels present.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param tree_object A phylo object representing the entire taxonomy from which the parameter 'tree' is derived.
+#' @param tree_object A phylo object representing the entire taxonomy from which
+#'   the parameter `tree` is derived.
 #' @param htmap A ComplexHeatmap object.
 #' @param row_cluster Index for row cluster of htmap to be illustrated.
 #' @param column_cluster Index for column cluster of htmap to be illustrated.
 #' @param row_name Alternate parameter for name of row data set.
 #' @param column_name Alternte parameter for name of column data set.
-#' @param isolate_subtree Alternate parameter for pruning tree diagram to create a second diagram.
+#' @param isolate_subtree Alternate parameter for pruning tree diagram to create
+#'   a second diagram.
 #' @param show_labels Alternate parameter specifying whether to show tip labels.
 #' @param show_clades Alternate parameter for labeling superclass clades.
 #' @param highlight_clades Alternate parameter for labeling superclass clades.
-#' @param point_size Alternate parameter for size of tip points of represented tips.
+#' @param point_size Alternate parameter for size of tip points of represented
+#'   tips.
 #' @param bar_size Alternate parameter for size of bars highlighting clades.
 #' @return A ggtree object or list of ggtree objects.
 #' @export
@@ -455,6 +498,9 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @import ggtree
 #' @import phangorn
 #' @importFrom ape drop.tip
+#'
+#' @seealso \code{\link{generate_heatmap}}
+#'
 generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, row_name = 'Row data set', column_name = 'Column data set',  isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
   label <- NULL
   # get tree labels

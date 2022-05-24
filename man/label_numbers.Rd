@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{label_numbers}
 \alias{label_numbers}
-\title{Helper function for determining number of labels in a given data set}
+\title{Label numbers}
 \usage{
 label_numbers(datatable, chemont = TRUE, log = TRUE)
 }
@@ -14,8 +14,8 @@ label_numbers(datatable, chemont = TRUE, log = TRUE)
 \item{log}{Alternate parameter indicating whether numbers are reported as is or as their log.}
 }
 \value{
-Number of occurrences of each label in the parameter 'datatable'.
+Number of occurrences of each label in the parameter \code{datatable}.
 }
 \description{
-Helper function for determining number of labels in a given data set
+This is a helper function, use for determining number of labels in a given data set per taxonomical level.
 }

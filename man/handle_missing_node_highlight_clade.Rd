@@ -2,7 +2,7 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{handle_missing_node_highlight_clade}
 \alias{handle_missing_node_highlight_clade}
-\title{Helper function to display clade highlight associated with missing node.}
+\title{Handle missing node highlight clade}
 \usage{
 handle_missing_node_highlight_clade(
   tree,
@@ -16,7 +16,8 @@ handle_missing_node_highlight_clade(
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{tree_object}{A phylo object representing the entire taxonomy from which parameter 'tree' is derived.}
+\item{tree_object}{A phylo object representing the entire taxonomy from which
+parameter \code{tree} is derived.}
 
 \item{list_superclasses}{A list of superclasses to be highlighted.}
 
@@ -30,5 +31,11 @@ handle_missing_node_highlight_clade(
 A ggtree object that will have the specified clade highlighted.
 }
 \description{
-Helper function to display clade highlight associated with missing node.
+This is a helper function to highlight clades associated with missing nodes
+after pruning a tree. Missing nodes occur when a node from an original tree
+loses all but one child in the pruning process and is thus no longer
+considered a node in the subtree.
+}
+\seealso{
+\code{\link{handle_missing_node_show_clade}}
 }
