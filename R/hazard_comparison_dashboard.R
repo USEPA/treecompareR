@@ -153,7 +153,11 @@ convert_smiles_to_hex <- function(smiles = NULL){
 }
 
 
-#' A function for retrieving toxprint data for a given chemical
+#' Get toxprints
+#'
+#' This is a function for retrieving toxprint data for a given chemical from the
+#' \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+#' API to retrieve relevant chemical information.
 #'
 #' @param smiles A string representing a chemical in SMILES format
 #' @return A list of chemical descriptors, including ToxPrints descriptors
@@ -162,6 +166,7 @@ convert_smiles_to_hex <- function(smiles = NULL){
 #' @importFrom crayon red
 #' @importFrom crayon green
 #' @importFrom clisymbols symbol
+#'
 get_toxprints <- function(smiles) {
   entity_url <- 'https://hazard.sciencedataexperts.com/api/descriptors?smiles='
 

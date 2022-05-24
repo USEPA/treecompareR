@@ -2,7 +2,7 @@
 % Please edit documentation in R/hazard_comparison_dashboard.R
 \name{get_toxprints}
 \alias{get_toxprints}
-\title{A function for retrieving toxprint data for a given chemical}
+\title{Get toxprints}
 \usage{
 get_toxprints(smiles)
 }
@@ -13,5 +13,7 @@ get_toxprints(smiles)
 A list of chemical descriptors, including ToxPrints descriptors
 }
 \description{
-A function for retrieving toxprint data for a given chemical
+This is a function for retrieving toxprint data for a given chemical from the
+\href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+API to retrieve relevant chemical information.
 }
