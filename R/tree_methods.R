@@ -304,7 +304,7 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 #' @return The Jaccard distance of the label sets for the root to node path.
 #' @export
 #'
-#' @seealso \code{\link{general_Jaccard_distance}}
+#' @seealso \code{\link{general_Jaccard_dist}}
 #'
 #' @examples
 #'
@@ -527,16 +527,25 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @importFrom phangorn Ancestors
 #'
 #' @examples
-#' \donttest{dt1 <- classify_datatable(data.table(chemical_list_biosolids_2022_05_10))
+#' \donttest{dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10))
 #' dt1 <- classify_by_smiles(dt1)
 #'
-#' dt2 <- classify_datatable(data.table(chemical_list_USGSWATER_2022_05_17))
+#' dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17))
 #' dt2 <- classify_by_smiles(dt2)
 #'
-#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)
-#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard, Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
+#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2,
+#'                      name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard,
+#'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
+#'                      JiangConrath = chemont_jiangconrath_IC_SVH)
+#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids',
+#'                      name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard,
+#'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
+#'                      JiangConrath = chemont_jiangconrath_IC_SVH)}
 #'
-MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL, name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100, repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL, Resnik = NULL, Lin = NULL, JiangConrath = NULL){
+MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL,
+                                  name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100,
+                                  repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL,
+                                  Resnik = NULL, Lin = NULL, JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
     set.seed(seed)
   }
@@ -629,7 +638,7 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 
     if (!is.null(Lin)){
       new_row[[3]] <- mean(Lin[all_node_indices, all_node_indices][upper.tri(Lin[all_node_indices, all_node_indices], diag = TRUE)])
-      new_row[[7]] <- mean(Lin[all_tip_indices, dataset_1_indices][upper.tri(lin[all_tip_indices, dataset_1_indices], diag = TRUE)])
+      new_row[[7]] <- mean(Lin[all_tip_indices, dataset_1_indices][upper.tri(Lin[all_tip_indices, dataset_1_indices], diag = TRUE)])
       new_row[[11]] <- mean(Lin[all_tip_indices, dataset_2_indices][upper.tri(Lin[all_tip_indices, dataset_2_indices], diag = TRUE)])
     }
 
@@ -655,12 +664,13 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
 #'
 #' This function gives cutoffs for similarity values and percent of
 #' representation of a data set. The function determines what percentage of a
-#' data set that is represented by the induced subtree of the data set for various values of a
-#' fixed similarity measure.
+#' data set that is represented by the induced subtree of the data set for
+#' various values of a fixed similarity measure.
 #'
-#' @param matrix A similarity matrix corresponding to a similarity measure and a
+#' @param mat A similarity matrix corresponding to a similarity measure and a
 #'   rooted tree .
 #' @param data A data.table of chemicals with classifications.
+#' @param tax_level_labels Parameter giving classification levels./
 #' @param neighbors A parameter giving how many neighbors to use for finding
 #'   label average values.
 #' @param cutoff An alternate parameter giving the cutoff percentage value.

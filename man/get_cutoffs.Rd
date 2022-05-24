@@ -15,7 +15,12 @@ get_cutoffs(
 )
 }
 \arguments{
+\item{mat}{A similarity matrix corresponding to a similarity measure and a
+rooted tree .}
+
 \item{data}{A data.table of chemicals with classifications.}
+
+\item{tax_level_labels}{Parameter giving classification levels./}
 
 \item{neighbors}{A parameter giving how many neighbors to use for finding
 label average values.}
@@ -27,9 +32,6 @@ corresponding to a subtree of a rooted tree..}
 
 \item{counts}{An alternate parameter giving the counts of occurrence for each
 label.}
-
-\item{matrix}{A similarity matrix corresponding to a similarity measure and a
-rooted tree .}
 }
 \value{
 Named list of percentage of data represented by similarity values.
@@ -39,8 +41,8 @@ of data represented by allowing similarity values equal to the names.
 \description{
 This function gives cutoffs for similarity values and percent of
 representation of a data set. The function determines what percentage of a
-data set that is represented by the induced subtree of the data set for various values of a
-fixed similarity measure.
+data set that is represented by the induced subtree of the data set for
+various values of a fixed similarity measure.
 }
 \examples{
 \donttest{dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])

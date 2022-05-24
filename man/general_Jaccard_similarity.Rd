@@ -32,5 +32,5 @@ general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 
 }
 \seealso{
-\code{\link{general_Jaccard_distance}}
+\code{\link{general_Jaccard_dist}}
 }
