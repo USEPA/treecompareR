@@ -201,6 +201,7 @@ generate_partition <- function(n, seed = NA){
 #' @param min_deg Minimal value an element of the partition can take.
 #' @param seed A seed to allow for replication of results.
 #' @return Vector of generated partition.
+#' @export
 #'
 #' @examples
 #'
