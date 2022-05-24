@@ -42,7 +42,7 @@ add_terminal_label <- function(data, tip = FALSE, labels = NULL, tree = NULL){
 #' Terminal label function
 #'
 #' This is a helper function to return the terminal label for
-#' \code{\link{add_terminal_label()}}. It returns the terminal label for an
+#' \code{\link{add_terminal_label}}. It returns the terminal label for an
 #' input data.table consisting of a single row, a chemical with its
 #' classification.
 #'
