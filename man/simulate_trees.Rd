@@ -4,13 +4,15 @@
 \alias{simulate_trees}
 \title{Tree simulator}
 \usage{
-simulate_trees(n_trees = 1, simulation_seed = NA, ...)
+simulate_trees(n_trees = 1, simulation_seed = NA, n, ...)
 }
 \arguments{
 \item{n_trees}{The number of trees to generate.}
 
 \item{simulation_seed}{Optional parameter to allow for replication of
 simulations.}
+
+\item{n}{The number of tips each tree will have.}
 
 \item{...}{Parameters passed to the generate_topology() function.}
 }
