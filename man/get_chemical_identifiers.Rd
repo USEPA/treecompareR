@@ -2,18 +2,23 @@
 % Please edit documentation in R/hazard_comparison_dashboard.R
 \name{get_chemical_identifiers}
 \alias{get_chemical_identifiers}
-\title{This function retrieves relevant chemical information for input chemical identifiers}
+\title{Get chemical identifiers}
 \usage{
 get_chemical_identifiers(input, type = c("AnyId", "DTXSID", "CAS"))
 }
 \arguments{
-\item{input}{A string representing one of DTXSID, CAS, SMILES, NAME, InChIKey}
+\item{input}{A string representing one of DTXSID, CAS, SMILES, NAME,
+InChIKey.}
 
-\item{type}{A string specifying which type of input format the \code{input} parameter takes.}
+\item{type}{A string specifying which type of input format the \code{input}
+parameter takes.}
 }
 \value{
 An object of class 'HazardComparisonDashboard'.
 }
 \description{
-This function retrieves relevant chemical information for input chemical identifiers
+This function retrieves relevant chemical information for input chemical
+identifiers. This uses the
+\href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+API to retrieve relevant chemical information.
 }

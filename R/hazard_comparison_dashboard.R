@@ -1,7 +1,14 @@
-#' This function retrieves relevant chemical information for input chemical identifiers
+#' Get chemical identifiers
 #'
-#' @param input A string representing one of DTXSID, CAS, SMILES, NAME, InChIKey
-#' @param type A string specifying which type of input format the `input` parameter takes.
+#' This function retrieves relevant chemical information for input chemical
+#' identifiers. This uses the
+#' \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+#' API to retrieve relevant chemical information.
+#'
+#' @param input A string representing one of DTXSID, CAS, SMILES, NAME,
+#'   InChIKey.
+#' @param type A string specifying which type of input format the `input`
+#'   parameter takes.
 #' @return An object of class 'HazardComparisonDashboard'.
 #' @export
 #' @import httr
@@ -9,6 +16,7 @@
 #' @importFrom crayon green
 #' @importFrom clisymbols symbol
 #' @import methods
+#'
 get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
   type <- match.arg(type)
   #print(type)
