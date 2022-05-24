@@ -76,12 +76,21 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
 
 }
 
-#' A function to collect chemical identifiers and store them in a data.table.
+#' Batch chemical identifiers.
 #'
-#' @param input_list A list of input values valid for `get_chemical_identifiers()`
-#' @return A data.table with the input list as a column, and chemical identifiers as subsequent columns
+#' This function collects chemical identifiers and store them in a data.table.
+#' It uses the \code{\link{get_chemical_identifiers}} function to access the
+#' \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+#' API to retrieve relevant chemical information.
+#'
+#' @param input_list A list of input values valid for
+#'   `get_chemical_identifiers()`
+#' @return A data.table with the input list as a column, and chemical
+#'   identifiers as subsequent columns
 #' @export
 #' @import data.table
+#'
+#' @seealso \code{\link{get_chemical_identifiers}}
 batch_chemical_identifiers <- function(input_list){
   INPUT <- NULL
   new_table <- data.table('INPUT' = input_list,
@@ -110,10 +119,17 @@ batch_chemical_identifiers <- function(input_list){
 
 
 
-#' Helper function for converting SMILES string to API acceptable format
+#' Convert SMILES to hex
+#'
+#' This is a helper function for converting SMILES string to API acceptable
+#' format. This is used by \code{\link{get_toxprints}} for making API calls to
+#' \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+#' to retrieve relevant chemical information.
 #'
 #' @param smiles A string representing a chemical in SMILES format
-#' @return A string converted for use in API calls.
+#' @return A string converted for use in API calls of the
+#'   \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison
+#'   Dashboard}.
 #' @import stringr
 convert_smiles_to_hex <- function(smiles = NULL){
   if (is.null(smiles)){

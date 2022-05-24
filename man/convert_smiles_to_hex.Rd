@@ -2,7 +2,7 @@
 % Please edit documentation in R/hazard_comparison_dashboard.R
 \name{convert_smiles_to_hex}
 \alias{convert_smiles_to_hex}
-\title{Helper function for converting SMILES string to API acceptable format}
+\title{Convert SMILES to hex}
 \usage{
 convert_smiles_to_hex(smiles = NULL)
 }
@@ -10,8 +10,13 @@ convert_smiles_to_hex(smiles = NULL)
 \item{smiles}{A string representing a chemical in SMILES format}
 }
 \value{
-A string converted for use in API calls.
+A string converted for use in API calls of the
+\href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison
+Dashboard}.
 }
 \description{
-Helper function for converting SMILES string to API acceptable format
+This is a helper function for converting SMILES string to API acceptable
+format. This is used by \code{\link{get_toxprints}} for making API calls to
+\href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+to retrieve relevant chemical information.
 }

@@ -2,16 +2,24 @@
 % Please edit documentation in R/hazard_comparison_dashboard.R
 \name{batch_chemical_identifiers}
 \alias{batch_chemical_identifiers}
-\title{A function to collect chemical identifiers and store them in a data.table.}
+\title{Batch chemical identifiers.}
 \usage{
 batch_chemical_identifiers(input_list)
 }
 \arguments{
-\item{input_list}{A list of input values valid for \code{get_chemical_identifiers()}}
+\item{input_list}{A list of input values valid for
+\code{get_chemical_identifiers()}}
 }
 \value{
-A data.table with the input list as a column, and chemical identifiers as subsequent columns
+A data.table with the input list as a column, and chemical
+identifiers as subsequent columns
 }
 \description{
-A function to collect chemical identifiers and store them in a data.table.
+This function collects chemical identifiers and store them in a data.table.
+It uses the \code{\link{get_chemical_identifiers}} function to access the
+\href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison Dashboard}
+API to retrieve relevant chemical information.
+}
+\seealso{
+\code{\link{get_chemical_identifiers}}
 }
