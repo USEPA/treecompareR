@@ -79,9 +79,9 @@ MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 =
                      name_1 = 'Biosolids', name_2 = 'USGS', seed = 42L, Jaccard = chemont_jaccard,
                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
                      JiangConrath = chemont_jiangconrath_IC_SVH)
-MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids',
-                     name_2 = 'USGS', label_number = 200, seed = 42L, Jaccard = chemont_jaccard,
-                     Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
-                     JiangConrath = chemont_jiangconrath_IC_SVH)}
+MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
+                      name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, seed = 42L,
+                      Jaccard = chemont_jaccard,Resnik = chemont_resnik_IC_SVH,
+                      Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
 
 }

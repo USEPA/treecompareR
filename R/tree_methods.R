@@ -537,10 +537,10 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #'                      name_1 = 'Biosolids', name_2 = 'USGS', seed = 42L, Jaccard = chemont_jaccard,
 #'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
 #'                      JiangConrath = chemont_jiangconrath_IC_SVH)
-#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids',
-#'                      name_2 = 'USGS', label_number = 200, seed = 42L, Jaccard = chemont_jaccard,
-#'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
-#'                      JiangConrath = chemont_jiangconrath_IC_SVH)}
+#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
+#'                       name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, seed = 42L,
+#'                       Jaccard = chemont_jaccard,Resnik = chemont_resnik_IC_SVH,
+#'                       Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
 #'
 MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, data_2_indices = NULL,
                                   name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100,
