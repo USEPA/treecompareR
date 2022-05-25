@@ -96,7 +96,9 @@ classify_by_smiles <- function(datatable){
 
   # Get unique SMILES strings and remove NA values, '' values
   SMILES_str <- new_table[is.na(INCHIKEY) | kingdom == '', unique(SMILES)]
+  if (length(SMILES_str)==0) return(new_table)
   SMILES_str <- SMILES_str[!is.na(SMILES_str)]
+  if (length(SMILES_str)==0) return(new_table)
   SMILES_str <- SMILES_str[sapply(SMILES_str, function(t) {t != ''})]
 
   if (length(SMILES_str)==0) return(new_table)
