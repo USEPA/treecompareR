@@ -42,17 +42,17 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                                       unique(level10),
                                                       unique(level11)),
                                         by = .(PREFERRED_NAME)][, c('PREFERRED_NAME') := NULL])))
-  print(length(complete_labels))
+  #print(length(complete_labels))
   empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
 
-  print(length(empty_indices))
+  #print(length(empty_indices))
   if (length(empty_indices) > 0){
     complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
   }
 
-  print(length(complete_labels))
+  #print(length(complete_labels))
   na_indices <- which(sapply(complete_labels, is.na))
-  print(length(na_indices))
+  #print(length(na_indices))
   if (length(na_indices > 0)){
     complete_labels <- complete_labels[-na_indices]
   }
@@ -65,7 +65,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
     unique_complete_label_numbers <- sapply(unique_labels, function(t){
       log10(length(which(complete_labels %in% t)))
       })
-    print(length(unique_complete_label_numbers))
+    #print(length(unique_complete_label_numbers))
   } else {
     unique_complete_label_numbers <- sapply(unique_labels, function(t){
       length(which(complete_labels %in% t))
