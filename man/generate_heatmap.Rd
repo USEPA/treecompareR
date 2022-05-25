@@ -32,7 +32,7 @@ generate_heatmap(
 
 \item{column_data}{A data.table object of chemical classifications.}
 
-\item{name}{Name of the heatmap}
+\item{name}{Name of the heatmap similarity measure.}
 
 \item{row_split}{Number of clusters for rows.}
 
