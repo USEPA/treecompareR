@@ -182,7 +182,7 @@ There are instances during which we may be interested in examining a particular 
 To start off, we create a tree with 1000 tips as our base tree and select two subtrees each with 200 tips. We will assume that there are 100 tips shared in common.
 
 ```{r}
-tip_1000 <- generate_topology(n = 1000, rooted = TRUE, max_deg = 15)
+tip_1000 <- generate_topology(n = 1000, rooted = TRUE, max_deg = 15, seed = 42L)
 ggtree(tip_1000) + layout_circular() + geom_tiplab2()
 
 subtree_1_tips <- sample(tip_1000$tip.label, 200)
