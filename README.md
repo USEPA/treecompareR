@@ -23,4 +23,6 @@ devtools::install_git(url = 'https://ccte-bitbucket.epa.gov/scm/~pkruse/treecomp
 
 As of May 23, 2022, the [ClassyFire](http://classyfire.wishartlab.com/) website and API server are experiencing difficulties and currently unavailable for use. Those with classified chemical data may use their data with this package, but those missing such data will need to wait until the ClassyFire server is operational again.
 
+As of May 25, 2022, the [ClassyFire](http://classyfire.wishartlab.com/) website and API server are working properly again.
+
 
