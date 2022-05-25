@@ -527,18 +527,18 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #' @importFrom phangorn Ancestors
 #'
 #' @examples
-#' \donttest{dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10))
+#' \donttest{dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 #' dt1 <- classify_by_smiles(dt1)
 #'
-#' dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17))
+#' dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17)[1:10,])
 #' dt2 <- classify_by_smiles(dt2)
 #'
-#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2,
-#'                      name_1 = 'Biosolids', name_2 = 'USGS', Jaccard = chemont_jaccard,
+#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
+#'                      name_1 = 'Biosolids', name_2 = 'USGS', seed = 42, Jaccard = chemont_jaccard,
 #'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
 #'                      JiangConrath = chemont_jiangconrath_IC_SVH)
-#' MonteCarloSimilarity(tree = chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids',
-#'                      name_2 = 'USGS', label_number = 200, Jaccard = chemont_jaccard,
+#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2, name_1 = 'Biosolids',
+#'                      name_2 = 'USGS', label_number = 200, seed = 42, Jaccard = chemont_jaccard,
 #'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
 #'                      JiangConrath = chemont_jiangconrath_IC_SVH)}
 #'
@@ -581,7 +581,8 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
                                      all_tips = integer())
 
 
-  dimnames <- c(tree$tip.label, tree$node.label)
+  Nnode <- length(tree$node.label)
+  dimnames <- c(tree$tip.label, tree$node.label[2:Nnode])
 
   if (is.data.table(data_1) & is.data.table(data_2)) {
     dataset_1_labels <- unlist(get_labels(data = data_1))
@@ -622,6 +623,9 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
     all_node_indices <- which(dimnames %in% label_all_nodes)
     all_tip_indices <- which(dimnames %in% label_all_tips)
 
+    #print(all_node_indices)
+    #print(all_tip_indices)
+
     new_row <- double(14L)
 
     if (!is.null(Jaccard)){
@@ -654,8 +658,8 @@ MonteCarlo_similarity <- function(tree, data_1, data_2, data_1_indices = NULL, d
     simulation_dataframe[i, ] <- new_row
   }
 
-  names(simulation_datafram)[5:8] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_1)
-  names(simulation_datafram)[9:12] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_2)
+  names(simulation_dataframe)[5:8] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_1)
+  names(simulation_dataframe)[9:12] <- paste0(c('Jaccard', 'Resnik', 'Lin', 'JiangConrath'), name_2)
 
   return(simulation_dataframe)
 }
