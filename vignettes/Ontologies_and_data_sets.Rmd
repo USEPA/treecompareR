@@ -235,4 +235,28 @@ leaf_fraction_subtree(data_1  = usgswater_classified_terminal, data_2 = biosolid
 
 Observe that in both data sets, the label `Cyclohexyl halides` are represented 4 times, so the corresponding tip is colored yellow. 
 
+We may also be interested in looking at a similarity values between the two data sets. One way to visualize this is through a heatmap.
+
+```{r}
+biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, matrix = chemont_jaccard, row_data = usgswater_classified_terminal, column_data = biosolids_classified_terminal, row_split = 9L, column_split = 9L, row_title = 'USGS Water', column_title = 'Biosolids', name = 'Jaccard Similarity')
+biosolids_usgs_ht
+```
+
+Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
+
+```{r}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 2, column_cluster = 2, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+```
+
+Observe that only the superclass 'Benzenoids' is represented. In the second diagram, we prune away all extraneous superclass branches. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets.
+
+
+
+
+```{r}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 9, column_cluster = 8, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+
+```
+
+In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
 
