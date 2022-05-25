@@ -44,11 +44,19 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                         by = .(PREFERRED_NAME)][, c('PREFERRED_NAME') := NULL])))
   print(length(complete_labels))
   empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
+
+  print(length(empty_indices))
   if (length(empty_indices) > 0){
     complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
   }
 
-  complete_labels <- complete_labels[-which(sapply(complete_labels, is.na))]
+  print(length(complete_labels))
+  na_indices <- which(sapply(complete_labels, is.na))
+  print(length(na_indices))
+  if (length(na_indices > 0)){
+    complete_labels <- complete_labels[-na_indices]
+  }
+  #complete_labels <- complete_labels[-which(sapply(complete_labels, is.na))]
 
   print(length(complete_labels))
   unique_labels <- unique(complete_labels)
@@ -86,7 +94,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @param column_indices The column indices for the matrix.
 #' @param row_data A data.table object of chemical classifications.
 #' @param column_data A data.table object of chemical classifications.
-#' @param name Name of the heatmap
+#' @param name Name of the heatmap similarity measure.
 #' @param row_split Number of clusters for rows.
 #' @param column_split Number of cluster for columns.
 #' @param row_title Title for rows.
