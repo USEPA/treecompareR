@@ -112,7 +112,7 @@ classify_by_smiles <- function(datatable){
                                    structure)},
                      error = function(e) {
                        print(s)
-                       message(e)
+                       print(e$message)
                        return(NULL)}
     )
   })
@@ -125,7 +125,10 @@ classify_by_smiles <- function(datatable){
       classifiers <- rep('', 11)
     } else {
       temp <- classyfireR::classification(classifications[[i]])$Classification
+
+
       classifiers <- c(temp, rep('', 11 - length(temp)))
+
     }
     new_table[SMILES == SMILES_str[[i]], c("kingdom", "superclass", "class", "subclass", "level5", "level6", "level7", "level8", "level9", "level10", "level11") := as.list(classifiers)]
   }
