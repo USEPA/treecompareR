@@ -1,0 +1,31 @@
+---
+title: "JStatSoft"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{JStatSoft}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+#library(treecompareR)
+```
+
+## Introduction
+
+Classification of objects has been a source of much development of structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess. 
+
+Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a *canis*" and study how objects relate to one another under this scheme. One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. 
+
+In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was presented, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a chemical ontology, ChemOnt, consisting of 4825 classification labels. These labels are provided a a taxonomy structure with pairs of distinct labels either satisfying a simple "is a" relation or not. The ClassyFire tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
+
+However, what ones does with this information may be limited in terms of current visualizations available. One may use the [ggplot2](https://ggplot2.tidyverse.org/) R package to visualize statistics based on the taxonomic information corresponding to classifications of a data set. But this is a very broad package and not designed for this particular use in mind. Since the ChemOnt taxonomy is given by a tree, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.). However, this package was designed with phylogenetic trees in mind, which are generally rooted binary trees with additional data. The ChemOnt ontology is neither a binary tree nor does it carry additional explicit data, so `ggtree` is again a very broad approach to this.
+
+We present the package `treecompareR` as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space.  
