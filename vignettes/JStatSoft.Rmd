@@ -1,6 +1,6 @@
 ---
 title: "JStatSoft"
-output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{JStatSoft}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,7 +16,13 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 #library(treecompareR)
+devtools::load_all()
 ```
+
+## Abstract
+
+This paper preents the **treecompareR** package for `R`, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from **gplot2**, **ggtree** to provide visualizations tailored for use with taxonomic classification data. It also provides a pipeline for gathering chemical classification data using **classyfireR** and the [Hazard Comparison Dashboard](https://hazard.sciencedataexperts.com/#/). Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using [ClassyFire](http://classyfire.wishartlab.com/), **treecompareR** provides tools for use with more general taxonomies.
+
 
 ## Introduction
 
@@ -29,3 +35,37 @@ In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was presented,
 However, what ones does with this information may be limited in terms of current visualizations available. One may use the [ggplot2](https://ggplot2.tidyverse.org/) R package to visualize statistics based on the taxonomic information corresponding to classifications of a data set. But this is a very broad package and not designed for this particular use in mind. Since the ChemOnt taxonomy is given by a tree, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.). However, this package was designed with phylogenetic trees in mind, which are generally rooted binary trees with additional data. The ChemOnt ontology is neither a binary tree nor does it carry additional explicit data, so `ggtree` is again a very broad approach to this.
 
 We present the package `treecompareR` as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space.  
+
+## Example Data
+
+In this paper, we use the `chemical_list_BIOSOLIDS_2022_05_10` and `chemical_list_USGSWATER_2022_05_17` data sets, which are available for download from the US Environmental Protection Agency's [CompTox Dashboard Chemical List](https://comptox.epa.gov/dashboard/chemical-lists) website.
+
+These data sets include list of chemicals, relevant identifiers such as `DTXSID`, `InChIKey`, `SMILES`, physical data such as `MOLECULAR_FORMULA`, `AVERAGE_MASS`, `MONOISOTOPIC_MASS`, and publication and quality data such as `PUBCHEM_DATA_SOURCES` and `QC_Level`. 
+
+Before we start comparing these data sets, we must provide each chemical in each data set its chemical classification data. To do this, we use the classification pipeline in `treecompareR` and then construct a tree that encodes the taxonomy used in this classification.
+
+To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/) tool. ClassyFire uses an ontology, ChemOnt, that consists of 4825 labels over 11 levels of classification, to classify chemicals. The ontology is given a taxonomic structure, that of a tree, with each label given a unique parent and potentially having several children labels. This relationship data between labels can be found at [ChemOnt Taxnodes](http://classyfire.wishartlab.com/tax_nodes.json) in JSON format. To construct a tree that encodes this, one can download this data, or use the file `chemont_parent_child.rda` from **treecompareR** with column names `Name`, `ID`, `Parent_ID`. With this data in hand, we construct the tree as a `phylo` object as follows.
+
+```{r}
+chemont_taxonomy <- generate_tree(dataframe = chemont_parent_child)
+str(chemont_taxonomy)
+```
+
+The output of this function is a list of two objects, the `phlyo` object representing the tree, and a data.frame used in creating the `phylo` object. 
+
+The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creating of the tree, but do not represent any actual data corresponding to the tree.
+
+The data.frame includes the name of each label, its ID from the `chemont_parent_child.rda` file, its parent (aside from the root `Chemical entities`), internally generated id_number, parent_id_number, a string representing the path from the root to the label, and plotHeight, which is internally generated to speed up the construction of the tree but does not represent any actual data.
+
+To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data.frame. The JSON file must have three columns, the first the name of the label, the second its ID, and the third the parent ID. For the root, the parent ID should be `NA`. If the data is in the form of a data.frame, it must be organized in the same way the JSON file is, with column names given by `Name`, `ID`, and `Parent_ID` in that order.
+
+Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below.
+
+```{r}
+biosolids <- classify_datatable(data.table(chemical_list_biosolids_2022_05_10)[1:10])
+biosolids <- classify_by_smiles(biosolids)
+
+missing_biosolids <- biosolids[kingdom == '', .(DTXSID, CASRN)]
+```
+
+The function `classify_datatable` uses the InChIKey data, when present, for a first pass in accessing ChemOnt classifications. For those chemicals that remain unclassified, the function `classify_by_smiles` uses SMILES strings, when present, for a second pass in accessing ChemOnt classifications. It is important to note that `classify_by_smiles` requires as an input a data.table that is the output of `classify_datatable`, and the function `classify_datatable` requires as an input a data.table that has the columns `PREFERRED_NAME`, `CASRN`, and `INCHIKEY`.
