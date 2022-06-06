@@ -18,5 +18,5 @@ A data.tree object with plotHeight attribute.
 This helper function allows for fast tree construction. See
 \href{https://github.com/gluc/data.tree/issues/92#issuecomment-299571142}{Slow
 conversion between data.tree and Newick format} for background on this helper
-function.#'
+function.
 }

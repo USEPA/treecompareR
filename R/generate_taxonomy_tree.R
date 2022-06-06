@@ -49,7 +49,7 @@ get_path_to_root <- function(df, x){
 #' This helper function allows for fast tree construction. See
 #' \href{https://github.com/gluc/data.tree/issues/92#issuecomment-299571142}{Slow
 #' conversion between data.tree and Newick format} for background on this helper
-#' function.#'
+#' function.
 #'
 #' @param node A data.tree object.
 #' @param rootHeight A positive number placeholder for root height, default 100.
