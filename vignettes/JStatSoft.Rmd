@@ -61,11 +61,27 @@ To construct a tree for other taxonomies, one can enter in a path to a JSON file
 
 Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below.
 
-```{r}
+```{r,  message = FALSE, results = 'hide'}
+biosolids <- data.table(chemical_list_biosolids_2022_05_10)
+biosolids[INCHIKEY == '' & CASRN != '', INCHIKEY := {
+  temp = ''
+  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
+    temp = get_chemical_identifiers(unique(CASRN))@meta$inchikey
+  }
+  ifelse(is.null(temp), '', temp)
+}, by = CASRN]
+biosolids[SMILES == '' & CASRN != '', SMILES := {
+  temp = ''
+  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
+    temp = get_chemical_identifiers(unique(CASRN))@meta$smiles
+  }
+  ifelse(is.null(temp), '', temp)
+}, by = CASRN]
+
 biosolids <- classify_datatable(data.table(chemical_list_biosolids_2022_05_10)[1:10])
 biosolids <- classify_by_smiles(biosolids)
-
-missing_biosolids <- biosolids[kingdom == '', .(DTXSID, CASRN)]
 ```
+
+We first identify those chemicals that have a value in the CASRN column and are missing a value in the INCHIKEY column. We try to retrieve the missing INCHIKEY information from the Hazard Comparison Dashboard. We then do the same for any chemicals missing a value in the SMILES column. This is in preparation for applying the functions `classify_datatable` and `classify_by_smiles`.
 
 The function `classify_datatable` uses the InChIKey data, when present, for a first pass in accessing ChemOnt classifications. For those chemicals that remain unclassified, the function `classify_by_smiles` uses SMILES strings, when present, for a second pass in accessing ChemOnt classifications. It is important to note that `classify_by_smiles` requires as an input a data.table that is the output of `classify_datatable`, and the function `classify_datatable` requires as an input a data.table that has the columns `PREFERRED_NAME`, `CASRN`, and `INCHIKEY`.
