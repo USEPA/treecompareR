@@ -30,9 +30,10 @@ classify_datatable <- function(datatable){
   # Copy table
   new_table <- copy(datatable)
 
-  # Get unique INCHIKEY values and remove NA values
+  # Get unique INCHIKEY values and remove NA values, '' values
   INCHIKEYS <- new_table[, unique(INCHIKEY)]
   INCHIKEYS <- INCHIKEYS[!is.na(INCHIKEYS)]
+  INCHIKEYS <- INCHIKEYS[sapply(INCHIKEYS, function(t) {t != ''})]
 
 
   # Run classyFireR on unique INCHIKEY values
