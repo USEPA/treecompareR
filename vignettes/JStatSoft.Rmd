@@ -116,3 +116,48 @@ head(biosolids_classified)
 head(usgswater_classified)
 ```
 
+To gain an understanding of these data sets and the chemical classifications they represent, we can first look at the number of labels each represents, broken down through taxonomic level. The function label bars takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of labels numbers faceted by data set and by taxonomic level.
+
+```{r}
+data_list <- list(biosolids_classified, usgswater_classified)
+names(data_list) <- c('Biosolids', 'USGS Water')
+label_bars(data_list)
+```
+
+From these diagrams, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the USGS Water data has more labels than the Biosolids data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the data sets. To investigate this, we use tree-based visualizations.
+
+## Tree visualizations
+
+The tree visualizations we use rely heavily on the **ggtree** package, which was designed with phylogenetic trees in mind. The **ggtree** package extends the widely used **ggplot2** package, greatly broadening the variety and scope of tree visualizations available for use.
+
+We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontology.
+
+
+```{r}
+ggtree(chemont_tree) + layout_circular()
+```
+
+This diagram illustrates the scope of the taxonomy structure of the ChemOnt ontology and from this diagram we create visualizations that highlight the areas of chemical space the data sets represent.
+
+We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data set and returns a tree diagram highlighting membership for each node and tip of the tree in the set of classification labels of the data set. We also display the tip labels.
+
+```{r}
+display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
+display_subtree(data_1 = usgswater_classified, name_1 = 'USGS Water')
+```
+
+In these two diagrams, we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. However, if we want to compare both of these data sets to each other, we can do so using the same function as follows.
+
+```{r}
+display_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS Water')
+```
+
+In this diagram, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
+
+While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate that as follows on both data sets.
+
+```{r}
+prune_and_display_subtree(data = biosolids_classified)
+prune_and_display_subtree(data = usgswater_classified)
+```
+
