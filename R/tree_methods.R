@@ -752,3 +752,32 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
     return(percentages)
   }
   }
+
+#' Drop tips and nodes
+#'
+#' This function is an extension of drop.tip from the APE package. It takes in a
+#' data set, collects the labels from classifications of the chemicals in the
+#' data set, and drops tips and nodes until the induced subtree that remains
+#' consists solely of the labels associated to the data set.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param data A data.table of chemicals with classifications.
+#' @return A phylo object representing the induced subtree of the data.
+#'
+#' @importFrom ape drop.tip
+drop_tips_nodes <- function(tree, data){
+  labels <- unlist(get_labels(data))
+  tree_labels <- c(tree$tip.label, tree$node.label)
+  min_level <- min(sapply(intersect(labels, tree$node.label), get_tip_level, tree = tree))
+  max_level <- max(sapply(labels, get_tip_level, tree = tree))
+  new_tree <- tree
+  diff <- max_level - min_level
+  if (diff > 0){
+    for (i in 1:diff){
+      new_tree <- ape::drop.tip(new_tree, setdiff(new_tree$tip.label, intersect(labels, new_tree$tip.label)),
+                                trim.internal = FALSE, collapse.singles = FALSE)
+    }
+  }
+
+  return(new_tree)
+}
