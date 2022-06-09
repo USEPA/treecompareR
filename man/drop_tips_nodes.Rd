@@ -4,12 +4,17 @@
 \alias{drop_tips_nodes}
 \title{Drop tips and nodes}
 \usage{
-drop_tips_nodes(tree, data)
+drop_tips_nodes(tree, data = NULL, labels = NULL, tax_level_labels = NULL)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
 \item{data}{A data.table of chemicals with classifications.}
+
+\item{labels}{An alternate parameter for a set of labels of the subtree.}
+
+\item{tax_level_labels}{An alternate parameter passed to the
+\code{\link{get_labels}} function.}
 }
 \value{
 A phylo object representing the induced subtree of the data.
@@ -18,5 +23,7 @@ A phylo object representing the induced subtree of the data.
 This function is an extension of drop.tip from the APE package. It takes in a
 data set, collects the labels from classifications of the chemicals in the
 data set, and drops tips and nodes until the induced subtree that remains
-consists solely of the labels associated to the data set.
+consists solely of the labels associated to the data set and their ancestors.
+Alternatively, one can provide a set of labels instead and the induced
+subtree is constructed from these labels in the same manner.
 }

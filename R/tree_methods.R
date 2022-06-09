@@ -758,26 +758,39 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' This function is an extension of drop.tip from the APE package. It takes in a
 #' data set, collects the labels from classifications of the chemicals in the
 #' data set, and drops tips and nodes until the induced subtree that remains
-#' consists solely of the labels associated to the data set.
+#' consists solely of the labels associated to the data set and their ancestors.
+#' Alternatively, one can provide a set of labels instead and the induced
+#' subtree is constructed from these labels in the same manner.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param data A data.table of chemicals with classifications.
+#' @param labels An alternate parameter for a set of labels of the subtree.
+#' @param tax_level_labels An alternate parameter passed to the
+#'   \code{\link{get_labels}} function.
 #' @return A phylo object representing the induced subtree of the data.
 #'
 #' @importFrom ape drop.tip
-drop_tips_nodes <- function(tree, data){
-  labels <- unlist(get_labels(data))
-  tree_labels <- c(tree$tip.label, tree$node.label)
-  min_level <- min(sapply(intersect(labels, tree$node.label), get_tip_level, tree = tree))
-  max_level <- max(sapply(labels, get_tip_level, tree = tree))
-  new_tree <- tree
-  diff <- max_level - min_level
-  if (diff > 0){
-    for (i in 1:diff){
-      new_tree <- ape::drop.tip(new_tree, setdiff(new_tree$tip.label, intersect(labels, new_tree$tip.label)),
-                                trim.internal = FALSE, collapse.singles = FALSE)
-    }
+drop_tips_nodes <- function(tree, data = NULL, labels = NULL, tax_level_labels = NULL){
+  if (data.table::is.data.table(data)){
+    tip_node_labels <- unlist(get_labels(data = data, tax_level_labels = tax_level_labels))
+  } else if (!is.null(labels)){
+    tip_node_labels <- unlist(labels)
+  } else {
+    stop('Please input either a data.table of chemical classifications or a list of taxonomic labels!')
   }
+
+  tree_labels <- c(tree$tip.label, tree$node.label)
+  max_depth <- max(sapply(tree$tip.label, get_tip_level, tree = tree))
+  #min_level <- min(sapply(intersect(labels, tree$node.label), get_tip_level, tree = tree))
+  #max_level <- max(sapply(labels, get_tip_level, tree = tree))
+  new_tree <- tree
+
+
+  for (i in 1:max_depth){
+    new_tree <- ape::drop.tip(new_tree, setdiff(new_tree$tip.label, intersect(tip_node_labels, new_tree$tip.label)),
+                              trim.internal = FALSE, collapse.singles = FALSE)
+  }
+
 
   return(new_tree)
 }
