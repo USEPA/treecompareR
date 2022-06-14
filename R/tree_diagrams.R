@@ -408,8 +408,10 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   data_labels <- setNames(unlist(get_labels(data, tax_level_labels)), NULL)
 
   # Prune the labels not represented by the data from the full tree
-  pruned_tree <- ape::drop.tip(tree,
-                               setdiff(tree$tip.label, intersect(data_labels, tree$tip.label)))
+  #pruned_tree <- ape::drop.tip(tree,
+  #                             setdiff(tree$tip.label, intersect(data_labels, tree$tip.label)))
+  pruned_tree <- drop_tips_nodes(tree = tree, data = data, tax_level_labels = tax_level_labels)
+
   if (no_plot)
     return(pruned_tree)
 
@@ -423,7 +425,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   }
 
   # Create the tree plot
-  tree_plot <- ggtree(pruned_tree) +
+  tree_plot <- ggtree(pruned_tree, branch.length = 'none') +
     layout_circular()
 
   # If displaying the tip labels, add them in with the correct size
