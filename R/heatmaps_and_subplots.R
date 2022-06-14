@@ -216,7 +216,7 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 #' @param row_cluster Index for the row cluster.
 #' @param column_cluster Index for the column cluster.
 #' @param level Alternate parameter indicating the level of depth for labels.
-#' @param tree_object A phylo object representing a root tree, the taxonomy
+#' @param tree_object A phylo object representing a rooted tree, the taxonomy
 #'   being investigated.
 #' @param tree Alternate parameter, a phylo object representing a rooted tree,
 #'   for restricting the labels.
@@ -660,7 +660,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
   if (isolate_subtree) {
     superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree))))
     ancestors <- tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% superclasses)))))]
-    descendants <- tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% superclasses),type = 'tips')))]
+    descendants <- tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% superclasses),type = 'all')))]
     #print(paste('Desc', length(descendants)))
     # handle cases when superclass nodes are not in the tree_label list
     missing_superclasses <- superclasses[-which(superclasses %in% tree_labels)]
@@ -675,12 +675,14 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
       shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
       #print(paste('there are this many shallow descendants', length(shallow_descendants)))
       ancestors <- unique(c(ancestors, tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% shallow_descendants)))))]))
-      descendants <- unique(c(descendants, tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% shallow_descendants),type = 'tips')))]))
+      descendants <- unique(c(descendants, tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% shallow_descendants),type = 'all')))]))
     }
     #print(paste('Desc', length(descendants)))
+    print('Got all nodes')
 
 
-    subtree <- ape::drop.tip(tree, setdiff(tree$tip.label, intersect(tree$tip.label, c(superclasses, ancestors, descendants))))
+    #subtree <- ape::drop.tip(tree, setdiff(tree$tip.label, intersect(tree$tip.label, c(superclasses, ancestors, descendants))))
+    subtree <- drop_tips_nodes(tree = tree, labels = c(superclasses, ancestors, descendants))
     # get labels
     subtree_labels <- c(subtree$tip.label, subtree$node.label)
 
