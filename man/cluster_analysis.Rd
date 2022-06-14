@@ -22,7 +22,7 @@ cluster_analysis(
 
 \item{level}{Alternate parameter indicating the level of depth for labels.}
 
-\item{tree_object}{A phylo object representing a root tree, the taxonomy
+\item{tree_object}{A phylo object representing a rooted tree, the taxonomy
 being investigated.}
 
 \item{tree}{Alternate parameter, a phylo object representing a rooted tree,
