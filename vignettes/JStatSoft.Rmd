@@ -161,3 +161,9 @@ prune_and_display_subtree(data = biosolids_classified)
 prune_and_display_subtree(data = usgswater_classified)
 ```
 
+While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. We can do so in the following manner.
+
+```{r}
+data_set_subtrees(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
+```
+
