@@ -411,6 +411,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   #pruned_tree <- ape::drop.tip(tree,
   #                             setdiff(tree$tip.label, intersect(data_labels, tree$tip.label)))
   pruned_tree <- drop_tips_nodes(tree = tree, data = data, tax_level_labels = tax_level_labels)
+  pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
 
   if (no_plot)
     return(pruned_tree)
@@ -632,14 +633,18 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
     layout_circular() +
     scale_color_manual(name = paste('Labels from', name_2, 'that are in', name_1),
                        labels = c('True', 'False'),
-                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc'))
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
+    ggtitle(paste0(name_1, ' subtree')) +
+    theme(plot.title = element_text(hjust = 0.5))
 
   plot_2 <- ggtree(tree_2) %<+% membership_2 +
     aes(color = membership) +
     layout_circular() +
     scale_color_manual(name = paste('Labels from', name_1, 'that are in', name_2),
                        labels = c('True', 'False'),
-                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc'))
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
+    ggtitle(paste0(name_2, ' subtree'))  +
+    theme(plot.title = element_text(hjust = 0.5))
 
   if (show_tips){
     # Adjust the tip label size depending on the number of tips of the tree
@@ -661,8 +666,12 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
     }
 
     plot_1 <- plot_1 + geom_tiplab(size = tip_size_1)
+    plot_1 <- plot_1 + xlim(0, max(plot_1$data$x) + 50)
+
     plot_2 <- plot_2 + geom_tiplab(size = tip_size_2)
+    plot_2 <- plot_2 + xlim(0, max(plot_2$data$x) + 50)
   }
+
 
 
   return(list(plot_1, plot_2))
