@@ -794,3 +794,59 @@ drop_tips_nodes <- function(tree, data = NULL, labels = NULL, tax_level_labels =
 
   return(new_tree)
 }
+
+
+#' Adjust branch lengths
+#'
+#' This is a helper function that is used to reset branch lengths for pruned
+#' trees.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @return A tree with adjust branch lengths.
+#'
+
+adjust_branch_lengths <- function(tree){
+  tree_levels <- get_levels(tree)
+  tree_height <- sapply(tree_levels$node, function(t){
+    current_level <- tree_levels$level[[t]]
+    descendants <- phangorn::Descendants(tree, t, type = 'all')
+    max_level <- max(tree_levels$level[descendants])
+    return(max_level - current_level + 1)
+  })
+
+  plot_height <- numeric(length(tree_height))
+  root <- length(tree$tip.label) + 1
+  plot_height[[root]] <- 100
+  current_level <- c(root)
+  while(length(current_level) > 0){
+    next_level <- c()
+    for (i in seq_along(current_level)){
+      parent_height <- plot_height[[current_level[[i]]]]
+      children <- phangorn::Descendants(tree, current_level[[i]], type = 'children')
+      next_level <- c(next_level, children)
+      #children_height <- tree_height[children]
+
+      #children_tip <- which(children_height == 1)
+      #if (length(children_tip) > 0){
+      #  plot_height[which(names(plot_height) %in% children[children_tip])] <- 0
+      #  children <- children[-children_tip]
+      #}
+
+      if(length(children) > 0){
+        scale_factor <- (tree_height[children] - 1)/tree_height[children]
+        plot_height[children] <- parent_height*scale_factor
+      }
+
+    }
+    current_level <- next_level
+  }
+
+
+  edge.length <- numeric(dim(tree$edge)[1])
+  for (i in seq_along(edge.length)){
+    parent <- tree$edge[i, 1]
+    child <- tree$edge[i, 2]
+    edge.length[[i]] <- plot_height[[parent]] - plot_height[[child]]
+  }
+  return(edge.length)
+}
