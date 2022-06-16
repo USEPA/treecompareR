@@ -167,3 +167,18 @@ While there is still a lot of information displayed through the tip labels, this
 data_set_subtrees(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
 ```
 
+The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap.
+
+```{r}
+leaf_fraction_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
+```
+
+We also reverse the roles each data set plays to demonstrate the other overlap visualization.
+
+```{r}
+leaf_fraction_subtree(data_1  = usgswater_classified, data_2 = biosolids_classified, name_1 = 'USGS water', name_2 = 'Biosolids')
+```
+
+The output of this function includes a data frame and a tree visualization. The data frame lists each classification label that shows up as a terminal label in a classification for a chemical in the data set, the number of times it shows up in the given data set. In addition, it also displays of the chemicals that terminate with that label, the number that are present in the other data set, and finally the percentage of shared chemicals within the first data set.
+
+The tree visualization then illustrates this by coloring the tips and setting a layer of the same colors around the diagram. The legend shows the percentage of shared chemicals per terminal classification label using a color gradient that corresponds to the tip and layered colors.
