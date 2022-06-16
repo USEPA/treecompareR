@@ -465,6 +465,9 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
     stop(paste('The column', col, 'is not in the input data!'))
 
   #print(col)
+  if (!('terminal_label' %in% names(data))){
+    data <- add_terminal_label(data)
+  }
   columns <- which(names(data) %in% c(col, 'terminal_label'))
   #print(columns)
 
@@ -496,7 +499,8 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
                                       outlier.stroke = 0.08,
                                       outlier.shape = 21,
                                       axis.params = list(axis = 'x',
-                                                         text.size = 1.8),
+                                                         text.size = 1.8,
+                                                         text.angle = 270),
                                       grid.params = list())
   circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
                                                guide = guide_legend(keywidth = 0.2,
