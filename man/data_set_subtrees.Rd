@@ -11,7 +11,8 @@ data_set_subtrees(
   name_2 = "data_2",
   tax_level_labels = NULL,
   tree = NULL,
-  show_tips = TRUE
+  show_tips = TRUE,
+  adjust_branch_length = TRUE
 )
 }
 \arguments{
@@ -30,6 +31,9 @@ not using ClassyFire taxonomy.}
 
 \item{show_tips}{An alternate parameter determining whether to show tip
 labels.}
+
+\item{adjust_branch_length}{An alternate parameter determining whether to
+resize branches of subtree.}
 }
 \value{
 A list of two ggtree objects.

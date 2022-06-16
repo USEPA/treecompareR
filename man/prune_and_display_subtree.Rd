@@ -9,7 +9,8 @@ prune_and_display_subtree(
   tax_level_labels = NULL,
   tree = NULL,
   show_tips = TRUE,
-  no_plot = FALSE
+  no_plot = FALSE,
+  adjust_branch_length = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ displayed.}
 
 \item{no_plot}{An alternate parameter for returning only the pruned tree
 without the tree visual.}
+
+\item{adjust_branch_length}{An alternate parameter determining whether to
+resize branches of subtree.}
 }
 \value{
 A pruned tree or list consisting of a pruned tree and ggtree diagram

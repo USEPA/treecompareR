@@ -388,12 +388,14 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 #'   displayed.
 #' @param no_plot An alternate parameter for returning only the pruned tree
 #'   without the tree visual.
+#' @param adjust_branch_length An alternate parameter determining whether to
+#'   resize branches of subtree.
 #' @return A pruned tree or list consisting of a pruned tree and ggtree diagram
 #'   of the pruned tree.
 #' @export
 #' @importFrom ape drop.tip
 #' @import ggtree
-prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL, show_tips = TRUE, no_plot = FALSE) {
+prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL, show_tips = TRUE, no_plot = FALSE, adjust_branch_length = TRUE) {
   if (is.null(tax_level_labels)){
     tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
                           'level5', 'level6', 'level7', 'level8',
@@ -411,7 +413,9 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   #pruned_tree <- ape::drop.tip(tree,
   #                             setdiff(tree$tip.label, intersect(data_labels, tree$tip.label)))
   pruned_tree <- drop_tips_nodes(tree = tree, data = data, tax_level_labels = tax_level_labels)
-  pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
+  if (adjust_branch_length) {
+    pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
+  }
 
   if (no_plot)
     return(pruned_tree)
@@ -608,14 +612,16 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
 #' @param show_tips An alternate parameter determining whether to show tip
 #'   labels.
+#' @param adjust_branch_length An alternate parameter determining whether to
+#'   resize branches of subtree.
 #' @return A list of two ggtree objects.
 #' @export
 #' @import ggtree
-data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = NULL, tree = NULL, show_tips = TRUE){
+data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = NULL, tree = NULL, show_tips = TRUE, adjust_branch_length = TRUE){
   membership <- NULL
   # Prune subtrees for each data set.
-  tree_1 <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
-  tree_2 <- prune_and_display_subtree(data_2, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE)
+  tree_1 <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE, adjust_branch_length = adjust_branch_length)
+  tree_2 <- prune_and_display_subtree(data_2, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE, adjust_branch_length = adjust_branch_length)
 
   # Get all taxonomy labels associated with the data
   data_labels_1 <- setNames(unlist(get_labels(data_1)), NULL)
