@@ -430,7 +430,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
   }
 
   # Create the tree plot
-  tree_plot <- ggtree(pruned_tree, branch.length = 'none') +
+  tree_plot <- ggtree(pruned_tree) +
     layout_circular()
 
   # If displaying the tip labels, add them in with the correct size
@@ -451,12 +451,14 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @param layers An alternate parameter giving which taxonomic layers to display
+#'   outside of the boxplot layer.
 #' @return A ggtree object consisting of subtree induced by data and boxplots
 #'   corresponding to specified numeric column of data.
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
-circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
+circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL, layers = NULL){
   val <- NULL
   terminal_label <- NULL
   grp <- NULL
@@ -466,7 +468,7 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
 
   #print(col)
   if (!('terminal_label' %in% names(data))){
-    data <- add_terminal_label(data)
+    data <- add_terminal_label(copy(data))
   }
   columns <- which(names(data) %in% c(col, 'terminal_label'))
   #print(columns)
@@ -491,22 +493,46 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
   circ_plot <- circ_plot + geom_tippoint()
 
   circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
-                                      mapping = aes(x = val,
-                                                    y = terminal_label,
-                                                    fill = grp),
-                                      size = 0.2,
-                                      outlier.size = 0.5,
-                                      outlier.stroke = 0.08,
-                                      outlier.shape = 21,
-                                      axis.params = list(axis = 'x',
-                                                         text.size = 1.8,
-                                                         text.angle = 270),
-                                      grid.params = list())
+                                                   mapping = aes(x = val,
+                                                                 y = terminal_label,
+                                                                 fill = grp),
+                                                   size = 0.2,
+                                                   outlier.size = 0.5,
+                                                   outlier.stroke = 0.08,
+                                                   outlier.shape = 21,
+                                                   axis.params = list(axis = 'x',
+                                                                      text.size = 1.8,
+                                                                      text.angle = 270,
+                                                                      hjust = 0),
+                                                   grid.params = list())
   circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
                                                guide = guide_legend(keywidth = 0.2,
                                                                     keyheight = 0.2,
                                                                     ncol = 2))
-  return(circ_plot)
+  if (!is.null(layers)){
+    label_levels <- get_labels(data)
+    level_names <- names(label_levels)[which(names(label_levels) %in% layers)]
+    #print(which(names(label_levels) %in% layers))
+    #print(names(label_levels))
+    #print(level_names)
+    if (length(level_names) > 0){
+      for (i in seq_along(level_names)){
+        values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
+        values <- values[!is.na(values)]
+        values <- values[-which(sapply(values, function(t) {t == ''}))]
+        #print(which(sapply(values, function(t) {t == ''})))
+        #print(values)
+        tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
+        for (j in seq_along(values)){
+          names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
+          print(which(is.na(names(tree_nodes))))
+        }
+        new_data_tree <- groupOTU(new_data_tree, tree_nodes, paste0('_', level_names[[i]]))
+      }
+
+    }
+  }
+  return(list(circ_plot, new_data_tree))
 }
 
 
@@ -534,6 +560,13 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL){
 #' @seealso \code{\link{add_terminal_label}}
 #'
 leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', show_labels = FALSE, tax_level_labels = NULL, tree = NULL){
+  if (!all('terminal_label' %in% names(data_1))){
+    warning('The column `terminal_label` is missing from one of the first input data.table! Attaching column...')
+    data_1 <- add_terminal_label(data_1)
+  }
+  if (!all('terminal_label' %in% names(data_2))){
+    warning('The column `terminal_label` is missing from one of the second input data.table! Attaching column...')
+    data_2 <- add_terminal_label(data_2)  }
   # Find all the terminal_label values from data_1.
   terminal_label <- NULL
   INCHIKEY <- NULL

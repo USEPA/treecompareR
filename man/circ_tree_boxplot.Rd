@@ -4,7 +4,13 @@
 \alias{circ_tree_boxplot}
 \title{Circular tree with boxplots}
 \usage{
-circ_tree_boxplot(data, col, tax_level_labels = NULL, tree = NULL)
+circ_tree_boxplot(
+  data,
+  col,
+  tax_level_labels = NULL,
+  tree = NULL,
+  layers = NULL
+)
 }
 \arguments{
 \item{data}{A data.table consisting of classification data and additional
@@ -16,6 +22,9 @@ numeric data.}
 not using ClassyFire taxonomy.}
 
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
+
+\item{layers}{An alternate parameter giving which taxonomic layers to display
+outside of the boxplot layer.}
 }
 \value{
 A ggtree object consisting of subtree induced by data and boxplots
