@@ -490,9 +490,15 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
   num_nodes_tips <- length(new_data_tree$tip.label) + new_data_tree$Nnode
   #print(num_nodes_tips)
 
+  tip_node_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label),
+                              'Label' = c(new_data_tree$tip.label, new_data_tree$node.label))
+  tip_node_data$Label <- factor(tip_node_data$Label)
+
   circ_plot <- ggtree(new_data_tree,
                       layout = 'circular')
-  circ_plot <- circ_plot + geom_tippoint()
+  circ_plot <- circ_plot %<+% tip_node_data +
+    geom_tippoint(aes(color = Label),
+                  show.legend = FALSE)
 
   circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
                                                    mapping = aes(x = val,
@@ -566,8 +572,9 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
   }
 
   if (is.character(title)){
-    circ_plot <- circ_plot + ggtitle(title) +
-      theme(plot.title = element_text(hjust = 0.5))
+    circ_plot <- circ_plot + ggtitle(title, subtitle = paste('Boxplots of the data from', col, 'column')) +
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5))
   }
   return(circ_plot)
 }
