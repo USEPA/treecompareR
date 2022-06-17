@@ -654,7 +654,7 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
   #tree <- full_join(data_1_tree, label_data, by = 'label')
 
   tree_plot <- ggtree(data_1_tree, layout = 'circular') %<+% label_data
-  tree_plot <- tree_plot + ggtitle(paste0(name_1, ' subtree'))
+  tree_plot <- tree_plot + ggtitle(paste0(name_1, ' subtree')) + theme(plot.title = element_text(hjust = 0.5))
 
   tree_plot <- tree_plot + geom_tippoint(aes(color = percentages), size = tip_size)
   tree_plot <- tree_plot +
