@@ -452,13 +452,15 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #'   not using ClassyFire taxonomy.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
 #' @param layers An alternate parameter giving which taxonomic layers to display
-#'   outside of the boxplot layer.
+#'   outside of the boxplot layer. This can be either a string with a single
+#'   column name, a vector of column names, or a list of column names. If the
+#'   input is a vector or a list, it is fine for it to be length 1.
 #' @return A ggtree object consisting of subtree induced by data and boxplots
 #'   corresponding to specified numeric column of data.
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
-circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = chemont_tree, layers = NULL){
+circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, tree = chemont_tree, layers = NULL){
   val <- NULL
   terminal_label <- NULL
   grp <- NULL
@@ -515,8 +517,13 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = chemont
   #
 
   if (!is.null(layers)){
-    label_levels <- get_labels(data)
+    label_levels <- get_labels(data, tax_level_labels = tax_level_labels)
+    if (is.list(layers) | is.vector(layers)){
     level_names <- names(label_levels)[which(names(label_levels) %in% layers)]
+    } else {
+      warning('The `layers` parameter must be a list or a vector! Skipping extra layers for now...')
+      level_names <- c()
+    }
     #print(which(names(label_levels) %in% layers))
     #print(names(label_levels))
     #print(level_names)
@@ -556,6 +563,11 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = chemont
     }
 
 
+  }
+
+  if (is.character(title)){
+    circ_plot <- circ_plot + ggtitle(title) +
+      theme(plot.title = element_text(hjust = 0.5))
   }
   return(circ_plot)
 }

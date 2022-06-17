@@ -8,6 +8,7 @@ circ_tree_boxplot(
   data,
   col,
   tax_level_labels = NULL,
+  title = NULL,
   tree = chemont_tree,
   layers = NULL
 )
@@ -24,7 +25,9 @@ not using ClassyFire taxonomy.}
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 
 \item{layers}{An alternate parameter giving which taxonomic layers to display
-outside of the boxplot layer.}
+outside of the boxplot layer. This can be either a string with a single
+column name, a vector of column names, or a list of column names. If the
+input is a vector or a list, it is fine for it to be length 1.}
 }
 \value{
 A ggtree object consisting of subtree induced by data and boxplots
