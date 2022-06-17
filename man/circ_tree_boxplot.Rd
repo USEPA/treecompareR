@@ -8,7 +8,7 @@ circ_tree_boxplot(
   data,
   col,
   tax_level_labels = NULL,
-  tree = NULL,
+  tree = chemont_tree,
   layers = NULL
 )
 }

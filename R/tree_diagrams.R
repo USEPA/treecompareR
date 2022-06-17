@@ -458,7 +458,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
-circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL, layers = NULL){
+circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = chemont_tree, layers = NULL){
   val <- NULL
   terminal_label <- NULL
   grp <- NULL
@@ -504,35 +504,60 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, tree = NULL, l
                                                                       text.size = 1.8,
                                                                       text.angle = 270,
                                                                       hjust = 0),
-                                                   grid.params = list())
-  circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
-                                               guide = guide_legend(keywidth = 0.2,
-                                                                    keyheight = 0.2,
-                                                                    ncol = 2))
+                                                   grid.params = list(),
+                                                   show.legend = FALSE) +
+    new_scale_fill()
+  #circ_plot <- circ_plot + scale_fill_discrete(guide = 'none')
+  #circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
+  #                                             guide = guide_legend(keywidth = 0.2,
+  #                                                                  keyheight = 0.2,
+  #                                                                  ncol = 2))
+  #
+
   if (!is.null(layers)){
     label_levels <- get_labels(data)
     level_names <- names(label_levels)[which(names(label_levels) %in% layers)]
     #print(which(names(label_levels) %in% layers))
     #print(names(label_levels))
     #print(level_names)
-    if (length(level_names) > 0){
-      for (i in seq_along(level_names)){
-        values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
-        values <- values[!is.na(values)]
-        values <- values[-which(sapply(values, function(t) {t == ''}))]
-        #print(which(sapply(values, function(t) {t == ''})))
-        #print(values)
-        tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
-        for (j in seq_along(values)){
-          names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
-          print(which(is.na(names(tree_nodes))))
-        }
-        new_data_tree <- groupOTU(new_data_tree, tree_nodes, paste0('_', level_names[[i]]))
-      }
 
+    fruit_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label))
+
+    for (i in rev(seq_along(level_names))){
+      values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
+      values <- values[!is.na(values)]
+      values <- values[-which(sapply(values, function(t) {t == ''}))]
+      #print(which(sapply(values, function(t) {t == ''})))
+      #print(values)
+      tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
+      for (j in seq_along(values)){
+        #print(values[[j]])
+        total_descendants <- c(tree$tip.label, tree$node.label)[c(phangorn::Descendants(tree, which(c(tree$tip.label, tree$node.label) %in% values[[j]]), type = 'all'), which(c(tree$tip.label, tree$node.label) %in% values[[j]]))]
+        name_indices <- which(c(new_data_tree$tip.label, new_data_tree$node.label) %in% total_descendants)
+        #print(name_indices)
+        names(tree_nodes)[name_indices] <- values[[j]]
+        #names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
+        #print(which(is.na(names(tree_nodes))))
+      }
+      names(tree_nodes)[which(is.na(names(tree_nodes)))] <- paste0('_', level_names[[i]])
+      fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
+
+      circ_plot <- circ_plot + geom_fruit(data = fruit_data,
+                                          geom = geom_tile,
+                                          mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
+                                          width = 3,
+                                          pwidth = 0,
+                                          color = 'white') + new_scale_fill()
+
+      #print(names(tree_nodes))
+      #attr(new_data_tree, paste0('_', level_names[[i]])) <- factor(names(tree_nodes))
+      #new_data_tree[[paste0('_', level_names[[i]])]] <- factor(new_data_tree[[paste0('_', level_names[[i]])]])
+      #new_data_tree <- groupOTU(new_data_tree, tree_nodes, paste0('_', level_names[[i]]))
     }
+
+
   }
-  return(list(circ_plot, new_data_tree))
+  return(circ_plot)
 }
 
 
