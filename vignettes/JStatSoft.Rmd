@@ -156,14 +156,14 @@ In this diagram, branches and labels are colored based on whether they are membe
 
 While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate that as follows on both data sets.
 
-```{r,  fig.align='center', fig.dim=c(12,8)}
+```{r,  fig.align='center', fig.dim=c(12,12)}
 prune_and_display_subtree(data = biosolids_classified)
 prune_and_display_subtree(data = usgswater_classified)
 ```
 
 While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. We can do so in the following manner.
 
-```{r,  fig.align='center', fig.dim=c(12,8)}
+```{r,  fig.align='center', fig.dim=c(12,12)}
 data_set_subtrees(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
 ```
 
