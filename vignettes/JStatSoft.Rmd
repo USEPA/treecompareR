@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 #library(treecompareR)
 devtools::load_all()
+library(kableExtra)
 ```
 
 ## Abstract
@@ -109,12 +110,23 @@ usgswater_classified <- classify_datatable(usgswater)
 usgswater_classified <- classify_by_smiles(usgswater_classified)
 ```
 
-Now, let us examine these two data sets. Notice that there are 11 columns, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row.
+Now, let us examine these two data sets. Notice that there are 11 columns, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`.
 
 ```{r}
-head(biosolids_classified)
-head(usgswater_classified)
+biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 'kingdom', 'superclass', 'class', 'subclass', 'level5')] %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  kable_classic()
+
+usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 'kingdom', 'superclass', 'class', 'subclass', 'level5')] %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  kable_classic()
 ```
+Observe that in the first table, the third row does not have an entry for subclass. This means that the most specific taxonomic label associated to the chemical `4-epi-Oxytetracycline` is given by `Tetracyclines`, at the class level. Similarly, in the second table, the first row does not have an entry for the subclass column, and thus the most specific taxonomic classification label for the chemical `S-Methyl N-hydroxythioacetimidate` is `Sulfenyl compounds` at the class level.
+
+
+
 
 To gain an understanding of these data sets and the chemical classifications they represent, we can first look at the number of labels each represents, broken down through taxonomic level. The function label bars takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of labels numbers faceted by data set and by taxonomic level.
 
@@ -186,3 +198,17 @@ head(usgswater_leaf_fraction[[2]])
 The output of this function includes a data frame and a tree visualization. The data frame lists each classification label that shows up as a terminal label in a classification for a chemical in the data set, the number of times it shows up in the given data set. In addition, it also displays of the chemicals that terminate with that label, the number that are present in the other data set, and finally the percentage of shared chemicals within the first data set.
 
 The tree visualization then illustrates this by coloring the tips and setting a layer of the same colors around the diagram. The legend shows the percentage of shared chemicals per terminal classification label using a color gradient that corresponds to the tip and layered colors.
+
+We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the `biosolids_classified` data set, there is a column `AVERAGE_MASS` which gives the average molecular mass for each chemical in the data set. We can group these by their classification and examine boxplots of each set of grouped data. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers. 
+
+```{r, fig.align='center', fig.dim=(12,8)}
+circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', tippoint_boxplot = TRUE, layers = c('kingdom', 'superclass'))
+```
+
+If we want to suppress the tippoint and boxplot colors, we can easily do so.
+
+```{r, fig.align='center', fig.dim=(12,8)}
+circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', layers = c('kingdom', 'superclass'))
+```
+
+
