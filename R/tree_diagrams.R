@@ -464,8 +464,10 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
-#' @importFrom ggnewscale new_scale_fill
 #' @import viridis
+#' @importFrom ggnewscale new_scale_fill
+#' @importFrom grDevices colorRampPalette
+#' @importFrom RColorBrewer brewer.pal
 circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, tree = chemont_tree, layers = NULL, tippoint_boxplot = FALSE){
   val <- NULL
   terminal_label <- NULL
@@ -577,6 +579,8 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
     #print(level_names)
 
     fruit_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label))
+    palettes <- c('Blues', 'Oranges', 'BuGn', 'OrRd', 'BuPu', 'Reds','GnBu', 'RdPu','Greens', 'YlOrBr',
+                  'PuBu', 'YlOrRd', 'PuBuGn', 'YlGnBu', 'PuRd', 'YlGn', 'Purples', 'Greys')
 
     for (i in rev(seq_along(level_names))){
       values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
@@ -594,15 +598,25 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
         #names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
         #print(which(is.na(names(tree_nodes))))
       }
+      level_number <- length(unique(names(tree_nodes)))
+      level_labels <- unique(names(tree_nodes))
       names(tree_nodes)[which(is.na(names(tree_nodes)))] <- paste0('_', level_names[[i]])
+
       fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
+
+
+      colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(n = 9, name = palettes[[i]]))
+      current_palette <- colors(level_number)
 
       circ_plot <- circ_plot + geom_fruit(data = fruit_data,
                                           geom = geom_tile,
                                           mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
                                           width = 3,
                                           pwidth = 0,
-                                          color = 'white') + ggnewscale::new_scale_fill()
+                                          color = 'white') +
+        scale_fill_manual(values = current_palette,
+                          labels = level_labels) +
+        ggnewscale::new_scale_fill()
 
       #print(names(tree_nodes))
       #attr(new_data_tree, paste0('_', level_names[[i]])) <- factor(names(tree_nodes))
