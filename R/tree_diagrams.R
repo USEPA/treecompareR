@@ -455,12 +455,18 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #'   outside of the boxplot layer. This can be either a string with a single
 #'   column name, a vector of column names, or a list of column names. If the
 #'   input is a vector or a list, it is fine for it to be length 1.
+#' @param tippoint_boxplot Alternate parameter for determining whether to color
+#'   the tippoints and the boxplots. If TRUE, they will match in colors, and if
+#'   FALSE, the boxplots will be filled white with black outline and the
+#'   tippoints will be balck.
 #' @return A ggtree object consisting of subtree induced by data and boxplots
 #'   corresponding to specified numeric column of data.
 #' @export
 #' @import ggtree
 #' @import ggtreeExtra
-circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, tree = chemont_tree, layers = NULL){
+#' @importFrom ggnewscale new_scale_fill
+#' @import viridis
+circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, tree = chemont_tree, layers = NULL, tippoint_boxplot = FALSE){
   val <- NULL
   terminal_label <- NULL
   grp <- NULL
@@ -496,25 +502,61 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
 
   circ_plot <- ggtree(new_data_tree,
                       layout = 'circular')
-  circ_plot <- circ_plot %<+% tip_node_data +
-    geom_tippoint(aes(color = Label),
-                  show.legend = FALSE)
+  if (tippoint_boxplot) {
+    circ_plot <- circ_plot %<+% tip_node_data +
+    geom_tippoint(aes(color = Label), show.legend = FALSE) +
+      scale_color_viridis(name = 'Terminal label',
+                          option = 'magma',
+                          discrete = TRUE) + ggnewscale::new_scale_fill()
 
-  circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
-                                                   mapping = aes(x = val,
-                                                                 y = terminal_label,
-                                                                 fill = grp),
-                                                   size = 0.2,
-                                                   outlier.size = 0.5,
-                                                   outlier.stroke = 0.08,
-                                                   outlier.shape = 21,
-                                                   axis.params = list(axis = 'x',
-                                                                      text.size = 1.8,
-                                                                      text.angle = 270,
-                                                                      hjust = 0),
-                                                   grid.params = list(),
-                                                   show.legend = FALSE) +
-    new_scale_fill()
+    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+                                                     mapping = aes(x = val,
+                                                                   y = terminal_label,
+                                                                   fill = grp),
+                                                     size = 0.2,
+                                                     outlier.size = 0.5,
+                                                     outlier.stroke = 0.08,
+                                                     outlier.shape = 21,
+                                                     axis.params = list(axis = 'x',
+                                                                        text.size = 1.8,
+                                                                        text.angle = 270,
+                                                                        hjust = 0),
+                                                     grid.params = list(),
+                                                     show.legend = FALSE) +
+      scale_fill_viridis(name = 'Terminal label',
+                         option = 'magma',
+                         discrete = TRUE) + new_scale_fill()
+  } else {
+    circ_plot <- circ_plot + geom_tippoint()
+    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+                                                     mapping = aes(x = val,
+                                                                   y = terminal_label),
+                                                     size = 0.2,
+                                                     outlier.size = 0.5,
+                                                     outlier.stroke = 0.08,
+                                                     outlier.shape = 21,
+                                                     axis.params = list(axis = 'x',
+                                                                        text.size = 1.8,
+                                                                        text.angle = 270,
+                                                                        hjust = 0),
+                                                     grid.params = list(),
+                                                     show.legend = FALSE) + new_scale_fill()
+  }
+
+  #circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+  #                                                 mapping = aes(x = val,
+  #                                                               y = terminal_label,
+  #                                                               fill = grp),
+  #                                                 size = 0.2,
+  #                                                 outlier.size = 0.5,
+  #                                                 outlier.stroke = 0.08,
+  #                                                 outlier.shape = 21,
+  #                                                 axis.params = list(axis = 'x',
+  #                                                                    text.size = 1.8,
+  #                                                                    text.angle = 270,
+  #                                                                    hjust = 0),
+  #                                                 grid.params = list(),
+  #                                                 show.legend = FALSE) + new_scale_fill()
   #circ_plot <- circ_plot + scale_fill_discrete(guide = 'none')
   #circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
   #                                             guide = guide_legend(keywidth = 0.2,
@@ -560,7 +602,7 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
                                           mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
                                           width = 3,
                                           pwidth = 0,
-                                          color = 'white') + new_scale_fill()
+                                          color = 'white') + ggnewscale::new_scale_fill()
 
       #print(names(tree_nodes))
       #attr(new_data_tree, paste0('_', level_names[[i]])) <- factor(names(tree_nodes))

@@ -10,7 +10,8 @@ circ_tree_boxplot(
   tax_level_labels = NULL,
   title = NULL,
   tree = chemont_tree,
-  layers = NULL
+  layers = NULL,
+  tippoint_boxplot = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,11 @@ not using ClassyFire taxonomy.}
 outside of the boxplot layer. This can be either a string with a single
 column name, a vector of column names, or a list of column names. If the
 input is a vector or a list, it is fine for it to be length 1.}
+
+\item{tippoint_boxplot}{Alternate parameter for determining whether to color
+the tippoints and the boxplots. If TRUE, they will match in colors, and if
+FALSE, the boxplots will be filled white with black outline and the
+tippoints will be balck.}
 }
 \value{
 A ggtree object consisting of subtree induced by data and boxplots
