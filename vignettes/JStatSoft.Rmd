@@ -49,12 +49,13 @@ To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/)
 
 ```{r}
 chemont_taxonomy <- generate_tree(dataframe = chemont_parent_child)
-str(chemont_taxonomy)
+str(chemont_taxonomy[[1]])
+str(chemont_taxonomy[[2]])
 ```
 
 The output of this function is a list of two objects, the `phlyo` object representing the tree, and a data.frame used in creating the `phylo` object. 
 
-The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creating of the tree, but do not represent any actual data corresponding to the tree.
+The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
 The data.frame includes the name of each label, its ID from the `chemont_parent_child.rda` file, its parent (aside from the root `Chemical entities`), internally generated id_number, parent_id_number, a string representing the path from the root to the label, and plotHeight, which is internally generated to speed up the construction of the tree but does not represent any actual data.
 
