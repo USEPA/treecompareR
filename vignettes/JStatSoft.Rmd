@@ -111,7 +111,7 @@ usgswater_classified <- classify_datatable(usgswater)
 usgswater_classified <- classify_by_smiles(usgswater_classified)
 ```
 
-Now, let us examine these two data sets. Notice that there are 11 columns, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`.
+Now, let us examine these two data sets. Notice that there are 11 columns, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
 
 ```{r}
 biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 'kingdom', 'superclass', 'class', 'subclass', 'level5')] %>%
@@ -126,10 +126,7 @@ usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 'kingd
 ```
 Observe that in the first table, the third row does not have an entry for subclass. This means that the most specific taxonomic label associated to the chemical `4-epi-Oxytetracycline` is given by `Tetracyclines`, at the class level. Similarly, in the second table, the first row does not have an entry for the subclass column, and thus the most specific taxonomic classification label for the chemical `S-Methyl N-hydroxythioacetimidate` is `Sulfenyl compounds` at the class level.
 
-
-
-
-To gain an understanding of these data sets and the chemical classifications they represent, we can first look at the number of labels each represents, broken down through taxonomic level. The function label bars takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of labels numbers faceted by data set and by taxonomic level.
+To gain an understanding of these data sets and the chemical classifications they represent, we can first look at the number of labels each represents, broken down through taxonomic level. The function `label_bars()` takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of labels numbers faceted by data set and by taxonomic level.
 
 ```{r,  fig.align='center', fig.dim=c(6,4)}
 data_list <- list(biosolids_classified, usgswater_classified)
@@ -137,7 +134,7 @@ names(data_list) <- c('Biosolids', 'USGS Water')
 label_bars(data_list)
 ```
 
-From these diagrams, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the USGS Water data has more labels than the Biosolids data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the data sets. To investigate this, we use tree-based visualizations.
+From these diagrams, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the USGS Water data has more labels than the Biosolids data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
 
 ## Tree visualizations
 
@@ -150,7 +147,7 @@ We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontolog
 ggtree(chemont_tree) + layout_circular()
 ```
 
-This diagram illustrates the scope of the taxonomy structure of the ChemOnt ontology and from this diagram we create visualizations that highlight the areas of chemical space the data sets represent.
+This diagram illustrates the scope of the taxonomy structure of the ChemOnt ontology and from this diagram we create visualizations that highlight the areas of chemical space the data sets represent. This diagram displays a tree with 3612 tips and 1213 internal nodes including the root of the tree. This makes for a dense tree visualization as seen above.
 
 We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data set and returns a tree diagram highlighting membership for each node and tip of the tree in the set of classification labels of the data set. We also display the tip labels.
 
@@ -167,20 +164,23 @@ display_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, na
 
 In this diagram, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
 
-While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate that as follows on both data sets.
+While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate this using the function `prune_and_display_subtree()` as follows on both data sets.
 
 ```{r,  fig.align='center', fig.dim=c(12,12)}
 prune_and_display_subtree(data = biosolids_classified)
 prune_and_display_subtree(data = usgswater_classified)
 ```
 
-While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. We can do so in the following manner.
+While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We note a few things about this diagram. While many chemical classifications terminate with a tip label as the most specific label in the classification, there are some classifications that terminate with an internal node. If we were just to delete the internal nodes and tips not represented by classifications for a data set using `ape::drop_tip()`, the internal nodes that were terminal labels for classifications would appear somewhere between the outer layer of tips and the root. This function adjusts the branch lengths to accommodate the new structure of the subtree. A visual comparison between the branches in the subtree and the subtree within the entire taxonomy mayu show slight differences, for which this is the reason.
+
+
+In a manner similar to the output of `display_subtree()` when comparing two data sets, we may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. To achieve this, we use the function `data_set_subtrees()` as we illustrate in the following example.
 
 ```{r,  fig.align='center', fig.dim=c(12,12)}
 data_set_subtrees(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
 ```
 
-The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap.
+The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, much like with the `display_subtree()` output, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap. We employ the function `leaf_fraction_subtree()` to create this visualization.
 
 ```{r,  fig.align='center', fig.dim=c(12,8)}
 biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
@@ -196,7 +196,7 @@ usgswater_leaf_fraction[[1]]
 head(usgswater_leaf_fraction[[2]])
 ```
 
-The output of this function includes a data frame and a tree visualization. The data frame lists each classification label that shows up as a terminal label in a classification for a chemical in the data set, the number of times it shows up in the given data set. In addition, it also displays of the chemicals that terminate with that label, the number that are present in the other data set, and finally the percentage of shared chemicals within the first data set.
+The output of this function includes a data frame and a tree visualization. The data frame lists each classification label that shows up as a terminal label in a classification for a chemical in the data set, the number of times it shows up in the given data set. In addition, it also displays the number of the chemicals that terminate with that label, the number that are present in the other data set, and finally the percentage of shared chemicals within the first data set.
 
 The tree visualization then illustrates this by coloring the tips and setting a layer of the same colors around the diagram. The legend shows the percentage of shared chemicals per terminal classification label using a color gradient that corresponds to the tip and layered colors.
 
