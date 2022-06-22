@@ -202,13 +202,13 @@ The tree visualization then illustrates this by coloring the tips and setting a 
 
 We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the `biosolids_classified` data set, there is a column `AVERAGE_MASS` which gives the average molecular mass for each chemical in the data set. We can group these by their classification and examine boxplots of each set of grouped data. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers. 
 
-```{r, fig.align='center', fig.dim=(12,8)}
+```{r, fig.align='center', fig.dim=c(12,8)}
 circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', tippoint_boxplot = TRUE, layers = c('kingdom', 'superclass'))
 ```
 
 If we want to suppress the tippoint and boxplot colors, we can easily do so.
 
-```{r, fig.align='center', fig.dim=(12,8)}
+```{r, fig.align='center', fig.dim=c(12,8)}
 circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', layers = c('kingdom', 'superclass'))
 ```
 
