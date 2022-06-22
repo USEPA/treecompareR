@@ -450,6 +450,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 #' @param col A specified numeric column for use in displaying boxplots.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
+#' @param title An alternate parameter for the title of the plot.
 #' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
 #' @param layers An alternate parameter giving which taxonomic layers to display
 #'   outside of the boxplot layer. This can be either a string with a single
@@ -472,6 +473,8 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
   val <- NULL
   terminal_label <- NULL
   grp <- NULL
+  Label <- NULL
+  ID <- NULL
 
   if (!(col %in% names(data)))
     stop(paste('The column', col, 'is not in the input data!'))
