@@ -27,6 +27,7 @@ Imports:
     crayon,
     data.table,
     data.tree,
+    ggnewscale,
     ggplot2,
     ggtree,
     ggtreeExtra,
@@ -36,6 +37,7 @@ Imports:
     phangorn,
     phytools,
     purrr,
+    RColorBrewer,
     stringr,
     tidyr,
     viridis
