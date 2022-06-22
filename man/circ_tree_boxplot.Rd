@@ -23,6 +23,8 @@ numeric data.}
 \item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
 not using ClassyFire taxonomy.}
 
+\item{title}{An alternate parameter for the title of the plot.}
+
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 
 \item{layers}{An alternate parameter giving which taxonomic layers to display
