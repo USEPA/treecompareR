@@ -129,7 +129,8 @@ Observe that in the first table, the third row does not have an entry for subcla
 To gain an understanding of these data sets and the chemical classifications they represent, we can first look at the number of labels each represents, broken down through taxonomic level. The function `label_bars()` takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of labels numbers faceted by data set and by taxonomic level.
 
 ```{r,  fig.align='center', fig.dim=c(6,4)}
-data_list <- list(biosolids_classified, usgswater_classified)
+data_list <- list(biosolids_classified, 
+                  usgswater_classified)
 names(data_list) <- c('Biosolids', 'USGS Water')
 label_bars(data_list)
 ```
@@ -152,14 +153,19 @@ This diagram illustrates the scope of the taxonomy structure of the ChemOnt onto
 We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data set and returns a tree diagram highlighting membership for each node and tip of the tree in the set of classification labels of the data set. We also display the tip labels.
 
 ```{r,  fig.align='center', fig.dim=c(6,4)}
-display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
-display_subtree(data_1 = usgswater_classified, name_1 = 'USGS Water')
+display_subtree(data_1 = biosolids_classified, 
+                name_1 = 'Biosolids')
+display_subtree(data_1 = usgswater_classified, 
+                name_1 = 'USGS Water')
 ```
 
 In these two diagrams, we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. However, if we want to compare both of these data sets to each other, we can do so using the same function as follows.
 
 ```{r,  fig.align='center', fig.dim=c(6,4)}
-display_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS Water')
+display_subtree(data_1 = biosolids_classified, 
+                data_2 = usgswater_classified, 
+                name_1 = 'Biosolids', 
+                name_2 = 'USGS Water')
 ```
 
 In this diagram, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
@@ -177,13 +183,19 @@ While there is still a lot of information displayed through the tip labels, this
 In a manner similar to the output of `display_subtree()` when comparing two data sets, we may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. To achieve this, we use the function `data_set_subtrees()` as we illustrate in the following example.
 
 ```{r,  fig.align='center', fig.dim=c(12,12)}
-data_set_subtrees(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
+data_set_subtrees(data_1 = biosolids_classified, 
+                  data_2 = usgswater_classified, 
+                  name_1 = 'Biosolids', 
+                  name_2 = 'USGS water')
 ```
 
 The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, much like with the `display_subtree()` output, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap. We employ the function `leaf_fraction_subtree()` to create this visualization.
 
 ```{r,  fig.align='center', fig.dim=c(12,8)}
-biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified, data_2 = usgswater_classified, name_1 = 'Biosolids', name_2 = 'USGS water')
+biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified, 
+                                                 data_2 = usgswater_classified, 
+                                                 name_1 = 'Biosolids', 
+                                                 name_2 = 'USGS water')
 biosolids_leaf_fraction[[1]]
 head(biosolids_leaf_fraction[[2]])
 ```
@@ -191,9 +203,15 @@ head(biosolids_leaf_fraction[[2]])
 We also reverse the roles each data set plays to demonstrate the other overlap visualization.
 
 ```{r,  fig.align='center', fig.dim=c(12,8)}
-usgswater_leaf_fraction <- leaf_fraction_subtree(data_1  = usgswater_classified, data_2 = biosolids_classified, name_1 = 'USGS water', name_2 = 'Biosolids')
+usgswater_leaf_fraction <- leaf_fraction_subtree(data_1  = usgswater_classified, 
+                                                 data_2 = biosolids_classified, 
+                                                 name_1 = 'USGS water', 
+                                                 name_2 = 'Biosolids')
 usgswater_leaf_fraction[[1]]
-head(usgswater_leaf_fraction[[2]])
+usgswater_leaf_fraction[[2]][1:5, ] %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  kable_classic()
 ```
 
 The output of this function includes a data frame and a tree visualization. The data frame lists each classification label that shows up as a terminal label in a classification for a chemical in the data set, the number of times it shows up in the given data set. In addition, it also displays the number of the chemicals that terminate with that label, the number that are present in the other data set, and finally the percentage of shared chemicals within the first data set.
@@ -203,13 +221,20 @@ The tree visualization then illustrates this by coloring the tips and setting a 
 We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the `biosolids_classified` data set, there is a column `AVERAGE_MASS` which gives the average molecular mass for each chemical in the data set. We can group these by their classification and examine boxplots of each set of grouped data. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers. 
 
 ```{r, fig.align='center', fig.dim=c(12,8)}
-circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', tippoint_boxplot = TRUE, layers = c('kingdom', 'superclass'))
+circ_tree_boxplot(biosolids_classified, 
+                  col = 'AVERAGE_MASS', 
+                  title = 'Biosolids', 
+                  tippoint_boxplot = TRUE, 
+                  layers = c('kingdom', 'superclass'))
 ```
 
 If we want to suppress the tippoint and boxplot colors, we can easily do so.
 
 ```{r, fig.align='center', fig.dim=c(12,8)}
-circ_tree_boxplot(biosolids_classified, col = 'AVERAGE_MASS', title = 'Biosolids', layers = c('kingdom', 'superclass'))
+circ_tree_boxplot(biosolids_classified, 
+                  col = 'AVERAGE_MASS', 
+                  title = 'Biosolids', 
+                  layers = c('kingdom', 'superclass'))
 ```
 
 
