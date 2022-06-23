@@ -237,4 +237,63 @@ circ_tree_boxplot(biosolids_classified,
                   layers = c('kingdom', 'superclass'))
 ```
 
+## Similarity between trees
+
+The tree visualization functions we have demonstrated thus far have focused on a visual exploration of chemical space and how each data set spreads through it. We have seen how we can examine the overlap in chemical space between data sets and how to examine more closely the subtrees representing each data set. However, there are some more quantitative methods of exploring these overlaps that we have yet to cover.
+
+The notion of similarity within ontologies and taxonomies has been an area of interest across a variety of disciplines. These aim to compare pairs of nodes in a tree with each other to gain insight on how they relate to each other. Some of these methods involve examining just the pair of paths from the root of the tree to each of the nodes, while others may examine information more intrinsic to each node. While there is a lot to discuss and explore in the area of similarity measures, we will postpone that to the future and focus on how to use these similarity measures. The main points of similarity measures we will highlight and then demonstrate visualizations that leverage them.
+
+Jaccard similarity examines the path from the root to each node in the pair of nodes, and relates these paths to the shared path (which may possibly be just the root). We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). This notion of similarity is calculated using the function `general_Jaccard_similarity()`, which takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+
+Some trees may come with a probability distribution attaching probabilities to each node such that the sum of all node probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In fact, we can look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for tips to have a higher value than their ancestors, with the root having the minimum value. One way we can do this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes, evaluating a monotonically decreasing function on these values, and examining their ratio. In particular, for node $v_i$, define $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree. In the case that $v_i$ is a tip, it has no descendants so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties. 
+
+One way to frame the concept of information content is the idea that the less likely a node appears in a generic path starting from the root and ending at an arbitrary node, the more information it tells when we know the node is one a path given to us. So for instance, the only path a tip can exist on is the unique path connecting it with the root. However, for an ancestor of a tip, there are more paths that include this node, so knowing the ancestor is on a path gives less information about what the path might be. Since every path starting at the root includes the root, knowing the root is on the path yields no information.
+
+To generate the information content for a tree, we can use the function `attach_information_content()` which takes in a tree as the only required parameter. This function also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
+
+Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
+
+The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $$\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j)).$$ Observe that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants). Also, since the information content of the root is zero, any pair of nodes containing the root will return a similarity value of zero.
+
+There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in Resnik.
+
+The next method is Lin similarity. This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \text{IC}(v_i) + \text{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}$$ from which it follows that $$\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$ 
+
+We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
+
+An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j).$$ Taking the difference yields The following inequality $$0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath and is thus named. 
+
+Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this does not necessarily return a value of zero. In fact, rewriting the expression for this similarity measure, we see that it is equal to $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$$ since $$\text{IC}(v_i) + \text{IC}(v_j) \leq 2.$$ One thing this reflects is that if a pair of such nodes represents a large portion of the tree based on their descendants, they are more likely to be closer to the root and thus more related to each other. 
+
+When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
+
+Now, the function `attach_information_content()` generates information content for an input tree, and the functions `general_Jaccard_similarity()`, `general_Resnik_similarity()`, `general_Lin_similarity()`, `general_JiangConrath_similarity()` all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function `generate_similarity_matrix()` will do so for a given tree and similarity measure function. The computation is lengthy for the chemont tree and so these matrices have been previously computed and stored. They are accessible as `chemont_jaccard`, `chemont_resnik_IC_SVH`, `chemont_lin_IC_SVH`, and `chemont_jiangconrath_IC_SVH`.
+
+Now, we move to using these in visualizations.
+
+The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified`, columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters based on the hierarchical clustering of the heatmap.
+
+```{r}
+biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, matrix = chemont_jaccard, row_data = usgswater_classified, column_data = biosolids_classified, row_split = 9L, column_split = 9L, row_title = 'USGS Water', column_title = 'Biosolids', name = 'Jaccard Similarity')
+biosolids_usgs_ht
+```
+
+Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
+
+```{r}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 2, column_cluster = 2, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+```
+
+Observe that only the superclass 'Benzenoids' is represented. In the second diagram, we prune away all extraneous superclass branches. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets.
+
+
+
+
+```{r}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 9, column_cluster = 8, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+
+```
+
+In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
+
 
