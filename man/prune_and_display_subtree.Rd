@@ -10,7 +10,8 @@ prune_and_display_subtree(
   tree = NULL,
   show_tips = TRUE,
   no_plot = FALSE,
-  adjust_branch_length = TRUE
+  adjust_branch_length = TRUE,
+  xlimit = c(0, 150)
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ without the tree visual.}
 
 \item{adjust_branch_length}{An alternate parameter determining whether to
 resize branches of subtree.}
+
+\item{xlimit}{An alternate parameter determining the scale of the tree
+visualization.}
 }
 \value{
 A pruned tree or list consisting of a pruned tree and ggtree diagram

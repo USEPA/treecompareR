@@ -390,12 +390,14 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 #'   without the tree visual.
 #' @param adjust_branch_length An alternate parameter determining whether to
 #'   resize branches of subtree.
+#' @param xlimit An alternate parameter determining the scale of the tree
+#'   visualization.
 #' @return A pruned tree or list consisting of a pruned tree and ggtree diagram
 #'   of the pruned tree.
 #' @export
 #' @importFrom ape drop.tip
 #' @import ggtree
-prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL, show_tips = TRUE, no_plot = FALSE, adjust_branch_length = TRUE) {
+prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL, show_tips = TRUE, no_plot = FALSE, adjust_branch_length = TRUE, xlimit = c(0, 150)) {
   if (is.null(tax_level_labels)){
     tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
                           'level5', 'level6', 'level7', 'level8',
@@ -431,7 +433,7 @@ prune_and_display_subtree <- function(data, tax_level_labels = NULL, tree = NULL
 
   # Create the tree plot
   tree_plot <- ggtree(pruned_tree) +
-    layout_circular()
+    layout_circular() + xlim(xlimit[[1]], xlimit[[2]])
 
   # If displaying the tip labels, add them in with the correct size
   if (show_tips)
