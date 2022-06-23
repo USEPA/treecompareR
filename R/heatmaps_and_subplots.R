@@ -656,6 +656,8 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
     }
   }
 
+  tree_visual <- tree_visual + xlim(0, max(tree_visual$data$x) + 50)
+
   # if isolating tree
   if (isolate_subtree) {
     superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree))))
@@ -800,6 +802,8 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                                     rep('#542788', length(shared_superclasses)), "#053061", "#d73027", "#2d004b"),
                            labels=c(row_superclasses, column_superclasses, shared_superclasses, 'TSCA', 'NSSS', 'TSCA and NSSS'))
     }
+
+    tree_visual_sub <- tree_visual_sub + xlim(0, max(tree_visual_sub$data$x) + 50)
 
     return(list(tree_visual, tree_visual_sub))
   }
