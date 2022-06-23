@@ -273,14 +273,14 @@ Now, we move to using these in visualizations.
 
 The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified`, columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters based on the hierarchical clustering of the heatmap.
 
-```{r}
+```{r, fig.align='center', fig.dim=c(6,4)}
 biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, matrix = chemont_jaccard, row_data = usgswater_classified, column_data = biosolids_classified, row_split = 9L, column_split = 9L, row_title = 'USGS Water', column_title = 'Biosolids', name = 'Jaccard Similarity')
 biosolids_usgs_ht
 ```
 
 Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
 
-```{r}
+```{r, fig.align='center', fig.dim=c(12,8)}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 2, column_cluster = 2, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
 ```
 
@@ -289,7 +289,7 @@ Observe that only the superclass 'Benzenoids' is represented. In the second diag
 
 
 
-```{r}
+```{r, fig.align='center', fig.dim=c(12,8)}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 9, column_cluster = 8, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
 
 ```
