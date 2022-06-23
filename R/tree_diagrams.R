@@ -820,7 +820,8 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
     plot_2 <- plot_2 + xlim(0, max(plot_2$data$x) + 50)
   }
 
-
+  plot_1 <- plot_1 + theme(legend.justification = 'top')
+  plot_2 <- plot_2 + theme(legend.justification = 'top')
 
   return(list(plot_1, plot_2))
 }
