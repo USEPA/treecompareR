@@ -29,7 +29,11 @@ This paper preents the **treecompareR** package for `R`, which provides tools fo
 
 Classification of objects has been a source of much development of structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess. 
 
-Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a *canis*" and study how objects relate to one another under this scheme. One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. 
+Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a *canis*" and study how objects relate to one another under this scheme. [CLR:citation?] One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. [CLR:citation?]
+
+[CLR:Add refs to Gene Ontology project]
+
+[CLR:Add link to cheminformatics applications & other chemical ontologies]
 
 In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was presented, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a chemical ontology, ChemOnt, consisting of 4825 classification labels. These labels are provided a a taxonomy structure with pairs of distinct labels either satisfying a simple "is a" relation or not. The ClassyFire tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
 
@@ -53,7 +57,7 @@ str(chemont_taxonomy[[1]])
 str(chemont_taxonomy[[2]])
 ```
 
-The output of this function is a list of two objects, the `phlyo` object representing the tree, and a data.frame used in creating the `phylo` object. 
+The output of this function is a list of two objects, the `phylo` object representing the tree, and a data.frame used in creating the `phylo` object. 
 
 The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
