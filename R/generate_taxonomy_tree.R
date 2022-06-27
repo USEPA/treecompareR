@@ -154,5 +154,6 @@ generate_tree <- function(file_dir, dataframe = NULL){
     }
   }
 
-  return(list(tree_object, tax_nodes))
+  return(list("tree_object" = tree_object,
+              "tax_nodes" = tax_nodes))
 }
