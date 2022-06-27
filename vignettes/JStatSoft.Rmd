@@ -21,12 +21,12 @@ devtools::load_all()
 #library(kableExtra)
 ```
 
-## Abstract
+# Abstract
 
 This paper presents the **treecompareR** package for `R`, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from **gplot2**, **ggtree** to provide visualizations tailored for use with taxonomic classification data. It also provides a pipeline for gathering chemical classification data using **classyfireR** and the [Hazard Comparison Dashboard](https://hazard.sciencedataexperts.com/#/). Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using [ClassyFire](http://classyfire.wishartlab.com/), **treecompareR** provides tools for use with more general taxonomies.
 
 
-## Introduction
+# Introduction
 
 Classification of objects has been a source of much development of structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess. 
 
@@ -38,7 +38,7 @@ However, what ones does with this information may be limited in terms of current
 
 We present the package **treecompareR** as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space.  
 
-## Example Data
+# Example Data
 
 In this paper, we use the `chemical_list_BIOSOLIDS_2022_05_10` and `chemical_list_USGSWATER_2022_05_17` data sets, which are available for download from the US Environmental Protection Agency's [CompTox Dashboard Chemical List](https://comptox.epa.gov/dashboard/chemical-lists) website. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are *BIOSOLIDS2021* and *USGSWATER*, respectively.
 
@@ -55,7 +55,7 @@ str(chemont_taxonomy[[1]])
 str(chemont_taxonomy[[2]])
 ```
 
-The output of the `generate_taxonomy()` function is a list of two objects, the `phlyo` object representing the tree, and a data frame used in creating the `phylo` object. Observe the structure of these in \@ref(fig:chemont-tree). 
+The output of the `generate_taxonomy()` function is a list of two objects, the `phlyo` object representing the tree, and a data frame used in creating the `phylo` object. Observe the structure of these in Figure \@ref(fig:chemont-tree). 
 
 The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
@@ -63,9 +63,9 @@ The data frame includes the name of each label, its ID from the `chemont_parent_
 
 To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data frame. The JSON file must have three columns, the first the name of the label, the second its ID, and the third the parent ID. For the root, the parent ID should be `NA`. If the data is in the form of a data frame, it must be organized in the same way the JSON file is, with column names given by `Name`, `ID`, and `Parent_ID` in that order.
 
-Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below in \@ref(fig:clean-na-space-biosolids) and \@ref(fig_clean-na-space-usgs).
+Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below in \@ref(fig:clean-na-space-biosolids) and \@ref(fig:clean-na-space-usgs).
 
-```{r clean-na-space-biosolids, message = FALSE, results = 'hide', cache=TRUE}
+```{r clean-na-space-biosolids, message = FALSE, results = 'hide'}
 biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[INCHIKEY == '' & CASRN != '', INCHIKEY := {
   temp = ''
@@ -92,7 +92,7 @@ The function `classify_datatable()` uses the InChIKey data, when present, for a 
 
 We complete the same process on the data set `chemical_list_USGSWATER_2022_05_17` for retrieving classification data.
 
-```{r clean-na-space-usgs, message = FALSE, results = 'hide', cache=TRUE}
+```{r clean-na-space-usgs, message = FALSE, results = 'hide'}
 usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
 usgswater[is.na(INCHIKEY) & !is.na(CASRN), INCHIKEY := {
   temp = ''
@@ -143,7 +143,7 @@ label_bars(data_list)
 
 From these diagrams in \@ref(fig:label-bars), we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the `chemical_list_USGSWATER_2022_05_17` data has more labels than the `chemical_list_BIOSOLIDS_2022_05_10` data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
 
-## Tree visualizations
+# Tree visualizations
 
 The tree visualizations we use rely heavily on the **ggtree** package, which was designed with phylogenetic trees in mind. The **ggtree** package extends the widely used **ggplot2** package, greatly broadening the variety and scope of tree visualizations available for use.
 
@@ -154,7 +154,7 @@ We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontolog
 ggtree(chemont_tree) + layout_circular()
 ```
 
-The diagram \@ref(fig: chemont_tree_plot) illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data sets represents. This diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this makes for a dense tree visualization as seen above.
+The diagram \@ref(fig: chemont-tree-plot) illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data sets represents. This diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this makes for a dense tree visualization as seen above.
 
 We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table. We also display the tip labels.
 
@@ -243,7 +243,7 @@ circ_tree_boxplot(biosolids_classified,
                   layers = c('kingdom', 'superclass'))
 ```
 
-## Similarity between trees
+# Similarity between trees
 
 The tree visualization functions we have demonstrated thus far have focused on a visual exploration of chemical space and how each data set spreads through it. We have seen how we can examine the overlap in chemical space between data sets and how to examine more closely the subtrees representing each data set. However, there are some more quantitative methods of exploring these overlaps that we have yet to cover.
 
@@ -305,7 +305,7 @@ Observe that only the superclass 'Benzenoids' is represented. In the second diag
 
 
 
-```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,8)}
+```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,9)}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
                       htmap = biosolids_usgs_ht, row_cluster = 9, 
                       column_cluster = 8, row_name = 'USGS Water', 
