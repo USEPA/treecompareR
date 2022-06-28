@@ -1,6 +1,9 @@
 ---
 title: "JStatSoft"
-output: bookdown::pdf_document2
+output: 
+  bookdown::pdf_document2:
+    toc: true
+    fig_caption: yes
 vignette: >
   %\VignetteIndexEntry{JStatSoft}
   %\VignetteEngine{knitr::rmarkdown}
@@ -54,7 +57,7 @@ str(chemont_taxonomy[[1]])
 str(chemont_taxonomy[[2]])
 ```
 
-The output of the `generate_taxonomy()` function is a list of two objects, the `phlyo` object representing the tree, and a data frame used in creating the `phylo` object. Observe the structure of these in Figure \@ref(fig:chemont-tree). 
+The output of the `generate_taxonomy()` function is a list of two objects, the `phlyo` object representing the tree, and a data frame used in creating the `phylo` object. Observe the structure of these in Figure \ref{fig:chemont-tree}. 
 
 The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
