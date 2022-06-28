@@ -823,11 +823,14 @@ adjust_branch_lengths <- function(tree){
   plot_height[[root]] <- 100
   current_level <- c(root)
   while(length(current_level) > 0){
-    next_level <- c()
+    next_level <- vector('list', length = length(current_level))
     for (i in seq_along(current_level)){
       parent_height <- plot_height[[current_level[[i]]]]
       children <- phangorn::Descendants(tree, current_level[[i]], type = 'children')
-      next_level <- c(next_level, children)
+      if (length(children) > 0){
+        next_level[[i]] <- children
+      }
+      #next_level <- c(next_level, children)
       #children_height <- tree_height[children]
 
       #children_tip <- which(children_height == 1)
@@ -842,7 +845,7 @@ adjust_branch_lengths <- function(tree){
       }
 
     }
-    current_level <- next_level
+    current_level <- unlist(next_level)
   }
 
 
