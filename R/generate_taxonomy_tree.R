@@ -59,7 +59,7 @@ get_path_to_root <- function(df, x){
 SetPlotHeight <- function(node, rootHeight = 100) {
 
   #traverse from leaves towards root to calculate the height and store it in height2
-  #Note: cannot call it height, as that already exists on `Node`
+  #Note: cannot call it height, as that attribute already exists on `Node`
   data.tree::Set(node$leaves, height2 = 1)
   node$Do(function(x) x$height2 <- data.tree::Aggregate(x, "height2", max) + 1, traversal = "post-order", filterFun = data.tree::isNotLeaf)
 
@@ -81,22 +81,32 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 # with the same names and information.
 
 
-
-#' Generate tree
+#' Generate taxonomy tree
 #'
 #' This function will convert taxonomy relationships from a data.frame to a
 #' 'phylo' object. In addition to the 'phylo' object, there is a data.frame
 #' returned that includes data relevant to the creation of the 'phylo' object.
 #'
-#' @param file_dir A path to a JSON file
-#' @param dataframe An optional data.frame containing parent_child relationship
+#' This function takes a slightly circuitous route. If a path to a JSON file is
+#' provided, it first reads that file and converts to a data,frame. If a
+#' data.frame is provided, it uses that data.frame. Then, it converts that
+#' data.frame to an object of class \code{\link[data.tree]{Node}. Then, it
+#' converts that \code{\link[data.tree]{Node} object into a Newick-format tree
+#' representation. Finally, it converts that Newick-format tree representation
+#' into an object of class \code{\link[phytools]{phylo}}.
+#'
+#' @param file_dir Optional: a path to a JSON file containing parent-child
+#'   relationships for the taxonomy.
+#' @param dataframe An optional data.frame containing parent-child relationships
+#'   for the taxonomy. Must contain columns "Name", "ID", and "Parent_ID". Each
+#'   row represents one node of the taxonomy.
 #' @return A list containing a 'phylo' object and data.frame with useful
 #'   information for building the phylo object.
 #' @export
 #' @import data.tree
 #' @import phytools
 #'
-generate_tree <- function(file_dir, dataframe = NULL){
+generate_tree <- function(file_dir = NULL, dataframe = NULL){
   if (is.null(dataframe)){
     # Read in the JSON file with 'Name', 'ID', and 'Parent_ID' information
     tax_nodes <- get_parent_child(file_dir)
@@ -133,26 +143,20 @@ generate_tree <- function(file_dir, dataframe = NULL){
   Newick_tax_tree <- data.tree::ToNewick(tax_tree, heightAttribute = 'plotHeight')
   tree_object <- phytools::read.newick(text = Newick_tax_tree)
 
-  #print(paste('tax_tree', is.null(tax_tree), 'Newick', is.null(Newick_tax_tree),
-  #            'tree_object', is.null(tree_object)))
-
   # Rename tip and node labels to original names from the JSON file
-  for (i in seq_along(tree_object$tip.label)){
-    current_tip <- tree_object$tip.label[[i]]
-    temp_index <- match(current_tip,tax_nodes$id_number)
-    tree_object$tip.label[[i]] <- tax_nodes$Name[[temp_index]]
-  }
+  #tip labels:
+  temp_index <- match(tree_object$tip.label,
+                      tax_nodes$id_number)
+  temp_labels <- tax_nodes$Name[temp_index]
+  tree_object$tip.label <- temp_labels
 
-  for (i in seq_along(tree_object$node.label)){
-    current_node <- tree_object$node.label[[i]]
-    # If not 'root_', change the current label back to the original label
-    if (current_node != "root_"){
-      temp_index <- match(current_node,tax_nodes$id_number)
-      tree_object$node.label[[i]] <- tax_nodes$Name[[temp_index]]
-    } else {
-      tree_object$node.label[[i]] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
-    }
-  }
+  #node labels:
+  temp_index <- match(tree_object$node.label,
+                      tax_nodes$id_number)
+  temp_labels <- tax_nodes$Name[temp_index]
+  #handle root node label
+  temp_labels[tree_object$node.label %in% "root_"] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
+  tree_object$node.label <- temp_labels
 
   return(list("tree_object" = tree_object,
               "tax_nodes" = tax_nodes))
