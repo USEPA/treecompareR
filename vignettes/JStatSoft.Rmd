@@ -71,15 +71,17 @@ Next, we use the ClassyFire tool to provide classifications of the chemicals in 
 biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[INCHIKEY == '' & CASRN != '', INCHIKEY := {
   temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$inchikey
+  attempt <- get_chemical_identifiers(unique(CASRN))
+  if (!is.null(attempt)){
+    temp = attempt@meta$inchikey
   }
   ifelse(is.null(temp), '', temp)
 }, by = CASRN]
 biosolids[SMILES == '' & CASRN != '', SMILES := {
   temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$smiles
+  attempt <- get_chemical_identifiers(unique(CASRN))
+  if (!is.null(attempt)){
+    temp = attempt@meta$smiles
   }
   ifelse(is.null(temp), '', temp)
 }, by = CASRN]
@@ -98,15 +100,17 @@ We complete the same process on the data set `chemical_list_USGSWATER_2022_05_17
 usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
 usgswater[is.na(INCHIKEY) & !is.na(CASRN), INCHIKEY := {
   temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$inchikey
+  attempt <- get_chemical_identifiers(unique(CASRN))
+  if (!is.null(attempt)){
+    temp = attempt@meta$inchikey
   }
   ifelse(is.null(temp), '', temp)
 }, by = CASRN]
 usgswater[is.na(SMILES) & !is.na(CASRN), SMILES := {
   temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$smiles
+  attempt <- get_chemical_identifiers(unique(CASRN))
+  if (!is.null(attempt)){
+    temp = attempt@meta$smiles
   }
   ifelse(is.null(temp), '', temp)
 }, by = CASRN]
