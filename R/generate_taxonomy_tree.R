@@ -87,33 +87,46 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #' 'phylo' object. In addition to the 'phylo' object, there is a data.frame
 #' returned that includes data relevant to the creation of the 'phylo' object.
 #'
-#' This function takes a slightly circuitous route. If a path to a JSON file is
-#' provided, it first reads that file and converts to a data,frame. If a
-#' data.frame is provided, it uses that data.frame. Then, it converts that
-#' data.frame to an object of class \code{\link[data.tree]{Node}. Then, it
-#' converts that \code{\link[data.tree]{Node} object into a Newick-format tree
+#' This function takes a slightly circuitous route. It converts the
+#' \code{data.frame} input argument \code{tax_nodes} to an object of class
+#' \code{\link[data.tree]{Node}}. Then, it converts that
+#' \code{\link[data.tree]{Node}} object into a Newick-format tree
 #' representation. Finally, it converts that Newick-format tree representation
 #' into an object of class \code{\link[phytools]{phylo}}.
 #'
-#' @param file_dir Optional: a path to a JSON file containing parent-child
-#'   relationships for the taxonomy.
-#' @param dataframe An optional data.frame containing parent-child relationships
-#'   for the taxonomy. Must contain columns "Name", "ID", and "Parent_ID". Each
-#'   row represents one node of the taxonomy.
+#' This is necessary because \code{\link[ggtree]{ggtree}} requires
+#' \code{\link[phytools]{phylo}}-class objects as input, but
+#' \code{\link[phytools]{phytools}} only has methods to create
+#' \code{\link[phytools]{phylo}}-class objects from Newick, SIMMAP, or
+#' Nexus-formatted trees. However, the ClassyFire ontology is not available in
+#' any of those three formats, but only as files defining the name and ID number
+#' of each node in the ontology, and giving the ID number of each node's parent
+#' (if any). For example, the ClassyFire ontology can be downloaded in JSON
+#' format at \url{http://classyfire.wishartlab.com/tax_nodes.json} or in OBO
+#' format at \url{http://classyfire.wishartlab.com/downloads}. (Both JSON and
+#' OBO files contain the same information.) The most-accessible method for
+#' creating a Newick-format tree from this information is found in
+#' \code{\link[data.tree]{ToNewick}}, which requires a
+#' \code{\link[data.tree]{Node}} or \code{\link[ape]{phylo}}-class input.
+#'
+#' The argument \code{tax_nodes} is a \code{data.frame} that defines the
+#' taxonomy. For each node in the taxonomy, it contains a name, an ID, and the
+#' ID of the node's parent. This \code{data.frame} may be read from an OBO file
+#' using e.g. \code{\link[ontologyIndex]{get_ontology}} (and
+#' \code{\link[ontologyIndex]{as.data.frame.ontology_index}}), or from a JSON
+#' file using for example \code{\link[jsonlite]{fromJSON}}.
+#'
+#' @param tax_nodes A data.frame containing parent-child relationships for the
+#'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
+#'   respectively provide a name for each node, an ID for each node, and the ID
+#'   of the parent of each node. Each row represents one node of the taxonomy.
 #' @return A list containing a 'phylo' object and data.frame with useful
 #'   information for building the phylo object.
 #' @export
 #' @import data.tree
 #' @import phytools
 #'
-generate_tree <- function(file_dir = NULL, dataframe = NULL){
-  if (is.null(dataframe)){
-    # Read in the JSON file with 'Name', 'ID', and 'Parent_ID' information
-    tax_nodes <- get_parent_child(file_dir)
-  } else {
-    tax_nodes <- dataframe
-  }
-
+generate_tree <- function(tax_nodes = NULL){
   # Get the root of the tree, which will have no parent and thus have null value
   # for the 'Parent_ID'
   root <- tax_nodes[which(!(tax_nodes[, 'Parent_ID'] %in% tax_nodes[, 'ID'])), 'ID']
@@ -129,7 +142,7 @@ generate_tree <- function(file_dir = NULL, dataframe = NULL){
     get_path_to_root(tax_nodes, s)
   })
 
-  # Convert the pathString information into an object of 'phylo' class
+  # Convert the pathString information into an object of 'Node' class
   tax_tree <- data.tree::as.Node(tax_nodes, mode = 'table')
 
 
