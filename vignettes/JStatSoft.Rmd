@@ -1,7 +1,6 @@
 ---
 title: "JStatSoft"
-output: 
-  bookdown::pdf_document2: default
+output: bookdown::pdf_document2
 vignette: >
   %\VignetteIndexEntry{JStatSoft}
   %\VignetteEngine{knitr::rmarkdown}
