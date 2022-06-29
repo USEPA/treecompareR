@@ -743,9 +743,9 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
   unique_avgs <- sort(unique(average_val))
 
 
-  margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
+  #margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
 
-  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_val, decreasing = TRUE) > (t - margin)])/total})
+  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_val, decreasing = TRUE) >= t])/total})
 
   names(percentages) <- rev(unique_avgs)
 
