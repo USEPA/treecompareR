@@ -153,7 +153,8 @@ generate_tree <- function(tax_nodes = NULL){
   plot_heights[1, 'name'] <- 	'-1'
   tax_nodes['plotHeight'] <- plot_heights[match(tax_nodes[,'id_number'], plot_heights[,'name']) ,'plot_height']
 
-  Newick_tax_tree <- data.tree::ToNewick(tax_tree, heightAttribute = 'plotHeight')
+  Newick_tax_tree <- data.tree::ToNewick(tax_tree,
+                                         heightAttribute = 'plotHeight')
   tree_object <- phytools::read.newick(text = Newick_tax_tree)
 
   # Rename tip and node labels to original names from the JSON file
