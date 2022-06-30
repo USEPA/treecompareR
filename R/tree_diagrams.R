@@ -288,27 +288,25 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #' @export
 #' @import phangorn
 #' @import ggtree
-display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL, tree = NULL, tax_level_labels = NULL){
+display_subtree <- function(data_1,
+                            data_2 = NULL,
+                            name_1 = "Set 1",
+                            name_2 = "Set 2",
+                            tree = chemont_tree,
+                            tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                 'level5', 'level6', 'level7', 'level8',
+                                                 'level9', 'level10', 'level11')){
   cohort <- NULL
   dataset_1 <- NULL
 
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
-  }
-
-  if (is.null(tree)){
-    tree <- chemont_tree
-  }
-
   tree_labels <- c(tree$tip.label, tree$node.label)
-
 
   # Get all labels associated with the input data sets
   data_1_labels <- setNames(unlist(get_labels(data_1, tax_level_labels)), NULL)
-  select_data_1 <- sapply(data_1_labels, function(t) {match(t, tree_labels)})
-  branches_data_1 <- sapply(select_data_1, phangorn::Ancestors, x = tree)
+  #select_data_1 <- sapply(data_1_labels, function(t) {match(t, tree_labels)})
+  select_data_1 <- match(data_1_labels, tree_labels)
+  #branches_data_1 <- sapply(select_data_1, phangorn::Ancestors, x = tree)
+  branches_data_1 <- phangorn::Ancestors(x = tree, node = select_data_1)
   data_1_all <- unique(unlist(branches_data_1))
 
   # Create data.frame to store subtree information
@@ -319,17 +317,16 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
   analytes_data <- data.frame('node' = 1:length(tree_labels))
   analytes_data[['dataset_1']] <- data_1_subtree
 
-  #print(summary(analytes_data))
-
-  if (is.null(name_1)){
-    name_1 <- 'Set 1'
-  }
-
-
   if (!is.null(data_2)) {
     data_2_labels <- setNames(unlist(get_labels(data_2, tax_level_labels)), NULL)
-    select_data_2 <- sapply(data_2_labels, function(t) {match(t, tree_labels)})
-    branches_data_2 <- sapply(select_data_2, phangorn::Ancestors, x = tree)
+
+    #select_data_2 <- sapply(data_2_labels, function(t) {match(t, tree_labels)})
+    #does this work? you may not need sapply
+    select_data_2 <- match(data_2_labels, tree_labels)
+    #branches_data_2 <- sapply(select_data_2, phangorn::Ancestors, x = tree)
+    #may not need sapply here either?
+    branches_data_2 <- phangorn::Ancestors(x = tree,
+                                           node = select_data_2)
     data_2_all <- unique(unlist(branches_data_2))
 
     data_2_subtree <- rep(FALSE, length(tree_labels))
@@ -338,25 +335,24 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
 
     analytes_data[["dataset_2"]] <- data_2_subtree
 
-    all_cohort <- ifelse(data_1_subtree, 0L, 2L) + ifelse(data_2_subtree, 0L, 1L)
+    all_cohort <- ifelse(data_1_subtree, 0L, 2L) +
+      ifelse(data_2_subtree, 0L, 1L)
 
     analytes_data[["cohort"]] <- as.character(all_cohort)
-
-    #print(summary(analytes_data))
-
-
-    if (is.null(name_2)){
-      name_2 <- 'Set 2'
-    }
 
     tree_plot <- ggtree(tree) %<+% analytes_data +
       aes(color = cohort) +
       layout_circular() +
       geom_tiplab(size = .5) +
       scale_color_manual(name = 'Cohort',
-                         labels = c(paste0(name_1, ' and ', name_2), paste0('Only ', name_1),
-                                    paste0('Only ', name_2), 'Neither set'),
-                         values = c('0' = '#800026', '1' = '#ffeda0', '2' = '#41ab5d', '3' = '#f0f0f0'))
+                         labels = c(paste0(name_1, ' and ', name_2),
+                                    paste0('Only ', name_1),
+                                    paste0('Only ', name_2),
+                                    'Neither set'),
+                         values = c('0' = '#800026',
+                                    '1' = '#ffeda0',
+                                    '2' = '#41ab5d',
+                                    '3' = '#f0f0f0'))
 
     return(tree_plot)
   }
@@ -366,8 +362,11 @@ display_subtree <- function(data_1, data_2 = NULL, name_1 = NULL, name_2 = NULL,
     layout_circular() +
     geom_tiplab(size = 0.5) +
     scale_color_manual(name = paste0(name_1, ' subtree'),
-                       labels = c('TRUE', 'FALSE'),
-                       values = c('TRUE' = '#800026', 'FALSE' = '#f0f0f0'))+
+                       breaks = c('TRUE', 'FALSE'),
+                       labels = c(paste("In", name_1),
+                                  paste("Not in", name_1)),
+                       values = c('TRUE' = '#800026',
+                                  'FALSE' = '#f0f0f0'))+
     guides(color = guide_legend(ovveride.aes = list(size = 2)))
 
   return(tree_plot)
