@@ -29,7 +29,7 @@ This paper preents the **treecompareR** package for `R`, which provides tools fo
 
 Classification of objects has been a source of much development of structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess. 
 
-Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a *canis*" and study how objects relate to one another under this scheme. [CLR:citation?] One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. [CLR: Hug et al. 2016] [other citation?]
+Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a canid", "a canid is a mammal," "a mammal is an animal", and study how objects relate to one another under this scheme. One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. [CLR: Hug et al. 2016] [other citation?]
 
 [CLR:Add refs to Gene Ontology project?]
 
@@ -40,8 +40,6 @@ Analyses of chemical similarity have tended to focus on molecular fingerprints a
 Chemical structural features map to chemical categories, of course. Chemists can look at a diagram of molecular structure and identify whether a chemical is, for example, a dioxin or an amino acid. However, this mapping has not been explicitly defined, until recently.
 
 In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels. These labels are provided a a taxonomy structure with pairs of distinct labels either satisfying a simple "is a" relation or not. The ClassyFire web tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
-
-
 
 However, what ones does with this information may be limited in terms of current visualizations available. One may use the [ggplot2](https://ggplot2.tidyverse.org/) R package to visualize statistics based on the taxonomic information corresponding to classifications of a data set. But this is a very broad package and not designed for this particular use in mind. Since the ChemOnt taxonomy is given by a tree, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.). However, this package was designed with phylogenetic trees in mind, which are generally rooted binary trees with additional data. The ChemOnt ontology is neither a binary tree nor does it carry additional explicit data, so `ggtree` is again a very broad approach to this.
 
@@ -169,6 +167,7 @@ We first examine which parts of this tree are given by chemicals in each data se
 ```{r,  fig.align='center', fig.dim=c(6,4)}
 display_subtree(data_1 = biosolids_classified, 
                 name_1 = 'Biosolids')
+
 display_subtree(data_1 = usgswater_classified, 
                 name_1 = 'USGS Water')
 ```
@@ -180,6 +179,8 @@ display_subtree(data_1 = biosolids_classified,
                 data_2 = usgswater_classified, 
                 name_1 = 'Biosolids', 
                 name_2 = 'USGS Water')
+#CLR: this makes me think the arguments to this function could be a named list?
+#althugh I can see why you'd want to restrict it to 2 trees -- otherwise you get a ridiculous number of possible combinations
 ```
 
 In this diagram, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
