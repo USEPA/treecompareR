@@ -73,24 +73,10 @@ The data.frame includes the name of each label, its ID from the `chemont_parent_
 
 To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data.frame. The JSON file must have three columns, the first the name of the label, the second its ID, and the third the parent ID. For the root, the parent ID should be `NA`. If the data is in the form of a data.frame, it must be organized in the same way the JSON file is, with column names given by `Name`, `ID`, and `Parent_ID` in that order.
 
-Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below.
+Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. 
 
 ```{r, message = FALSE, results = 'hide'}
-biosolids <- data.table(chemical_list_biosolids_2022_05_10)
-biosolids[INCHIKEY == '' & CASRN != '', INCHIKEY := {
-  temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$inchikey
-  }
-  ifelse(is.null(temp), '', temp)
-}, by = CASRN]
-biosolids[SMILES == '' & CASRN != '', SMILES := {
-  temp = ''
-  if (!is.null(get_chemical_identifiers(unique(CASRN)))){
-    temp = get_chemical_identifiers(unique(CASRN))@meta$smiles
-  }
-  ifelse(is.null(temp), '', temp)
-}, by = CASRN]
+
 
 biosolids_classified <- classify_datatable(biosolids)
 biosolids_classified <- classify_by_smiles(biosolids_classified)
