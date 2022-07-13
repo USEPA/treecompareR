@@ -196,11 +196,15 @@ get_ancestors <- function(tree, label, node_number = NULL){
       stop(paste0('Label `', label, '` belongs neither to a node nor a tip!'))
     }
   }
-  ancestor_nodes <- c()
+  ancestor_nodes <- rep(-1L, length(tree$node.label))
   temp <- tree$edge[tree$edge[, 2] == index, 1]
+  counter = 1
   while(length(temp) > 0){
-    ancestor_nodes <- c(ancestor_nodes, temp)
-    temp <- tree$edge[tree$edge[, 2] == temp, 1]}
+    ancestor_nodes[[counter]] <- temp
+    temp <- tree$edge[tree$edge[, 2] == temp, 1]
+    counter <- counter + 1
+  }
+  ancestor_nodes <- ancestor_nodes[ancestor_nodes > 0]
   return(sapply(ancestor_nodes, function(t) {tree$node.label[[t-length(tree$tip.label)]]}))
 }
 
@@ -739,9 +743,9 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
   unique_avgs <- sort(unique(average_val))
 
 
-  margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
+  #margin <- min(unique_avgs[2:length(unique_avgs)] - unique_avgs[1:(length(unique_avgs)-1)])/3
 
-  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_val, decreasing = TRUE) > (t - margin)])/total})
+  percentages <- sapply(rev(unique_avgs), function(t) {sum(temp_counts[sort(average_val, decreasing = TRUE) >= t])/total})
 
   names(percentages) <- rev(unique_avgs)
 
@@ -819,11 +823,14 @@ adjust_branch_lengths <- function(tree){
   plot_height[[root]] <- 100
   current_level <- c(root)
   while(length(current_level) > 0){
-    next_level <- c()
+    next_level <- vector('list', length = length(current_level))
     for (i in seq_along(current_level)){
       parent_height <- plot_height[[current_level[[i]]]]
       children <- phangorn::Descendants(tree, current_level[[i]], type = 'children')
-      next_level <- c(next_level, children)
+      if (length(children) > 0){
+        next_level[[i]] <- children
+      }
+      #next_level <- c(next_level, children)
       #children_height <- tree_height[children]
 
       #children_tip <- which(children_height == 1)
@@ -838,7 +845,7 @@ adjust_branch_lengths <- function(tree){
       }
 
     }
-    current_level <- next_level
+    current_level <- unlist(next_level)
   }
 
 

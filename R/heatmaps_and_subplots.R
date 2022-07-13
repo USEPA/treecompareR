@@ -680,7 +680,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
       descendants <- unique(c(descendants, tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% shallow_descendants),type = 'all')))]))
     }
     #print(paste('Desc', length(descendants)))
-    print('Got all nodes')
+    #print('Got all nodes')
 
 
     #subtree <- ape::drop.tip(tree, setdiff(tree$tip.label, intersect(tree$tip.label, c(superclasses, ancestors, descendants))))
