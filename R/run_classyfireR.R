@@ -15,7 +15,10 @@
 #'
 #' @seealso \code{\link{classify_by_smiles}}
 #'
-classify_datatable <- function(datatable){
+classify_datatable <- function(datatable,
+                               tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                    'level5', 'level6', 'level7', 'level8',
+                                                    'level9', 'level10', 'level11')){
   INCHIKEY <- NULL
   if (!data.table::is.data.table(datatable)){
     stop('Input must be a data.table object!')
@@ -29,30 +32,36 @@ classify_datatable <- function(datatable){
 
   # Copy table
   new_table <- copy(datatable)
-
-  # Get unique INCHIKEY values and remove NA values, '' values
+#
+#   # Get unique INCHIKEY values and remove NA values, '' values
   INCHIKEYS <- new_table[, unique(INCHIKEY)]
   INCHIKEYS <- INCHIKEYS[!is.na(INCHIKEYS)]
-  INCHIKEYS <- INCHIKEYS[sapply(INCHIKEYS, function(t) {t != ''})]
+  INCHIKEYS <- INCHIKEYS[nzchar(INCHIKEYS)]
 
+  inchi_class <- rbindlist(sapply(INCHIKEYS,
+                   function(this_inchikey){
+                     cf <- classyfireR::get_classification(this_inchikey)
+                     if (is.null(cf) ||
+                         !("Classification" %in% names(classification(cf)))){
+                       output <- data.table() #NULL data.table
+                     }else{
+                       output <- as.data.table(tidyr::pivot_wider(classification(cf) %>%
+                                                                    select(Level,
+                                                                           Classification),
+                                                                  names_from = "Level",
+                                                                  values_from = "Classification"))
+                     }
+                     output
+                   },
+                   simplify = FALSE,
+                   USE.NAMES = TRUE
+                   ),
+            idcol = "INCHIKEY",
+            fill = TRUE,
+            use.names = TRUE
+            )
 
-  # Run classyFireR on unique INCHIKEY values
-  classifications <- purrr::map(INCHIKEYS, classyfireR::get_classification)
-
-  # Populate data.table with Classification data
-  for (i in seq_along(INCHIKEYS)){
-    # Handle case where INCHIKEY submitted returned no classification or
-    # the classification returned was empty but not null
-    if (is.null(classifications[[i]]) || !("Classification" %in% names(classifications[[i]]@classification))){
-      classifiers <- rep('', 11)
-    } else {
-      temp <- classyfireR::classification(classifications[[i]])$Classification
-      classifiers <- c(temp, rep('', 11 - length(temp)))
-    }
-    new_table[INCHIKEY == INCHIKEYS[[i]], c("kingdom", "superclass", "class", "subclass", "level5", "level6", "level7", "level8", "level9", "level10", "level11") := as.list(classifiers)]
-  }
-  # Set rows with NA in INCHIKEY to empty classification
-  new_table[is.na(INCHIKEY), c("kingdom", "superclass", "class", "subclass", "level5", "level6", "level7", "level8", "level9", "level10", "level11") := as.list(rep('',11))]
+  new_class <- inchi_class[new_table, on = "INCHIKEY"]
 
   return(new_table)
 }

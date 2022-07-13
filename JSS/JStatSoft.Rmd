@@ -76,8 +76,7 @@ To construct a tree for other taxonomies, one can enter in a path to a JSON file
 Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. 
 
 ```{r, message = FALSE, results = 'hide'}
-
-
+biosolids <- as.data.table(chemical_list_biosolids_2022_05_10)
 biosolids_classified <- classify_datatable(biosolids)
 biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
