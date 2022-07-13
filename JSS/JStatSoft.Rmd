@@ -41,13 +41,27 @@ Analyses of chemical similarity have tended to focus on molecular fingerprints a
 
 Chemical structural features map to chemical categories, of course. Chemists can look at a diagram of molecular structure and identify whether a chemical is, for example, a dioxin or an amino acid. However, this mapping has not been explicitly defined, until recently.
 
-In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels. These labels are provided a a taxonomy structure with pairs of distinct labels either satisfying a simple "is a" relation or not. The ClassyFire web tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
+In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels (nodes). The ontology is given a taxonomic structure, that of a tree. Each node has one parent (except the root, which has no parent) and may have multiple children. The tree structure can be defined by listing each node in the tree starting from the root, assigning each node a text label and a unique ID number, and listing the ID number of the node's parent.
 
-However, what ones does with this information may be limited in terms of current visualizations available. One may use the [ggplot2](https://ggplot2.tidyverse.org/) R package to visualize statistics based on the taxonomic information corresponding to classifications of a data set. But **ggplot2** is a very broad package and not designed for this particular use in mind. Since the ChemOnt taxonomy is given by a tree structure, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.) to visualize this structure. However, the **ggtree** package was designed with phylogenetic trees in mind, which are generally presented as rooted binary trees with additional data. The ChemOnt ontology is neither a binary tree nor does it carry additional explicit data, so **ggtree** is again a very broad approach to this.
+The ClassyFire web tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
+
+To visualize chemical space using the ChemOnt taxonomy, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.). However, 
 
 We present the package **treecompareR** as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space.  
 
-# Example Data
+# Example Research Problem: Chemical Contaminants in Water and Wastewater
+
+Consider the question of chemical contaminants in water and wastewater. Under the Clean water Act, the United States Environmental Protection Agency works to identify chemical contaminants of potential concern to human health and the environment that may occur in both drinking water and in treated wastewater.  In wastewater, a medium of particular interest is *biosolids*, the semisolid, nutrient-rich product obtained by separating wastewater solids from liquids and treating the solids separately. Biosolids may be appplied to land as fertilizer or soil amendment, or may be disposed of in landfills or incinerated. Chemical contaminants in biosolids may make their way to humans, plants, or animals. Therefore, it's of interest to identify chemicals that may be found in biosolids.
+
+One possible starting point is to consider chemical contaminants that have been found in surface water and/or ground water. Surface and ground water sources may be treated and used for drinking water, which ultimately means that this water goes down the drain and becomes part of the wastewater stream. Chemicals found in surface and ground water may therefore make their way into biosolids. Of course, they also may *not* make their way into biosolids. They may be removed during initial treatment of source water; they may be removed during the wastewater treatment process; or when liquids and solids are separated during wastewater treatment, they may preferentially remain in the liquids.
+
+Both biosolids and ground/surface water have been tested for relatively long lists of chemical contaminants of interest. Of course, these lists don't necessarily include every chemical that might be in those media; there may be chemicals we don't even know to look for. However, as a starting point, it might be informative to compare lists of chemicals found in water and chemicals found in biosolids. Are certain classes of chemicals found in one medium but not the other, or in both media? How similar are the two lists of chemicals, and where are the overlaps and differences?
+
+With the ClassyFire/ChemOnt ontology and the **treecompareR** package, we can start to explore these questions through visualization. We can visualize a tree for surface/groundwater chemicals, and a tree for biosolids chemicals. We can visualize where these trees overlap and where they do not. Furthermore, we can calculate quantitative similarity measures between the two trees, and visualize where on the tree similarity is higher and lower.
+
+## Chemical Lists
+
+A list of 
 
 In this paper, we use the `chemical_list_BIOSOLIDS_2022_05_10` and `chemical_list_USGSWATER_2022_05_17` data sets, which are available for download from the US Environmental Protection Agency's [CompTox Dashboard Chemical List](https://comptox.epa.gov/dashboard/chemical-lists) website. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are *BIOSOLIDS2021* and *USGSWATER*, respectively.
 
@@ -55,7 +69,11 @@ These data sets include a list of chemicals, relevant identifiers such as `DTXSI
 
 Before we start comparing these data sets, we must provide each chemical in each data set its chemical classification data from ClassyFire. To do this, we use the classification pipeline in `treecompareR` and then construct a tree that encodes the taxonomy used in this classification.
 
-To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/) tool. ClassyFire uses an ontology, ChemOnt, that consists of 4825 labels over 11 levels of classification, to classify chemicals. The ontology is given a taxonomic structure, that of a tree, with each label given a unique parent and potentially having several children labels. This relationship data between labels can be found at [ChemOnt Taxnodes](http://classyfire.wishartlab.com/tax_nodes.json) in JSON format. To construct a tree that encodes this, one can download this data, or use the file `chemont_parent_child.rda` from **treecompareR** with column names `Name`, `ID`, `Parent_ID`. With this data in hand, we construct the tree as a `phylo` object as follows.
+To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/) tool. ClassyFire uses an ontology, ChemOnt, that consists of 4825 labels over 11 levels of classification, to classify chemicals. 
+
+The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers.
+
+To construct a tree that encodes this, one can download this data, or use the file `chemont_parent_child.rda` from **treecompareR** with column names `Name`, `ID`, `Parent_ID`. With this data in hand, we construct the tree as a `phylo` object as follows.
 
 ```{r chemont-tree, fig.cap="chemont-tree"}
 options(width = 80)
@@ -65,13 +83,20 @@ str(chemont_taxonomy[[1]])
 str(chemont_taxonomy[[2]])
 ```
 
-The output of this function is a list of two objects, the `phylo` object representing the tree, and a data.frame used in creating the `phylo` object. 
+The output of this function is a list of two elements. The first, named `tree_object`, is the `phylo` object representing the tree. The second, named `tax_nodes`, is a data.frame used in creating the `phylo` object. 
 
-The `phylo` object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
+The element `tree_object` itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
-The columns of the data.frame are
+```{r}
+str(chemont_taxonomy$tree_object)
+```
 
-- `Name`: The name of each 
+The element `tax_nodes` is a data.frame with seven variables.
+
+```{r}
+str(chemont_taxonomy$tax_nodes)
+```
+
 
 The data.frame includes the name of each label; its ID from the `chemont_parent_child.rda` file; its parent (aside from the root `Chemical entities`); internally generated id_number; parent_id_number; pathString, a string representing the path from the root to the label; and plotHeight, which is internally generated to speed up the construction of the tree but does not represent any actual data.
 
