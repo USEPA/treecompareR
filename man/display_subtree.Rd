@@ -7,10 +7,11 @@
 display_subtree(
   data_1,
   data_2 = NULL,
-  name_1 = NULL,
-  name_2 = NULL,
-  tree = NULL,
-  tax_level_labels = NULL
+  name_1 = "Set 1",
+  name_2 = "Set 2",
+  tree = chemont_tree,
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
+    "level6", "level7", "level8", "level9", "level10", "level11")
 )
 }
 \arguments{

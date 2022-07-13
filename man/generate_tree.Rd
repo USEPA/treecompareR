@@ -2,14 +2,15 @@
 % Please edit documentation in R/generate_taxonomy_tree.R
 \name{generate_tree}
 \alias{generate_tree}
-\title{Generate tree}
+\title{Generate taxonomy tree}
 \usage{
-generate_tree(file_dir, dataframe = NULL)
+generate_tree(tax_nodes = NULL)
 }
 \arguments{
-\item{file_dir}{A path to a JSON file}
-
-\item{dataframe}{An optional data.frame containing parent_child relationship}
+\item{tax_nodes}{A data.frame containing parent-child relationships for the
+taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
+respectively provide a name for each node, an ID for each node, and the ID
+of the parent of each node. Each row represents one node of the taxonomy.}
 }
 \value{
 A list containing a 'phylo' object and data.frame with useful
@@ -19,4 +20,34 @@ information for building the phylo object.
 This function will convert taxonomy relationships from a data.frame to a
 'phylo' object. In addition to the 'phylo' object, there is a data.frame
 returned that includes data relevant to the creation of the 'phylo' object.
+}
+\details{
+This function takes a slightly circuitous route. It converts the
+\code{data.frame} input argument \code{tax_nodes} to an object of class
+\code{\link[data.tree]{Node}}. Then, it converts that
+\code{\link[data.tree]{Node}} object into a Newick-format tree
+representation. Finally, it converts that Newick-format tree representation
+into an object of class \code{\link[phytools]{phylo}}.
+
+This is necessary because \code{\link[ggtree]{ggtree}} requires
+\code{\link[phytools]{phylo}}-class objects as input, but
+\code{\link[phytools]{phytools}} only has methods to create
+\code{\link[phytools]{phylo}}-class objects from Newick, SIMMAP, or
+Nexus-formatted trees. However, the ClassyFire ontology is not available in
+any of those three formats, but only as files defining the name and ID number
+of each node in the ontology, and giving the ID number of each node's parent
+(if any). For example, the ClassyFire ontology can be downloaded in JSON
+format at \url{http://classyfire.wishartlab.com/tax_nodes.json} or in OBO
+format at \url{http://classyfire.wishartlab.com/downloads}. (Both JSON and
+OBO files contain the same information.) The most-accessible method for
+creating a Newick-format tree from this information is found in
+\code{\link[data.tree]{ToNewick}}, which requires a
+\code{\link[data.tree]{Node}} or \code{\link[ape]{phylo}}-class input.
+
+The argument \code{tax_nodes} is a \code{data.frame} that defines the
+taxonomy. For each node in the taxonomy, it contains a name, an ID, and the
+ID of the node's parent. This \code{data.frame} may be read from an OBO file
+using e.g. \code{\link[ontologyIndex]{get_ontology}} (and
+\code{\link[ontologyIndex]{as.data.frame.ontology_index}}), or from a JSON
+file using for example \code{\link[jsonlite]{fromJSON}}.
 }
