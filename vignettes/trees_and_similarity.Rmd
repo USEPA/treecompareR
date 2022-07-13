@@ -5,7 +5,7 @@ author:
     affiliation: "United States Environmental Protection Agency"
     email: "kruse.paul@epa.gov"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: bookdown::html_book
 vignette: >
   %\VignetteIndexEntry{trees_and_similarity}
   %\VignetteEngine{knitr::rmarkdown}
@@ -34,13 +34,13 @@ A tree may or may not have a specific node denoted as a root. In this discussion
 
 To illustrate an example of a tree, we display below a rooted tree with 8 tips. We use the `generate_topology()` function to generate a rooted tree with 8 tips and then we use ggtree to display the tree and label the nodes.
 
-```{r, fig.align = 'center'}
+```{r tip-8, fig.align = 'center'}
 tip_8 <- treecompareR::generate_topology(n = 8, rooted = TRUE, seed = 42)
 tip_8_visual <- ggtree(tip_8) + layout_circular() + geom_tiplab() + geom_nodelab()
 tip_8_visual
 ```
 
-Observe that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the `layout_circular()` mode.
+Observe in \@ref(fig:tip-8) that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the `layout_circular()` mode.
 
 Also, observe that the tree `tip_8` is an object of class `phylo`.
 
