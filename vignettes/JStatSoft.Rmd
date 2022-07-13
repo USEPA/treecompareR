@@ -1,8 +1,7 @@
 ---
 title: "JStatSoft"
 output: 
-  bookdown::html_document2:
-    base_format: rmarkdown::html_vignette
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{JStatSoft}
   %\VignetteEngine{knitr::rmarkdown}
@@ -19,7 +18,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 #library(treecompareR)
 devtools::load_all()
-#library(kableExtra)
+library(kableExtra)
 ```
 
 # Abstract
@@ -52,8 +51,8 @@ To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/)
 ```{r chemont-tree, fig.cap="chemont-tree"}
 options(width = 80)
 chemont_taxonomy <- generate_tree(dataframe = chemont_parent_child)
-str(chemont_taxonomy[[1]])
-str(chemont_taxonomy[[2]])
+str(chemont_taxonomy[[1]], width = 60)
+str(chemont_taxonomy[[2]], width = 60)
 ```
 
 The output of the `generate_taxonomy()` function is a list of two objects, the `phlyo` object representing the tree, and a data frame used in creating the `phylo` object. Observe the structure of these in Figure \@ref(fig:chemont-tree). 
@@ -66,7 +65,7 @@ To construct a tree for other taxonomies, one can enter in a path to a JSON file
 
 Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. In addition, for chemicals missing certain identifying data such as InChIKey or SMILES string data, **treecompareR** also includes functions to retrieve this data from the Hazard Comparison Dashboard. We demonstrate these below in \@ref(fig:clean-na-space-biosolids) and \@ref(fig:clean-na-space-usgs).
 
-```{r clean-na-space-biosolids, fig.cap = "clean-na-space-biosolids", message = FALSE, results = 'hide'}
+```{r clean-na-space-biosolids, fig.cap = "clean-na-space-biosolids", message = FALSE, results = 'hide', eval = FALSE}
 biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[INCHIKEY == '' & CASRN != '', INCHIKEY := {
   temp = ''
@@ -89,13 +88,18 @@ biosolids_classified <- classify_datatable(biosolids)
 biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
 
+```{r, echo = FALSE, message = FALSE}
+biosolids_classified <- readRDS("C:/Users/pkruse/treecomparer paper/biosolids_classified.rds")
+```
+
+
 We first identify those chemicals that have a value in the CASRN column and are missing a value in the INCHIKEY column. We try to retrieve the missing INCHIKEY information from the Hazard Comparison Dashboard using the `get_chemical_identifiers()` function. We then examine any chemicals missing a value in the SMILES column that have a CASRN value and again use the `get_chemical_identifiers()` function to retrieve the missing data. This is in preparation for applying the functions `classify_datatable()` and `classify_by_smiles()` to the data.table of chemicals for retrieving chemical classification data.
 
 The function `classify_datatable()` uses the InChIKey data, when present, for a first pass in accessing ChemOnt classifications. For those chemicals that remain unclassified, the function `classify_by_smiles()` uses SMILES strings, when present, for a second pass in accessing ChemOnt classifications. It is important to note that `classify_by_smiles()` requires as an input a data.table that is the output of `classify_datatable()`, and the function `classify_datatable()` requires as an input a data.table that has the columns `PREFERRED_NAME`, `CASRN`, and `INCHIKEY`. The order matters, so always apply `classify_datatable()` to a data.table first and then feed the output to `classify_by_smiles()`. 
 
 We complete the same process on the data set `chemical_list_USGSWATER_2022_05_17` for retrieving classification data.
 
-```{r clean-na-space-usgs, fig.cap = "clean-na-space-usgs", message = FALSE, results = 'hide'}
+```{r clean-na-space-usgs, fig.cap = "clean-na-space-usgs", message = FALSE, results = 'hide', eval = FALSE}
 usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
 usgswater[is.na(INCHIKEY) & !is.na(CASRN), INCHIKEY := {
   temp = ''
@@ -118,19 +122,27 @@ usgswater_classified <- classify_datatable(usgswater)
 usgswater_classified <- classify_by_smiles(usgswater_classified)
 ```
 
+```{r, echo = FALSE, message = FALSE}
+usgswater_classified <- readRDS("C:/Users/pkruse/treecomparer paper/usgswater_classified.rds")
+```
+
 Now, let us examine these two data sets. Notice that there are 11 columns of ChemOnt data, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
 
 ```{r display_classifications}
-knitr::kable(biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 
-                            'kingdom', 'superclass', 'class', 'subclass', 
-                            'level5')]) 
+kableExtra::kbl(biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 
+                                         'AVERAGE_MASS', 'kingdom',
+                                         'superclass', 'class', 
+                                         'subclass', 'level5')]) %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = 'striped', font_size = 9)
 #  kbl() %>%
 #  kable_styling(bootstrap_options = c("striped", "hover")) %>%
 #  kable_classic()
 
-knitr::kable(usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 
-                            'kingdom', 'superclass', 'class', 'subclass', 
-                            'level5')])
+kableExtra::kbl(usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY',
+                                         'AVERAGE_MASS', 'kingdom',
+                                         'superclass', 'class',
+                                         'subclass', 'level5')])  %>%
+  kableExtra::kable_styling(full_width = FALSE, bootstrap_options = 'striped', font_size = 9)
 #  kbl() %>%
 #  kable_styling(bootstrap_options = c("striped", "hover")) %>%
 #  kable_classic()
@@ -183,17 +195,17 @@ In \@ref(fig:subtree-plots-overlap), branches and labels are colored based on wh
 
 While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram generated by `display_subtree()` can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate this using the function `prune_and_display_subtree()` on both data sets.
 
-```{r pruned-subtree,  fig.align='center', fig.dim=c(12,12)}
+```{r pruned-subtree,  fig.align='center', fig.dim=c(12,12), out.height=600, out.width=600}
 prune_and_display_subtree(data = biosolids_classified)
 prune_and_display_subtree(data = usgswater_classified)
 ```
 
-While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We note a few things about this diagram. While many chemical classifications terminate with a tip label as the most specific label in the classification, there are some classifications that terminate with an internal node. If we were just to delete the internal nodes and tips not represented by classifications for a data set using `ape::drop_tip()`, the internal nodes that were terminal labels for classifications would appear somewhere between the outer layer of tips and the root. This function adjusts the branch lengths to accommodate the new structure of the subtree. A visual comparison between the branches in the subtree and the subtree within the entire taxonomy mayu show slight differences, for which this is the reason.
+While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We note a few things about this diagram. While many chemical classifications terminate with a tip label as the most specific label in the classification, there are some classifications that terminate with an internal node. If we were just to delete the internal nodes and tips not represented by classifications for a data set using `ape::drop_tip()`, the internal nodes that were terminal labels for classifications would appear somewhere between the outer layer of tips and the root. This function adjusts the branch lengths to accommodate the new structure of the subtree. A visual comparison between the branches in the subtree and the subtree within the entire taxonomy may show slight differences, for which this is the reason.
 
 
 In a manner similar to the output of `display_subtree()` when comparing two data sets, we may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. To achieve this, we use the function `data_set_subtrees()` as we illustrate in the following example.
 
-```{r pruned-subtree-overlap,  fig.align='center', fig.dim=c(12,12)}
+```{r pruned-subtree-overlap,  fig.align='center', fig.dim=c(12,12), out.height=600, out.width=600}
 data_set_subtrees(data_1 = biosolids_classified, 
                   data_2 = usgswater_classified, 
                   name_1 = 'Biosolids', 
@@ -202,7 +214,7 @@ data_set_subtrees(data_1 = biosolids_classified,
 
 The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, much like with the `display_subtree()` output, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap. We employ the function `leaf_fraction_subtree()` to create this visualization.
 
-```{r biosolids-leaf-fraction,  fig.align='center', fig.dim=c(12,8)}
+```{r biosolids-leaf-fraction,  fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified, 
                                                  data_2 = usgswater_classified, 
                                                  name_1 = 'Biosolids', 
@@ -213,7 +225,7 @@ head(biosolids_leaf_fraction[[2]])
 
 We also reverse the roles each data set plays to demonstrate the other overlap visualization.
 
-```{r usgs-leaf-fraction,  fig.align='center', fig.dim=c(12,8)}
+```{r usgs-leaf-fraction,  fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 usgswater_leaf_fraction <- leaf_fraction_subtree(data_1  = usgswater_classified, 
                                                  data_2 = biosolids_classified, 
                                                  name_1 = 'USGS water', 
@@ -231,7 +243,7 @@ The tree visualization then illustrates this by coloring the tips and setting a 
 
 We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the `biosolids_classified` data set, there is a column `AVERAGE_MASS` which gives the average molecular mass for each chemical in the data set. We can group these by their classification and examine boxplots of each set of grouped data. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers. 
 
-```{r circ-tree-biosolids-mass-tip-color, fig.align='center', fig.dim=c(12,8)}
+```{r circ-tree-biosolids-mass-tip-color, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 circ_tree_boxplot(biosolids_classified, 
                   col = 'AVERAGE_MASS', 
                   title = 'Biosolids', 
@@ -241,7 +253,7 @@ circ_tree_boxplot(biosolids_classified,
 
 If we want to suppress the tippoint and boxplot colors, we can easily do so.
 
-```{r circ-tree-biosolids-mass-no-tip-color, fig.align='center', fig.dim=c(12,8)}
+```{r circ-tree-biosolids-mass-no-tip-color, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 circ_tree_boxplot(biosolids_classified, 
                   col = 'AVERAGE_MASS', 
                   title = 'Biosolids', 
@@ -298,7 +310,7 @@ biosolids_usgs_ht
 
 Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
 
-```{r rc-cluster-2-2, fig.align='center', fig.dim=c(12,8)}
+```{r rc-cluster-2-2, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
                       htmap = biosolids_usgs_ht, row_cluster = 2, 
                       column_cluster = 2, row_name = 'USGS Water', 
@@ -310,7 +322,7 @@ Observe that only the superclass 'Benzenoids' is represented. In the second diag
 
 
 
-```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,9)}
+```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,9), out.height=400, out.width=600}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
                       htmap = biosolids_usgs_ht, row_cluster = 9, 
                       column_cluster = 8, row_name = 'USGS Water', 
