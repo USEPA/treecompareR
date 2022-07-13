@@ -4,66 +4,79 @@
 #' This function uses the ClassyFire API to classify chemicals from an input
 #' data.table using the InChIKey chemical identifier.
 #'
-#' @param datatable A data.table with columns 'PREFERRED_NAME', 'CASRN',
-#'   'INCHIKEY
-#' @return A data.table object with classifications attached to each row of
-#'   input data.table
+#' @param inchikeys A vector of InCHiKeys to be classified
+#' @return A data.frame with the same number of rows as the length of input
+#'   argument \code{inchikeys}, and columns consisting of "INCHIKEY" (containing input
+#'   argument \code{inchikeys}) and one column for each of the ClassyFire taxonomy levels
+#'   given in the input argument \code{tax_level_labels}
 #' @export
-#' @import data.table
-#' @importFrom purrr map
-#' @import classyfireR
 #'
 #' @seealso \code{\link{classify_by_smiles}}
 #'
-classify_datatable <- function(datatable,
+classify_inchikeys <- function(inchikeys,
                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                     'level5', 'level6', 'level7', 'level8',
                                                     'level9', 'level10', 'level11')){
-  INCHIKEY <- NULL
-  if (!data.table::is.data.table(datatable)){
-    stop('Input must be a data.table object!')
-  }
-  col_names <- c("PREFERRED_NAME", "CASRN", "INCHIKEY")
-  present_names <- which(col_names %in% names(datatable))
-  if(length(present_names) < 3){
-    missing_names <- col_names[setdiff(1:3, present_names)]
-    stop('Input data.table missing the col(s) \n', paste(missing_names, collapse = '\n'), '!')
-  }
 
-  # Copy table
-  new_table <- copy(datatable)
-#
-#   # Get unique INCHIKEY values and remove NA values, '' values
-  INCHIKEYS <- new_table[, unique(INCHIKEY)]
-  INCHIKEYS <- INCHIKEYS[!is.na(INCHIKEYS)]
-  INCHIKEYS <- INCHIKEYS[nzchar(INCHIKEYS)]
+  INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
-  inchi_class <- rbindlist(sapply(INCHIKEYS,
-                   function(this_inchikey){
-                     cf <- classyfireR::get_classification(this_inchikey)
-                     if (is.null(cf) ||
-                         !("Classification" %in% names(classification(cf)))){
-                       output <- data.table() #NULL data.table
-                     }else{
-                       output <- as.data.table(tidyr::pivot_wider(classification(cf) %>%
-                                                                    select(Level,
-                                                                           Classification),
-                                                                  names_from = "Level",
-                                                                  values_from = "Classification"))
-                     }
-                     output
-                   },
-                   simplify = FALSE,
-                   USE.NAMES = TRUE
-                   ),
-            idcol = "INCHIKEY",
-            fill = TRUE,
-            use.names = TRUE
-            )
+  #get classifications as a list of data.tables, one for each INCHIKEY
+  class_list <- sapply(
+    INCHIKEYS,
+    function(this_inchikey){
+      #if inchikey is NA or not in valid InChiKey format,
+      #do not query API; just return NA
+      if(is.na(this_inchikey) ||
+         !webchem::is.inchikey(this_inchikey, type = "format")
+         ){
+        outlist <- rep(list(NA_character_),
+                       times = length(tax_level_labels))
+        names(outlist) <- tax_level_labels
+        output <- as.data.frame(outlist)
+      }else{ #if inchikey is not NA or blank, query ClassyFire API
+      cf <- classyfireR::get_classification(this_inchikey)
+      #if no classification available, return NA for classification
+      if (is.null(cf) ||
+          !("Classification" %in% names(classyfireR::classification(cf))
+          )
+      ){
+        #return data frame with columns for all taxonomy levels, but NAs
+        outlist <- rep(list(NA_character_),
+                       times = length(tax_level_labels))
+        names(outlist) <- tax_level_labels
+        output <- as.data.frame(outlist)
+      }else{ #if classification is available
 
-  new_class <- inchi_class[new_table, on = "INCHIKEY"]
+        #get classification
+        cf_class <- classyfireR::classification(cf)
+        #select relevant columns
+        cf_class_select <- dplyr::select(cf_class, Level, Classification)
+        #reshape to wider format -- one column for each level
+        #and format it as a data table
+        output <- as.data.frame(
+          tidyr::pivot_wider(cf_class_select,
+                             names_from = "Level",
+                             values_from = "Classification")
+        )
+      }
+      }
+      return(output)
+    }, #end function to apply to each INCHIKEY
+    simplify = FALSE, #sapply should return a list, not a vector/matrix
+    USE.NAMES = TRUE #sapply should name the list elements after the input INCHIKEY
+  )
 
-  return(new_table)
+  #now rowbind the list of data.frames to get one big data.frame
+  inchi_class <- plyr::rbind.fill(class_list)
+  #add InChiKey identifier column
+  inchi_class$INCHIKEY <- INCHIKEYS #same as names(class_list)
+
+  #now order as for input -- re-inserting any duplicates
+  new_class <- inchi_class[match(inchikeys, inchi_class$INCHIKEY),
+                           c("INCHIKEY",
+                             tax_level_labels)]
+
+  return(new_class)
 }
 
 # This function completes a second pass after the classify_datatable function by
