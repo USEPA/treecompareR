@@ -177,9 +177,13 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   #at each level of the taxonomy
   foo <- phangorn::Ancestors(tree_object,
                              node = 1:Ntip(tree_object))
+
   #this is a list of ancestors for each tip node
   #read them backwards
   foo_rev <- lapply(foo, rev)
+  #add the tip node number too
+  foo_rev <- sapply(1:Ntip(tree_object),
+                function(i) c(foo_rev[[i]], i))
   max_level <- max(sapply(foo, length))
   level_nodes <- vector(mode = "list", length = max_level)
   level_names <- vector(mode = "list", length = max_level)
