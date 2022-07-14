@@ -18,6 +18,9 @@ input data.table
 This function uses the ClassyFire API to classify chemicals from an input
 data.table using the InChIKey chemical identifier.
 }
+\references{
+\insertRef{djoumbou2016classyfire}{treecompareR}
+}
 \seealso{
 \code{\link{classify_by_smiles}}
 }
