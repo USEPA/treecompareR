@@ -275,12 +275,17 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #' classification data and returns a tree diagram indiacting the subtree(s)
 #' induced by the data.table(s).
 #'
-#' @param data_1 A data.table consisting of classification data for chemicals.
-#' @param data_2 An alternate parameter giving a second data.table with
-#'   classification data for chemicals.
-#' @param name_1 An alternate parameter giving the name of `data.table_1`.
-#' @param name_2 An alternate parameter giving the name of `data.table_1`.
-#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @param data_1 A data.frame consisting of a list of chemicals with
+#'   classification data.
+#' @param data_2 Optional: A second data.frame consisting of a list of chemicals
+#'   with classification data.
+#' @param name_1 A string giving the name of the first data.frame, for plot
+#'   labeling. Default is "Set 1".
+#' @param name_2 A string giving the name of the second data.frame (if there is
+#'   one), for plot labeling. Default is "Set 2".
+#' @param label_clade_level The taxonomy level at which to draw clade labels.
+#'   Default is level 2 (superclass). Set to NULL to suppress clade labels.
+#' @param tree Taxonomy tree object produced by \code{\link{generate_taxonomy_tree}}.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @return A ggtree object showing the subtree induced by `data_1` (and `data_2`
@@ -292,6 +297,8 @@ display_subtree <- function(data_1,
                             data_2 = NULL,
                             name_1 = "Set 1",
                             name_2 = "Set 2",
+                            layout = "circular",
+                            label_clade_level = 2, #
                             tree = chemont_tree,
                             tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                  'level5', 'level6', 'level7', 'level8',
@@ -299,75 +306,102 @@ display_subtree <- function(data_1,
   cohort <- NULL
   dataset_1 <- NULL
 
-  tree_labels <- c(tree$tip.label, tree$node.label)
+  #tree_labels <- c(tree$tip.label, tree$node.label)
 
   # Get all labels associated with the input data sets
-  data_1_labels <- setNames(unlist(get_labels(data_1, tax_level_labels)), NULL)
-  #select_data_1 <- sapply(data_1_labels, function(t) {match(t, tree_labels)})
-  select_data_1 <- match(data_1_labels, tree_labels)
-  #branches_data_1 <- sapply(select_data_1, phangorn::Ancestors, x = tree)
-  branches_data_1 <- phangorn::Ancestors(x = tree, node = select_data_1)
-  data_1_all <- unique(unlist(branches_data_1))
+  data_1_labels <- tidyr::pivot_longer(data_1,
+                                     cols = tidyselect::all_of(tax_level_labels),
+                                     names_to = "tax_level",
+                                     values_to = "label") %>%
+    dplyr::filter(!is.na(label)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(setdiff(names(data_1),
+                                           tax_level_labels)))) %>%
+    dplyr::slice_tail() %>%
+    dplyr::pull(label)
 
-  # Create data.frame to store subtree information
-  data_1_subtree <- rep(FALSE, length(tree_labels))
-  data_1_subtree[select_data_1] <- TRUE
-  data_1_subtree[data_1_all] <- TRUE
+  #get node numbers
+  data_1_nodes <- tree$tax_nodes[tree$tax_nodes$Name %in% data_1_labels, "phylo_node"]
+  #get all ancestors
+  data_1_all <- c(unlist(phangorn::Ancestors(x = tree$tree_object,
+                                    node = data_1_nodes)),
+                  data_1_nodes)
 
-  analytes_data <- data.frame('node' = 1:length(tree_labels))
-  analytes_data[['dataset_1']] <- data_1_subtree
+   cohort_data <- tree$tax_nodes[, c('phylo_node',
+                                                'Name')]
+   cohort_data$inSet1 <- ifelse(cohort_data$phylo_node %in% data_1_all,
+                                1L,
+                                0L)
+
 
   if (!is.null(data_2)) {
-    data_2_labels <- setNames(unlist(get_labels(data_2, tax_level_labels)), NULL)
+    data_2_labels <- tidyr::pivot_longer(data_2,
+                                         cols = tidyselect::all_of(tax_level_labels),
+                                         names_to = "tax_level",
+                                         values_to = "label") %>%
+      dplyr::filter(!is.na(label)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(setdiff(names(data_2),
+                                                        tax_level_labels)))) %>%
+      dplyr::slice_tail() %>%
+      dplyr::pull(label)
 
-    #select_data_2 <- sapply(data_2_labels, function(t) {match(t, tree_labels)})
-    #does this work? you may not need sapply
-    select_data_2 <- match(data_2_labels, tree_labels)
-    #branches_data_2 <- sapply(select_data_2, phangorn::Ancestors, x = tree)
-    #may not need sapply here either?
-    branches_data_2 <- phangorn::Ancestors(x = tree,
-                                           node = select_data_2)
-    data_2_all <- unique(unlist(branches_data_2))
+    #get node numbers
+    data_2_nodes <- tree$tax_nodes[tree$tax_nodes$Name %in% data_2_labels, "phylo_node"]
+    #get all ancestors
+    data_2_all <- c(unlist(phangorn::Ancestors(x = tree$tree_object,
+                                             node = data_2_nodes)),
+                    data_2_nodes)
 
-    data_2_subtree <- rep(FALSE, length(tree_labels))
-    data_2_subtree[select_data_2] <- TRUE
-    data_2_subtree[data_2_all] <- TRUE
+    cohort_data$inSet2 <- ifelse(cohort_data$phylo_node %in% data_2_all,
+                                 2L,
+                                 0L)
 
-    analytes_data[["dataset_2"]] <- data_2_subtree
+    cohort_data$List <- factor(cohort_data$inSet1 + cohort_data$inSet2,
+                                 levels = 0:3,
+                                 labels = c("Neither set",
+                                            paste(name_1, "only"),
+                                            paste(name_2, "only"),
+                                            paste(name_1, "and", name_2)))
 
-    all_cohort <- ifelse(data_1_subtree, 0L, 2L) +
-      ifelse(data_2_subtree, 0L, 1L)
+    names(cohort_data)[names(cohort_data) %in% "phylo_node"] <- "node"
 
-    analytes_data[["cohort"]] <- as.character(all_cohort)
+colvect <- c("gray80", RColorBrewer::brewer.pal(n=3, name = "Set2"))
+    tree_plot <- ggtree(tree$tree_object,
+                        layout = layout) %<+% cohort_data +
+      aes(color = List) +
+      #layout_circular() +
+      #geom_tiplab(size = .5) +
+      scale_color_manual(name = "List presence",
+                         values = colvect,
+                         breaks = levels(cohort_data$List),
+                         limits = levels(cohort_data$List))
 
-    tree_plot <- ggtree(tree) %<+% analytes_data +
-      aes(color = cohort) +
+  }else{
+    cohort_data$List <- factor(cohort_data$inSet1,
+                               levels = 0:1,
+                               labels = c(paste("Not in", name_1),
+                                          paste("In", name_1)))
+    colvect <- c("gray80", RColorBrewer::brewer.pal(n=3, name = "Set2"))
+    tree_plot <- ggtree(tree$tree_object) %<+% cohort_data +
+      aes(color = List) +
       layout_circular() +
-      geom_tiplab(size = .5) +
-      scale_color_manual(name = 'Cohort',
-                         labels = c(paste0(name_1, ' and ', name_2),
-                                    paste0('Only ', name_1),
-                                    paste0('Only ', name_2),
-                                    'Neither set'),
-                         values = c('0' = '#800026',
-                                    '1' = '#ffeda0',
-                                    '2' = '#41ab5d',
-                                    '3' = '#f0f0f0'))
-
-    return(tree_plot)
+      #geom_tiplab(size = .5) +
+      scale_color_manual(name = "List presence",
+                         values = colvect,
+                         breaks = levels(cohort_data$List),
+                         limits = levels(cohort_data$List))
   }
 
-  tree_plot <- ggtree(tree) %<+% analytes_data +
-    aes(color = dataset_1) +
-    layout_circular() +
-    geom_tiplab(size = 0.5) +
-    scale_color_manual(name = paste0(name_1, ' subtree'),
-                       breaks = c('TRUE', 'FALSE'),
-                       labels = c(paste("In", name_1),
-                                  paste("Not in", name_1)),
-                       values = c('TRUE' = '#800026',
-                                  'FALSE' = '#f0f0f0'))+
-    guides(color = guide_legend(ovveride.aes = list(size = 2)))
+#make lines thicker in legend
+    tree_plot <- tree_plot +
+      guides(color = guide_legend(ovveride.aes = list(size = 2)))
+
+    if(!is.null(label_clade_level)){
+      dat <- tree$tax_nodes[tree$tax_nodes$level %in% label_clade_level, ]
+      names(dat)[names(dat) %in% "phylo_node"] <- "node"
+      names(dat)[names(dat) %in% "Name"] <- "clade_name"
+tree_plot <- tree_plot + geom_cladelab(data = dat ,
+                                        mapping = aes(node = node, label = clade_name, group = clade_name))
+    }
 
   return(tree_plot)
 
