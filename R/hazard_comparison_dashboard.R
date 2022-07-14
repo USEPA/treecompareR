@@ -12,9 +12,6 @@
 #' @return An object of class 'HazardComparisonDashboard'.
 #' @export
 #' @import httr
-#' @importFrom crayon red
-#' @importFrom crayon green
-#' @importFrom clisymbols symbol
 #' @import methods
 #'
 get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
@@ -163,9 +160,6 @@ convert_smiles_to_hex <- function(smiles = NULL){
 #' @return A list of chemical descriptors, including ToxPrints descriptors
 #' @export
 #' @import httr
-#' @importFrom crayon red
-#' @importFrom crayon green
-#' @importFrom clisymbols symbol
 #'
 get_toxprints <- function(smiles) {
   entity_url <- 'https://hazard.sciencedataexperts.com/api/descriptors?smiles='

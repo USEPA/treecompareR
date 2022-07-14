@@ -102,9 +102,6 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @return A Heatmap object.
 #' @export
 #' @import ComplexHeatmap
-#' @import circlize
-#' @import viridis
-#' @import grid
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
