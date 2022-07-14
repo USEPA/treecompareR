@@ -11,12 +11,12 @@
 #'   given in the input argument \code{tax_level_labels}
 #' @export
 #'
-#' @seealso \code{\link{classify_by_smiles}}
+#' @seealso \code{\link{classify_structure}}
 #'
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                                    'level5', 'level6', 'level7', 'level8',
-                                                    'level9', 'level10', 'level11')){
+                                                    'level 5', 'level 6', 'level 7', 'level 8',
+                                                    'level 9', 'level 10', 'level 11')){
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
@@ -33,7 +33,7 @@ classify_inchikeys <- function(inchikeys,
                        times = length(tax_level_labels))
         names(outlist) <- tax_level_labels
         output <- as.data.frame(outlist)
-      }else{ #if inchikey is not NA or blank, query ClassyFire API
+      }else{ #if inchikey is valid, query ClassyFire API
       cf <- classyfireR::get_classification(this_inchikey)
       #if no classification available, return NA for classification
       if (is.null(cf) ||
@@ -58,6 +58,14 @@ classify_inchikeys <- function(inchikeys,
                              names_from = "Level",
                              values_from = "Classification")
         )
+        #if missing any taxonomy levels, fill them with NAs
+        missing_levels <- setdiff(tax_level_labels,
+                                  names(output))
+        if(length(missing_levels)>0){
+          output[missing_levels] <- NA_character_
+        }
+        #reorder columns to match tax_level_labels
+        output <- output[, tax_level_labels]
       }
       }
       return(output)
@@ -79,81 +87,286 @@ classify_inchikeys <- function(inchikeys,
   return(new_class)
 }
 
-# This function completes a second pass after the classify_datatable function by
-# looking at the rows missing a classification and attempting to classify
-# via the associated SMILES string if present
 
-#' SMILES string classification
+#' Query ClassyFire by structure
 #'
-#' This function takes a data.table of chemicals and classifications from
-#' \code{\link{classify_datatable}} and attempts to classify chemicals from the
-#' input data.table using SMILES strings that are missing classification data.
+#' This function takes a vector of structural identifiers (SMILES strings or
+#' InChiKeys) and queries the ClassyFire API to get classifications for each
+#' one.
 #'
-#' @param datatable A data.table that is the output from classify_datatable.
-#' @return A data.table object with classification information for each row.
+#' @param input A character vector of SMILES strings or InChiKeys. May
+#'   optionally be named. If so, names will be returned as "identifier" column
+#'   in output. If not named, the structural identifiers themselves will be
+#'   returned as "identifier" column in output.
+#' @param label An optional text label for the query. Default "query".
+#' @param type String giving ClassyFire query type. Default "STRUCTURE".
+#' @param retry_times Number of times to retry GET command. Default 100.
+#' @param queued_wait Number of seconds to wait before retrying to retrieve
+#'   results for a queued query. Default 2.
+#' @param processing_wait_per_input Number of seconds to wait per input string
+#'   before retrying to retrieve results for a query whose status is
+#'   "Processing." Default 1.
+#' @param retry_query_times Max number of attempts to retry an "In Queue" or
+#'   "Processing" query (with wait time in between tries). Default 100.
+#' @param tax_level_labels The default list of taxonomy levels for ClassyFire.
+#' @return A data frame with ClassyFire classifications for each input
+#'   structural identifier. Will contain columns \code{identifier},
+#'   \code{smiles}, \code{inchikey}, one column for each taxonomy level (defined
+#'   in argument \code{tax_level_labels}), and \code{report}. The final
+#'   \code{report} column explains what happened if a classification could not
+#'   be obtained.
+#'
 #' @export
-#' @import data.table
-#' @importFrom purrr map2
-#' @import classyfireR
+#' @importFrom magrittr %>%
+#' @seealso \code{\link{classify_inchikeys}}
 #'
-#' @seealso \code{\link{classify_datatable}}
-#'
-classify_by_smiles <- function(datatable){
-  INCHIKEY <- NULL
-  SMILES <- NULL
-  kingdom <- NULL
-  if (!data.table::is.data.table(datatable)){
-    stop('Input must be a data.table object!')
+classify_structures <- function (input,
+                                label = "query",
+                           type = "STRUCTURE",
+                           retry_times = 100,
+                           retry_query_times = 100,
+                           queued_wait = 2,
+                           processing_wait_per_input = 1,
+                           tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                'level 5', 'level 6', 'level 7', 'level 8',
+                                                'level 9', 'level 10', 'level 11'))
+{
+  if(is.null(names(input))){
+    names(input) <- input
   }
-  col_names <- c("PREFERRED_NAME", "CASRN", "INCHIKEY", "kingdom", "superclass",
-                 "class", "subclass", "level5", "level6", "level7", "level8",
-                 "level9", "level10", "level11")
-  present_names <- which(col_names %in% names(datatable))
-  if(length(present_names) < 14){
-    missing_names <- col_names[setdiff(1:14, present_names)]
-    stop('Input data.table missing the col(s) \n', paste(missing_names, collapse = '\n'), '!')
-  }
+  base_url <- "http://classyfire.wishartlab.com/queries"
+  query_input <- paste(names(input), input, sep = "\t", collapse = "\n")
+  q <- rjson::toJSON(list(label = label, query_input = query_input,
+                          query_type = "STRUCTURE"))
+  resp <- httr::POST(url = base_url, body = q, httr::content_type_json(),
+                     httr::accept_json(), httr::timeout(getOption("timeout")))
+  post_cont <- httr::content(resp)
+  url <- paste0(base_url, "/", post_cont$id, ".json")
+  resp <- httr::RETRY("GET", url = url, encode = "json", times = retry_times)
+  print(resp)
+  if (resp$status_code == 200) {
+    json_res <- classyfireR::get_query(query_id = post_cont$id, format = "json")
+    json_parse <- jsonlite::fromJSON(json_res)
+    #check classification status
+    #if in queue, wait 1 second and retry, up to retry_query_times
+    retry_count <- 0
+    while(!(json_parse$classification_status %in% "Done") &
+          retry_count < retry_query_times){
+      if(json_parse$classification_status %in% "In Queue"){
+        wait_time <- queued_wait
+        message(paste0("Query status is In Queue",
+                      "; waiting ",
+                      wait_time,
+                      " seconds and retrying"))
+      }else if(json_parse$classification_status %in% "Processing"){
+        wait_time <- processing_wait_per_input * length(input)
+        message(paste0("Query status is Processing",
+                      "; waiting ",
+                      wait_time,
+                      "seconds (",
+                      processing_wait_per_input,
+                      " seconds per input, with ",
+                      length(input),
+                      " inputs) ",
+                      "and retrying"))
+      }else{
+        wait_time <- 1
+        message(paste0("Query status is ",
+        json_parse$classification_status,
+                       "; waiting ",
+                       wait_time,
+                       " seconds and retrying"))
+      }
 
-  # Copy data.table
-  new_table <- copy(datatable)
 
-  # Get unique SMILES strings and remove NA values, '' values
-  SMILES_str <- new_table[is.na(INCHIKEY) | kingdom == '', unique(SMILES)]
-  if (length(SMILES_str)==0) return(new_table)
-  SMILES_str <- SMILES_str[!is.na(SMILES_str)]
-  if (length(SMILES_str)==0) return(new_table)
-  SMILES_str <- SMILES_str[sapply(SMILES_str, function(t) {t != ''})]
-
-  if (length(SMILES_str)==0) return(new_table)
-
-  # Set names for list of SMILES
-  names(SMILES_str) <- paste0('MOL', 1:length(SMILES_str))
-
-  classifications <- purrr::map2(SMILES_str, names(SMILES_str), function(s, n){
-    data <- tryCatch({classyfireR::submit_query(label = n,
-                                   input = s,
-                                   structure)},
-                     error = function(e) {
-                       print(s)
-                       print(e$message)
-                       return(NULL)}
-    )
-  })
-
-  # Populate data.table with Classification data
-  for (i in seq_along(SMILES_str)){
-    # Handle case where INCHIKEY submitted returned no classification or
-    # the classification returned was empty but not null
-    if (is.null(classifications[[i]]) || !("Classification" %in% names(classifications[[i]]@classification))){
-      classifiers <- rep('', 11)
-    } else {
-      temp <- classyfireR::classification(classifications[[i]])$Classification
-
-
-      classifiers <- c(temp, rep('', 11 - length(temp)))
-
+      #wait one second and retry
+      Sys.sleep(wait_time)
+      json_res <- classyfireR::get_query(query_id = post_cont$id, format = "json")
+      json_parse <- jsonlite::fromJSON(json_res)
+      retry_count <- retry_count + 1
     }
-    new_table[SMILES == SMILES_str[[i]], c("kingdom", "superclass", "class", "subclass", "level5", "level6", "level7", "level8", "level9", "level10", "level11") := as.list(classifiers)]
+
+
+message(paste("Classification status", json_parse$classification_status))
+
+   #pull list of valid entities (i.e., those with classifications)
+  classified <- json_parse$entities
+  #if any valid entities, take relevant portions of classification data.frame
+  if(length(classified)>0){
+    cf <- classified[, c("identifier",
+                                  "smiles",
+                                  "inchikey")]
+    cf_class1 <- sapply(c("kingdom",
+                                                "superclass",
+                                                "class",
+                                                "subclass"),
+                        function(x) {
+                          tmp <- classified[, x][, c("name",
+                                                        "chemont_id")]
+                          tmp$identifier <- classified$identifier
+                          tmp
+                        },
+                        simplify = FALSE,
+                        USE.NAMES = TRUE) %>%
+      dplyr::bind_rows(.id = "level")
+
+
+    #anything more specific than "subclass" will be in "intermediate nodes"
+    #which is a list with one element for each item in "input"
+    cf_class2 <- classified$intermediate_nodes
+    names(cf_class2) <- classified$identifier
+    #for any empty data frames, give a name of NA
+    cf_class2 <- sapply(cf_class2,
+                        function(x) if(nrow(x)==0){
+                          data.frame(name = NA_character_)
+                          }else{
+                            x
+                          },
+                        simplify = FALSE,
+                      USE.NAMES = TRUE)
+    cf_class2_df <- dplyr::bind_rows(cf_class2, .id = "identifier")
+
+    #now add level -- starting with "level 5" and going up as many rows as exist for each identifier
+cf_class2_df <- cf_class2_df %>%
+  dplyr::group_by(identifier) %>%
+  dplyr::mutate(level_num = dplyr::row_number() + 4,
+                level = paste("level", level_num)) %>%
+  dplyr::select(identifier, name, chemont_id, level, level_num)
+
+#add level number to cf_class
+cf_class1 <- cf_class1 %>%
+  dplyr::group_by(identifier) %>%
+  dplyr::mutate(level_num = dplyr::row_number())
+
+#rowbind
+cf_class <- dplyr::bind_rows(cf_class1,
+                             cf_class2_df)
+
+#now take the direct ancestor of each one
+direct <- classified$direct_parent
+direct$identifier <- classified$identifier
+direct <- direct %>% dplyr::select(identifier, name, chemont_id)
+#if the name and chemont_id do not already appear in cf_class for each identifier,
+#then add them as a final level
+direct_final <- dplyr::anti_join(direct, cf_class,
+                                 by = c("identifier", "name", "chemont_id"))
+
+cf_class <- dplyr::bind_rows(cf_class, direct_final)
+
+#if final level was added, add the appropriate level number
+#which will be 1+ the max level number for this identifier
+cf_class <- cf_class %>%
+  dplyr::mutate(level_num2 = if_else(is.na(level_num),
+                              max(level_num, na.rm = TRUE)+1,
+                              level_num)) %>%
+  dplyr::mutate(level_num = NULL) %>%
+  dplyr::rename(level_num = level_num2) %>%
+  dplyr::mutate(level = if_else(is.na(level), #paste level number to create level label
+                         paste("level", level_num),
+                         level))
+
+#reshape to wide format, one column for each level
+cf_class_wide <- cf_class %>%
+  tidyr::pivot_wider(id_cols = c("identifier"),
+                     names_from = "level",
+                     values_from = "name")
+
+#add NA columns for any unused levels in tax_level_labels
+cols_add <- setdiff(tax_level_labels,
+                    names(cf_class_wide))
+output <-  cf_class_wide %>% as.data.frame()
+output[cols_add] <- NA_character_
+
+#merge in the smiles and inchikeys
+output <- merge(cf, output, by = "identifier")
+
+#add a "report" column
+output$report <- "Classification returned"
+
+#add a "structure" column
+output$structure <- input[output$identifier]
+
+#Add the rows for any invalid entities (without classifications)
+invalid <- json_parse$invalid_entities
+#Add identifier column (the names of the inputs)
+invalid$identifier <- names(input)[input %in% invalid$structure]
+
+#Add NA columns for taxonomy levels, to denote no classification
+invalid[tax_level_labels] <- NA_character_
+invalid$smiles <- NA_character_
+invalid$inchikey <- NA_character_
+
+#rowbind
+output <- dplyr::bind_rows(output, invalid)
+
+#for any structures not otherwise handled, return NAs and return classification status as report
+cols_list <- as.list(rep(NA_character_, length(tax_level_labels)))
+names(cols_list) <- tax_level_labels
+missing <- do.call(data.frame,
+                  c(list("identifier" = names(input[!input %in% output$structure]),
+                         "structure" = input[!input %in% output$structure]),
+                    cols_list,
+                    list("check.names" = FALSE)))
+missing$report <- paste0("No classification.")
+missing$smiles <- NA_character_
+missing$inchikey <- NA_character_
+
+output <- dplyr::bind_rows(output, missing)
+
+
+#set order the same as input
+rownames(output) <- NULL
+output <- output[match(names(input), output$identifier), ]
+
+  }else{ #if length(classified)==0
+    #this could mean either ClassyFire timed out, or no entities could be classified
+    #return invalid entities if any
+    invalid <- json_parse$invalid_entities
+
+    #Add identifier column (the names of the inputs)
+    invalid$identifier <- names(input)[match(invalid$structure, input)]
+
+    #Add NA columns for taxonomy levels, to denote no classification
+    invalid[tax_level_labels] <- NA_character_
+
+    #for any structures not in invalid entities, return NAs and return classification status as report
+cols_list <- as.list(rep(NA_character_, length(tax_level_labels)))
+names(cols_list) <- tax_level_labels
+missing <- do.call(data.frame,
+                  c(list("identifier" = names(input[!input %in% invalid$structure]),
+                         "structure" = input[!input %in% invalid$structure]),
+                    cols_list,
+                  list("check.names" = FALSE)))
+missing$report <- "No classification."
+output <- dplyr::bind_rows(invalid, missing)
+
+output$smiles <- NA_character_
+output$inchikey <- NA_character_
+
+#set order the same as input
+rownames(output) <- NULL
+output <- output[match(names(input), output$identifier), ]
+
   }
-  return(new_table)
+  }else{ #if resp$status_code != 200
+    #return a data frame with all the same column names, but NAs for labels
+    cols_list <- as.list(rep(NA_character_, length(tax_level_labels)))
+    names(cols_list) <- tax_level_labels
+    output <- do.call(data.frame,
+                      c(list("identifier" = names(input),
+                             "structure" = input),
+                        cols_list))
+    output$smiles <- NA_character_
+    output$inchikey <- NA_character_
+
+  }
+
+  rownames(output) <- NULL
+  output <- output[, c("identifier",
+                       "structure",
+                       "smiles",
+                       "inchikey",
+                       tax_level_labels,
+                       "report")]
+  return(output)
 }

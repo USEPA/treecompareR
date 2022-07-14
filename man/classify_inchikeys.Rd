@@ -6,8 +6,8 @@
 \usage{
 classify_inchikeys(
   inchikeys,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level 5",
+    "level 6", "level 7", "level 8", "level 9", "level 10", "level 11")
 )
 }
 \arguments{
@@ -24,5 +24,5 @@ This function uses the ClassyFire API to classify chemicals from an input
 data.table using the InChIKey chemical identifier.
 }
 \seealso{
-\code{\link{classify_by_smiles}}
+\code{\link{classify_structure}}
 }
