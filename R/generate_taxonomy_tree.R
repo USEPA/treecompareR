@@ -109,8 +109,22 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
 #'   respectively provide a name for each node, an ID for each node, and the ID
 #'   of the parent of each node. Each row represents one node of the taxonomy.
-#' @return A list containing a 'phylo' object and data.frame with useful
-#'   information for building the phylo object.
+#' @return A list containing two elements. \code{tree_object} is a
+#'   \code{phylo}-class tree object.\code{tax_nodes} is a data.frame with as
+#'   many rows as there are nodes in the taxonomy, and nine variables.
+#'   \describe{ \item{Name}{Text label for the node, as in the input data.frame}
+#'   \item{ID}{Original ID for the node, as in the input data.frame}
+#'   \item{Parent_ID}{Parent ID for the node, as in the input data.frame}
+#'   \item{id_number}{Internally generated node ID number}
+#'   \item{parent_id_number}{Internally generated parent ID number}
+#'   \item{pathString}{Path from root to the node as a slash-separated string of
+#'   internally-generated ID numbers} \item{plotHeight}{Internally-generated
+#'   plot height for each node; currently does not represent any real data, only
+#'   used internally to speed plotting} \item{level}{Taxonomic level of the
+#'   node, where level 0 is the root, level 1 are the root's immediate children,
+#'   etc.} \item{phylo_node}{Node number for this label in the phylo tree
+#'   object, which is different from the internally-generated node number. This
+#'   is useful for plotting.} }
 #' @export
 #'
 generate_taxonomy_tree <- function(tax_nodes = NULL){
@@ -159,6 +173,56 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   temp_labels[tree_object$node.label %in% "root_"] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
   tree_object$node.label <- temp_labels
 
+  #Get tree object node numbers (different from internally-generated)
+  #at each level of the taxonomy
+  foo <- phangorn::Ancestors(tree_object,
+                             node = 1:Ntip(tree_object))
+  #this is a list of ancestors for each tip node
+  #read them backwards
+  foo_rev <- lapply(foo, rev)
+  max_level <- max(sapply(foo, length))
+  level_nodes <- vector(mode = "list", length = max_level)
+  level_names <- vector(mode = "list", length = max_level)
+  for (i in 1:max_level){
+    #get the node numbers at this level
+    level_nodes[[i]] <- unlist(
+      unique(
+        sapply(foo_rev,
+               function(x){
+                 if(length(x)>=i){
+                   x[i]
+                 }else{
+                   NULL
+                 }
+               }
+        )
+      )
+    )
+#get the corresponding node labels at this level
+    level_names[[i]] <- select.tip.or.node(element= level_nodes[[i]],
+                                           tree = tree_object)
+    #assign level number to each label in tax_nodes
+    tax_nodes[tax_nodes$Name %in% level_names[[i]], "level"] <- i
+  }
+
+  nodenames <- data.frame(phylo_node = unlist(level_nodes),
+                          Name = unlist(level_names))
+
+  tax_nodes <- merge(tax_nodes, nodenames, by = "Name")
+  tax_nodes$level <- tax_nodes$level - 1 #so that root is level 0
+
   return(list("tree_object" = tree_object,
               "tax_nodes" = tax_nodes))
+}
+
+#' Get label for a tip or internal node of a phylo tree
+#'
+#' @param element Vector of node numbers in phylo tree
+#' @param tree phylo tree object
+#' @return Character vector of tip or internal node labels
+select.tip.or.node <- function(element, tree) {
+  label <- vector(mode = "character", length = length(element))
+  label[element < (Ntip(tree)+1)] <- tree$tip.label[element[element <( Ntip(tree)+1)]]
+  label[element >  Ntip(tree)] <- tree$node.label[element[element >  Ntip(tree)]-Ntip(tree)]
+  return(label)
 }

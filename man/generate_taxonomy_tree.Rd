@@ -13,8 +13,22 @@ respectively provide a name for each node, an ID for each node, and the ID
 of the parent of each node. Each row represents one node of the taxonomy.}
 }
 \value{
-A list containing a 'phylo' object and data.frame with useful
-information for building the phylo object.
+A list containing two elements. \code{tree_object} is a
+\code{phylo}-class tree object.\code{tax_nodes} is a data.frame with as
+many rows as there are nodes in the taxonomy, and nine variables.
+\describe{ \item{Name}{Text label for the node, as in the input data.frame}
+\item{ID}{Original ID for the node, as in the input data.frame}
+\item{Parent_ID}{Parent ID for the node, as in the input data.frame}
+\item{id_number}{Internally generated node ID number}
+\item{parent_id_number}{Internally generated parent ID number}
+\item{pathString}{Path from root to the node as a slash-separated string of
+internally-generated ID numbers} \item{plotHeight}{Internally-generated
+plot height for each node; currently does not represent any real data, only
+used internally to speed plotting} \item{level}{Taxonomic level of the
+node, where level 0 is the root, level 1 are the root's immediate children,
+etc.} \item{phylo_node}{Node number for this label in the phylo tree
+object, which is different from the internally-generated node number. This
+is useful for plotting.} }
 }
 \description{
 This function will convert taxonomy relationships from a data.frame to a
