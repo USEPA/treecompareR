@@ -57,19 +57,45 @@ One possible starting point is to consider chemical contaminants that have been 
 
 Both biosolids and ground/surface water have been tested for relatively long lists of chemical contaminants of interest. Of course, these lists don't necessarily include every chemical that might be in those media; there may be chemicals we don't even know to look for. However, as a starting point, it might be informative to compare lists of chemicals found in water and chemicals found in biosolids. Are certain classes of chemicals found in one medium but not the other, or in both media? How similar are the two lists of chemicals, and where are the overlaps and differences?
 
-With the ClassyFire/ChemOnt ontology and the **treecompareR** package, we can start to explore these questions through visualization. We can visualize a tree for surface/groundwater chemicals, and a tree for biosolids chemicals. We can visualize where these trees overlap and where they do not. Furthermore, we can calculate quantitative similarity measures between the two trees, and visualize where on the tree similarity is higher and lower.
+With the ClassyFire/ChemOnt ontology and the **treecompareR** package, we can start to explore these questions through visualization. We can visualize a tree for surface/groundwater chemicals, and a tree for biosolids chemicals. We can visualize where these trees overlap and where they do not. Furthermore, we can calculate quantitative similarity measures between the two trees, and visualize where similarity is higher and lower between branches of each tree.
 
 ## Chemical Lists
 
-A list of 
+We use existing curated lists of chemical contaminants found in biosolisd and in surface/groundwater, publicly available (with many other curated chemical lists of interest) from the US EPA's CompTox Chemicals Dashboard. A curated list of 726 chemicals found in biosolids is available as the `BIOSOLIDS2021` dataset [cite Richardson & Williams 2021 https://www.nature.com/articles/s41597-022-01267-9] at [https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021). A curated list of 707 chemicals monitored in surface and groundwater by the United States Geological Service (USGS) is available as the `USGSWATER` dataset at [https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER](https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER).
 
-In this paper, we use the `chemical_list_BIOSOLIDS_2022_05_10` and `chemical_list_USGSWATER_2022_05_17` data sets, which are available for download from the US Environmental Protection Agency's [CompTox Dashboard Chemical List](https://comptox.epa.gov/dashboard/chemical-lists) website. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are *BIOSOLIDS2021* and *USGSWATER*, respectively.
+Each list of chemicals includes chemical identifiers (prefererd name, CASRN, and DSSTox Substance ID) as well as structural identifiers (InChiKey and SMILES strings).
 
-These data sets include a list of chemicals, relevant identifiers such as `DTXSID`, `InChIKey`, `SMILES`, physical data such as `MOLECULAR_FORMULA`, `AVERAGE_MASS`, `MONOISOTOPIC_MASS`, and publication and quality data such as `PUBCHEM_DATA_SOURCES` and `QC_Level`. 
+Here are the first few rows of each chemical list.
 
-Before we start comparing these data sets, we must provide each chemical in each data set its chemical classification data from ClassyFire. To do this, we use the classification pipeline in `treecompareR` and then construct a tree that encodes the taxonomy used in this classification.
+```{r}
+head(BIOSOLIDS2021)
+```
 
-To achieve both aims, we use the [ClassyFire](http://classyfire.wishartlab.com/) tool. ClassyFire uses an ontology, ChemOnt, that consists of 4825 labels over 11 levels of classification, to classify chemicals. 
+
+## ClassyFire classification of chemical lists
+
+To compare these two chemical lists based on the ChemOnt taxonomy, first, the chemicals on each list must be classified according to ClassyFire. This can be accomplished using the publicly available [ClassyFire](http://classyfire.wishartlab.com/) web tool. This web tool takes a user-supplied InChiKey and returns the corresponding ClassyFire classification, if available. (It queries a lookup table of previously classified chemical entities.)
+
+An interface to the API for the ClassyFire web tool is available through the **classyfireR** package. To simplify the process of querying the API for a list of InChiKeys, we have written a wrapper function `classify_inchikey()`. This function takes a user-supplied vector of InChiKeys and returns a `data.frame` with the corresponding classification for each InChiKey. If a classification was not available (including the cases when an input value was not a validly formatted InChiKey, as well as cases where the InChiKey input was valid, but ClassyFire did not return a classification), the columns of the data.frame simply contain `NA_character_` values.
+
+```{r, eval = FALSE}
+BIOSOLIDS2021_class <- classify_inchikeys(BIOSOLIDS2021$INCHIKEY)
+USGSWATER_class <- classify_inchikeys(USGSWATER$INCHIKEY)
+```
+
+Another wrapper function to the ClassyFireR API allows the user to query by SMILES string (or alternately InChiKey). The ClassyFire API will first query its existing lookup table. But if the provided structure is not in the lookup table, it may run the ClassyFire structure-based classification model on the "unknown" provided structure. 
+
+
+```{r, eval = FALSE}
+BIOSOLIDS2021_class <- classify_structures(BIOSOLIDS2021$SMILESW)
+USGSWATER_class <- classify_structures(USGSWATER$INCHIKEY)
+```
+
+
+
+
+
+## ChemOnt ontology
 
 The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers.
 
