@@ -112,10 +112,8 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #' @return A list containing a 'phylo' object and data.frame with useful
 #'   information for building the phylo object.
 #' @export
-#' @import data.tree
-#' @import phytools
 #'
-generate_tree <- function(tax_nodes = NULL){
+generate_taxonomy_tree <- function(tax_nodes = NULL){
   # Get the root of the tree, which will have no parent and thus have null value
   # for the 'Parent_ID'
   root <- tax_nodes[which(!(tax_nodes[, 'Parent_ID'] %in% tax_nodes[, 'ID'])), 'ID']
