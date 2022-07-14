@@ -38,6 +38,8 @@ Imports:
     phytools,
     purrr,
     RColorBrewer,
+    Rdpack,
     stringr,
     tidyr,
     viridis
+RdMacros: Rdpack
