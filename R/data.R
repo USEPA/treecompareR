@@ -70,17 +70,19 @@
 #' @seealso \code{\link{USGSWATER}}
 'USGSWATER_class'
 
-#' Parent and child data for chemont tree
+#'ChemOnt taxonomy as data.frame
 #'
-#' A data set containing the information required to build the chemont tree.
+#' A data set describing the full ChemOnt taxonomy.
+#'
+#' From \url{http://classyfire.wishartlab.com/tax_nodes.json}
 #'
 #' @format A data frame with 4825 rows and 3 columns:
 #' \describe{
-#' \item{Name}{Name of the chemont label}
-#' \item{ID}{ID of chemont label}
-#' \item{Parent_ID}{ID of parent chemont label}
+#' \item{Name}{ChemOnt text label for this node}
+#' \item{ID}{ChemOnt ID number for this node}
+#' \item{Parent_ID}{ChemOnt ID number for this node's parent}
 #' }
-'chemont_parent_child'
+'chemont_df'
 
 
 #' Jaccard similarity matrix for chemont tree
