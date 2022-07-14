@@ -127,7 +127,6 @@ batch_chemical_identifiers <- function(input_list){
 #' @return A string converted for use in API calls of the
 #'   \href{https://hazard.sciencedataexperts.com/#/}{Hazard Comparison
 #'   Dashboard}.
-#' @import stringr
 convert_smiles_to_hex <- function(smiles = NULL){
   if (is.null(smiles)){
     smiles <- readline('Input a SMILES string:')
