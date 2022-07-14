@@ -70,17 +70,6 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 }
 
 
-
-
-
-
-# In this function, a JSON file or a data.frame is input and a taxonomy tree is
-# constructed, with a 'phylo' class and a data.frame of associated data return.
-# The input JSON file must contain 'Name', 'ID', and 'Parent_ID' attributes for
-# each entry. Alternatively, if using an input data.frame, there must be columns
-# with the same names and information.
-
-
 #' Generate taxonomy tree
 #'
 #' This function will convert taxonomy relationships from a data.frame to a
