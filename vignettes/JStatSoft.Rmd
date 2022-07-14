@@ -220,7 +220,8 @@ biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified,
                                                  name_1 = 'Biosolids', 
                                                  name_2 = 'USGS water')
 biosolids_leaf_fraction[[1]]
-head(biosolids_leaf_fraction[[2]])
+kableExtra::kbl(head(biosolids_leaf_fraction[[2]]))%>%
+  kableExtra::kable_styling(bootstrap_options = 'striped', font_size = 9)
 ```
 
 We also reverse the roles each data set plays to demonstrate the other overlap visualization.
@@ -231,7 +232,8 @@ usgswater_leaf_fraction <- leaf_fraction_subtree(data_1  = usgswater_classified,
                                                  name_1 = 'USGS water', 
                                                  name_2 = 'Biosolids')
 usgswater_leaf_fraction[[1]]
-knitr::kable(usgswater_leaf_fraction[[2]][1:5, ])
+kableExtra::kbl(usgswater_leaf_fraction[[2]][1:5, ])%>%
+  kableExtra::kable_styling(bootstrap_options = 'striped', font_size = 9)
 #  kbl() %>%
 #  kable_styling(bootstrap_options = c("striped", "hover")) %>%
 #  kable_classic()
@@ -272,7 +274,7 @@ Some trees may come with a probability distribution attaching probabilities to e
 
 One way to frame the concept of information content is the idea that the less likely a node appears in a generic path starting from the root and ending at an arbitrary node, the more information it tells when we know the node is one a path given to us. So for instance, the only path a tip can exist on is the unique path connecting it with the root. However, for an ancestor of a tip, there are more paths that include this node, so knowing the ancestor is on a path gives less information about what the path might be. Since every path starting at the root includes the root, knowing the root is on the path yields no information.
 
-To generate the information content for a tree, we can use the function `attach_information_content()` which takes in a tree as the only required parameter. This function also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
+To generate the information content for a tree, we can use the function `attach_information_content()` which takes in a tree as the only required parameter. This function then adds a data frame to the tree, with each row corresponding to a node of the tree and a column with the information content of each node. The data frame also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
 
 Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
 
@@ -310,7 +312,7 @@ biosolids_usgs_ht
 
 Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
 
-```{r rc-cluster-2-2, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
+```{r rc-cluster-2-2, fig.align='center', fig.dim=c(18,12), out.height=480, out.width=720}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
                       htmap = biosolids_usgs_ht, row_cluster = 2, 
                       column_cluster = 2, row_name = 'USGS Water', 
@@ -322,7 +324,7 @@ Observe that only the superclass 'Benzenoids' is represented. In the second diag
 
 
 
-```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,9), out.height=400, out.width=600}
+```{r rc-cluster-9-8, fig.align='center', fig.dim=c(18,10), out.height=350, out.width=630}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
                       htmap = biosolids_usgs_ht, row_cluster = 9, 
                       column_cluster = 8, row_name = 'USGS Water', 
