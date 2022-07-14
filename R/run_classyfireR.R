@@ -13,6 +13,10 @@
 #' @importFrom purrr map
 #' @import classyfireR
 #'
+#' @references
+#' \insertRef{djoumbou2016classyfire}{treecompareR}
+#'
+#'
 #' @seealso \code{\link{classify_by_smiles}}
 #'
 classify_datatable <- function(datatable){
