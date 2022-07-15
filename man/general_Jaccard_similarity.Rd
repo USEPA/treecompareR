@@ -14,7 +14,7 @@ general_Jaccard_similarity(tree, label_A, label_B)
 \item{label_B}{The second label.}
 }
 \value{
-The Jaccard distance of the label sets for the root to node path.
+The Jaccard similarity of the label sets for the root to node path.
 }
 \description{
 This determines the Jaccard similarity for two input node labels in a given
@@ -30,6 +30,11 @@ tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 general_Jaccard_similarity(tree = tree, label_A = 't2', label_B = 't4')
 general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 
+}
+\references{
+\insertRef{pekar2002taxonomy}{treecompareR}
+
+\insertRef{pesquita2009semantic}{treecompareR}
 }
 \seealso{
 \code{\link{general_Jaccard_dist}}
