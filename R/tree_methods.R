@@ -104,6 +104,9 @@ get_levels <- function(tree){
 #' @export
 #' @importFrom ape is.rooted
 #'
+#' @references
+#' \insertRef{seco2004intrinsic}{treecompareR}
+#'
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
@@ -141,6 +144,9 @@ generate_information_content <- function(tree, log_descendants = TRUE){
 #' @return phylo object with information content data.frame attached
 #' @export
 #' @importFrom ape is.rooted
+#'
+#' @references
+#' \insertRef{seco2004intrinsic}{treecompareR}
 #'
 #' @examples
 #'
@@ -305,8 +311,13 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 #' @param tree A phylo object representing a rooted tree.
 #' @param label_A The first label.
 #' @param label_B The second label.
-#' @return The Jaccard distance of the label sets for the root to node path.
+#' @return The Jaccard similarity of the label sets for the root to node path.
 #' @export
+#'
+#' @references
+#' \insertRef{pekar2002taxonomy}{treecompareR}
+#'
+#' \insertRef{pesquita2009semantic}{treecompareR}
 #'
 #' @seealso \code{\link{general_Jaccard_dist}}
 #'
@@ -336,6 +347,11 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Resnik similarity in the given tree of the pair of nodes.
 #' @export
+#'
+#' @references
+#' \insertRef{lin1998information}{treecompareR}
+#'
+#' \insertRef{resnik1995using}{treecompareR}
 #'
 #' @examples
 #'
@@ -385,6 +401,9 @@ general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node
 #' @return The Lin similarity in the given tree of the pair of nodes.
 #' @export
 #'
+#' @references
+#' \insertRef{lin1998information}{treecompareR}
+#'
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
@@ -427,6 +446,11 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
 #' @return The Jiang and Conrath similarity in the given tree of the pair of
 #'   nodes.
 #' @export
+#'
+#' @references
+#' \insertRef{seco2004intrinsic}{treecompareR}
+#'
+#' \insertRef{jiang1997semantic}{treecompareR}
 #'
 #' @examples
 #'
@@ -774,6 +798,10 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' @return A phylo object representing the induced subtree of the data.
 #'
 #' @importFrom ape drop.tip
+#'
+#' @references
+#' \insertRef{apepackage}{treecompareR}
+#'
 drop_tips_nodes <- function(tree, data = NULL, labels = NULL, tax_level_labels = NULL){
   if (data.table::is.data.table(data)){
     tip_node_labels <- unlist(get_labels(data = data, tax_level_labels = tax_level_labels))
