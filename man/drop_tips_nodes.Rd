@@ -27,3 +27,6 @@ consists solely of the labels associated to the data set and their ancestors.
 Alternatively, one can provide a set of labels instead and the induced
 subtree is constructed from these labels in the same manner.
 }
+\references{
+\insertRef{apepackage}{treecompareR}
+}

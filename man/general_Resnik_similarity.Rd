@@ -41,3 +41,8 @@ general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
 general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 
 }
+\references{
+\insertRef{lin1998information}{treecompareR}
+
+\insertRef{resnik1995using}{treecompareR}
+}

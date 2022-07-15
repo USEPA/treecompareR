@@ -42,3 +42,8 @@ general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
 general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 
 }
+\references{
+\insertRef{seco2004intrinsic}{treecompareR}
+
+\insertRef{jiang1997semantic}{treecompareR}
+}

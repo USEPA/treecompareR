@@ -28,3 +28,6 @@ tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 tree <- attach_information_content(tree = tree)
 
 }
+\references{
+\insertRef{seco2004intrinsic}{treecompareR}
+}
