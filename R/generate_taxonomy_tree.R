@@ -56,6 +56,9 @@ get_path_to_root <- function(df, x){
 #' @return A data.tree object with plotHeight attribute.
 #' @import data.tree
 #'
+#' @references
+#' \insertRef{datatreepackage}{treecompareR}
+#'
 SetPlotHeight <- function(node, rootHeight = 100) {
 
   #traverse from leaves towards root to calculate the height and store it in height2

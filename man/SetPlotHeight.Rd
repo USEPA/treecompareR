@@ -20,3 +20,6 @@ This helper function allows for fast tree construction. See
 conversion between data.tree and Newick format} for background on this helper
 function.
 }
+\references{
+\insertRef{datatreepackage}{treecompareR}
+}
