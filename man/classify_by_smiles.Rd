@@ -17,6 +17,9 @@ This function takes a data.table of chemicals and classifications from
 \code{\link{classify_datatable}} and attempts to classify chemicals from the
 input data.table using SMILES strings that are missing classification data.
 }
+\references{
+\insertRef{djoumbou2016classyfire}{treecompareR}
+}
 \seealso{
 \code{\link{classify_datatable}}
 }

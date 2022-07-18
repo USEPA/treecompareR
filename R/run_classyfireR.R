@@ -78,6 +78,9 @@ classify_datatable <- function(datatable){
 #' @importFrom purrr map2
 #' @import classyfireR
 #'
+#' @references
+#' \insertRef{djoumbou2016classyfire}{treecompareR}
+#'
 #' @seealso \code{\link{classify_datatable}}
 #'
 classify_by_smiles <- function(datatable){
