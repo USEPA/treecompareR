@@ -176,13 +176,13 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   #Get tree object node numbers (different from internally-generated)
   #at each level of the taxonomy
   foo <- phangorn::Ancestors(tree_object,
-                             node = 1:Ntip(tree_object))
+                             node = 1:(ape::Ntip(tree_object)))
 
   #this is a list of ancestors for each tip node
   #read them backwards
   foo_rev <- lapply(foo, rev)
   #add the tip node number too
-  foo_rev <- sapply(1:Ntip(tree_object),
+  foo_rev <- sapply(1:(ape::Ntip(tree_object)),
                 function(i) c(foo_rev[[i]], i))
   max_level <- max(sapply(foo, length))
   level_nodes <- vector(mode = "list", length = max_level)
@@ -226,7 +226,7 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
 #' @return Character vector of tip or internal node labels
 select.tip.or.node <- function(element, tree) {
   label <- vector(mode = "character", length = length(element))
-  label[element < (Ntip(tree)+1)] <- tree$tip.label[element[element <( Ntip(tree)+1)]]
-  label[element >  Ntip(tree)] <- tree$node.label[element[element >  Ntip(tree)]-Ntip(tree)]
+  label[element < (ape::Ntip(tree)+1)] <- tree$tip.label[element[element <( ape::Ntip(tree)+1)]]
+  label[element > ape::Ntip(tree)] <- tree$node.label[element[element >  ape::Ntip(tree)]-ape::Ntip(tree)]
   return(label)
 }
