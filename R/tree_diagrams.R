@@ -217,8 +217,11 @@ get_label_length <- function(label_list){
 #' provides all node numbers in the subtree corresponding to the data set.
 #'
 #' @param data A classified data set.
-#' @param tree A taxonomy tree object, as returned by \code{\link{generate_taxonomy_tree}}.
+#' @param tree A taxonomy tree object, as returned by
+#'   \code{\link{generate_taxonomy_tree}}.
 #' @param tax_level_labels A vector of levels for the taxonomy.
+#' @return A vector of node numbers in the base tree that are represented in the
+#'   subtree corresponding to the data set.
 
 get_subtree_nodes <- function(data,
                               base_tree = chemont_tree,
@@ -232,55 +235,20 @@ get_subtree_nodes <- function(data,
   data_labels <- get_labels(data = data,
                             tax_level_labels = tax_level_labels)
 
-  #get node numbers
-  data_nodes <- base_tree$tax_nodes[base_tree$tax_nodes$Name %in% data_labels, "phylo_node"]
-  #get all ancestors of nodes in input data set
-  data_all_nodes <- unique(c(unlist(phangorn::Ancestors(x = base_tree$tree_object,
+  #get node numbers, levels, & names of base tree
+  tree_df <- get_tree_df(base_tree)
+
+  #get node numbers represented in dataset
+  data_nodes <- tree_df[tree_df$Name %in% data_labels, "node"]
+  #get all ancestors of nodes in input data set,
+  #plus the nodes themselves
+  data_all_nodes <- unique(c(unlist(phangorn::Ancestors(x = base_tree,
                                                     node = data_nodes)),
                          data_nodes))
-
+  #return the vector of node numbers in the subtree
   return(data_all_nodes)
 
 }
-
-#' Get subtree nodes and level of ancestry
-#'
-#' Helper function to get ancestry for each subtree node
-#'
-#' @param data A classified data set
-#' @param base_tree A taxonomy tree
-#' @param tax_level_labels Vector of taxonomy levels
-#' @return A data.frame with columns "phylo_node", "ancestor", "level."
-#'   "phylo_node" gives the node number in the base tree for each tip in the
-#'   input data. "ancestor" gives the ancestor node(s) for each tip. "level"
-#'   gives the level of ancestry, where 0 is the root node.
-get_subtree_nodes_by_level <- function(data,
-                                       base_tree = chemont_tree,
-                                       tax_level_labels = c('kingdom', 'superclass',
-                                                            'class', 'subclass',
-                                                            'level5', 'level6',
-                                                            'level7', 'level8',
-                                                            'level9', 'level10',
-                                                            'level11')){
-  #get labels represented by the classified dataset
-  data_labels <- get_labels(data = data,
-                            tax_level_labels = tax_level_labels)
-
-#get node numbers
-data_nodes <- base_tree$tax_nodes[base_tree$tax_nodes$Name %in% data_labels, "phylo_node"]
-#get all ancestors of nodes in input data set
-data_nodes_ancest <- phangorn::Ancestors(x = base_tree$tree_object,
-                                                      node = data_nodes)
-names(data_nodes_ancest) <- data_nodes
-data_ancest <- dplyr::bind_rows(sapply(data_nodes_ancest,
-                      function(x) data.frame(ancestor = rev(x),
-                                             level = seq_along(x)-1),
-                      use.names = TRUE,
-                      simplify = FALSE),
-                      .id = "phylo_node")
-return(data_ancest)
-}
-
 
 #' Label bars
 #'
@@ -403,14 +371,15 @@ display_subtree <- function(data_1,
                                                  'level5', 'level6', 'level7', 'level8',
                                                  'level9', 'level10', 'level11'),
                             layout = "circular",
-                            label_clade_level = 2,
+                            clade_label_level = 2,
                             base_color = "gray80",
                             subtree_colors = c("#66C2A5", #ColorBrewer Set2
                                                "#FC8D62",
                                                "#8DA0CB"),
                             base_size = NULL,
                             subtree_sizes = NULL,
-                            clade_label_size = 8
+                            clade_label_size = 3,
+                            clade_label_wrap = 20
                             ){
   #Get node numbers of data_1 subtree
   data_1_all <- get_subtree_nodes(data = data_1,
@@ -418,11 +387,10 @@ display_subtree <- function(data_1,
                                   tax_level_labels = tax_level_labels)
 
   #Data frame with all node numbers in taxonomy tree
-   cohort_data <- base_tree$tax_nodes[, c('phylo_node',
-                                                'Name')]
+   cohort_data <- get_tree_df(tree = base_tree)
    #Categorical column: is each node in Data Set 1?
    #0 = no, 1 = yes
-   cohort_data$inSet1 <- ifelse(cohort_data$phylo_node %in% data_1_all,
+   cohort_data$inSet1 <- ifelse(cohort_data$node %in% data_1_all,
                                 1L,
                                 0L)
 
@@ -434,7 +402,7 @@ display_subtree <- function(data_1,
                                     tax_level_labels = tax_level_labels)
     #Categorical column: is each node in Data Set 2?
     #0 = no, 2 = yes
-    cohort_data$inSet2 <- ifelse(cohort_data$phylo_node %in% data_2_all,
+    cohort_data$inSet2 <- ifelse(cohort_data$node %in% data_2_all,
                                  2L,
                                  0L)
 
@@ -449,8 +417,6 @@ display_subtree <- function(data_1,
                                             paste(name_1, "only"),
                                             paste(name_2, "only"),
                                             paste(name_1, "and", name_2)))
-
-    names(cohort_data)[names(cohort_data) %in% "phylo_node"] <- "node"
 
     #Construct vector of colors to use for plotting
 colvect <- c(base_color,
@@ -476,7 +442,7 @@ if(!is.null(base_size)){
   }
 
    if(!is.null(base_size)){
-   tree_plot <- ggtree(base_tree$tree_object,
+   tree_plot <- ggtree(base_tree,
                        layout = layout) %<+% cohort_data +
      aes(color = List,
          size = List) +
@@ -490,7 +456,7 @@ if(!is.null(base_size)){
                        limits = levels(cohort_data$List)) +
      guides(color = guide_legend(override.aes = list(size = 3)))
    }else{
-     tree_plot <- ggtree(base_tree$tree_object,
+     tree_plot <- ggtree(base_tree,
                          layout = layout) %<+% cohort_data +
        aes(color = List) +
        scale_color_manual(name = "List presence",
@@ -501,49 +467,45 @@ if(!is.null(base_size)){
    }
 
    #if clade labels have been selected
-    if(!is.null(label_clade_level)){
-      dat <- base_tree$tax_nodes[base_tree$tax_nodes$level %in% label_clade_level, ]
-      #names(dat)[names(dat) %in% "phylo_node"] <- "node"
-      names(dat)[names(dat) %in% "Name"] <- "clade_name"
-      dat$clade_name <- stringr::str_wrap(dat$clade_name,
-                                          20)
+    if(!is.null(clade_label_level)){
+
+
       #plot clade bars with alternating widths
+      #to do this:
       #first need to get order in which clades are plotted
       #start with order in which *tips* are plotted
+      #ggtree:get_taxa_name() gives us tips in plotting order
       tips_plot <- ggtree::get_taxa_name(tree_view = tree_plot)
       #get clade label corresponding to each of these tips at the specified level
-      #get node numbers
-      tips_nodes <- base_tree$tax_nodes[base_tree$tax_nodes$Name %in% tips_plot,
-                                        c("Name",
-                                          "phylo_node")]
-      #get all ancestors of nodes in input data set
-      tips_nodes_ancest <- phangorn::Ancestors(x = base_tree$tree_object,
-                                               node = tips_nodes$phylo_node)
-      names(tips_nodes_ancest) <- tips_nodes$phylo_node
-      tips_ancest <- dplyr::bind_rows(sapply(tips_nodes_ancest,
-                                             function(x) data.frame(ancestor = rev(x),
-                                                                    level = seq_along(x)-1),
-                                             USE.NAMES = TRUE,
-                                             simplify = FALSE),
-                                      .id = "phylo_node")
-      tips_ancest_clade_level <- tips_ancest[tips_ancest$level %in% label_clade_level,]
-      tips_clade <- merge(tips_nodes, tips_ancest_clade_level, by = "phylo_node")
-      tips_clade <- tips_clade[match(tips_plot, tips_clade$Name),]
-      #tips_clade now gives the clades in order of plotting
-      #assign alternating bar widths
-      tips_clade2 <- data.frame(phylo_node = unique(tips_clade$ancestor),
-                                barsize = rep(1:2, length.out = length(unique(tips_clade$ancestor)
-                                                                       )
+      clade_plot <- get_clade(node = get_node_from_label(label = tips_plot,
+                                                         tree = base_tree),
+                              tree = base_tree,
+                              level = clade_label_level)
+      #if there is no clade at the specified level, then get the tip itself
+      clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
+                                                           tree = base_tree)
+      #tips_clade gives the clades in order of plotting
+      #assign alternating bar widths in plotting order
+      clade_dat <- data.frame(phylo_node = unique(clade_plot),
+                               clade_name = get_label_from_node(node = unique(clade_plot),
+                                                                tree = base_tree),
+                                barsize = rep(1:2,
+                                              length.out = length(
+                                                unique(clade_plot)
                                               )
+                                )
       )
 
-      dat <- merge(dat, tips_clade2, by = "phylo_node")
+      #wrap clade names to have width clade_label_wrap characters
+      clade_dat$clade_name <- stringr::str_wrap(clade_dat$clade_name,
+                                                clade_label_wrap)
 
-      tree_plot <- tree_plot + geom_cladelab(data = dat ,
+      tree_plot <- tree_plot +
+        geom_cladelab(data = clade_dat,
                                         mapping = aes(node = phylo_node,
                                                       label = clade_name,
                                                       group = clade_name),
-                                       barsize = dat$barsize,
+                                       barsize = clade_dat$barsize, #since we can't use aes mapping, but we can pass in a vector
                                        fontsize = clade_label_size,
                                        angle = "auto") +
         theme(legend.position = "top")
@@ -586,12 +548,10 @@ prune_and_display_subtree <- function(data,
                                       adjust_branch_length = TRUE,
                                       xlimit = c(0, 150)) {
 
-  # Get all taxonomy labels associated with the data
+  # Get all terminal taxonomy labels associated with the data
   data_labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
 
   # Prune the labels not represented by the data from the full tree
-  #pruned_tree <- ape::drop.tip(tree,
-  #                             setdiff(tree$tip.label, intersect(data_labels, tree$tip.label)))
   pruned_tree <- drop_tips_nodes(tree = tree,
                                  data = data,
                                  tax_level_labels = tax_level_labels)
@@ -613,7 +573,8 @@ prune_and_display_subtree <- function(data,
 
   # Create the tree plot
   tree_plot <- ggtree(pruned_tree) +
-    layout_circular() + xlim(xlimit[[1]], xlimit[[2]])
+    layout_circular() +
+    xlim(xlimit[[1]], xlimit[[2]])
 
   # If displaying the tip labels, add them in with the correct size
   if (show_tips)
@@ -939,11 +900,28 @@ leaf_fraction_subtree <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'd
 #' @return A list of two ggtree objects.
 #' @export
 #' @import ggtree
-data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = NULL, tree = NULL, show_tips = TRUE, adjust_branch_length = TRUE){
+data_set_subtrees <- function(data_1,
+                              data_2,
+                              name_1 = 'data_1',
+                              name_2 = 'data_2',
+                              tax_level_labels = NULL,
+                              tree = NULL,
+                              show_tips = TRUE,
+                              adjust_branch_length = TRUE){
   membership <- NULL
   # Prune subtrees for each data set.
-  tree_1 <- prune_and_display_subtree(data_1, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE, adjust_branch_length = adjust_branch_length)
-  tree_2 <- prune_and_display_subtree(data_2, tax_level_labels = tax_level_labels, tree = tree, show_tips = show_tips, no_plot = TRUE, adjust_branch_length = adjust_branch_length)
+  tree_1 <- prune_and_display_subtree(data_1,
+                                      tax_level_labels = tax_level_labels,
+                                      tree = tree,
+                                      show_tips = show_tips,
+                                      no_plot = TRUE,
+                                      adjust_branch_length = adjust_branch_length)
+  tree_2 <- prune_and_display_subtree(data_2,
+                                      tax_level_labels = tax_level_labels,
+                                      tree = tree,
+                                      show_tips = show_tips,
+                                      no_plot = TRUE,
+                                      adjust_branch_length = adjust_branch_length)
 
   # Get all taxonomy labels associated with the data
   data_labels_1 <- setNames(unlist(get_labels(data_1)), NULL)
