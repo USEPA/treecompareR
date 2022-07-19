@@ -6,3 +6,4 @@ usethis::use_data(chemont_df, overwrite = TRUE)
 
 chemont_tree <- generate_taxonomy_tree(tax_nodes = chemont_df)
 usethis::use_data(chemont_tree, overwrite = TRUE)
+
