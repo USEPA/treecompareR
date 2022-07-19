@@ -121,18 +121,26 @@ get_label_level <- function(data, level_label, tax_level_labels = NULL){
 #' This is a helper function for retrieving labels in a data.table of classified
 #' chemicals, grouped by taxonomy level.
 #'
-#' @param data A data.table consisting of classified chemicals.
+#' @param data A data.frame consisting of classified chemicals.
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not using ClassyFire taxonomy.
 #' @return A list of classification labels for each level of taxonomy.
-get_labels <- function(data, tax_level_labels = NULL){
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
-  }
-  labels <- sapply(tax_level_labels, function(t) {get_label_level(data, t, tax_level_labels)})
-  labels
+get_labels <- function(data,
+                       tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                  'level5', 'level6', 'level7', 'level8',
+                                                  'level9', 'level10', 'level11')){
+
+  labels <- tidyr::pivot_longer(data,
+                      cols = tidyselect::all_of(tax_level_labels),
+                      names_to = "tax_level",
+                      values_to = "label") %>%
+    dplyr::filter(!is.na(label)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(setdiff(names(data),
+                                                        tax_level_labels)))) %>%
+    dplyr::slice_tail() %>%
+    dplyr::pull(label)
+
+  return(labels)
 }
 
 #' Number of labels
@@ -144,12 +152,14 @@ get_labels <- function(data, tax_level_labels = NULL){
 #' @param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'   not  using ClassyFire taxonomy
 #' @return A named list of chemical labels and their number of occurrences.
-get_number_of_labels <- function(data, tax_level_labels = NULL){
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
-  }
+get_number_of_labels <- function(data,
+                                 tax_level_labels = c('kingdom', 'superclass',
+                                                      'class', 'subclass',
+                                                            'level5', 'level6',
+                                                      'level7', 'level8',
+                                                            'level9', 'level10',
+                                                      'level11')){
+
 
   labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
 
@@ -191,6 +201,19 @@ get_label_length <- function(label_list){
   lengths <- sapply(label_list, length)
   lengths
 }
+
+#' Get subtree node numbers
+#'
+#' This is a helper function that takes a classified set and a taxonomy tree and
+#' provides all node numbers in the subtree corresponding to the data set.
+#'
+#' @param data A classified data set.
+#' @param tax A taxonomy object, as returned by \code{\link{generate_taxonomy_tree}}.
+#' @param tax_level_labels A vector of levels for the taxonomyh.
+
+get_subtree_nodes <- function(data,
+                              tax,
+                              tax_level_labels)
 
 
 #' Label bars
@@ -309,22 +332,15 @@ display_subtree <- function(data_1,
   #tree_labels <- c(tree$tip.label, tree$node.label)
 
   # Get all labels associated with the input data sets
-  data_1_labels <- tidyr::pivot_longer(data_1,
-                                     cols = tidyselect::all_of(tax_level_labels),
-                                     names_to = "tax_level",
-                                     values_to = "label") %>%
-    dplyr::filter(!is.na(label)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(setdiff(names(data_1),
-                                           tax_level_labels)))) %>%
-    dplyr::slice_tail() %>%
-    dplyr::pull(label)
+  data_1_labels <- get_labels(data = data_1,
+                              tax_level_labels = tax_level_labels)
 
   #get node numbers
   data_1_nodes <- tree$tax_nodes[tree$tax_nodes$Name %in% data_1_labels, "phylo_node"]
-  #get all ancestors
-  data_1_all <- c(unlist(phangorn::Ancestors(x = tree$tree_object,
+  #get all ancestors of nodes in input data set
+  data_1_all <- unique(c(unlist(phangorn::Ancestors(x = tree$tree_object,
                                     node = data_1_nodes)),
-                  data_1_nodes)
+                  data_1_nodes))
 
    cohort_data <- tree$tax_nodes[, c('phylo_node',
                                                 'Name')]

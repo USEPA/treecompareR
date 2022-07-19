@@ -15,8 +15,8 @@
 #'
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                                    'level 5', 'level 6', 'level 7', 'level 8',
-                                                    'level 9', 'level 10', 'level 11')){
+                                                    'level5', 'level6', 'level7', 'level8',
+                                                    'level9', 'level10', 'level11')){
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
@@ -51,6 +51,11 @@ classify_inchikeys <- function(inchikeys,
         cf_class <- classyfireR::classification(cf)
         #select relevant columns
         cf_class_select <- dplyr::select(cf_class, Level, Classification)
+        #strip whitespace from "level 5", "level 6", etc.
+        cf_class_select <- cf_class_select %>%
+          dplyr::mutate(Level = gsub(pattern = "\\s",
+                                     replacement = "",
+                                     x = Level))
         #reshape to wider format -- one column for each level
         #and format it as a data table
         output <- as.data.frame(
@@ -128,8 +133,8 @@ classify_structures <- function (input,
                            queued_wait = 2,
                            processing_wait_per_input = 1,
                            tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                                'level 5', 'level 6', 'level 7', 'level 8',
-                                                'level 9', 'level 10', 'level 11'))
+                                                'level5', 'level6', 'level7', 'level8',
+                                                'level9', 'level10', 'level11'))
 {
   if(is.null(names(input))){
     names(input) <- input
@@ -196,6 +201,8 @@ message(paste("Classification status", json_parse$classification_status))
     cf <- classified[, c("identifier",
                                   "smiles",
                                   "inchikey")]
+    #loop over levels kingdom, superclass, class, subclass
+    #and extract the corresponding labels from the corresponding list elements
     cf_class1 <- sapply(c("kingdom",
                                                 "superclass",
                                                 "class",
@@ -230,7 +237,7 @@ message(paste("Classification status", json_parse$classification_status))
 cf_class2_df <- cf_class2_df %>%
   dplyr::group_by(identifier) %>%
   dplyr::mutate(level_num = dplyr::row_number() + 4,
-                level = paste("level", level_num)) %>%
+                level = paste0("level", level_num)) %>%
   dplyr::select(identifier, name, chemont_id, level, level_num)
 
 #add level number to cf_class
@@ -262,7 +269,7 @@ cf_class <- cf_class %>%
   dplyr::mutate(level_num = NULL) %>%
   dplyr::rename(level_num = level_num2) %>%
   dplyr::mutate(level = if_else(is.na(level), #paste level number to create level label
-                         paste("level", level_num),
+                         paste0("level", level_num),
                          level))
 
 #reshape to wide format, one column for each level
