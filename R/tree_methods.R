@@ -88,6 +88,26 @@ get_levels <- function(tree){
   return(node_levels)
 }
 
+#' Get data.frame representation of phylo tree
+#'
+#' Helper function to get a data.frame listing node numbers, node names, and
+#' level of each node
+#'
+#' @param tree A phylo-class tree object
+#' @return A data.frame with as many rows as the number of nodes in \code{tree},
+#'   and three variables: "node" (the node number), "level" (the hierarchical
+#'   level of each node, where the root is level 0), and "Name" (the label
+#'   corresponding to each node number).
+get_tree_df <- function(tree){
+  #get node numbers & levels
+  tree_df <- get_levels(tree)
+  #add labels
+  tree_df$Name <- get_label_from_node(node = tree_df$node,
+                                     tree = tree)
+  #return
+  return(tree_df)
+}
+
 #' Generate information content.
 #'
 #' This function generates a data.frame of information content for the input
@@ -774,25 +794,37 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' @return A phylo object representing the induced subtree of the data.
 #'
 #' @importFrom ape drop.tip
-drop_tips_nodes <- function(tree, data = NULL, labels = NULL, tax_level_labels = NULL){
-  if (data.table::is.data.table(data)){
-    tip_node_labels <- unlist(get_labels(data = data, tax_level_labels = tax_level_labels))
+drop_tips_nodes <- function(tree,
+                            data = NULL,
+                            labels = NULL,
+                            tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                 'level5', 'level6', 'level7', 'level8',
+                                                 'level9', 'level10', 'level11')){
+  if (!is.null(data)){
+    tip_node_labels <- get_labels(data = data,
+                                  tax_level_labels = tax_level_labels)
   } else if (!is.null(labels)){
     tip_node_labels <- unlist(labels)
   } else {
-    stop('Please input either a data.table of chemical classifications or a list of taxonomic labels!')
+    stop('Please input either a data.frame of chemical classifications or a list of taxonomic labels!')
   }
 
   tree_labels <- c(tree$tip.label, tree$node.label)
-  max_depth <- max(sapply(tree$tip.label, get_tip_level, tree = tree))
-  #min_level <- min(sapply(intersect(labels, tree$node.label), get_tip_level, tree = tree))
-  #max_level <- max(sapply(labels, get_tip_level, tree = tree))
+  max_depth <- max(get_levels(tree)$level)
   new_tree <- tree
 
+#do it this way to retain cases where the terminal label was an internal node
+#when we drop tips, newly-terminal internal nodes will be promoted to tip
+#then we'll need to drop them, too
 
   for (i in 1:max_depth){
-    new_tree <- ape::drop.tip(new_tree, setdiff(new_tree$tip.label, intersect(tip_node_labels, new_tree$tip.label)),
-                              trim.internal = FALSE, collapse.singles = FALSE)
+    new_tree <- ape::drop.tip(new_tree,
+                              setdiff(new_tree$tip.label,
+                                      intersect(tip_node_labels,
+                                                new_tree$tip.label)
+                                      ),
+                              trim.internal = FALSE,
+                              collapse.singles = FALSE)
   }
 
 
@@ -856,4 +888,41 @@ adjust_branch_lengths <- function(tree){
     edge.length[[i]] <- plot_height[[parent]] - plot_height[[child]]
   }
   return(edge.length)
+}
+
+#'Get node number of clade (ancestor at a specified level)
+#'
+#'Helper function to get the node number defining a clade for a specified input
+#'node number
+#'@param node The node number(s) for which to get the clade(s)
+#'@param tree The underlying tree (node numbers refer to this tree)
+#'@param level The hierarchical taxonomy level at which to get the clade(s). Root
+#'  is level 0. Default value is 2 (superclass level, in ChemOnt).
+get_clade <- function(node,
+                      tree,
+                      level = 2){
+  #get ancestors back to root for each input node
+ancestors <- phangorn::Ancestors(x = tree,
+                                 node = node,
+                                 type = "all")
+if(!is.list(ancestors)){
+  ancestors <- list(ancestors)
+}
+#reverse the order in which ancestors are listed,
+#so that root is listed first
+ancestors <- lapply(ancestors, rev)
+#add the node itself
+ancestors <- lapply(seq_along(ancestors),
+                    function(i) c(ancestors[[i]], node[i]))
+#pull the ancestor at the specified taxonomy level (root = level 0)
+clades <- sapply(ancestors, function(x) {
+  if(length(x)>=(level+1)){
+    x[level+1]
+  }else{ #if there is no ancestor at that level, return NA
+    NA_real_
+  }
+}
+)
+
+return(clades)
 }
