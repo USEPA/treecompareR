@@ -89,8 +89,8 @@ tip2_15 <- tryCatch(
     generate_topology(n = 15, rooted = TRUE, min_deg = 5, max_deg = 5, seed = 42L)
   },
   error = function(cond){
-    message('Error for generating this tree: \n')
-    message(cond$message)
+    print('Error for generating this tree:')
+    print(cond$message)
     #print(str(cond))
     return(NA)
   })
