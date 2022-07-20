@@ -364,6 +364,7 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #' @import ggtree
 display_subtree <- function(taxonomy = chemont_tree,
                             prune_to = NULL,
+                            adjust_branch_length = FALSE,
                             data_1 = NULL,
                             data_2 = NULL,
                             name_1 = "Set 1",
@@ -385,17 +386,22 @@ display_subtree <- function(taxonomy = chemont_tree,
   #if nothing specified for pruning, then use the full taxonomy tree
   if(is.null(prune_to)){
     base_tree = taxonomy
-  }else{
-    if(is.data.frame(prune_to)){
+  }else{ #if user has specified something to prune to
+    if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
     #Prune the tree according to the specified dataset
     pruned_tree <- drop_tips_nodes(tree = taxonomy,
                                    data = prune_to,
                                    tax_level_labels = tax_level_labels)
     }else if(is.character(prune_to)){
-      #interpret as an internal node label or a vector thereof
+      #interpret as node/tip labels
       #prune to only the subtree including the descendents of this internal node(s)
       pruned_tree <- drop_tips_nodes(tree = taxonomy,
                                      labels = prune_to)
+    }else if(is.numeric(prune_to)){
+    #interpret as node numbers
+      #prune to only the subtree including the descendents of this internal node(s)
+      pruned_tree <- drop_tips_nodes(tree = taxonomy,
+                                     nodes = prune_to)
     }
 
     if (adjust_branch_length) {
@@ -510,8 +516,8 @@ if(!is.null(base_size)){
                               tree = base_tree,
                               level = clade_label_level)
       #if there is no clade at the specified level, then get the tip itself
-      #clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
-      #                                                     tree = base_tree)
+      clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
+                                                           tree = base_tree)
       clade_plot <- clade_plot[!is.na(clade_plot)]
       #tips_clade gives the clades in order of plotting
       #assign alternating bar widths in plotting order
@@ -534,7 +540,7 @@ if(!is.null(base_size)){
       #so it needs to match the order of the base tree to begin with,
       #so that the auto-reordering will be correct.
       dat <- get_tree_df(base_tree)
-      dat2 <- dat[dat$level == 2,]
+      dat2 <- dat[dat$level == clade_label_level,]
       dat2 <- setNames(dat2, c("phylo_node", "level", "clade_name"))
       #Re-sort the alternating bar sizes in clade plotting order
       #to correspond to base tree order of clades
@@ -548,7 +554,7 @@ if(!is.null(base_size)){
         geom_cladelab(data = dat2,
                                         mapping = aes(node = phylo_node,
                                                       label = clade_name2,
-                                                      group = clade_name),
+                                                      group = clade_name2),
                                        barsize = barsize_vect, #since we can't use aes mapping, but we can pass in a vector
                                        fontsize = clade_label_size,
                                        angle = "auto") +

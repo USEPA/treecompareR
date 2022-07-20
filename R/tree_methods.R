@@ -797,19 +797,36 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 drop_tips_nodes <- function(tree,
                             data = NULL,
                             labels = NULL,
+                            nodes = NULL,
                             tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                  'level5', 'level6', 'level7', 'level8',
                                                  'level9', 'level10', 'level11')){
   if (!is.null(data)){
+    #get terminal labels for each item in this data set
+    #these are the labels to keep
     tip_node_labels <- get_labels(data = data,
                                   tax_level_labels = tax_level_labels)
   } else if (!is.null(labels)){
-    tip_node_labels <- unlist(labels)
-  } else {
-    stop('Please input either a data.frame of chemical classifications or a list of taxonomic labels!')
+    #get tip labels corresponding to the input labels
+    #in case input labels are internal nodes (i.e. "clades" to keep)
+    input_nodes <- get_node_from_label(label = labels,
+                                       tree = tree)
+    tip_nodes <- phangorn::Descendants(x = tree,
+                                             node = input_nodes)
+    tip_node_labels <- get_label_from_node(node = unlist(tip_nodes),
+                                           tree = tree)
+    tip_node_labels <- c(labels, tip_node_labels)
+  } else if (!is.null(nodes)){ #if user specified one or more nodes to keep
+    tip_nodes <- phangorn::Descendants(x = tree,
+                                       node = nodes)
+    tip_nodes <- c(nodes, unlist(tip_nodes))
+    tip_node_labels <- get_label_from_node(node = tip_nodes,
+                                           tree = tree)
+  }
+  else {
+    stop('Please input either a data.frame of chemical classifications, a list of taxonomic labels, or a list of node numbers!')
   }
 
-  tree_labels <- c(tree$tip.label, tree$node.label)
   max_depth <- max(get_levels(tree)$level)
   new_tree <- tree
 
@@ -818,11 +835,12 @@ drop_tips_nodes <- function(tree,
 #then we'll need to drop them, too
 
   for (i in 1:max_depth){
+    labels_to_keep <- intersect(tip_node_labels,
+                                new_tree$tip.label)
+    labels_to_drop <- setdiff(new_tree$tip.label,
+                              labels_to_keep)
     new_tree <- ape::drop.tip(new_tree,
-                              setdiff(new_tree$tip.label,
-                                      intersect(tip_node_labels,
-                                                new_tree$tip.label)
-                                      ),
+                             labels_to_drop,
                               trim.internal = FALSE,
                               collapse.singles = FALSE)
   }
