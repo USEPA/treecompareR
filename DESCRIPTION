@@ -17,6 +17,7 @@ LazyData: true
 LazyDataCompression: xz
 Suggests: 
     devtools,
+    kableExtra
     knitr,
     rmarkdown
 VignetteBuilder: knitr
