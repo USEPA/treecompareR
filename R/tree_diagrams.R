@@ -389,8 +389,8 @@ display_subtree <- function(base_tree = chemont_tree,
                             base_name = NULL,
                             data_1 = NULL,
                             data_2 = NULL,
-                            name_1 = "Set 1",
-                            name_2 = "Set 2",
+                            name_1 = NULL,
+                            name_2 = NULL,
                             tax_level_labels = c('kingdom', 'superclass',
                                                  'class', 'subclass',
                                                  'level5', 'level6',
@@ -403,8 +403,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                              "linetype" = 1),
                             subtree_mapping = list("color" = c("gray80",
                                                                "#66C2A5",
-                                                               "#FC8D62",
-                                                               "#8DA0CB")),
+                                                               "#8DA0CB",
+                                                               "#FC8D62")),
                             clade_label_level = 2,
                             clade_label_fontsize = 3,
                             clade_label_wrap = 20,
@@ -473,6 +473,10 @@ display_subtree <- function(base_tree = chemont_tree,
                       )
 
   if(!is.null(data_1)){
+    if(is.null(name_1)){
+      #get the name of the variable passed to data_1
+      name_1 <- paste(as.character(substitute(data_1)))
+    }
   #Get node numbers of data_1 subtree
   data_1_all <- get_subtree_nodes(data = data_1,
                                   base_tree = base_tree,
@@ -488,6 +492,10 @@ display_subtree <- function(base_tree = chemont_tree,
 
 
   if (!is.null(data_2)) {
+    if(is.null(name_2)){
+      #get the name of the variable passed to data_1
+      name_2 <- paste(as.character(substitute(data_2)))
+    }
 #Get node numbers of Data Set 2 subtree
     data_2_all <- get_subtree_nodes(data = data_2,
                                     base_tree = base_tree,
@@ -526,19 +534,32 @@ display_subtree <- function(base_tree = chemont_tree,
    #set up for aes call -- list of aesthetic mappings, all applied to "List" in cohort_data
    subtree_aes <- replicate(n= length(subtree_mapping),
                              expr = quote(List))
+   #name the list elements after the aesthetics in subtree_mapping
    subtree_aes <- setNames(subtree_aes, names(subtree_mapping))
+   #you end up with something like: list(color = quote(List), size = quote(List))
+   #with do.call(aes, subtree_aes), it's equivalent to calling
+   #aes(color = List, size = List)
+
+   #prepare a list of manual scales as provided in subtree_mapping
+   #do this using scale_discrete_manual() as follows:
+   #specify aesthetic, like "color" or "size"
+   #then specify the values for the manual scale,
+   #like c("gray80", "#66C2A5", "#8DA0CB","#FC8D62")
+   scale_list <- lapply(names(subtree_mapping),
+                        function(aesthetic) {
+                          ggplot2::scale_discrete_manual(aesthetics = aesthetic,
+                                                         name = "List presence",
+                                                         values =  subtree_mapping[[aesthetic]],
+                                                         breaks = levels(cohort_data$List),
+                                                         limits = levels(cohort_data$List))
+                        }
+   )
 
 #add list presence data
    tree_plot <- tree_plot %<+% cohort_data +
-     do.call(aes, #map the list of aesthetics to cohort_data$List
+     do.call(aes,
              subtree_aes) +
-     lapply(names(subtree_mapping), #give manual scales for all aesthetics as provided in subtree_mapping
-            function(aesthetic) ggplot2::scale_discrete_manual(aesthetics = aesthetic,
-                           name = "List presence",
-                           values =  subtree_mapping[[aesthetic]],
-                           breaks = levels(cohort_data$List),
-                           limits = levels(cohort_data$List))
-            ) +
+      scale_list +
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
 
@@ -591,6 +612,21 @@ display_subtree <- function(base_tree = chemont_tree,
       dat2$clade_name2 <- stringr::str_wrap(dat2$clade_name,
                                                  clade_label_wrap)
 
+      #sensible default for clade label angles
+      #for circular-ish layouts, use angle = "auto"
+      #for rectangular-ish layouts, use angle = 0
+      if (layout %in% c("rectangular",
+                        "roundrect",
+                        "slanted",
+                        "ellipse")){
+        clade_label_angle <- 0
+      }else if(layout %in% c("circular",
+                             "fan",
+                             "equal_angle",
+                             "daylight")){
+        clade_label_angle <- "auto"
+      }
+
       tree_plot <- tree_plot +
         geom_cladelab(data = dat2,
                                         mapping = aes(node = phylo_node,
@@ -599,7 +635,7 @@ display_subtree <- function(base_tree = chemont_tree,
                                        barsize = barsize_vect, #since we can't use aes mapping, but we can pass in a vector
                                        fontsize = clade_label_fontsize,
                       lineheight = clade_label_lineheight,
-                                       angle = "auto") +
+                                       angle = clade_label_angle) +
         theme(legend.position = "top")
     }
 
