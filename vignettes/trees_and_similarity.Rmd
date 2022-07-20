@@ -5,7 +5,7 @@ author:
     affiliation: "United States Environmental Protection Agency"
     email: "kruse.paul@epa.gov"
 date: "`r Sys.Date()`"
-output: bookdown::html_book
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{trees_and_similarity}
   %\VignetteEngine{knitr::rmarkdown}
@@ -40,7 +40,7 @@ tip_8_visual <- ggtree(tip_8) + layout_circular() + geom_tiplab() + geom_nodelab
 tip_8_visual
 ```
 
-Observe in \@ref(fig:tip-8) that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the `layout_circular()` mode.
+Observe in the diagram that there are 8 tips, labeled t1,..., t8, with the root labelled n1, and two additional internal nodes n2 and n3. The package ggtree allows for a variety of layouts and in this example we used the `layout_circular()` mode.
 
 Also, observe that the tree `tip_8` is an object of class `phylo`.
 
