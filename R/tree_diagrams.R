@@ -362,11 +362,12 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #' @export
 #' @import phangorn
 #' @import ggtree
-display_subtree <- function(data_1,
+display_subtree <- function(taxonomy = chemont_tree,
+                            prune_to = NULL,
+                            data_1 = NULL,
                             data_2 = NULL,
                             name_1 = "Set 1",
                             name_2 = "Set 2",
-                            base_tree = chemont_tree,
                             tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                  'level5', 'level6', 'level7', 'level8',
                                                  'level9', 'level10', 'level11'),
@@ -381,6 +382,30 @@ display_subtree <- function(data_1,
                             clade_label_size = 3,
                             clade_label_wrap = 20
                             ){
+  #if nothing specified for pruning, then use the full taxonomy tree
+  if(is.null(prune_to)){
+    base_tree = taxonomy
+  }else{
+    if(is.data.frame(prune_to)){
+    #Prune the tree according to the specified dataset
+    pruned_tree <- drop_tips_nodes(tree = taxonomy,
+                                   data = prune_to,
+                                   tax_level_labels = tax_level_labels)
+    }else if(is.character(prune_to)){
+      #interpret as an internal node label or a vector thereof
+      #prune to only the subtree including the descendents of this internal node(s)
+      pruned_tree <- drop_tips_nodes(tree = taxonomy,
+                                     labels = prune_to)
+    }
+
+    if (adjust_branch_length) {
+      pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
+    }
+
+    base_tree <- pruned_tree
+  }
+
+  if(!is.null(data_1)){
   #Get node numbers of data_1 subtree
   data_1_all <- get_subtree_nodes(data = data_1,
                                   base_tree = base_tree,
@@ -441,7 +466,8 @@ if(!is.null(base_size)){
 }
   }
 
-   if(!is.null(base_size)){
+   #now create tree plots
+   if(!is.null(base_size)){ #if we are using size as an aesthetic
    tree_plot <- ggtree(base_tree,
                        layout = layout) %<+% cohort_data +
      aes(color = List,
@@ -454,8 +480,9 @@ if(!is.null(base_size)){
                        values = sizevect,
                        breaks = levels(cohort_data$List),
                        limits = levels(cohort_data$List)) +
-     guides(color = guide_legend(override.aes = list(size = 3)))
-   }else{
+     guides(color = guide_legend(override.aes = list(size = 3))) +
+     theme(legend.position = "top")
+   }else{ #if we are not using size as an aesthetic
      tree_plot <- ggtree(base_tree,
                          layout = layout) %<+% cohort_data +
        aes(color = List) +
@@ -463,12 +490,13 @@ if(!is.null(base_size)){
                           values = colvect,
                           breaks = levels(cohort_data$List),
                           limits = levels(cohort_data$List)) +
-       guides(color = guide_legend(override.aes = list(size = 3)))
+       guides(color = guide_legend(override.aes = list(size = 3))) +
+       theme(legend.position = "top")
    }
+  }
 
    #if clade labels have been selected
     if(!is.null(clade_label_level)){
-
 
       #plot clade bars with alternating widths
       #to do this:
@@ -482,8 +510,9 @@ if(!is.null(base_size)){
                               tree = base_tree,
                               level = clade_label_level)
       #if there is no clade at the specified level, then get the tip itself
-      clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
-                                                           tree = base_tree)
+      #clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
+      #                                                     tree = base_tree)
+      clade_plot <- clade_plot[!is.na(clade_plot)]
       #tips_clade gives the clades in order of plotting
       #assign alternating bar widths in plotting order
       clade_dat <- data.frame(phylo_node = unique(clade_plot),
@@ -496,16 +525,31 @@ if(!is.null(base_size)){
                                 )
       )
 
+      #Alternating bar thickness only works if the dataset is in base tree order
+      #This is because geom_cladelab() can't use aes() mapping for barsize
+      #So we have to supply it as a non-mapped argument outside aes()
+      #and ggtree automatically reorders it to match the base tree
+      #which means, if it's already in plotting order,
+      #it gets reordered wrongly.
+      #so it needs to match the order of the base tree to begin with,
+      #so that the auto-reordering will be correct.
+      dat <- get_tree_df(base_tree)
+      dat2 <- dat[dat$level == 2,]
+      dat2 <- setNames(dat2, c("phylo_node", "level", "clade_name"))
+      #Re-sort the alternating bar sizes in clade plotting order
+      #to correspond to base tree order of clades
+      barsize_vect <- clade_dat$barsize[match(dat2$clade_name,
+                                              clade_dat$clade_name)]
       #wrap clade names to have width clade_label_wrap characters
-      clade_dat$clade_name <- stringr::str_wrap(clade_dat$clade_name,
-                                                clade_label_wrap)
+      dat2$clade_name2 <- stringr::str_wrap(dat2$clade_name,
+                                                 clade_label_wrap)
 
       tree_plot <- tree_plot +
-        geom_cladelab(data = clade_dat,
+        geom_cladelab(data = dat2,
                                         mapping = aes(node = phylo_node,
-                                                      label = clade_name,
+                                                      label = clade_name2,
                                                       group = clade_name),
-                                       barsize = clade_dat$barsize, #since we can't use aes mapping, but we can pass in a vector
+                                       barsize = barsize_vect, #since we can't use aes mapping, but we can pass in a vector
                                        fontsize = clade_label_size,
                                        angle = "auto") +
         theme(legend.position = "top")
