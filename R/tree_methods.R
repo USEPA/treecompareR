@@ -922,7 +922,7 @@ adjust_branch_lengths <- function(tree){
 #'  is level 0. Default value is 2 (superclass level, in ChemOnt).
 get_clade <- function(node,
                       tree,
-                      level = 2){
+                      level){
   #get ancestors back to root for each input node
 ancestors <- phangorn::Ancestors(x = tree,
                                  node = node,
@@ -947,4 +947,19 @@ clades <- sapply(ancestors, function(x) {
 )
 
 return(clades)
+}
+
+#' List all clades in a tree at a specified level
+#'
+#' @param tree The \code{\link[ape]{phylo}}-class tree object
+#' @param level The level at which to display nodes (0 is the root)
+#' @return A data.frame with four variables: \code{node} (the node number in the
+#'   tree); \code{level} (the level of the node in the tree, where root is level
+#'   0); \code{parent} (the node number of the node's immediate parent); and
+#'   \code{Name} (the text label of the node).
+#' @export
+get_all_clades <- function(tree, level){
+tree_df <- get_tree_df(tree = tree)
+clade_df <- tree_df[tree_df$level %in% level, ]
+return(clade_df)
 }

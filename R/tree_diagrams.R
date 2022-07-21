@@ -604,7 +604,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                                            tree = base_tree),
                                 tree = base_tree,
                                 level = clade_level)
-        #if there is no clade at the specified level, then get the tip itself
+        #if there is no clade at the specified level, i.e. branch terminates before that level,
+        #then label as tip
         clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
                                                              tree = base_tree)
         clade_plot <- clade_plot[!is.na(clade_plot)]
