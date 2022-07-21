@@ -393,3 +393,45 @@ simulate_trees <- function(n_trees = 1, simulation_seed = NA, n, ...) {
   }
   return(runs)
 }
+
+#' Generate caterpillar tree
+#'
+#' This function generates a caterpillar tree, a rooted binary tree of maximal
+#' depth with n tips.
+#'
+#' @param n The number of tips.
+#' @return A `phylo` object representing the generated tree.
+#' @export
+generate_caterpillar <- function(n){
+  n <- as.integer(n)
+  if (n < 2){
+    stop('Please input an integer at least 2!')
+  }
+
+  edge <- matrix(NA_integer_, nrow = (2*n - 1), ncol = 2)
+
+  for (i in 1:(n-1)){
+    edge[i, 1] <- n + i
+    edge[i, 2] <- i
+    edge[i + n, 1] <- i + n
+    edge[i + n, 2] <- i + n + 1
+  }
+
+  edge[n, 1] <- 2*n-1
+  edge[n, 2] <- n
+
+  tip.label <- paste0("t", 1:n)
+  node.label <- paste0('n', 1:(n-1))
+  Nnode <- n - 1
+
+  phy <- list(edge = edge,
+              tip.label = tip.label,
+              node.label = node.label,
+              Nnode = Nnode)
+  class(phy) <- "phylo"
+  phy <- reorder(phy)
+
+  phy <- ape::root.phylo(phy, node = n+1)
+
+  return(phy)
+}
