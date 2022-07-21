@@ -398,14 +398,14 @@ display_subtree <- function(base_tree = chemont_tree,
                                                  'level9', 'level10',
                                                  'level11'),
                             layout = "circular",
-                            base_opts = list("color" = "gray80",
+                            base_opts = list("color" = "gray50",
                                              "size" = 0.5,
                                              "linetype" = 1),
                             subtree_mapping = list("color" = c("gray80",
                                                                "#66C2A5",
                                                                "#8DA0CB",
                                                                "#FC8D62")),
-                            clade_level = 2,
+                            clade_level = "auto",
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
                                               fontsize = 3,
@@ -567,8 +567,17 @@ display_subtree <- function(base_tree = chemont_tree,
    #if clade labels have been selected
     if(!is.null(clade_level)){
       dat <- get_tree_df(base_tree)
-      dat2 <- dat[dat$level == clade_level,]
-      dat2 <- setNames(dat2, c("phylo_node", "level", "clade_name"))
+      if(clade_level %in% "auto"){
+        #automatically set clade level to be level of tree's MRCA plus one,
+        #or at least 2, but not more than the tree's max level
+        mrca_tree <- ape::getMRCA(base_tree, 1:ape::Ntip(base_tree))
+        mrca_level <- dat[dat$node %in% mrca_tree, "level"]
+        max_tree_level <- max(dat$level)
+        clade_level <- min(max(mrca_level + 1, 2), max_tree_level)
+      }
+
+      dat2 <- dat[dat$level == clade_level, c("node", "Name")]
+      dat2 <- setNames(dat2, c("phylo_node", "clade_name"))
 
       if("wrap" %in% names(clade_opts)){
       #wrap clade names to have width clade_label_wrap characters
