@@ -439,3 +439,39 @@ generate_caterpillar <- function(n){
 
   return(phy)
 }
+
+#' Generate Star tree
+#'
+#' This function generates a star tree, a rooted binary tree of minimal
+#' depth with n tips.
+#'
+#' @param n The number of tips.
+#' @return A `phylo` object representing the generated tree.
+#' @export
+generate_star <- function(n){
+  n <- as.integer(n)
+
+  if (n < 2){
+    stop('Please input an integer at least 2!')
+  }
+
+  edge <- matrix(NA_integer_, nrow = n, ncol = 2)
+  edge[, 1] <- n+1
+  edge[, 2] <- 1:n
+
+  tip.label <- paste0('t', 1:n)
+  node.label <- c('n1')
+  Nnode <- 1
+
+  phy <- list(edge = edge,
+              tip.label = tip.label,
+              node.label = node.label,
+              Nnode = Nnode)
+  class(phy) <- "phylo"
+  phy <- reorder(phy)
+
+  phy <- ape::root.phylo(phy, node = n+1)
+
+  return(phy)
+
+}
