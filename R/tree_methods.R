@@ -72,8 +72,11 @@ generate_descendants <- function(tree){
 #' get_levels(tree = tree)
 #'
 get_levels <- function(tree){
-  if(!ape::is.rooted(tree))
-    stop('Input tree must be rooted!')
+  if(!ape::is.rooted(tree)){
+    if(dim(tree$edge)[[1]] > length(tree$tip.label)){# Check if tree is a star
+      stop("Please input a rooted tree!")
+    }
+  }
   root_number = as.integer(length(tree$tip.label) + 1)
   node_levels <- data.frame(node = 1:(dim(tree$edge)[[1]] + 1),
                             level = 0)
@@ -119,7 +122,9 @@ generate_information_content <- function(tree, log_descendants = TRUE){
   }
 
   if (!ape::is.rooted(tree)){
-    stop('Please input a rooted tree!')
+    if(dim(tree$edge)[[1]] > length(tree$tip.label)){# Check if tree is a star
+      stop("Please input a rooted tree!")
+    }
   }
 
   if (log_descendants){
@@ -160,7 +165,10 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   }
 
   if (!ape::is.rooted(tree)){
-    stop("Please input a rooted tree!")
+    if(dim(tree$edge)[[1]] > length(tree$tip.label)){# Check if tree is a star
+      stop("Please input a rooted tree!")
+    }
+
   }
 
   if (!is.null(tree$IC)){
@@ -502,7 +510,12 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 generate_similarity_matrix <- function(tree, similarity = NULL){
   ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
   Nnode = length(tree$node.label)
-  tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
+  if (Nnode == 1){
+    tree_labels <- tree$tip.label
+  } else {
+    tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
+  }
+
   N <- length(tree_labels)
 
   sim_matrix <- matrix(nrow = N, ncol = N)
