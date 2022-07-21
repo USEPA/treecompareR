@@ -442,7 +442,7 @@ generate_caterpillar <- function(n){
 
 #' Generate Star tree
 #'
-#' This function generates a star tree, a rooted binary tree of minimal
+#' This function generates a star tree, a rooted tree of minimal
 #' depth with n tips.
 #'
 #' @param n The number of tips.

@@ -13,6 +13,6 @@ generate_star(n)
 A \code{phylo} object representing the generated tree.
 }
 \description{
-This function generates a star tree, a rooted binary tree of minimal
+This function generates a star tree, a rooted tree of minimal
 depth with n tips.
 }
