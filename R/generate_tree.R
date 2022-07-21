@@ -408,17 +408,21 @@ generate_caterpillar <- function(n){
     stop('Please input an integer at least 2!')
   }
 
-  edge <- matrix(NA_integer_, nrow = (2*n - 1), ncol = 2)
+  edge <- matrix(NA_integer_, nrow = (2*n - 2), ncol = 2)
 
   for (i in 1:(n-1)){
     edge[i, 1] <- n + i
     edge[i, 2] <- i
+  }
+
+  for (i in 1:(n-2)){
     edge[i + n, 1] <- i + n
     edge[i + n, 2] <- i + n + 1
   }
 
   edge[n, 1] <- 2*n-1
   edge[n, 2] <- n
+
 
   tip.label <- paste0("t", 1:n)
   node.label <- paste0('n', 1:(n-1))
