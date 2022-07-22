@@ -990,27 +990,35 @@ bind_entities <- function(tree,
   #create new tree
   #bind to the terminal label node
   #essentially, treat entity as a new level of classification
-  new_tree <- tree
-  for (label in unique(term_labs$terminal_label)){
-
+  tree_df <- get_tree_df(tree)
+  new_df_list <- lapply(unique(term_labs$terminal_label),
+         function(label){
           tmpdf <- term_labs[term_labs$terminal_label %in% label, ]
-          tmpdf$id_fact <- factor(tmpdf[[id_col]])
-          tmpdf$terminal_fact <- factor(tmpdf[["terminal_label"]])
-          tmp_tree <- as.phylo(~terminal_fact/id_fact,
-                               data = tmpdf,
-                               collapse = FALSE)
-          tmp_tree$edge.length <- rep(min(tree$edge.length),
-                                      nrow(tmp_tree$edge))
-          #get node number of this terminal label
-          terminal_node <- get_node_from_label(label = label,
-                                               tree = new_tree)
-          #bind tmp_tree there
-          new_tree <- ape::bind.tree(x = new_tree,
-                                           y = tmp_tree,
-                                          where = terminal_node,
-                                     position = 0)
-  }
+          #add these as new nodes whose parent is the terminal label node
+          parent_node <- tree_df[tree_df$Name %in% label, "node"]
+          parent_level <- tree_df[tree_df$Name %in% label, "level"]
+          new_level <- parent_level + 1
+          label_df <- data.frame(level = rep(new_level,
+                                             nrow(tmpdf)),
+                                 parent = rep(parent_node,
+                                              nrow(tmpdf)),
+                                 Name = tmpdf[[id_col]])
+  })
 
+  new_df <- dplyr::bind_rows(new_df_list)
+  #new node numbers
+  new_df$node <- max(tree_df$node) + 1:nrow(new_df)
+
+  new_df <- dplyr::bind_rows(tree_df,
+                             new_df)
+
+  #make into a tree
+  new_df <- setNames(new_df,
+           c("ID",
+             "level",
+             "Parent_ID",
+             "Name"))
+  new_tree <- generate_taxonomy_tree(new_df)
   return(new_tree)
 
 }
