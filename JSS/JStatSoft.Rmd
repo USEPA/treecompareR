@@ -41,15 +41,141 @@ Analyses of chemical similarity have tended to focus on molecular fingerprints a
 
 Chemical structural features map to chemical categories, of course. Chemists can look at a diagram of molecular structure and identify whether a chemical is, for example, a dioxin or an amino acid. However, this mapping has not been explicitly defined, until recently.
 
-In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels (nodes). The ontology is given a taxonomic structure, that of a tree. Each node has one parent (except the root, which has no parent) and may have multiple children. The tree structure can be defined by listing each node in the tree starting from the root, assigning each node a text label and a unique ID number, and listing the ID number of the node's parent.
+We present the package **treecompareR** as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space. The ChemOnt taxonomy is analogous to the Linnean "tree of life" or other phylogenetic trees. Therefore, to visualize chemical space using the ChemOnt taxonomy, owe build upon the excellent package [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html), which was originally developed for visualization of phylogenetic tree data. We extend ggtree with functions that simplify the task of creating certain complex visualizations that are frequently of use when visualizing similiarities and differences in chemical lists using the ChemOnt taxonomy.
 
-The ClassyFire web tool takes in chemical identifiers such as InChIKey or SMILES strings and provides a classification of the chemical within the taxonomy. In this manner, one can examine a data set consisting of chemical data from the viewpoint of where the chemicals lie within the ChemOnt taxonomy structure. 
 
-To visualize chemical space using the ChemOnt taxonomy, one can use tree visualization packages such as [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html#:~:text=an%20R%20package%20for%20visualization%20of%20tree%20and%20annotation%20data&text='ggtree'%20extends%20the%20'ggplot2,structures%20with%20their%20annotation%20data.). However, 
 
-We present the package **treecompareR** as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space.  
+# ClassyFire and ChemOnt
+In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels (nodes). The ontology is a strictly hierarchical taxononomy, where each node has exactly one parent. The ClassyFire web tool takes in chemical identifiers such as InChIKey or SMILES strings and, based on molecular structure, provides a classification of the chemical within the taxonomy.
+
+The full classification of a chemical structure includes several levels of specificity: kingdom (level 1), superclass (level 2), class (level 3), subclass (level 4), and potentially more specific levels from level 5 to level 11. Not all chemical classifications include all levels of specificity.
+
+The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers, for each of the 4825 nodes in the taxonomy.
+
+To construct a tree object representing the taxonomy, we first convert the taxonomy to a `data.frame` object with columns `Name`, `ID`, and `Parent_ID`.  This \code{data.frame} may be read from an OBO file using e.g. `ontologyIndex::get_ontology()` and `ontologyIndex::as.data.frame.ontology_index()`, or from a JSON
+file using for example `jsonlite::fromJSON()`. This `data.frame` for the ChemOnt taxonomy is provided with the package, in data object `chemont_df`.
+
+```{r}
+head(chemont_df)
+```
+
+
+With this data in hand, we construct the tree object as follows.
+
+```{r chemont-tree, fig.cap="chemont-tree"}
+chemont_tree <- generate_taxonomy_tree(tax_nodes = chemont_df)
+```
+
+The output of this function is a`phylo` class object (see package `ape`), which itself is a list. Its elements describe the edges of the tree (connections between nodes), the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
+
+```{r}
+str(chemont_tree)
+```
+
+This `generate_taxonomy_tree()` function is not limited to the ChemOnt taxonomy. It can produce a tree representation of *any* hierarchical taxonomy, as long as that taxonomy can be represented in the form of a data frame with column names `Name`, `ID`, and `Parent_ID` and one row for each node in the tree. However, it cannot currently handle ontologies which are not strictly  hierarchical (e.g. Gene Ontology).
+
+A `data.frame` representation of the `phylo` tree can be recovered using function `get_tree_df()`. Instead of ChemOnt IDs, this `data.frame` identifies nodes using their node numbers in the `phylo` tree. (That's useful information when you need to call functions that work on `phylo` trees but require you to specify node numbers, such as many functions in packages `ape` and `phangorn`.) This `data.frame` also includes a variable `level`, which specifies the level in the tree taxonomy for each node. Here, the root node is defined as level 0. In the ChemOnt taxonomy, "kingdom" is level 1, "superclass" is level 2, "class" is level 3, "subclass" is level 4. Levels 5 and above are "level5", "level6", etc. up to "level11". 
+
+```{r}
+head(get_tree_df(chemont_tree))
+```
+
+
+## Visualizing trees
+
+Once a taxonomy tree is generated, it can be visualized using the function `display_subtree()`:
+
+```{r}
+display_subtree(base_tree = chemont_tree,
+                base_name = "ChemOnt taxonomy") +
+  hexpand(1)
+```
+
+By default, this visualization will label branches of the tree ("clades"). These are the arcs and labels around the outer edge of the tree.
+
+The level at which clades are labeled is controlled using the `clade_level` argument. The default value of `clade_level` is "auto", which will choose one level below the level of the most recent common ancestor (MRCA) of all tips of the tree, or level 2, whichever is greater. For example, the MRCA of the tips of the full ChemOnt tree is level 0, the root node, "Chemical entities." One level below that is level 1, kingdoms ("Organic compounds" and "Inorganic compounds"). However, because level 1 is not very interesting, `clade_level = "auto"` will default to level 2.
+
+If we wanted to label the kingdoms (level 1), that can be done by specifying `clade_level = 1`.
+
+```{r}
+display_subtree(base_tree = chemont_tree,
+                base_name = "ChemOnt taxonomy",
+                clade_level = 1)
+```
+
+
+As you can see, the full ChemOnt tree is extremely dense. To "zoom in" to a specific part of the tree, we can use the function `prune_and_display_subtree()` In the argument `prune_to`, provide the name of one or more nodes at any level desired. The function will prune the tree to keep only the specified node(s) and all of their descendants. For example, we can "zoom in" on the "Organohalogen compounds" superclass.
+
+```{r}
+prune_and_display_subtree(base_tree = chemont_tree,
+                          prune_to = "Organohalogen compounds")
+```
+(Note that the default level for clade labeling is now level 3 (class), because the MRCA of the tips of the pruned organohalogen compounds tree is by construction "Organohalogen compounds", level 2.)
+ 
+To access the pruned phylo-class tree object itself, use the function `prune_tree`. 
+
+```{r}
+oh_tree <- prune_tree(tree = chemont_tree,
+           prune_to = "Organohalogen compounds")
+str(oh_tree)
+```
+
+This pruned tree can be treated in exactly the same way as the original taxonomy tree. Any function that takes a phylo-class tree argument will work on the pruned tree.
+
+To choose clades for pruning, you may want to list the clades of a tree at a specified level. Use the function `get_all_clades()`. For example, the following code lists the clades of the ChemOnt tree at the superclass level (level 2).
+
+```{r}
+get_all_clades(tree = chemont_tree, level = 2)
+```
+
+Features of this visualization can be easily controlled using various arguments to `display_subtree()`. 
+
+
+
+## Controlling tree layout
+
+By default, `display_subtree()` uses a circular tree layout. However, you can specify any layout known by `ggtree` (see [https://yulab-smu.top/treedata-book/chapter4.html#tree-layouts](https://yulab-smu.top/treedata-book/chapter4.html#tree-layouts) for a full list and examples). (In this example, we use the `ggtree::hexpand()` function to add horizontal space for the labels.)
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                layout = "roundrect") +
+  ggtree::hexpand(0.1)
+```
+## Controlling tree color, size, and linetype
+
+For example, the color, size, and/or linetype of the tree can be controlled using the argument `base_opts`. The default value of this arugment is
+
+```{r, eval = FALSE}
+base_opts = list(color = "gray50",
+                 size = 0.5,
+                 linetype = 1)
+```
+
+meaning that the tree will be plotted in a medium gray color (`color = "gray50"`), with line width 0.5 (`size = 0.5`), and solid lines (`linetype = 1`). If instead we wanted to plot the tree in red, for example, we could do so:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                base_opts = list(color = "red")) +
+  hexpand(1)
+```
+
+
+Any other parameters for the base tree (i.e., any parameters that would be optional arguments to `ggtree`) can also be added to `base_opts` as named list elements. For example, to use a fan layout with a specified angle, use `layout = fan` and add `open.angle` to `base_opts`:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                layout = "fan",
+                base_opts = list(open.angle = 100))
+```
+
+
 
 # Example Research Problem: Chemical Contaminants in Water and Wastewater
+
+Tree visualizations can be used to explore how different chemical lists are distributed across chemical space as defined by the ChemOnt taxonomy. This can be useful to inform chemical safety research.
 
 Consider the question of chemical contaminants in water and wastewater. Under the Clean water Act, the United States Environmental Protection Agency works to identify chemical contaminants of potential concern to human health and the environment that may occur in both drinking water and in treated wastewater.  In wastewater, a medium of particular interest is *biosolids*, the semisolid, nutrient-rich product obtained by separating wastewater solids from liquids and treating the solids separately. Biosolids may be appplied to land as fertilizer or soil amendment, or may be disposed of in landfills or incinerated. Chemical contaminants in biosolids may make their way to humans, plants, or animals. Therefore, it's of interest to identify chemicals that may be found in biosolids.
 
@@ -74,9 +200,11 @@ head(BIOSOLIDS2021)
 
 ## ClassyFire classification of chemical lists
 
-To compare these two chemical lists based on the ChemOnt taxonomy, first, the chemicals on each list must be classified according to ClassyFire. This can be accomplished using the publicly available [ClassyFire](http://classyfire.wishartlab.com/) web tool. This web tool takes a user-supplied InChiKey and returns the corresponding ClassyFire classification, if available. (It queries a lookup table of previously classified chemical entities.)
+To compare these two chemical lists based on the ChemOnt taxonomy, first, the chemicals on each list must be classified according to ClassyFire. This can be accomplished using the publicly available [ClassyFire](http://classyfire.wishartlab.com/) web tool. This web tool takes a user-supplied InChiKey and returns the corresponding ClassyFire classification, if available. 
 
-An interface to the API for the ClassyFire web tool is available through the **classyfireR** package. To simplify the process of querying the API for a list of InChiKeys, we have written a wrapper function `classify_inchikey()`. This function takes a user-supplied vector of InChiKeys and returns a `data.frame` with the corresponding classification for each InChiKey. If a classification was not available (including the cases when an input value was not a validly formatted InChiKey, as well as cases where the InChiKey input was valid, but ClassyFire did not return a classification), the columns of the data.frame simply contain `NA_character_` values.
+An interface to the API for the ClassyFire web tool is available through the **classyfireR** package. To simplify the process of querying the API for a list of InChiKeys, we have written two wrapper functions, `classify_inchikeys()` and `classify_structures()`. These functions take a user-supplied vectors of InChiKeys or SMILES strings (respectively) and return a `data.frame` with the corresponding classification for each input structure. 
+
+If a classification was not available, the columns of the data.frame simply contain `NA_character_` values.
 
 ```{r, eval = FALSE}
 BIOSOLIDS2021_class <- classify_inchikeys(BIOSOLIDS2021$INCHIKEY)
@@ -87,150 +215,73 @@ Another wrapper function to the ClassyFireR API allows the user to query by SMIL
 
 
 ```{r, eval = FALSE}
-BIOSOLIDS2021_class <- classify_structures(BIOSOLIDS2021$SMILESW)
+BIOSOLIDS2021_class <- classify_structures(BIOSOLIDS2021$SMILES)
 USGSWATER_class <- classify_structures(USGSWATER$INCHIKEY)
 ```
 
+The BIOSOLIDS2021 and USGSWATER data sets with ClassyFire classifications are stored in `BIOSOLIDS2021_class` and `USGSWATER_class`.
 
+Now, let us examine these two data sets. Notice that there are 11 columns of ChemOnt data, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`,  `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
 
-
-
-## ChemOnt ontology
-
-The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers.
-
-To construct a tree that encodes this, one can download this data, or use the file `chemont_parent_child.rda` from **treecompareR** with column names `Name`, `ID`, `Parent_ID`. With this data in hand, we construct the tree as a `phylo` object as follows.
-
-```{r chemont-tree, fig.cap="chemont-tree"}
-options(width = 80)
-chemont_taxonomy <- generate_tree(tax_nodes = chemont_parent_child)
-
-str(chemont_taxonomy[[1]])
-str(chemont_taxonomy[[2]])
-```
-
-The output of this function is a list of two elements. The first, named `tree_object`, is the `phylo` object representing the tree. The second, named `tax_nodes`, is a data.frame used in creating the `phylo` object. 
-
-The element `tree_object` itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
-
-```{r}
-str(chemont_taxonomy$tree_object)
-```
-
-The element `tax_nodes` is a data.frame with seven variables.
-
-```{r}
-str(chemont_taxonomy$tax_nodes)
-```
-
-
-The data.frame includes the name of each label; its ID from the `chemont_parent_child.rda` file; its parent (aside from the root `Chemical entities`); internally generated id_number; parent_id_number; pathString, a string representing the path from the root to the label; and plotHeight, which is internally generated to speed up the construction of the tree but does not represent any actual data.
-
-To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data frame. The JSON file must have three columns, the first the name of the label, the second its ID, and the third the parent ID. For the root, the parent ID should be `NA`. If the data is in the form of a data frame, it must be organized in the same way the JSON file is, with column names given by `Name`, `ID`, and `Parent_ID` in that order.
-
-Next, we use the ClassyFire tool to provide classifications of the chemicals in our data sets. To simplify this process, **treecompareR** has a data pipeline that allows for programmatic acquisition of this data. It leverages the package [classyfireR](https://github.com/aberHRML/classyfireR) for accessing the ClassyFire API. 
-
-```{r, message = FALSE, results = 'hide'}
-biosolids <- as.data.table(chemical_list_biosolids_2022_05_10)
-
-biosolids_classified <- classify_datatable(biosolids)
-biosolids_classified <- classify_by_smiles(biosolids_classified)
-```
-
-We first identify those chemicals that have a value in the CASRN column and are missing a value in the INCHIKEY column. We try to retrieve the missing INCHIKEY information from the Hazard Comparison Dashboard using the `get_chemical_identifiers()` function. We then examine any chemicals missing a value in the SMILES column that have a CASRN value and again use the `get_chemical_identifiers()` function to retrieve the missing data. This is in preparation for applying the functions `classify_datatable()` and `classify_by_smiles()` to the data.table of chemicals for retrieving chemical classification data.
-
-The function `classify_datatable()` uses the InChIKey data, when present, for a first pass in accessing ChemOnt classifications. For those chemicals that remain unclassified, the function `classify_by_smiles()` uses SMILES strings, when present, for a second pass in accessing ChemOnt classifications. It is important to note that `classify_by_smiles()` requires as an input a data.table that is the output of `classify_datatable()`, and the function `classify_datatable()` requires as an input a data.table that has the columns `PREFERRED_NAME`, `CASRN`, and `INCHIKEY`. The order matters, so always apply `classify_datatable()` to a data.table first and then feed the output to `classify_by_smiles()`. 
-
-We complete the same process on the data set `chemical_list_USGSWATER_2022_05_17` for retrieving classification data.
-
-```{r clean-na-space-usgs, fig.cap = "clean-na-space-usgs", message = FALSE, results = 'hide'}
-usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
-usgswater[is.na(INCHIKEY) & !is.na(CASRN), INCHIKEY := {
-  temp = ''
-  attempt <- get_chemical_identifiers(unique(CASRN))
-  if (!is.null(attempt)){
-    temp = attempt@meta$inchikey
-  }
-  ifelse(is.null(temp), '', temp)
-}, by = CASRN]
-usgswater[is.na(SMILES) & !is.na(CASRN), SMILES := {
-  temp = ''
-  attempt <- get_chemical_identifiers(unique(CASRN))
-  if (!is.null(attempt)){
-    temp = attempt@meta$smiles
-  }
-  ifelse(is.null(temp), '', temp)
-}, by = CASRN]
-
-usgswater_classified <- classify_datatable(usgswater)
-usgswater_classified <- classify_by_smiles(usgswater_classified)
-```
-
-Now, let us examine these two data sets. Notice that there are 11 columns of ChemOnt data, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
-
-```{r display_classifications}
-knitr::kable(biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 
+```{r biosolids_classifications}
+kableExtra::kbl(head(BIOSOLIDS2021_class[!is.na(BIOSOLIDS2021_class$kingdom),
+                                         c('PREFERRED.NAME', 'INCHIKEY',
                             'kingdom', 'superclass', 'class', 'subclass', 
-                            'level5')]) 
-#  kbl() %>%
-#  kable_styling(bootstrap_options = c("striped", "hover")) %>%
-#  kable_classic()
+                            'level 5')], 5),
+                row.names = FALSE) %>%
+ kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
+ kableExtra::kable_classic() %>%
+  kableExtra::landscape()
+```
 
-knitr::kable(usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 'AVERAGE_MASS', 
+Note that in the second row, Diazepam has NA in the `level 5` column. This means that the most-specific classification for Diazepam is at the subclass level.
+\
+```{r usgs_classifications}
+
+kableExtra::kbl(head(USGSWATER_class[!is.na(USGSWATER_class$kingdom),
+                                     c('PREFERRED.NAME', 'INCHIKEY',
                             'kingdom', 'superclass', 'class', 'subclass', 
-                            'level5')])
-#  kbl() %>%
-#  kable_styling(bootstrap_options = c("striped", "hover")) %>%
-#  kable_classic()
+                            'level 5')], 5),
+                row.names = FALSE)  %>%
+ kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
+ kableExtra::kable_classic() %>%
+  kableExtra::landscape()
 ```
-Observe that in the first table, the third row does not have an entry for subclass. This means that the most specific taxonomic label associated to the chemical `4-epi-Oxytetracycline` is given by `Tetracyclines`, at the class level. Similarly, in the second table, the first row does not have an entry for the subclass column, and thus the most specific taxonomic classification label for the chemical `S-Methyl N-hydroxythioacetimidate` is `Sulfenyl compounds` at the class level.
+Note that in row 5, Acenaphthenequinone has `NA` in both the `subclass` and `level 5` columns. This means that the most specific classification for Acenaphthenequinone is at the `class` level; it is not classified any more specifically than "Naphthalenes".
 
-To gain an understanding of these data sets and the chemical classifications they represent, we first look at the number of labels each data set represents, broken down through taxonomic level. The function `label_bars()` takes in a single data.table or a (possibly named) list of data.tables and constructs histograms of label numbers faceted by data set and by taxonomic level.
+# Visualizing subtres
 
-```{r label-bars, fig.cap="label-bars",  fig.align='center', fig.dim=c(6,4)}
-data_list <- list(biosolids_classified, 
-                  usgswater_classified)
-names(data_list) <- c('Biosolids', 'USGS Water')
-label_bars(data_list)
-```
-
-From these diagrams in \@ref(fig:label-bars), we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the `chemical_list_USGSWATER_2022_05_17` data has more labels than the `chemical_list_BIOSOLIDS_2022_05_10` data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
-
-# Tree visualizations
-
-The tree visualizations we use rely heavily on the **ggtree** package, which was designed with phylogenetic trees in mind. The **ggtree** package extends the widely used **ggplot2** package, greatly broadening the variety and scope of tree visualizations available for use.
-
-We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontology.
-
-
-```{r chemont-tree-plot, fig.cap="chemont-tree-plot"}
-ggtree(chemont_tree) + layout_circular()
-```
-
-The diagram \@ref(fig:chemont-tree-plot) illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data sets represents. This diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this makes for a dense tree visualization as seen above.
-
-We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table. In this example we also display the tip labels.
+We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table.
 
 ```{r subtree-plots, fig.cap="subtree-plots",  fig.align='center', fig.dim=c(6,4)}
-display_subtree(data_1 = biosolids_classified, 
-                name_1 = 'Biosolids')
+display_subtree(base_tree = oh_tree,
+                base_name = "Organhalogen tree",
+                data_1 = BIOSOLIDS2021_class, 
+                name_1 = 'Biosolids',
+                base_opts = list(size = 1))
 
-display_subtree(data_1 = usgswater_classified, 
-                name_1 = 'USGS Water')
+display_subtree(base_tree = oh_tree,
+                base_name = "Organhalogen tree",
+                data_1 = USGSWATER_class, 
+                name_1 = 'USGS Water',
+                base_opts = list(size = 1))
 ```
 
 In the two diagrams of \@ref(fig:subtree-plots), we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. While it is possible to toggle between each diagram to get a sense of how each data set represents chemical space, it would be better if we could directly compare the subtrees they represent. We can do just this with exact same function, entering both data sets into the function `display_subtree()` as the following example demonstrates. 
 
 ```{r subtree-plots-overlap, fig.cap="subtree-plots-overlap", fig.align='center', fig.dim=c(6,4)}
-display_subtree(data_1 = biosolids_classified, 
-                data_2 = usgswater_classified, 
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                data_1 = BIOSOLIDS2021_class, 
+                data_2 = USGSWATER_class, 
                 name_1 = 'Biosolids', 
-                name_2 = 'USGS Water')
-#CLR: this makes me think the arguments to this function could be a named list?
-#althugh I can see why you'd want to restrict it to 2 trees -- otherwise you get a ridiculous number of possible combinations
+                name_2 = 'USGS Water',
+                base_opts = list(size = 1))
 ```
 
 In \@ref(fig:subtree-plots-overlap), branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
+
+
 
 While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram generated by `display_subtree()` can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate this using the function `prune_and_display_subtree()` on both data sets.
 
