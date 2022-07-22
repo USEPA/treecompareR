@@ -365,13 +365,6 @@ display_subtree <- function(base_tree = chemont_tree,
       }
 
       dat2 <- dat[dat$level == clade_level, c("node", "Name")]
-      dat2 <- setNames(dat2, c("phylo_node", "clade_name"))
-
-      if("wrap" %in% names(clade_opts)){
-      #wrap clade names to have width clade_label_wrap characters
-      dat2$clade_name2 <- stringr::str_wrap(dat2$clade_name,
-                                            clade_opts$wrap)
-      }
 
       #sensible default for clade label angles
       #for circular-ish layouts, use angle = "auto"
@@ -389,7 +382,7 @@ display_subtree <- function(base_tree = chemont_tree,
           clade_opts$angle <- "auto"
         }
       }
-      if(clade_opts$barsize %in% "alternate"){
+
         #plot clade bars with alternating widths
         #to do this:
         #first need to get order in which clades are plotted
@@ -405,7 +398,7 @@ display_subtree <- function(base_tree = chemont_tree,
         #then label as tip
         clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
                                                              tree = base_tree)
-        clade_plot <- clade_plot[!is.na(clade_plot)]
+        #clade_plot <- clade_plot[!is.na(clade_plot)]
         #tips_clade gives the clades in order of plotting
         #assign alternating bar widths in plotting order
         clade_dat <- data.frame(phylo_node = unique(clade_plot),
@@ -427,16 +420,28 @@ display_subtree <- function(base_tree = chemont_tree,
         #so it needs to match the order of the base tree to begin with,
         #so that the auto-reordering will be correct.
 
+        dat3 <- clade_dat[match(intersect(dat$node,
+                                          clade_dat$phylo_node),
+                                clade_dat$phylo_node), ]
+
+
+        if(clade_opts$barsize %in% "alternate"){
         #Re-sort the alternating bar sizes in clade plotting order
         #to correspond to base tree order of clades
-        barsize_vect <- clade_dat$barsize[match(dat2$clade_name,
-                                                clade_dat$clade_name)]
-        clade_opts$barsize <- barsize_vect
+        clade_opts$barsize <- dat3$barsize
+        }
+
+
+      if("wrap" %in% names(clade_opts)){
+        #wrap clade names to have width clade_label_wrap characters
+        dat3$clade_name2 <- stringr::str_wrap(dat3$clade_name,
+                                              clade_opts$wrap)
       }
+
 
       tree_plot <- tree_plot +
         do.call(geom_cladelab,
-                args = c(list(data = dat2,
+                args = c(list(data = dat3,
                               mapping = aes(node = phylo_node,
                                             label = clade_name2,
                                             group = clade_name2)),
