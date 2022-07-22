@@ -18,74 +18,181 @@ add_terminal_label <- function(data,
                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                     'level5', 'level6', 'level7', 'level8',
                                                     'level9', 'level10', 'level11')){
+  data_orig <- copy(data) #save original input data
+
+  #check that the input data.frame has been classified properly
+  if(!any(tax_level_labels %in% names(data))){
+    stop(paste("The input data.frame does not appear to be classified",
+               "according to the taxonomy with levels defined in",
+               "the input 'tax_level_labels' as",
+               paste(tax_level_labels, collapse = ", "),
+               "because the input data.frame does not contain any columns",
+               "named for these taxonomy levels.",
+               "Please check that the input data.frame is classified,",
+               "and/or check that the input 'tax_level_labels'",
+               "matches the taxonomy levels of the classified data.frame."))
+  }
+
+  #if data.frame already has terminal label data, throw a warning,
+  #but proceed
+  if("terminal_label" %in% names(data)){
+    warning(paste("Column 'terminal_label' already exists",
+    "in the input data.frame;",
+    "it will be overwritten"))
+    data[["terminal_label"]] <- NULL
+    data_orig[["terminal_label"]] <- NULL
+  }
+
+  if("terminal_level" %in% names(data)){
+    warning(paste("Column 'terminal_level' already exists",
+                  "in the input data.frame;",
+                  "it will be overwritten"))
+    data[["terminal_level"]] <- NULL
+    data_orig[["terminal_level"]] <- NULL
+  }
+
+  #if data.frame is missing one or more levels (but not all of them),
+  #throw a warning and treat those levels as unused (i.e. all NA)
+  if(!all(tax_level_labels %in% names(data))){
+    missing_tax_levels <- setdiff(tax_level_labels,
+                                  names(data))
+    warning(paste("Input data.frame is missing columns for taxonomy levels",
+            paste(missing_tax_levels, collapse = "; "),
+            "These levels will be treated as though they were unused",
+            "(i.e., as though those columns were present,",
+            "but filled with NAs)."))
+    #add the missing columns with NAs
+    data[missing_tax_levels] <- rep(NA_character_, nrow(data))
+  }
+
+  #sort taxonomy level columns in order as given in tax_level_labels
+  #this will ensure that most-specific (terminal) label comes last
+  data <- data[c(setdiff(names(data), #all other columns come first
+                         tax_level_labels),
+                 tax_level_labels)]
+
   labels <- tidyr::pivot_longer(data, #reshape to longer format
                                 cols = tidyselect::all_of(tax_level_labels),
                                 names_to = "tax_level",
                                 values_to = "label") %>%
     dplyr::filter(!is.na(label)) %>% #remove any unused levels
     dplyr::group_by( #group by item (e.g. chemical)
-      dplyr::across(
+      dplyr::across( #assumed identified by everything *except* tax_level_labels
         dplyr::all_of(setdiff(names(data),
                               tax_level_labels)
         )
       )
     ) %>%
-    dplyr::slice_tail() %>%  #take most-specific label for each item
-    dplyr::rename(terminal_label = label,
-                  terminal_tax_level = tax_level)
+    dplyr::slice_tail() %>%  #take most-specific label for each item (i.e. last row)
+    dplyr::rename(terminal_label = label, #rename cols to refer to "terminal"
+                  terminal_tax_level = tax_level) %>%
+    dplyr::mutate(terminal_level = match(terminal_tax_level,
+                                         tax_level_labels)) %>%
+    dplyr::mutate(terminal_tax_level = NULL)
 
-  data <- merge(data, labels, by = setdiff(names(data),
+  #merge terminal label & terminal level info back into original
+  data_out <- merge(data_orig,
+                    labels,
+                    by = setdiff(names(data_orig),
                                            tax_level_labels))
 
-  return(data)
+  return(data_out)
 }
 
 calc_number_overlap <- function(base_data,
-                                compare_data){
+                                compare_data,
+                                id_col = "INCHIKEY",
+                                at_level = "terminal",
+                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                     'level5', 'level6', 'level7', 'level8',
+                                                     'level9', 'level10', 'level11')){
+  if(at_level %in% "terminal"){
   #get terminal labels if not already there
-
-}
-
-#' Terminal label function
-#'
-#' This is a helper function to return the terminal label for
-#' \code{\link{add_terminal_label}}. It returns the terminal label for an
-#' input data.table consisting of a single row, a chemical with its
-#' classification.
-#'
-#' @param t A data.table with classification data.
-#' @param tip Alternate parameter for determining whether to only return tip
-#'   labels.
-#' @param tax_level_labels Parameter giving classification levels.
-#' @param tree Alternate parameter for giving a taxonomy tree different from
-#'   ChemOnt.
-#' @return A string giving the terminal label.
-#' @import data.table
-terminal_function <- function(t, tip = FALSE, tax_level_labels, tree = NULL){
-  labels <- t[1, .SD, .SDcols = which(names(t) %in% tax_level_labels)]
-
-  if (is.null(tree)){
-    tree <- chemont_tree
+  if(!("terminal_label" %in% names(base_data))){
+    base_data <- add_terminal_label(base_data,
+                                    tax_level_labels = tax_level_labels)
   }
-  if (tip){
-    if (any(labels %in% tree$tip.label)){
-      return(labels[[which(labels %in% tree$tip.label)]])
+
+  if(!("terminal_label" %in% names(compare_data))){
+    compare_data <- add_terminal_label(compare_data,
+                                    tax_level_labels = tax_level_labels)
+  }
+    group_col <- "terminal_label"
+  }else if(is.numeric(at_level)){
+    if(at_level > length(tax_level_labels)){
+      stop(
+        paste("Cannot find overlap at level  'at_level' =",
+              at_level,
+              "because it is greater than the max level",
+              "defined by the length of 'tax_level_labels' =",
+              paste(tax_level_labels, collapse = ", ")
+        )
+      )
+    }else{
+      #pull the corresponding taxonomy level label
+      group_col <- tax_level_labels[at_level]
     }
-    return(NA_character_)
+  }else if(is.character(at_level)){
+    if(!(at_level %in% tax_level_labels)){
+      stop(
+        paste("Cannot find overlap at level 'at_level' =",
+              at_level,
+              "because it is not one of the levels defined in",
+              "'tax_level_labels' =",
+              paste(tax_level_labels, collapse = ", ")
+        )
+      )
+    }else{
+    #interpret as an explicit taxonomy level label
+    group_col <- at_level
+    }
   }
 
+  base_count <- base_data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
+    dplyr::summarise(n_base = dplyr::n_distinct(
+      dplyr::across(
+        dplyr::all_of(id_col)
+        )
+      )
+      )
 
-  index <- which(unname(sapply(labels, function(t) {return(is.na(t) | t == '')})))
+  compare_count <- compare_data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
+    dplyr::summarise(n_compare = dplyr::n_distinct(
+      dplyr::across(
+        dplyr::all_of(id_col)
+      )
+    )
+    )
 
-  if(length(index) == 0){
-    return(labels[length(tax_level_labels)])
+  df_count <- merge(base_count,
+                    compare_count,
+                    by = group_col,
+                    all.x = TRUE)
+
+  get_overlap <-  function(grouplab){
+    id_base <- base_data[base_data[[group_col]] %in% grouplab, id_col]
+    id_compare <- compare_data[compare_data[[group_col]] %in% grouplab, id_col]
+    n_intersect <- length(intersect(id_base, id_compare))
+    n_union <-  length(union(id_base, id_compare))
+    simil <- n_intersect/n_union
+    data.frame("n_intersect" = n_intersect,
+               "n_union" = n_union,
+               "simil" = simil)
   }
-  if(length(index) == length(tax_level_labels)){
-    return(NA_character_)
-  }
 
-  return(labels[[(index[[1]] - 1)]])
+  overlap_df <- base_data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
+    dplyr::summarise(get_overlap(.data[[group_col]]))
+
+  outdf <- merge(df_count,
+                 overlap_df,
+                 by = group_col,
+                 all.x = TRUE)
+
 }
+
 
 #' Label level
 #'
