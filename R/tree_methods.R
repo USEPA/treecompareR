@@ -963,3 +963,54 @@ tree_df <- get_tree_df(tree = tree)
 clade_df <- tree_df[tree_df$level %in% level, ]
 return(clade_df)
 }
+
+bind_entities <- function(tree,
+                          data,
+                          id_col = "INCHIKEY",
+                          tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                               'level5', 'level6', 'level7', 'level8',
+                                               'level9', 'level10', 'level11')){
+  #if terminal label not already in data, add it
+  if(!"terminal_label" %in% names(data)){
+    data <- add_terminal_label(data = data,
+                               tax_level_labels = tax_level_labels)
+  }
+
+  #get terminal labels for each entity
+  term_labs <- data[c(id_col,
+                        "terminal_label")]
+
+  #get node numbers corresponding to terminal labels
+  term_labs$terminal_node <- get_node_from_label(label = term_labs$terminal_label,
+                                                 tree = tree)
+
+  term_labs <- term_labs[!is.na(term_labs$terminal_node), ]
+
+  #loop over terminal labels
+  #create new tree
+  #bind to the terminal label node
+  #essentially, treat entity as a new level of classification
+  new_tree <- tree
+  for (label in unique(term_labs$terminal_label)){
+
+          tmpdf <- term_labs[term_labs$terminal_label %in% label, ]
+          tmpdf$id_fact <- factor(tmpdf[[id_col]])
+          tmpdf$terminal_fact <- factor(tmpdf[["terminal_label"]])
+          tmp_tree <- as.phylo(~terminal_fact/id_fact,
+                               data = tmpdf,
+                               collapse = FALSE)
+          tmp_tree$edge.length <- rep(min(tree$edge.length),
+                                      nrow(tmp_tree$edge))
+          #get node number of this terminal label
+          terminal_node <- get_node_from_label(label = label,
+                                               tree = new_tree)
+          #bind tmp_tree there
+          new_tree <- ape::bind.tree(x = new_tree,
+                                           y = tmp_tree,
+                                          where = terminal_node,
+                                     position = 0)
+  }
+
+  return(new_tree)
+
+}
