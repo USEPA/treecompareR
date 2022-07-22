@@ -475,3 +475,23 @@ generate_star <- function(n){
   return(phy)
 
 }
+
+#'Generate balanced tree
+#'
+#'This function will generate a rooted binary tree that is balanced (or as close
+#'to balanced) with n tips.
+#'
+#'@param n The number of tips
+#'@return A `phylo` object representing the generated tree.
+generate_balanced <- function(n){
+  n <- as.integer(n)
+
+  if (n < 2){
+    stop('Please input an integer at least 2!')
+  }
+
+  tip.label <- paste0('t', 1:n)
+  node.label <- paste0('n', 1:(n-1))
+
+
+}
