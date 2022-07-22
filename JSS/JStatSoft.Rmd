@@ -103,6 +103,14 @@ display_subtree(base_tree = chemont_tree,
                 clade_level = 1)
 ```
 
+To suppress clade labeling altogether, set `clade_level = NULL`.
+
+```{r}
+display_subtree(base_tree = chemont_tree,
+                base_name = "ChemOnt taxonomy",
+                clade_level = NULL)
+```
+
 
 As you can see, the full ChemOnt tree is extremely dense. To "zoom in" to a specific part of the tree, we can use the function `prune_and_display_subtree()` In the argument `prune_to`, provide the name of one or more nodes at any level desired. The function will prune the tree to keep only the specified node(s) and all of their descendants. For example, we can "zoom in" on the "Organohalogen compounds" superclass.
 
@@ -171,6 +179,16 @@ display_subtree(base_tree = oh_tree,
                 base_opts = list(open.angle = 100))
 ```
 
+The output of `display_subtree()` is a `ggtree` and `ggplot`-class object, so it can be manipulated using the grammar of `ggtree` and `ggplot2`. We have already seen an example of this when we used `ggtree:hexpand()` to expand the plot margins to make room for labels. For another example, we can use `ggplot2::theme()` to control the appearance of elements such as the plot title -- e.g., setting the title in a serif font, italicizing it, and right-justifying it.
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds") +
+  ggplot2::theme(plot.title = ggplot2::element_text(family = "serif",
+                                  face = "italic",
+                                  hjust = 1)
+                 )
+```
 
 
 # Example Research Problem: Chemical Contaminants in Water and Wastewater
@@ -227,7 +245,7 @@ Now, let us examine these two data sets. Notice that there are 11 columns of Che
 kableExtra::kbl(head(BIOSOLIDS2021_class[!is.na(BIOSOLIDS2021_class$kingdom),
                                          c('PREFERRED.NAME', 'INCHIKEY',
                             'kingdom', 'superclass', 'class', 'subclass', 
-                            'level 5')], 5),
+                            'level5')], 5),
                 row.names = FALSE) %>%
  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
  kableExtra::kable_classic() %>%
@@ -241,7 +259,7 @@ Note that in the second row, Diazepam has NA in the `level 5` column. This means
 kableExtra::kbl(head(USGSWATER_class[!is.na(USGSWATER_class$kingdom),
                                      c('PREFERRED.NAME', 'INCHIKEY',
                             'kingdom', 'superclass', 'class', 'subclass', 
-                            'level 5')], 5),
+                            'level5')], 5),
                 row.names = FALSE)  %>%
  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
  kableExtra::kable_classic() %>%
@@ -251,7 +269,7 @@ Note that in row 5, Acenaphthenequinone has `NA` in both the `subclass` and `lev
 
 # Visualizing subtres
 
-We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table.
+We can visualize which parts of the ChemOnt tree, or any subtree, are represented by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a `data.frame` consisting of a classified list of chemicals, and returns a tree diagram with branches color-coded according to their membership in the chemical list. For purposes of illustration, here we use the pruned subtree for the "Organohalogen compounds" clade as our "base tree."
 
 ```{r subtree-plots, fig.cap="subtree-plots",  fig.align='center', fig.dim=c(6,4)}
 display_subtree(base_tree = oh_tree,
@@ -267,7 +285,11 @@ display_subtree(base_tree = oh_tree,
                 base_opts = list(size = 1))
 ```
 
-In the two diagrams of \@ref(fig:subtree-plots), we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. While it is possible to toggle between each diagram to get a sense of how each data set represents chemical space, it would be better if we could directly compare the subtrees they represent. We can do just this with exact same function, entering both data sets into the function `display_subtree()` as the following example demonstrates. 
+The argument `base_tree` specifies a `phylo`-class tree object to use as the "base tree" -- the tree to be plotted and have its branches color-coded by list membership. The optional argument `base_name` allows you to specify the title of the plot -- usually this will name or describe the base tree. If `base_name` is not specified, the name of the variable passed to `base_name` will be used by default -- for the above example, this would be "oh_tree". The argument `data_1` specifies a `data.frame` of classified chemicals, for example the output of `classify_inchikeys()`. This `data.frame` must include variables for all taxonomic levels. For ClassyFire, this is "kingdom", "superclass", "class", "subclass", "level5", "level6", ..., "level11". If a level is not used in the classification of a given chemical, that column should have an NA value for that chemical. The optional argument `name_1` allows you to specify the name to be used in the plot legend (here, "Biosolids"). If `name_1` is not specified, the name of the variable passed to `data_1` will be used by default -- for the above example, this would be "BIOSOLIDS2021_class".
+
+ \@ref(fig:subtree-plots) illustrates the locations of the the biosolids and USGS water chemical lists in chemical space. For example, the biosolids list includes more of the "Alkyl halides" group than does the USGS water list, but USGS Water includes "Organobromides", whereas the biosolids list does not.
+
+We can more directly compare the two chemical lists by highlighting them on the same tree. The function `display_subtree()` can also accept a second `data.frame` representing a classified list of chemicals, in argument `data_2`. (There is a corresponding optional `name_2` argument that works the same way as `name_1`.)
 
 ```{r subtree-plots-overlap, fig.cap="subtree-plots-overlap", fig.align='center', fig.dim=c(6,4)}
 display_subtree(base_tree = oh_tree,
@@ -281,28 +303,187 @@ display_subtree(base_tree = oh_tree,
 
 In \@ref(fig:subtree-plots-overlap), branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
 
+### Customizing how branches are highlighted
 
+The user can customize the aesthetics used to highlight branches with argument `subtree_mapping`, which takes a named list . The list elements can be named "color" (or "colour"), "size", and/or "linetype". These are the three aesthetics that `ggtree` understands. Each named element should contain a vector defining the scale for that aesthetic. This vector can have up to four elements. When both `data_1` and `data_2` are defined, the vector elements will be mapped to the following categories, in order: branch is in neither data set; branch is in `data_1` only; branch is in `data_2` only; branch is in both data sets. 
 
-While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram generated by `display_subtree()` can be cluttered. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate this using the function `prune_and_display_subtree()` on both data sets.
+This is easiest to undertand with some examples. The default value of `subtree_mapping` is the following:
+```{r}
+subtree_mapping = list("color" = c("gray50", #medium gray
+                                   "#66C2A5", #blue-green
+                                   "#8DA0CB", #purple-blue
+                                   "#FC8D62" #red-orange
+                                   )
+)
+```
+
+This means that tree branches are highlighted using only color. Branches in neither dataset are drawn in medium gray. Branches only in data set 1 are drawn in blue-green. Branches only in data set 2 are drawn in purple-blue. Branches in both data sets are drawn in red-orange.
+
+If we wanted to highlight branches using size (line width) and linetype as well as color, we would do the following:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                data_1 = BIOSOLIDS2021_class, 
+                data_2 = USGSWATER_class, 
+                name_1 = 'Biosolids', 
+                name_2 = 'USGS Water',
+                subtree_mapping = list(
+                  "color" = c("gray50", #neither dataset
+                              "#66C2A5", #dataset 1 only (here, Biosolids)
+                              "#8DA0CB", #dataset 2 only (here, USGS Water)
+                              "#FC8D62" #both datasets
+                  ),
+                  "size" = c(0.5, #neither dataset
+                             1, #dataset 1 only (here, Biosolids)
+                             1.25, #dataset 2 only (here, USGS Water)
+                             2 #both datasets
+                             ), 
+                  "linetype" = c(1,  #neither dataset (solid)
+                                 2, #dataset 1 only (here, Biosolids) (dotted)
+                                 3, #dataset 2 only (here, USGS Water) (dashed)
+                                 4) #both datasets (dot-dashed)
+                ) 
+)
+```
+
+## Highlighting branches of one subtree by their membership in another
+
+It can also be informative to prune the tree to include only branches in one chemical list, and then highlight that pruned subtree's branches by whether they are members of another chemical list. This can be done using the function `prune_and_display_subtree()`, which accepts the same arguments as `display_subtree()`.
+
+Here is the organohalogen tree, pruned to include only the branches represented in `BIOSOLIDS2021_class` (i.e., this is the subtree induced by `BIOSOLIDS2021_class`)
 
 ```{r pruned-subtree,  fig.align='center', fig.dim=c(12,12)}
-prune_and_display_subtree(data = biosolids_classified)
-prune_and_display_subtree(data = usgswater_classified)
+prune_and_display_subtree(base_tree = oh_tree,
+                          prune_to = BIOSOLIDS2021_class,
+                          prune_name = "Biosolids")
 ```
 
-While there is still a lot of information displayed through the tip labels, this visual provides a much closer look at the subtree induced by the data set than the previous visual that displayed it within the whole taxonomy. We note a few things about this diagram. While many chemical classifications terminate with a tip label as the most specific label in the classification, there are some classifications that terminate with an internal node. If we were just to delete the internal nodes and tips not represented by classifications for a data set using `ape::drop_tip()`, the internal nodes that were terminal labels for classifications would appear somewhere between the outer layer of tips and the root. This function adjusts the branch lengths to accommodate the new structure of the subtree. A visual comparison between the branches in the subtree and the subtree within the entire taxonomy mayu show slight differences, for which this is the reason.
+Here is the biosolids subtree with branches highlighted to show their membership in the USGS Water list. (Here, we additionally use the grammar of `ggplot2` to plot the legend using thicker lines, so that it is easier to see.)
 
-
-In a manner similar to the output of `display_subtree()` when comparing two data sets, we may wish to look at the induced subtrees of two different data sets and compare membership of one subtree in the other. To achieve this, we use the function `data_set_subtrees()` as we illustrate in the following example.
-
-```{r pruned-subtree-overlap,  fig.align='center', fig.dim=c(12,12)}
-data_set_subtrees(data_1 = biosolids_classified, 
-                  data_2 = usgswater_classified, 
-                  name_1 = 'Biosolids', 
-                  name_2 = 'USGS water')
+```{r}
+prune_and_display_subtree(base_tree = oh_tree,
+                          prune_to = BIOSOLIDS2021_class,
+                          prune_name = "Biosolids",
+                          data_1 = USGSWATER_class,
+                          name_1 = "USGS Water") +
+  ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 2)))
 ```
 
-The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, much like with the `display_subtree()` output, this does not reflect the level to which the overlap occurs, and how that overlap relates to the number of chemicals with a given classification within each data set. The following diagrams are able to quantify this overlap. We employ the function `leaf_fraction_subtree()` to create this visualization.
+
+Note a few things about this diagram. First, some of the branches do not go all the way to the bottom. This occurs when a chemical classification terminates with an internal node -- i.e., the terminal classification is a node that had children in the original tree, but none of the chemicals on the list fall into the classes of any of those children. If you prefer to adjust the branch lengths so that all of the branches go all the way to the bottom, use argument `adjust_branch_length = TRUE` in `prune_and_display_subtree()`.
+
+```{r}
+prune_and_display_subtree(base_tree = oh_tree,
+                          prune_to = BIOSOLIDS2021_class,
+                          prune_name = "Biosolids",
+                          data_1 = USGSWATER_class,
+                          name_1 = "USGS Water",
+                          adjust_branch_length = TRUE) +
+  guides(color = guide_legend(override.aes = list(size = 2)))
+```
+
+
+The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, these visualizations do not show the *number* of chemicals with a given classification -- i.e., the number of chemicals that populate each branch -- or the number  of chemicals that overlap in each branch. 
+
+```{r}
+biosolids_subtree <- prune_tree(tree = oh_tree,
+                                prune_to = BIOSOLIDS2021_class,
+                                adjust_branch_length = TRUE)
+```
+
+If we add chemicals as tips to the tree, it look slike this:
+```{r}
+new_tree <- bind_entities(tree = biosolids_subtree,
+                          data = BIOSOLIDS2021_class,
+                          id_col = "PREFERRED.NAME")
+
+
+
+display_subtree(new_tree, data_1 = USGSWATER_class, clade_level = NULL)
+```
+
+
+
+The following diagrams are able to quantify this overlap. We employ the function `leaf_fraction_subtree()` to create this visualization.
+
+```{r}
+
+BIOSOLIDS2021_class <- add_terminal_label(BIOSOLIDS2021_class)
+USGSWATER_class <- add_terminal_label(USGSWATER_class)
+```
+
+```{r}
+
+biosolids_count <- BIOSOLIDS2021_class %>% dplyr::count(terminal_label) %>% dplyr::rename(n_biosolids = n)
+usgs_count <- USGSWATER_class %>% dplyr::count(terminal_label)  %>% dplyr::rename(n_usgs = n)
+
+get_overlap <-  function(termlab){
+                    chem_bio <- BIOSOLIDS2021_class[BIOSOLIDS2021_class$terminal_label %in% termlab, "INCHIKEY"]
+                    chem_usgs <- USGSWATER_class[USGSWATER_class$terminal_label %in% termlab, "INCHIKEY"]
+                    simil <- length(intersect(chem_bio, chem_usgs))/length(union(chem_bio, chem_usgs))
+                    simil
+                  }
+
+overlapdf <- BIOSOLIDS2021_class %>% dplyr::group_by(terminal_label) %>% dplyr::summarise(overlap = get_overlap(terminal_label))
+
+dat <- get_tree_df(biosolids_subtree)
+dat_clade <- dat[dat$level %in% 2,]
+```
+
+```{r}
+
+display_subtree(biosolids_subtree,
+                clade_level = NULL,
+                data_1 = USGSWATER_class,
+                name_1 = "USGS Water",
+                subtree_mapping = list(size = c(0.5,
+                                                1),
+                                       color = c("gray50",
+                                                 "black"))) +
+  geom_fruit(data = biosolids_count,
+             geom = geom_tile,
+             mapping = aes(y = terminal_label,
+                           x = 1,
+                           fill = n_biosolids,
+                           height =1,
+                           width = 10),
+             offset = 0,
+             pwidth = 0.1) +
+  scale_fill_viridis_c(trans = "log10",
+                       name = "# chemicals") +
+ # ggnewscale::new_scale_fill() +
+    geom_fruit(data = usgs_count,
+             geom = geom_tile,
+             mapping = aes(y = terminal_label,
+                           x = 1,
+                           fill = n_usgs,
+                           height =1,
+                           width = 10),
+             offset = 0.01,
+             pwidth = 0.1) +
+  #scale_fill_viridis_c(trans = "log10") +
+  ggnewscale::new_scale_fill() +
+  geom_fruit(data = overlapdf,
+             geom = geom_tile,
+             mapping = aes(y = terminal_label,
+                           x = 1,
+                           fill = overlap,
+                           height = 1,
+                           width = 10),
+             offset = 0.01,
+             pwidth = 0.1) +
+  scale_fill_viridis_c(option = "magma") +
+  theme(legend.position = "left") +
+  geom_cladelab(data = dat_clade,
+                mapping = aes(node = node,
+                              label = Name),
+                offset = 40,
+                angle = "auto")
+```
+
+
+
 
 ```{r biosolids-leaf-fraction,  fig.align='center', fig.dim=c(12,8)}
 biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified, 
