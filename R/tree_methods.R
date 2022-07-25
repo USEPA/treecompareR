@@ -898,3 +898,60 @@ adjust_branch_lengths <- function(tree){
   }
   return(edge.length)
 }
+
+#' Compare similarity measures
+#'
+#' This functions compares the similarity measures of Jaccard, Resnik, Lin, and
+#' Jiang and Conrath on a variety of trees. The tree types include the
+#' caterpillar, star, and balanced trees. The input parameter `n` indicates how
+#' many tips for the caterpillar and balanced tree. The star has 2n tips, and
+#' all trees have 2n-1 total nodes and tips.
+#'
+#' @param n Each tree has 2n-1 total nodes and tips.
+#' @return A data.frame consisting of the mean self-similarity scores for each
+#'   tree and similarity measure.
+compare_similarity_measures <- function(n){
+  caterpillar <- generate_caterpillar(n)
+  star <- generate_star(2*n)
+  balanced <- generate_balanced(n)
+
+  cat_IC <- attach_information_content(caterpillar)
+  star_IC <- attach_information_content(star)
+  balanced_IC <- attach_information_content(balanced)
+
+  cat_Jaccard <- generate_similarity_matrix(caterpillar, similarity = general_Jaccard_similarity)
+  star_Jaccard <- generate_similarity_matrix(star, similarity = general_Jaccard_similarity)
+  balanced_Jaccard <- generate_similarity_matrix(balanced, similarity = general_Jaccard_similarity)
+
+  cat_Resnik <- generate_similarity_matrix(cat_IC, similarity = general_Resnik_similarity)
+  star_Resnik <- generate_similarity_matrix(star_IC, similarity = general_Resnik_similarity)
+  balanced_Resnik <- generate_similarity_matrix(balanced_IC, similarity = general_Resnik_similarity)
+
+  cat_Lin <- generate_similarity_matrix(cat_IC, similarity = general_Lin_similarity)
+  star_Lin <- generate_similarity_matrix(star_IC, similarity = general_Lin_similarity)
+  balanced_Lin <- generate_similarity_matrix(balanced_IC, similarity = general_Lin_similarity)
+
+  cat_JiangConrath <- generate_similarity_matrix(cat_IC, similarity = general_JiangConrath_similarity)
+  star_JiangConrath <- generate_similarity_matrix(star_IC, similarity = general_JiangConrath_similarity)
+  balanced_JiangConrath <- generate_similarity_matrix(balanced_IC, similarity = general_JiangConrath_similarity)
+
+
+
+  simulation <- data.frame("Name" = c(paste("Caterpillar", n),
+                                      paste("Star", 2*n),
+                                      paste("Balanced", n)),
+                           "Jaccard" = c(mean(cat_Jaccard[upper.tri(cat_Jaccard, diag = TRUE)]),
+                           mean(star_Jaccard[upper.tri(star_Jaccard, diag = TRUE)]),
+                           mean(balanced_Jaccard[upper.tri(balanced_Jaccard, diag = TRUE)])),
+             "Resnik" = c(mean(cat_Resnik[upper.tri(cat_Resnik, diag = TRUE)]),
+                          mean(star_Resnik[upper.tri(star_Resnik, diag = TRUE)]),
+                          mean(balanced_Resnik[upper.tri(balanced_Resnik, diag = TRUE)])),
+             "Lin" = c(mean(cat_Lin[upper.tri(cat_Lin, diag = TRUE)]),
+                       mean(star_Lin[upper.tri(star_Lin, diag = TRUE)]),
+                       mean(balanced_Lin[upper.tri(balanced_Lin, diag = TRUE)])),
+             "JiangConrath" = c(mean(cat_JiangConrath[upper.tri(cat_JiangConrath, diag = TRUE)]),
+                                mean(star_JiangConrath[upper.tri(star_JiangConrath, diag = TRUE)]),
+                                mean(balanced_JiangConrath[upper.tri(balanced_JiangConrath, diag = TRUE)])))
+
+  return(simulation)
+}
