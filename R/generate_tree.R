@@ -484,14 +484,49 @@ generate_star <- function(n){
 #'@param n The number of tips
 #'@return A `phylo` object representing the generated tree.
 generate_balanced <- function(n){
-  n <- as.integer(n)
+  n <- floor(as.integer(n))
 
   if (n < 2){
     stop('Please input an integer at least 2!')
   }
 
-  tip.label <- paste0('t', 1:n)
-  node.label <- paste0('n', 1:(n-1))
 
+  Nnode <- n - 1
+
+  tip.label <- paste0('t', 1:n)
+  node.label <- paste0('n', 1:Nnode)
+
+
+
+  edge <- matrix(NA_integer_, nrow = 2*n-2, ncol = 2)
+  edge[, 1] <- rep((n+1):(2*n-1), each = 2)
+
+
+
+  if (identical(n, 2^floor(log2(n)))){
+    edge[, 2] <- c((n+2):(2*n-1), 1:n)
+  } else {
+    next_layer <- 1:(2*(n - 2^floor(log2(n))))
+    previous_layer <- (2*(n-2^floor(log2(n))) + 1):n
+    edge[, 2] <- c((n+2):(2*n - 1), previous_layer, next_layer)
+  }
+
+  phy <- list(edge = edge,
+              tip.label = tip.label,
+              node.label = node.label,
+              Nnode = Nnode)
+
+  class(phy) <- "phylo"
+  phy <- reorder(phy)
+
+  phy <- ape::root.phylo(phy, node = n+1)
+
+  #for (i in 2:(n-1)){
+  #  phy <- ape::rotate(phy = phy, node = (n+i))
+  #}
+
+  #phy <- ape::rotate(phy = phy, node = (n+1))
+
+  return(phy)
 
 }
