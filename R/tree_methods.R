@@ -1022,3 +1022,53 @@ bind_entities <- function(tree,
   return(new_tree)
 
 }
+
+#'Prune a tree
+#'
+#'Prune a tree to keep only a subtree specified as a classified data set, a
+#'vector of labels, or a vector of node numbers
+#'
+#'@param tree The "base tree" to be pruned.
+#'@param prune_to What to keep. May be a \code{data.frame} of classified data;
+#'  one or more labels in the tree (tip or internal node labels); one or more
+#'  node numbers in the tree (tip or internal nodes). See Details. Default is
+#'  NULL, which results in no pruning being done.
+#'@param adjust_branch_length Whether to adjust branch length so that all
+#'  newly-pruned terminal nodes appear at the same length as tips, even if they
+#'  were originally internal nodes. Default FALSE.
+#'@param tax_level_labels Vector of the possible taxonomy levels that can appear
+#'  as column names in \code{prune_to} if it is a \code{data.frame} of
+#'  classified data.
+#'@return A \code{\link[ape]{phylo}}-class object representing the pruned tree.
+#'@export
+prune_tree <- function(tree,
+                       prune_to = NULL,
+                       adjust_branch_length = FALSE,
+                       tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                            'level5', 'level6', 'level7', 'level8',
+                                            'level9', 'level10', 'level11')){
+  if(!is.null(prune_to)){ #if user has specified something to prune to
+    if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
+      #Prune the tree according to the specified dataset
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     data = prune_to,
+                                     tax_level_labels = tax_level_labels)
+    }else if(is.character(prune_to)){
+      #interpret as node/tip labels
+      #prune to only the subtree including the descendents of this internal node(s)
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     labels = prune_to)
+    }else if(is.numeric(prune_to)){
+      #interpret as node numbers
+      #prune to only the subtree including the descendents of this internal node(s)
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     nodes = prune_to)
+    }
+
+    if (adjust_branch_length) {
+      pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
+    }
+
+  }
+  return(pruned_tree)
+}
