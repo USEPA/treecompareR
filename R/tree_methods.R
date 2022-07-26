@@ -964,12 +964,37 @@ clade_df <- tree_df[tree_df$level %in% level, ]
 return(clade_df)
 }
 
+#' Bind individual entities as new tips to a tree
+#'
+#' @param tree The base tree as a \code{phylo}-class object. Tips will be bound to this tree.
+#' @param data Either one data.frame, or a list of data.frames, containing
+#'   classified entities. Each row of the data.frame is one entity. The
+#'   data.frames must include the column names specifeid in
+#'   \code{tax_level_labels} and \code{entity_id_col}.
+#' @param entity_id_col The column name in \code{data} containing identifying
+#'   labels for the entities.
+#' @param tax_level_labels Taxonomy levels used for classification in \code{data}. Default is
+#'   the Chemont taxonomy levels: \code{c('kingdom', 'superclass', 'class',
+#'   'subclass','level5', 'level6', 'level7', 'level8','level9', 'level10',
+#'   'level11')}.
+#' @return A \code{phylo}-class object.
+#'
 bind_entities <- function(tree,
                           data,
-                          id_col = "INCHIKEY",
+                          entity_id_col,
                           tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                'level5', 'level6', 'level7', 'level8',
                                                'level9', 'level10', 'level11')){
+
+  #if a list of data frames is provided, rowbind it all together
+  #this will be the "master list" of entities
+  if(!is.data.frame(data)){
+  if(is.list(data) &
+     all(sapply(data, is.data.frame))){
+    data <- dplyr::bind_rows(data)
+  }
+  }
+
   #if terminal label not already in data, add it
   if(!"terminal_label" %in% names(data)){
     data <- add_terminal_label(data = data,
@@ -977,7 +1002,7 @@ bind_entities <- function(tree,
   }
 
   #get terminal labels for each entity
-  term_labs <- data[c(id_col,
+  term_labs <- data[c(entity_id_col,
                         "terminal_label")]
 
   #get node numbers corresponding to terminal labels
@@ -1002,7 +1027,7 @@ bind_entities <- function(tree,
                                              nrow(tmpdf)),
                                  parent = rep(parent_node,
                                               nrow(tmpdf)),
-                                 Name = tmpdf[[id_col]])
+                                 Name = tmpdf[[entity_id_col]])
   })
 
   new_df <- dplyr::bind_rows(new_df_list)
@@ -1071,4 +1096,39 @@ prune_tree <- function(tree,
 
   }
   return(pruned_tree)
+}
+
+#' Convert a phylo tree into a wide-format "classified" data.frame
+
+as_classified.phylo <- function(tree,
+                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                                      'level5', 'level6', 'level7', 'level8',
+                                                                      'level9', 'level10', 'level11')){
+
+  foo <- dplyr::bind_rows(
+    lapply(1:(ape::Ntip(tree)),
+         function(tip_node){
+           ancestors <- phangorn::Ancestors(x= tree,
+                                            node = tip_node,
+                                            type = "all")
+           ancestors_rev <- rev(ancestors)[-1] #delete root node
+           ancestors_add_tip <- c(ancestors_rev, tip_node)
+           ancestors_labels <-  get_label_from_node(node = ancestors_add_tip,
+                                                    tree = tree)
+           ancestors_levels <- tax_level_labels[seq_along(ancestors_labels)]
+           return(data.frame(tip_label = tree$tip.label[tip_node],
+                             labels = ancestors_labels,
+                             levels = ancestors_levels))
+         }
+         )
+         )
+
+  foo2 <- tidyr::pivot_wider(foo,
+                             id_cols = tip_label,
+                             names_from = levels,
+                             values_from = labels)
+
+
+return(as.data.frame(foo2))
+
 }
