@@ -186,10 +186,10 @@ display_subtree <- function(base_tree = chemont_tree,
                                                  'level9', 'level10',
                                                  'level11'),
                             layout = "circular",
-                            base_opts = list("color" = "gray50",
+                            base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
-                            subtree_mapping = list("color" = c("gray50",
+                            subtree_mapping = list("color" = c("gray70",
                                                                "#66C2A5",
                                                                "#8DA0CB",
                                                                "#FC8D62")),
@@ -941,4 +941,78 @@ data_set_subtrees <- function(data_1,
 }
 
 
+display_overlap <- function(base_tree,
+                            base_name,
+                            data_1,
+                            name_1,
+                            data_2,
+                            name_2,
+                            entity_id_col,
+                            overlap_at_level = "terminal",
+                            tax_level_labels = c('kingdom', 'superclass',
+                                                                  'class', 'subclass',
+                                                                  'level5', 'level6',
+                                                                  'level7', 'level8',
+                                                                  'level9', 'level10',
+                                                                  'level11'),
+                            ...){
+overlap <- calc_number_overlap(data_1 = data_1,
+                               data_2 = data_2,
+                               entity_id_col = entity_id_col,
+                               at_level = overlap_at_level,
+                               tax_level_labels = tax_level_labels)
 
+overlap$n_1[overlap$n_1==0] <- NA_real_
+overlap$n_2[overlap$n_2==0] <- NA_real_
+
+if(overlap_at_level %in% "terminal"){
+  overlap_at_level <- "terminal_label"
+}
+plot_lab <- rlang::ensym(overlap_at_level)
+
+out_obj <- do.call(display_subtree,
+                   args = c(list(base_tree = base_tree,
+                base_name = base_name,
+                data_1 = data_1,
+                name_1 = name_1,
+                data_2 = data_2,
+                name_2 = name_2,
+                tax_level_labels = tax_level_labels,
+                clade_level = NULL),
+                ...))+
+  geom_fruit(data = overlap,
+             geom = geom_tile,
+             mapping = aes(y = {{plot_lab}},
+                           x = 1,
+                           fill = n_1,
+                           height =1,
+                           width = 10),
+             offset = 0,
+             pwidth = 0.1) +
+  geom_fruit(data = overlap,
+             geom = geom_tile,
+             mapping = aes(y = {{plot_lab}},
+                           x = 1,
+                           fill = n_2,
+                           height =1,
+                           width = 10),
+             offset = 0.01,
+             pwidth = 0.1) +
+  scale_fill_viridis_c(trans = "log10",
+                       name = "# entities",
+                       na.value = "white") +
+  ggnewscale::new_scale_fill() +
+  geom_fruit(data = overlap,
+             geom = geom_tile,
+             mapping = aes(y = {{plot_lab}},
+                           x = 1,
+                           fill = simil,
+                           height = 1,
+                           width = 10),
+             offset = 0.01,
+             pwidth = 0.1) +
+  scale_fill_viridis_c(option = "magma") +
+  theme(legend.position = "left")
+
+return(out_obj)
+}
