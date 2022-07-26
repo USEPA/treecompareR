@@ -99,22 +99,27 @@ add_terminal_label <- function(data,
   return(data_out)
 }
 
-calc_number_overlap <- function(base_data,
-                                compare_data,
-                                id_col = "INCHIKEY",
+
+#' calculate overlap between two classified datasets at the individual entity level
+#'
+#'@param data_1 A data.frame of classified entities to be used as the base set
+#'@param compare_dat A data.frame of classified entitites to be used as hte comp
+calc_number_overlap <- function(data_1,
+                                data_2,
+                                entity_id_col,
                                 at_level = "terminal",
                                 tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                      'level5', 'level6', 'level7', 'level8',
                                                      'level9', 'level10', 'level11')){
   if(at_level %in% "terminal"){
   #get terminal labels if not already there
-  if(!("terminal_label" %in% names(base_data))){
-    base_data <- add_terminal_label(base_data,
+  if(!("terminal_label" %in% names(data_1))){
+    data_1 <- add_terminal_label(data_1,
                                     tax_level_labels = tax_level_labels)
   }
 
-  if(!("terminal_label" %in% names(compare_data))){
-    compare_data <- add_terminal_label(compare_data,
+  if(!("terminal_label" %in% names(data_2))){
+    data_2 <- add_terminal_label(data_2,
                                     tax_level_labels = tax_level_labels)
   }
     group_col <- "terminal_label"
@@ -148,48 +153,61 @@ calc_number_overlap <- function(base_data,
     }
   }
 
-  base_count <- base_data %>%
+  count_1 <- data_1 %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
-    dplyr::summarise(n_base = dplyr::n_distinct(
+    dplyr::summarise(n_1 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(id_col)
+        dplyr::all_of(entity_id_col)
         )
       )
       )
 
-  compare_count <- compare_data %>%
+  count_2 <- data_2 %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
-    dplyr::summarise(n_compare = dplyr::n_distinct(
+    dplyr::summarise(n_2 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(id_col)
+        dplyr::all_of(entity_id_col)
       )
     )
     )
 
-  df_count <- merge(base_count,
-                    compare_count,
+  df_count <- merge(count_1,
+                    count_2,
                     by = group_col,
-                    all.x = TRUE)
+                    all = TRUE)
 
-  get_overlap <-  function(grouplab){
-    id_base <- base_data[base_data[[group_col]] %in% grouplab, id_col]
-    id_compare <- compare_data[compare_data[[group_col]] %in% grouplab, id_col]
-    n_intersect <- length(intersect(id_base, id_compare))
-    n_union <-  length(union(id_base, id_compare))
+
+  #replace NAs with zeros for labels with no entities in one data set
+  df_count$n_1[is.na(df_count$n_1)] <- 0
+  df_count$n_2[is.na(df_count$n_2)] <- 0
+
+  get_overlap <-  function(grouplab,
+                           group_col,
+                           entity_id_col){
+    id_1 <- data_1[data_1[[group_col]] %in% grouplab, entity_id_col]
+    id_2 <- data_2[data_2[[group_col]] %in% grouplab, entity_id_col]
+    n_intersect <- length(intersect(id_1, id_2))
+    n_union <-  length(union(id_1, id_2))
     simil <- n_intersect/n_union
     data.frame("n_intersect" = n_intersect,
                "n_union" = n_union,
                "simil" = simil)
   }
 
-  overlap_df <- base_data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
-    dplyr::summarise(get_overlap(.data[[group_col]]))
+  df_list <- sapply(df_count[[group_col]],
+                    get_overlap,
+                    group_col = group_col,
+                    entity_id_col = entity_id_col,
+                    simplify = FALSE,
+                    USE.NAMES = TRUE)
+
+  overlap_df <- dplyr::bind_rows(df_list,
+                                 .id = group_col)
 
   outdf <- merge(df_count,
                  overlap_df,
                  by = group_col,
-                 all.x = TRUE)
+                 all = TRUE)
 
 }
 
