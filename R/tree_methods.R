@@ -937,7 +937,7 @@ compare_similarity_measures <- function(n){
 
 
 
-  simulation <- data.frame("Name" = c(paste("Caterpillar", n),
+  simulation <- data.frame("Name (number of tips)" = c(paste("Caterpillar", n),
                                       paste("Star", 2*n),
                                       paste("Balanced", n)),
                            "Jaccard" = c(mean(cat_Jaccard[upper.tri(cat_Jaccard, diag = TRUE)]),
