@@ -15,9 +15,7 @@
 #' @export
 #' @import data.table
 add_terminal_label <- function(data,
-                               tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                                    'level5', 'level6', 'level7', 'level8',
-                                                    'level9', 'level10', 'level11')){
+                               tax_level_labels = chemont_tax_levels){
   data_orig <- copy(data) #save original input data
 
   #check that the input data.frame has been classified properly
@@ -108,9 +106,7 @@ calc_number_overlap <- function(data_1,
                                 data_2,
                                 entity_id_col,
                                 at_level = "terminal",
-                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                                     'level5', 'level6', 'level7', 'level8',
-                                                     'level9', 'level10', 'level11')){
+                                tax_level_labels = chemont_tax_levels){
   if(at_level %in% "terminal"){
   #get terminal labels if not already there
   if(!("terminal_label" %in% names(data_1))){
@@ -232,12 +228,8 @@ calc_number_overlap <- function(data_1,
 #' @return The unique labels corresponding to the given level and classified
 #'   data.
 #' @import data.table
-get_label_level <- function(data, level_label, tax_level_labels = NULL){
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
-  }
+get_label_level <- function(data, level_label, tax_level_labels = chemont_tax_levels){
+
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
     stop(paste('Please input a valid label!', level_label))
 
@@ -264,9 +256,7 @@ get_label_level <- function(data, level_label, tax_level_labels = NULL){
 #'   not using ClassyFire taxonomy.
 #' @return A list of terminal classification labels for each item in the input data.
 get_labels <- function(data,
-                       tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                            'level5', 'level6', 'level7', 'level8',
-                                            'level9', 'level10', 'level11')){
+                       tax_level_labels = chemont_tax_levels){
 
   labels <- tidyr::pivot_longer(data, #reshape to longer format
                                 cols = tidyselect::all_of(tax_level_labels),
@@ -296,12 +286,7 @@ get_labels <- function(data,
 #'   not  using ClassyFire taxonomy
 #' @return A named list of chemical labels and their number of occurrences.
 get_number_of_labels <- function(data,
-                                 tax_level_labels = c('kingdom', 'superclass',
-                                                      'class', 'subclass',
-                                                      'level5', 'level6',
-                                                      'level7', 'level8',
-                                                      'level9', 'level10',
-                                                      'level11')){
+                                 tax_level_labels = chemont_tax_levels){
 
 
   labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
@@ -345,3 +330,14 @@ get_label_length <- function(label_list){
   lengths
 }
 
+
+get_fruit_dat <- function(data, tree,
+                          tax_level_labels = chemont_tax_levels){
+  fruit_data <- copy(data)
+  #get terminal label for data
+fruit_data <- add_terminal_label(fruit_data, tax_level_labels = tax_level_labels)
+ #get node number for terminal label
+fruit_data$node <- get_node_from_label(label = data$terminal_label,
+                                 tree = tree)
+#return
+}

@@ -13,12 +13,7 @@
 
 get_subtree_nodes <- function(data,
                               base_tree = chemont_tree,
-                              tax_level_labels = c('kingdom', 'superclass',
-                                                'class', 'subclass',
-                                                'level5', 'level6',
-                                                'level7', 'level8',
-                                                'level9', 'level10',
-                                                'level11')){
+                              tax_level_labels = chemont_tax_levels){
   #get labels represented by the classified dataset
   data_labels <- get_labels(data = data,
                             tax_level_labels = tax_level_labels)
@@ -54,7 +49,8 @@ get_subtree_nodes <- function(data,
 #' @import data.table
 #' @importFrom tidyr pivot_longer
 #' @import ggplot2
-label_bars <- function(data = NULL, tax_level_labels = NULL){
+label_bars <- function(data = NULL,
+                       tax_level_labels = chemont_tax_levels){
   tax_levels <- NULL
   count_sums <- NULL
   dataset <- NULL
@@ -186,12 +182,7 @@ display_subtree <- function(base_tree = chemont_tree,
                             data_2 = NULL,
                             name_1 = NULL,
                             name_2 = NULL,
-                            tax_level_labels = c('kingdom', 'superclass',
-                                                 'class', 'subclass',
-                                                 'level5', 'level6',
-                                                 'level7', 'level8',
-                                                 'level9', 'level10',
-                                                 'level11'),
+                            tax_level_labels = chemont_tax_levels,
                             layout = "circular",
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
@@ -260,7 +251,7 @@ display_subtree <- function(base_tree = chemont_tree,
     }
 
     if("color" %in% names(subtree_mapping)){
-      if (subtree_mapping$color %in% "default"){
+      if (all(subtree_mapping$color %in% "default")){
         subtree_mapping$color <- c("gray70",
                                    "#66C2A5",
                                    "#8DA0CB",
@@ -268,7 +259,7 @@ display_subtree <- function(base_tree = chemont_tree,
       }
     }
   else if ("colour" %in% names(subtree_mapping)){
-    if (subtree_mapping$colour %in% "default"){
+    if (all(subtree_mapping$colour %in% "default")){
       subtree_mapping$colour <- c("gray70",
                                  "#66C2A5",
                                  "#8DA0CB",
@@ -526,17 +517,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       prune_to = NULL,
                                       prune_name = NULL,
                                       adjust_branch_length = FALSE,
-                                      tax_level_labels = c('kingdom',
-                                                           'superclass',
-                                                           'class',
-                                                           'subclass',
-                                                           'level5',
-                                                           'level6',
-                                                           'level7',
-                                                           'level8',
-                                                           'level9',
-                                                           'level10',
-                                                           'level11'),
+                                      tax_level_labels = chemont_tax_levels,
                                       ...) { #args as for display_subtree()
 
   args <- list(...)
@@ -989,13 +970,10 @@ display_overlap <- function(base_tree,
                             name_2,
                             entity_id_col,
                             overlap_at_level = "terminal",
-                            tax_level_labels = c('kingdom', 'superclass',
-                                                                  'class', 'subclass',
-                                                                  'level5', 'level6',
-                                                                  'level7', 'level8',
-                                                                  'level9', 'level10',
-                                                                  'level11'),
+                            tax_level_labels = chemont_tax_levels,
                             ...){
+
+  args <- list(...)
 
   if(is.numeric(overlap_at_level)){
     if(overlap_at_level > length(tax_level_labels)){
@@ -1065,37 +1043,63 @@ out_obj <- do.call(display_subtree,
                 name_2 = name_2,
                 tax_level_labels = tax_level_labels,
                 clade_level = NULL),
-                ...))+
-  ggtree::geom_fruit(data = overlap,
+                args[setdiff(names(args),
+                             "clade_level")
+                     ]
+                )
+                )+
+  ggtreeExtra::geom_fruit(data = overlap,
              geom = geom_tile,
              mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_1,
                            height =1,
                            width = 10),
-             offset = 0) +
-  ggtree::geom_fruit(data = overlap,
+             pwidth = 0.1,
+             offset = 0.01) +
+  ggtreeExtra::geom_fruit(data = overlap,
              geom = geom_tile,
              mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_2,
                            height =1,
                            width = 10),
+             pwidth = 0.1,
              offset = 0.01) +
   ggplot2::scale_fill_viridis_c(trans = "log10",
                        name = "# entities",
                        na.value = "white") +
   ggnewscale::new_scale_fill() +
-  geom_fruit(data = overlap,
+  ggtreeExtra::geom_fruit(data = overlap,
              geom = geom_tile,
              mapping = aes(y = terminal_label,
                            x = 1,
                            fill = simil,
                            height = 1,
                            width = 10),
+             pwidth = 0.1,
              offset = 0.01) +
   ggplot2::scale_fill_viridis_c(option = "magma") +
   ggplot2::theme(legend.position = "left")
+
+if(!is.null(args$clade_level)){
+  #first plot arcs without labels, no offset
+  clade_opts_tmp <- args$clade_opts
+  clade_opts_tmp$offset <- 0
+  clade_opts_tmp$textcolour <- NA
+  out_obj <- add_cladelab(tree_plot = out_obj,
+                          tree = base_tree,
+                          clade_level = args$clade_level,
+                          clade_opts = clade_opts_tmp)
+
+  #now add arcs with labels, offset of 40 to be outside of geom_fruit
+  clade_opts_tmp <- args$clade_opts
+  clade_opts_tmp$offset <- 40
+ out_obj <- add_cladelab(tree_plot = out_obj,
+                         tree = base_tree,
+                         clade_level = args$clade_level,
+                         clade_opts = clade_opts_tmp)
+}
 
 return(out_obj)
 }
