@@ -1020,6 +1020,23 @@ display_overlap <- function(base_tree,
                                                                   'level9', 'level10',
                                                                   'level11'),
                             ...){
+
+  if(is.numeric(overlap_at_level)){
+    if(overlap_at_level > length(tax_level_labels)){
+      stop(
+        paste("Cannot find overlap at level  'overlap_at_level' =",
+              overlap_at_level,
+              "because it is greater than the max level",
+              "defined by the length of 'tax_level_labels' =",
+              paste(tax_level_labels, collapse = ", ")
+        )
+      )
+    }else{
+      #pull the corresponding taxonomy level label
+      overlap_at_level <- tax_level_labels[overlap_at_level]
+    }
+  }
+
 overlap <- calc_number_overlap(data_1 = data_1,
                                data_2 = data_2,
                                entity_id_col = entity_id_col,
@@ -1031,8 +1048,37 @@ overlap$n_2[overlap$n_2==0] <- NA_real_
 
 if(overlap_at_level %in% "terminal"){
   overlap_at_level <- "terminal_label"
+}else{
+#get tip labels associated with each label in overlap,
+#if overlap_at_level is not already terminal
+#geom_fruit only works on tip labels apparently
+
+  overlap$at_node <- get_node_from_label(label = overlap[[overlap_at_level]],
+                                         tree = base_tree)
+
+  overlap <- overlap[!is.na(overlap$at_node), ] #NA for any label not in the base tree
+  #get children nodes for each
+  overlap_tip_nodes <- phangorn::Descendants(x = base_tree,
+                                                      node = overlap$at_node,
+                                                      type = "tips")
+
+  #now repeat the rest of the columns for each one
+  df_list <- lapply(seq_along(overlap_tip_nodes),
+                    function(i){
+                      data.frame(tip_nodes = overlap_tip_nodes[[i]],
+                                 n_1 = overlap[i, "n_1"],
+                                 n_2 = overlap[i, "n_2"],
+                                 n_intersect = overlap[i, "n_intersect"],
+                                 n_union = overlap[i, "n_union"],
+                                 simil = overlap[i, "simil"])
+                    })
+
+  overlap <- dplyr::bind_rows(df_list)
+  overlap$terminal_label <- get_label_from_node(node = overlap$tip_nodes,
+                                               tree = base_tree)
+
 }
-plot_lab <- rlang::ensym(overlap_at_level)
+
 
 out_obj <- do.call(display_subtree,
                    args = c(list(base_tree = base_tree,
@@ -1046,7 +1092,7 @@ out_obj <- do.call(display_subtree,
                 ...))+
   geom_fruit(data = overlap,
              geom = geom_tile,
-             mapping = aes(y = {{plot_lab}},
+             mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_1,
                            height =1,
@@ -1055,7 +1101,7 @@ out_obj <- do.call(display_subtree,
              pwidth = 0.1) +
   geom_fruit(data = overlap,
              geom = geom_tile,
-             mapping = aes(y = {{plot_lab}},
+             mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_2,
                            height =1,
@@ -1068,7 +1114,7 @@ out_obj <- do.call(display_subtree,
   ggnewscale::new_scale_fill() +
   geom_fruit(data = overlap,
              geom = geom_tile,
-             mapping = aes(y = {{plot_lab}},
+             mapping = aes(y = terminal_label,
                            x = 1,
                            fill = simil,
                            height = 1,
