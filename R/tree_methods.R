@@ -1002,14 +1002,17 @@ bind_entities <- function(tree,
   }
 
   #get terminal labels for each entity
-  term_labs <- data[c(entity_id_col,
-                        "terminal_label")]
+  #keep only unique entities & terminal labels
+  term_labs <- unique(data[c(entity_id_col,
+                        "terminal_label")])
 
   #get node numbers corresponding to terminal labels
   term_labs$terminal_node <- get_node_from_label(label = term_labs$terminal_label,
                                                  tree = tree)
 
   term_labs <- term_labs[!is.na(term_labs$terminal_node), ]
+
+
 
   #loop over terminal labels
   #create new tree
@@ -1029,8 +1032,33 @@ bind_entities <- function(tree,
                                               nrow(tmpdf)),
                                  Name = tmpdf[[entity_id_col]])
   })
-
+#bind all the list of data.frames into one big one
   new_df <- dplyr::bind_rows(new_df_list)
+
+  #find terminal nodes in original tree without any entities
+  tips_no_ents <- setdiff(tree$tip.label, term_labs$terminal_label)
+  #create some placeholder entities -- these will be deleted later
+  term_fake <- data.frame(terminal_label = tips_no_ents,
+                          Name = paste0("fake_entity_",
+                                        tips_no_ents))
+  fake_df_list <- lapply(term_fake$terminal_label,
+                         function(label){
+                           tmpdf <- term_fake[term_fake$terminal_label %in% label, ]
+                           #add these as new nodes whose parent is the terminal label node
+                           parent_node <- tree_df[tree_df$Name %in% label, "node"]
+                           parent_level <- tree_df[tree_df$Name %in% label, "level"]
+                           new_level <- parent_level + 1
+                           label_df <- data.frame(level = rep(new_level,
+                                                              nrow(tmpdf)),
+                                                  parent = rep(parent_node,
+                                                               nrow(tmpdf)),
+                                                  Name = tmpdf$Name)
+                         })
+
+  fake_df <- dplyr::bind_rows(fake_df_list)
+
+  new_df <- dplyr::bind_rows(new_df, fake_df)
+
   #new node numbers
   new_df$node <- max(tree_df$node) + 1:nrow(new_df)
 
@@ -1044,6 +1072,12 @@ bind_entities <- function(tree,
              "Parent_ID",
              "Name"))
   new_tree <- generate_taxonomy_tree(new_df)
+
+  #drop fake entities
+  new_tree <- ape::drop.tip(new_tree,
+                            term_fake$Name,
+                            trim.internal = FALSE,
+                            collapse.singles = FALSE)
   return(new_tree)
 
 }
