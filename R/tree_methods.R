@@ -3,7 +3,8 @@
 # the second column indicating the child. Internal numbering of nodes is given
 # by tips first and then nodes, with the root given by the first node of the
 # internal nodes. The output also includes the number of children for each node
-# and the node level.
+# and the node level. The root defined as level 0 and the level of a child node
+# is one greater than its parent node.
 
 #' Generate descendants
 #'
@@ -11,8 +12,8 @@
 #' node of the input tree.
 #'
 #' @param tree A phylo object
-#' @return data.frame consisting of the node number, descendants, children, and
-#'   level
+#' @return A data.frame consisting of the node number, descendants, children,
+#'   and level.
 #' @export
 #'
 #' @examples
@@ -97,7 +98,8 @@ get_levels <- function(tree){
 #' tree. This uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}. The
-#' data.frame also includes the depth of each tip and internal node.
+#' data.frame also includes the depth of each tip and internal node, the number
+#' of descendants of each node, and the number of children for each node.
 #'
 #' @param tree A phylo object representing a rooted tree.
 #' @param log_descendants Alternate parameter for specifying type of information
@@ -107,8 +109,7 @@ get_levels <- function(tree){
 #' @export
 #' @importFrom ape is.rooted
 #'
-#' @references
-#' \insertRef{seco2004intrinsic}{treecompareR}
+#' @references \insertRef{seco2004intrinsic}{treecompareR}
 #'
 #' @examples
 #'
