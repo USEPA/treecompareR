@@ -189,9 +189,11 @@ calc_number_overlap <- function(data_1,
     n_intersect <- length(intersect(id_1, id_2))
     n_union <-  length(union(id_1, id_2))
     simil <- n_intersect/n_union
-    data.frame("n_intersect" = n_intersect,
+    data.frame("group" = grouplab,
+               "n_intersect" = n_intersect,
                "n_union" = n_union,
-               "simil" = simil)
+               "simil" = simil
+               )
   }
 
   df_list <- sapply(df_count[[group_col]],
@@ -201,8 +203,12 @@ calc_number_overlap <- function(data_1,
                     simplify = FALSE,
                     USE.NAMES = TRUE)
 
-  overlap_df <- dplyr::bind_rows(df_list,
-                                 .id = group_col)
+  overlap_df <- dplyr::bind_rows(df_list)
+  overlap_df <- setNames(overlap_df,
+                         c(group_col,
+                           "n_intersect",
+                           "n_union",
+                           "simil"))
 
   outdf <- merge(df_count,
                  overlap_df,
