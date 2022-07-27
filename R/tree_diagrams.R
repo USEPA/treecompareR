@@ -196,16 +196,23 @@ display_subtree <- function(base_tree = chemont_tree,
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
-                            subtree_mapping = list("color" = c("gray70",
-                                                               "#66C2A5",
-                                                               "#8DA0CB",
-                                                               "#FC8D62")),
+                            subtree_mapping = list(color = "default"),
                             clade_level = "auto",
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
                                               fontsize = 3,
-                                              lineheight = 0.7)
+                                              lineheight = 0.7,
+                                              default_to_tip = TRUE)
 ){
+
+  #Keep defaults for any base_opts not otherwise specified
+  base_opts_default <- list("color" = "black",
+                                        "size" = 0.5,
+                                        "linetype" = 1)
+  base_opts <- c(base_opts,
+                 base_opts_default[setdiff(names(base_opts),
+                                           names(base_opts_default))])
+
 
   if(is.null(base_name)){
     #get the *name* of the variable that was passed to base_tree and append "tree"
@@ -245,6 +252,23 @@ display_subtree <- function(base_tree = chemont_tree,
                     "were provided but will be ignored,",
                     "since ggtree::geom_tree() does not understand them."))
     }
+
+    if("color" %in% names(subtree_mapping)){
+      if (subtree_mapping$color %in% "default"){
+        subtree_mapping$color <- c("gray70",
+                                   "#66C2A5",
+                                   "#8DA0CB",
+                                   "#FC8D62")
+      }
+    }
+  else if ("colour" %in% names(subtree_mapping)){
+    if (subtree_mapping$colour %in% "default"){
+      subtree_mapping$colour <- c("gray70",
+                                 "#66C2A5",
+                                 "#8DA0CB",
+                                 "#FC8D62")
+    }
+  }
     }
 
 
@@ -417,101 +441,10 @@ display_subtree <- function(base_tree = chemont_tree,
   } #end if(!is.null(data_1))
 
    #if clade labels have been selected
-    if(!is.null(clade_level)){
-      dat <- get_tree_df(base_tree)
-      if(clade_level %in% "auto"){
-        #automatically set clade level to be level of tree's MRCA plus one,
-        #or at least 2, but not more than the tree's max level
-        mrca_tree <- ape::getMRCA(base_tree, 1:ape::Ntip(base_tree))
-        mrca_level <- dat[dat$node %in% mrca_tree, "level"]
-        max_tree_level <- max(dat$level)
-        clade_level <- min(max(mrca_level + 1, 2), max_tree_level)
-      }
-
-      dat2 <- dat[dat$level == clade_level, c("node", "Name")]
-
-      #sensible default for clade label angles
-      #for circular-ish layouts, use angle = "auto"
-      #for rectangular-ish layouts, use angle = 0
-      if(!("angle" %in% names(clade_opts))){
-        if (layout %in% c("rectangular",
-                          "roundrect",
-                          "slanted",
-                          "ellipse")){
-          clade_opts$angle <- 0
-        }else if(layout %in% c("circular",
-                               "fan",
-                               "equal_angle",
-                               "daylight")){
-          clade_opts$angle <- "auto"
-        }
-      }
-
-        #plot clade bars with alternating widths
-        #to do this:
-        #first need to get order in which clades are plotted
-        #start with order in which *tips* are plotted
-        #ggtree:get_taxa_name() gives us tips in plotting order
-        tips_plot <- ggtree::get_taxa_name(tree_view = tree_plot)
-        #get clade label corresponding to each of these tips at the specified level
-        clade_plot <- get_clade(node = get_node_from_label(label = tips_plot,
-                                                           tree = base_tree),
-                                tree = base_tree,
-                                level = clade_level)
-        #if there is no clade at the specified level, i.e. branch terminates before that level,
-        #then label as tip
-        clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
-                                                             tree = base_tree)
-        #clade_plot <- clade_plot[!is.na(clade_plot)]
-        #tips_clade gives the clades in order of plotting
-        #assign alternating bar widths in plotting order
-        clade_dat <- data.frame(phylo_node = unique(clade_plot),
-                                clade_name = get_label_from_node(node = unique(clade_plot),
-                                                                 tree = base_tree),
-                                barsize = rep(1:2,
-                                              length.out = length(
-                                                unique(clade_plot)
-                                              )
-                                )
-        )
-
-        #Alternating bar thickness only works if the dataset is in base tree order
-        #This is because geom_cladelab() can't use aes() mapping for barsize
-        #So we have to supply it as a non-mapped argument outside aes()
-        #and ggtree automatically reorders it to match the base tree
-        #which means, if it's already in plotting order,
-        #it gets reordered wrongly.
-        #so it needs to match the order of the base tree to begin with,
-        #so that the auto-reordering will be correct.
-
-        dat3 <- clade_dat[match(intersect(dat$node,
-                                          clade_dat$phylo_node),
-                                clade_dat$phylo_node), ]
-
-
-        if(clade_opts$barsize %in% "alternate"){
-        #Re-sort the alternating bar sizes in clade plotting order
-        #to correspond to base tree order of clades
-        clade_opts$barsize <- dat3$barsize
-        }
-
-
-      if("wrap" %in% names(clade_opts)){
-        #wrap clade names to have width clade_label_wrap characters
-        dat3$clade_name2 <- stringr::str_wrap(dat3$clade_name,
-                                              clade_opts$wrap)
-      }
-
-
-      tree_plot <- tree_plot +
-        do.call(geom_cladelab,
-                args = c(list(data = dat3,
-                              mapping = aes(node = phylo_node,
-                                            label = clade_name2,
-                                            group = clade_name2)),
-                         clade_opts)) +
-        theme(legend.position = "top")
-    }
+  tree_plot <- tree_plot %>% add_cladelab(tree_plot = tree_plot,
+                                          tree = base_tree,
+                                          clade_level = clade_level,
+                                          clade_opts = clade_opts)
 
   #add title of base tree
   tree_plot <- tree_plot + ggtitle(base_name)
@@ -1090,25 +1023,23 @@ out_obj <- do.call(display_subtree,
                 tax_level_labels = tax_level_labels,
                 clade_level = NULL),
                 ...))+
-  geom_fruit(data = overlap,
+  ggtree::geom_fruit(data = overlap,
              geom = geom_tile,
              mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_1,
                            height =1,
                            width = 10),
-             offset = 0,
-             pwidth = 0.1) +
-  geom_fruit(data = overlap,
+             offset = 0) +
+  ggtree::geom_fruit(data = overlap,
              geom = geom_tile,
              mapping = aes(y = terminal_label,
                            x = 1,
                            fill = n_2,
                            height =1,
                            width = 10),
-             offset = 0.01,
-             pwidth = 0.1) +
-  scale_fill_viridis_c(trans = "log10",
+             offset = 0.01) +
+  ggplot2::scale_fill_viridis_c(trans = "log10",
                        name = "# entities",
                        na.value = "white") +
   ggnewscale::new_scale_fill() +
@@ -1119,10 +1050,150 @@ out_obj <- do.call(display_subtree,
                            fill = simil,
                            height = 1,
                            width = 10),
-             offset = 0.01,
-             pwidth = 0.1) +
-  scale_fill_viridis_c(option = "magma") +
-  theme(legend.position = "left")
+             offset = 0.01) +
+  ggplot2::scale_fill_viridis_c(option = "magma") +
+  ggplot2::theme(legend.position = "left")
 
 return(out_obj)
+}
+
+
+add_cladelab <- function (tree_plot,
+                          tree = NULL,
+                          clade_level = "auto",
+                          clade_opts = list(wrap = 20,
+                                            barsize = "alternate",
+                                            fontsize = 3,
+                                            lineheight = 0.7,
+                                            default_to_tip = TRUE))
+{
+
+  clade_opts_default <- list(wrap = 20,
+                             barsize = "alternate",
+                             fontsize = 3,
+                             lineheight = 0.7,
+                             default_to_tip = TRUE)
+ #keep defaults for any clade_opts not specified
+  clade_opts <- c(clade_opts,
+                      clade_opts_default[setdiff(names(clade_opts_default),
+                                                 names(clade_opts))])
+
+  if(is.null(tree)){
+    #get tree from tree_plot$data
+    tmp_df <- tree_plot$data[, c("label", "node", "parent")]
+    tmp_df <- setNames(tmp_df, c("Name", "ID", "Parent_ID"))
+    #root node has itself as parent -- fix that
+    tmp_df[tmp_df$ID == tmp_df$Parent_ID, "Parent_ID"] <- NA_real_
+    tmp_df <- as.data.frame(tmp_df)
+    tree <- generate_taxonomy_tree(tmp_df)
+    rm(tmp_df)
+  }
+
+  if(!is.null(clade_level)){
+    dat <- get_tree_df(tree)
+    if(clade_level %in% "auto"){
+      #automatically set clade level to be level of tree's MRCA plus one,
+      #or at least 2, but not more than the tree's max level
+      mrca_tree <- ape::getMRCA(tree, 1:ape::Ntip(tree))
+      mrca_level <- dat[dat$node %in% mrca_tree, "level"]
+      max_tree_level <- max(dat$level)
+      clade_level <- min(max(mrca_level + 1, 2), max_tree_level)
+    }
+
+    dat2 <- dat[dat$level == clade_level, c("node", "Name")]
+
+    #sensible default for clade label angles
+    #for circular-ish layouts, use angle = "auto"
+    #for rectangular-ish layouts, use angle = 0
+
+    #get layout from tree_plot
+    layout <- tree_plot$layers[[1]]$stat_params$layout
+
+    if(!("angle" %in% names(clade_opts))){
+      if (layout %in% c("rectangular",
+                        "roundrect",
+                        "slanted",
+                        "ellipse")){
+        clade_opts$angle <- 0
+      }else if(layout %in% c("circular",
+                             "fan",
+                             "equal_angle",
+                             "daylight")){
+        clade_opts$angle <- "auto"
+      }
+    }
+
+
+  #plot clade bars with alternating widths
+  #to do this:
+  #first need to get order in which clades are plotted
+  #start with order in which *tips* are plotted
+  #ggtree:get_taxa_name() gives us tips in plotting order
+  tips_plot <- ggtree::get_taxa_name(tree_view = tree_plot)
+  #get clade label corresponding to each of these tips at the specified level
+  clade_plot <- get_clade(node = get_node_from_label(label = tips_plot,
+                                                     tree = tree),
+                          tree = tree,
+                          level = clade_level)
+
+  if(isTRUE(clade_opts$default_to_tip)){
+  #if there is no clade at the specified level, i.e. branch terminates before that level,
+  #then label as tip
+  clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
+                                                       tree = tree)
+  }else{
+    #remove any NA values from clade_plot -- these will not be labeled
+    clade_plot <- clade_plot[!is.na(clade_plot)]
+  }
+  #clade_plot <- clade_plot[!is.na(clade_plot)]
+  #tips_clade gives the clades in order of plotting
+  #assign alternating bar widths in plotting order
+  clade_dat <- data.frame(phylo_node = unique(clade_plot),
+                          clade_name = get_label_from_node(node = unique(clade_plot),
+                                                           tree = tree),
+                          barsize = rep(1:2,
+                                        length.out = length(
+                                          unique(clade_plot)
+                                        )
+                          )
+  )
+
+  #Alternating bar thickness only works if the dataset is in base tree order
+  #This is because geom_cladelab() can't use aes() mapping for barsize
+  #So we have to supply it as a non-mapped argument outside aes()
+  #and ggtree automatically reorders it to match the base tree
+  #which means, if it's already in plotting order,
+  #it gets reordered wrongly.
+  #so it needs to match the order of the base tree to begin with,
+  #so that the auto-reordering will be correct.
+
+  dat3 <- clade_dat[match(intersect(dat$node,
+                                    clade_dat$phylo_node),
+                          clade_dat$phylo_node), ]
+
+
+  if(clade_opts$barsize %in% "alternate"){
+    #Re-sort the alternating bar sizes in clade plotting order
+    #to correspond to base tree order of clades
+    clade_opts$barsize <- dat3$barsize
+  }
+
+
+  if("wrap" %in% names(clade_opts)){
+    #wrap clade names to have width clade_label_wrap characters
+    dat3$clade_name2 <- stringr::str_wrap(dat3$clade_name,
+                                          clade_opts$wrap)
+  }
+
+
+  tree_plot +
+    do.call(geom_cladelab,
+            args = c(list(data = dat3,
+                          mapping = aes(node = phylo_node,
+                                        label = clade_name2,
+                                        group = clade_name2)),
+                     clade_opts))
+  }else{
+  tree_plot
+  }
 }
