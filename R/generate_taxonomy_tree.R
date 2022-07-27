@@ -61,12 +61,17 @@ SetPlotHeight <- function(node, rootHeight = 100) {
   #traverse from leaves towards root to calculate the height and store it in height2
   #Note: cannot call it height, as that attribute already exists on `Node`
   data.tree::Set(node$leaves, height2 = 1)
-  node$Do(function(x) x$height2 <- data.tree::Aggregate(x, "height2", max) + 1, traversal = "post-order", filterFun = data.tree::isNotLeaf)
+  node$Do(function(x) x$height2 <- data.tree::Aggregate(x, "height2", max) +
+            1,
+          traversal = "post-order",
+          filterFun = data.tree::isNotLeaf)
 
   #traverse from root to leaves to calculate the plotHeight
   #(where plotHeight uses the semantics of dendrogram/phylo, where leaves should have height 0 and root height = rootHeight. This meaning is not the same as in the data.tree package)
   node$plotHeight <- rootHeight
-  node$Do(function(x) x$plotHeight <- x$parent$plotHeight * (1 - 1 / x$height2), filterFun = data.tree::isNotRoot)
+  node$Do(function(x) x$plotHeight <- x$parent$plotHeight *
+            (1 - 1 / x$height2),
+          filterFun = data.tree::isNotRoot)
 }
 
 
@@ -157,48 +162,6 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   #handle root node label
   temp_labels[tree_object$node.label %in% "root_"] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
   tree_object$node.label <- temp_labels
-
-  #Get tree object node numbers (different from internally-generated)
-  #at each level of the taxonomy
-  foo <- phangorn::Ancestors(tree_object,
-                             node = 1:(ape::Ntip(tree_object)))
-
-  #this is a list of ancestors for each tip node
-  #read them backwards
-  foo_rev <- lapply(foo, rev)
-  #add the tip node number too
-  foo_rev <- sapply(1:(ape::Ntip(tree_object)),
-                function(i) c(foo_rev[[i]], i))
-  max_level <- max(sapply(foo, length))
-  level_nodes <- vector(mode = "list", length = max_level)
-  level_names <- vector(mode = "list", length = max_level)
-  for (i in 1:max_level){
-    #get the node numbers at this level
-    level_nodes[[i]] <- unlist(
-      unique(
-        sapply(foo_rev,
-               function(x){
-                 if(length(x)>=i){
-                   x[i]
-                 }else{
-                   vector(mode = "numeric", length = 0L)
-                 }
-               }
-        )
-      )
-    )
-#get the corresponding node labels at this level
-    level_names[[i]] <- get_label_from_node(node= level_nodes[[i]],
-                                           tree = tree_object)
-    #assign level number to each label in tax_nodes
-    tax_nodes[tax_nodes$Name %in% level_names[[i]], "level"] <- i
-  }
-
-  nodenames <- data.frame(phylo_node = unlist(level_nodes),
-                          Name = unlist(level_names))
-
-  tax_nodes <- merge(tax_nodes, nodenames, by = "Name")
-  tax_nodes$level <- tax_nodes$level - 1 #so that root is level 0
 
   return(tree_object)
 }
