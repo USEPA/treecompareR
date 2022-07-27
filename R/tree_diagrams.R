@@ -210,8 +210,14 @@ display_subtree <- function(base_tree = chemont_tree,
                                         "size" = 0.5,
                                         "linetype" = 1)
   base_opts <- c(base_opts,
-                 base_opts_default[setdiff(names(base_opts),
-                                           names(base_opts_default))])
+                 base_opts_default[setdiff(names(base_opts_default),
+                                           names(base_opts))])
+
+  #Keep defaults for any subtree_mapping not otherwise specified
+  subtree_mapping_default <- list(color = "default")
+  subtree_mapping <- c(subtree_mapping,
+                        subtree_mapping_default[setdiff(names(subtree_mapping_default),
+                                                        names(subtree_mapping))])
 
 
   if(is.null(base_name)){
@@ -269,9 +275,46 @@ display_subtree <- function(base_tree = chemont_tree,
                                  "#FC8D62")
     }
   }
+
+    #check lengths of subtree_mapping vs. number of datasets provided
+    sm_length <- sapply(subtree_mapping,
+                        length,
+                        USE.NAMES = TRUE)
+
+    if(!is.null(data_1) & !is.null(data_2)){
+      if(any(sm_length < 4)){
+        short_el <- names(subtree_mapping)[sm_length < 4]
+        message(paste("Both data_1 and data_2 were provided, but subtree_mapping elements",
+                paste(short_el, collapse = "; "),
+                "have fewer than 4 elements. They will be recycled to length 4."))
+        subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
+                                            function(x) rep(x, length.out = 4),
+                                            simplify = FALSE,
+                                            USE.NAMES =  TRUE)
+      }
+    }else if(!is.null(data_1) & is.null(data_2))
+      if(any(sm_length > 2)){
+        long_el <- names(subtree_mapping)[sm_length > 2]
+        message(paste("data_1 was provided, but subtree_mapping elements",
+                paste(long_el, collapse = "; "),
+                "have more than 2 elements. Only the first 2 elements will be used."))
+        subtree_mapping[long_el] <- sapply(subtree_mapping[long_el],
+                                            function(x) x[1:2],
+                                            simplify = FALSE,
+                                            USE.NAMES =  TRUE)
+      }
+
+    if(any(sm_length < 2)){
+      short_el <- names(subtree_mapping)[sm_length < 2]
+      message(paste("data_1 was provided, but subtree_mapping elements",
+              paste(short_el, collapse = "; "),
+              "have fewer than 2 elements. They will be recycled to length 2."))
+      subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
+                                          function(x) rep(x, length.out = 2),
+                                          simplify = FALSE,
+                                          USE.NAMES =  TRUE)
     }
-
-
+    }
 
 
 
@@ -441,7 +484,7 @@ display_subtree <- function(base_tree = chemont_tree,
   } #end if(!is.null(data_1))
 
    #if clade labels have been selected
-  tree_plot <- tree_plot %>% add_cladelab(tree_plot = tree_plot,
+  tree_plot <- add_cladelab(tree_plot = tree_plot,
                                           tree = base_tree,
                                           clade_level = clade_level,
                                           clade_opts = clade_opts)
