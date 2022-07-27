@@ -126,15 +126,22 @@ label_bars <- function(data = NULL, tax_level_labels = NULL){
 #'  \code{\link{chemont_tree}}.
 #'@param base_name Will be used as the plot title. Usually this should name or
 #'  describe the base tree. Default is NULL, in which case the *name* of the
-#'  variable passed to \code{base_tree} will be used as the title (with "tree" appended).
-#'@param data_1 A data.frame consisting of a list of chemicals with
-#'  classification data.
-#'@param data_2 Optional: A second data.frame consisting of a list of chemicals
-#'  with classification data.
-#'@param name_1 A string giving the name of the first data.frame, for plot
-#'  labeling. Default is "Set 1".
-#'@param name_2 A string giving the name of the second data.frame (if there is
-#'  one), for plot labeling. Default is "Set 2".
+#'  variable passed to \code{base_tree} will be used as the title (with "tree"
+#'  appended).
+#'@param data_1 Highlight branches of the base tree according to their
+#'  membership in this list. One of the following options: A data.frame
+#'  consisting of a list of chemicals with classification data; a list of node
+#'  numbers in the base tree; a list of node labels in the base tree; or another
+#'  phylo object.
+#'@param data_2 Optional: highlight branches of the base tree to compare
+#'  membership in this list and \code{data_1}. One of the following options: A
+#'  data.frame consisting of a list of chemicals with classification data; a
+#'  list of node numbers in the base tree; a list of node labels in the base
+#'  tree; or another phylo object.
+#'@param name_1 Optional: A string giving the name of the list in \code{data_1},
+#'  for plot labeling. Default is the variable name passed to \code{data_1}.
+#'@param name_2 Optional: A string giving the name of the list in \code{data_2}
+#'  (if any), for plot labeling. Default is the variable name passed to \code{data_2}.
 #'@param tax_level_labels An alternate parameter giving the taxonomy levels if
 #'  not using ClassyFire taxonomy.
 #'@param layout \code{\link{ggtree}} layout option. Default "circular."
@@ -266,10 +273,38 @@ display_subtree <- function(base_tree = chemont_tree,
       #get the name of the variable passed to data_1
       name_1 <- paste(as.character(substitute(data_1)))
     }
+
+    if(is.data.frame(data_1)){
   #Get node numbers of data_1 subtree
   data_1_all <- get_subtree_nodes(data = data_1,
                                   base_tree = base_tree,
                                   tax_level_labels = tax_level_labels)
+    }else if(is.numeric(data_1)){
+      #interpret as node numbers
+      #get ancestors of these nodes
+    data_1_all <- unique(c(data_1,
+                    unlist(phangorn::Ancestors(x = base_tree,
+                                               node = data_1)))
+    )
+    }else if(is.character(data_1)){
+    #interpret as node labels
+      data_1_nodes <- get_node_from_label(label = data_1,
+                                          tree = base_tree)
+      data_1_all <- unique(c(data_1_nodes,
+                             unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_1_nodes))))
+    }else if("phylo" %in% class(data_1)){
+      #take node and tip labels
+      data_1_labels <- c(data_1$tip.label,
+                         data_1$node.label)
+      #get nodes
+      data_1_nodes <- get_node_from_label(label = data_1_labels,
+                                          tree = base_tree)
+      #get ancestors of these nodes
+      data_1_all <- unique(c(data_1_nodes,
+                             unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_1_nodes))))
+    }
 
   #Data frame with all node numbers in taxonomy tree
    cohort_data <- get_tree_df(tree = base_tree)
@@ -285,10 +320,39 @@ display_subtree <- function(base_tree = chemont_tree,
       #get the name of the variable passed to data_1
       name_2 <- paste(as.character(substitute(data_2)))
     }
-#Get node numbers of Data Set 2 subtree
-    data_2_all <- get_subtree_nodes(data = data_2,
-                                    base_tree = base_tree,
-                                    tax_level_labels = tax_level_labels)
+
+    if(is.data.frame(data_2)){
+      #Get node numbers of data_2 subtree
+      data_2_all <- get_subtree_nodes(data = data_2,
+                                      base_tree = base_tree,
+                                      tax_level_labels = tax_level_labels)
+    }else if(is.numeric(data_2)){
+      #interpret as node numbers
+      #get ancestors of these nodes
+      data_2_all <- unique(c(data_2,
+                             unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_2)))
+      )
+    }else if(is.character(data_2)){
+      #interpret as node labels
+      data_2_nodes <- get_node_from_label(label = data_2,
+                                          tree = base_tree)
+      data_2_all <- unique(c(data_2_nodes,
+                             unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_2_nodes))))
+    }else if("phylo" %in% class(data_2)){
+      #take node and tip labels
+      data_2_labels <- c(data_2$tip.label,
+                         data_2$node.label)
+      #get nodes
+      data_2_nodes <- get_node_from_label(label = data_2,
+                                          tree = base_tree)
+      #get ancestors of these nodes
+      data_2_all <- unique(c(data_2_nodes,
+                             unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_2_nodes))))
+    }
+
     #Categorical column: is each node in Data Set 2?
     #0 = no, 2 = yes
     cohort_data$inSet2 <- ifelse(cohort_data$node %in% data_2_all,
