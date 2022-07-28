@@ -306,11 +306,13 @@ We also observe that $\text{sim}_{\text{JiangConrath}}(v_i, v_j) \geq \text{sim}
 
 When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
 
-Now, the function `attach_information_content()` generates information content for an input tree, and the functions `general_Jaccard_similarity()`, `general_Resnik_similarity()`, `general_Lin_similarity()`, `general_JiangConrath_similarity()` all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function `generate_similarity_matrix()` will do so for a given tree and similarity measure function. The computation is lengthy for the chemont tree and so these matrices have been previously computed and stored. They are accessible as `chemont_jaccard`, `chemont_resnik_IC_SVH`, `chemont_lin_IC_SVH`, and `chemont_jiangconrath_IC_SVH`.
+Now, the function `attach_information_content()` generates information content for an input tree, and the functions `general_Jaccard_similarity()`, `general_Resnik_similarity()`, `general_Lin_similarity()`, `general_JiangConrath_similarity()` all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function `generate_similarity_matrix()` will do so for a given tree and similarity measure function. The computation is lengthy for the ChemOnt tree and so these matrices have been previously computed and stored. They are accessible as `chemont_jaccard`, `chemont_resnik_IC_SVH`, `chemont_lin_IC_SVH`, and `chemont_jiangconrath_IC_SVH`.
+
+## Visualizing similarity
 
 Now, we move to using these in visualizations.
 
-The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified`, columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters based on the hierarchical clustering of the heatmap.
+The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified` and columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters within the hierarchical clustering of the heatmap.
 
 ```{r heatmap-biosolids-usgs, fig.align='center', fig.dim=c(6,4)}
 biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, 
@@ -324,7 +326,7 @@ biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree,
 biosolids_usgs_ht
 ```
 
-Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
+In the diagram created by the `generate_heatmap()` function, there are several features that are included. The dendrogram out of which the row and column clusters are determined are displayed. Between these dendrograms and the clusters is a layer showing the logarithm of the number of times a row or column label occurs within the set of classifications for each data set. To the right of the diagram is a color gradient indicating the similarity values displayed within the heatmap. Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters using tree diagrams.
 
 ```{r rc-cluster-2-2, fig.align='center', fig.dim=c(18,12), out.height=480, out.width=720}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
