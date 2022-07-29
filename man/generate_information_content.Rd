@@ -21,7 +21,8 @@ This function generates a data.frame of information content for the input
 tree. This uses the formulation as described in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}. The
-data.frame also includes the depth of each tip and internal node.
+data.frame also includes the depth of each tip and internal node, the number
+of descendants of each node, and the number of children for each node.
 }
 \examples{
 
