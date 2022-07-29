@@ -45,7 +45,7 @@ choose_partition <- function(n){
   equiv_class <- sample(x = part_prob,
                         size = 1,
                         prob = as.double(names(part_prob)))
-  parts <- multiset(unlist(equiv_class))
+  parts <- partitions::multiset(unlist(equiv_class))
 
   num_parts <- dim(parts)[[2]]
   index <- sample(num_parts, size = 1)
