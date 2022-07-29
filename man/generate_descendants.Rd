@@ -10,8 +10,8 @@ generate_descendants(tree)
 \item{tree}{A phylo object}
 }
 \value{
-data.frame consisting of the node number, descendants, children, and
-level
+A data.frame consisting of the node number, descendants, children,
+and level.
 }
 \description{
 This function generates a data.frame of the number of descendants for each
