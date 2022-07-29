@@ -1,3 +1,57 @@
+#' Enumerate partitions
+#'
+#' @param n An integer for which partitions will be generated and enumerated.
+#' @return A name list of partitions, with names corresponding to probabilities.
+#'
+#'
+enumerate_partitions <- function(n){
+  partitions <- partitions::parts(n)
+  num_part <- dim(partitions)[[2]]
+
+  part <- list(num_part)
+  prob <- double(num_part)
+
+  for (i in 1:num_part){
+    cur_part <- partitions[, i]
+    non_zero <- cur_part[which(cur_part != 0)]
+    unique_entries <- unique(non_zero)
+    counts <- sapply(unique_entries, function(t){
+      length(which(non_zero == t))
+    })
+
+    part[[i]] <- non_zero
+    prob[[i]] <- factorial(length(non_zero))/purrr::reduce(factorial(counts), `*`)
+
+  }
+
+  total <- sum(prob)
+  prob <- prob / total
+
+  names(part) <- prob
+  return(part)
+}
+
+#' Choose a partition
+#'
+#' This function selects a permuted partition given a positive integer input.
+#' This is a helper function for generating a tree topology closer to random
+#' than `generate_topology` would otherwise.
+#'
+#' @param n The integer for which a permuted partition is generated.
+#' @return A permuted partition of the integer `n`.
+#'
+choose_partition <- function(n){
+  part_prob <- enumerate_partitions(n)
+  equiv_class <- sample(x = part_prob,
+                        size = 1,
+                        prob = as.double(names(part_prob)))
+  parts <- multiset(unlist(equiv_class))
+
+  num_parts <- dim(parts)[[2]]
+  index <- sample(num_parts, size = 1)
+
+  return(parts[, index])
+}
 
 #' Generate topology
 #'
