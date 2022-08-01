@@ -4,10 +4,16 @@
 \alias{enumerate_partitions}
 \title{Enumerate partitions}
 \usage{
-enumerate_partitions(n)
+enumerate_partitions(n, max_deg = NULL, min_deg = NULL)
 }
 \arguments{
 \item{n}{An integer for which partitions will be generated and enumerated.}
+
+\item{max_deg}{An alternate parameter, giving a constraint on the permissible
+partitions.}
+
+\item{min_deg}{An alternate parameter, giving a constraint on the permissible
+partitions.}
 }
 \value{
 A name list of partitions, with names corresponding to probabilities.

@@ -1,11 +1,52 @@
 #' Enumerate partitions
 #'
 #' @param n An integer for which partitions will be generated and enumerated.
+#' @param max_deg An alternate parameter, giving a constraint on the permissible
+#'   partitions.
+#' @param min_deg An alternate parameter, giving a constraint on the permissible
+#'   partitions.
 #' @return A name list of partitions, with names corresponding to probabilities.
 #'
 #'
-enumerate_partitions <- function(n){
+enumerate_partitions <- function(n, max_deg = NULL, min_deg = NULL){
   partitions <- partitions::parts(n)
+  if (!is.null(max_deg)){
+    if (n > max_deg){
+    #partitions <- partitions::parts(n)
+    exclude <- logical(dim(partitions)[[2]])
+    for (i in 1:(dim(partitions)[[2]])){
+      exclude[[i]] <- any(partitions[,i] > max_deg)
+    }
+    partitions <- as.matrix(partitions[, -which(exclude)])
+    }
+    #print(partitions)
+}
+
+  if (!is.null(min_deg)){
+    #partitions <- partitions::parts(n)
+    #print(dim(partitions))
+    exclude <- logical(dim(partitions)[[2]])
+
+    #print(partitions)
+    for (i in 1:(dim(partitions)[[2]])){
+      #print(i)
+      current <- partitions[, i]
+      current <- current[which(current != 0)]
+      exclude[[i]] <- any(current < min_deg)
+    }
+    exclude_index <- which(exclude)
+    if (length(exclude_index)> 0){
+      partitions <- as.matrix(partitions[, -exclude_index])
+    }
+
+    #print(dim(partitions))
+    #print(is.null(dim(partitions)))
+    if (is.null(dim(partitions)) | dim(partitions)[[2]] == 0){
+      warning('There are no such partitions that fit these criteria!')
+      return(NULL)
+    }
+  }
+
   num_part <- dim(partitions)[[2]]
 
   part <- list(num_part)
@@ -38,10 +79,20 @@ enumerate_partitions <- function(n){
 #' than `generate_topology` would otherwise.
 #'
 #' @param n The integer for which a permuted partition is generated.
+#' @param max_deg An alternate parameter, giving a constraint on the permissible
+#'   partitions.
+#' @param min_deg An alternate parameter, giving a constraint on the permissible
+#'   partitions.
 #' @return A permuted partition of the integer `n`.
 #'
-choose_partition <- function(n){
-  part_prob <- enumerate_partitions(n)
+choose_partition <- function(n, max_deg = NULL, min_deg = NULL){
+  part_prob <- enumerate_partitions(n = n,
+                                    max_deg = max_deg,
+                                    min_deg = min_deg)
+  if (is.null(part_prob)){
+    warning('There is no possible partition given the parameters!')
+    return(NULL)
+  }
   equiv_class <- sample(x = part_prob,
                         size = 1,
                         prob = as.double(names(part_prob)))

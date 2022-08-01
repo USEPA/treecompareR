@@ -4,10 +4,16 @@
 \alias{choose_partition}
 \title{Choose a partition}
 \usage{
-choose_partition(n)
+choose_partition(n, max_deg = NULL, min_deg = NULL)
 }
 \arguments{
 \item{n}{The integer for which a permuted partition is generated.}
+
+\item{max_deg}{An alternate parameter, giving a constraint on the permissible
+partitions.}
+
+\item{min_deg}{An alternate parameter, giving a constraint on the permissible
+partitions.}
 }
 \value{
 A permuted partition of the integer \code{n}.
