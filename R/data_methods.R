@@ -329,15 +329,3 @@ get_label_length <- function(label_list){
   lengths <- sapply(label_list, length)
   lengths
 }
-
-
-get_fruit_dat <- function(data, tree,
-                          tax_level_labels = chemont_tax_levels){
-  fruit_data <- copy(data)
-  #get terminal label for data
-fruit_data <- add_terminal_label(fruit_data, tax_level_labels = tax_level_labels)
- #get node number for terminal label
-fruit_data$node <- get_node_from_label(label = data$terminal_label,
-                                 tree = tree)
-#return
-}
