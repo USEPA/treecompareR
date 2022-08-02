@@ -263,12 +263,12 @@ cf_class <- dplyr::bind_rows(cf_class, direct_final)
 #if final level was added, add the appropriate level number
 #which will be 1+ the max level number for this identifier
 cf_class <- cf_class %>%
-  dplyr::mutate(level_num2 = if_else(is.na(level_num),
+  dplyr::mutate(level_num2 = dplyr::if_else(is.na(level_num),
                               max(level_num, na.rm = TRUE)+1,
                               level_num)) %>%
   dplyr::mutate(level_num = NULL) %>%
   dplyr::rename(level_num = level_num2) %>%
-  dplyr::mutate(level = if_else(is.na(level), #paste level number to create level label
+  dplyr::mutate(level = dplyr::if_else(is.na(level), #paste level number to create level label
                          paste0("level", level_num),
                          level))
 
