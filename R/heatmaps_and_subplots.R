@@ -58,7 +58,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
   }
   #complete_labels <- complete_labels[-which(sapply(complete_labels, is.na))]
 
-  print(length(complete_labels))
+  #print(length(complete_labels))
   unique_labels <- unique(complete_labels)
 
   if (log) {
