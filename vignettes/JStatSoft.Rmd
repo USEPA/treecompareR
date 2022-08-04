@@ -168,22 +168,22 @@ names(data_list) <- c('Biosolids', 'USGS Water')
 label_bars(data_list)
 ```
 
-From these diagrams in \@ref(fig:label-bars), we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the `chemical_list_USGSWATER_2022_05_17` data has more labels than the `chemical_list_BIOSOLIDS_2022_05_10` data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
+From these diagrams in \@ref(fig:label-bars), we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the `chemical_list_USGSWATER_2022_05_17` data has more labels than the `chemical_list_BIOSOLIDS_2022_05_10` data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor does it characterize the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
 
 # Tree visualizations
 
-The tree visualizations we use rely heavily on the **ggtree** package, which was designed with phylogenetic trees in mind. The **ggtree** package extends the widely used **ggplot2** package, greatly broadening the variety and scope of tree visualizations available for use.
+The tree visualizations developed in treecompareR rely heavily on the **ggtree** package, which was designed with visualization of phylogenetic trees in mind. The **ggtree** package extends the widely used **ggplot2** package, greatly broadening the variety and scope of tree visualizations available for use.
 
-We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontology.
+We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontology, in a circular layout format.
 
 
 ```{r chemont-tree-plot, fig.cap="chemont-tree-plot"}
 ggtree(chemont_tree) + layout_circular()
 ```
 
-The diagram \@ref(fig:chemont-tree-plot) illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data sets represents. This diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this makes for a dense tree visualization as seen above.
+The diagram \@ref(fig:chemont-tree-plot) illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data sets represents. This ChemOnt diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this makes for a dense tree visualization as seen above.
 
-We first examine which parts of this tree are given by chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table. In this example we also display the tip labels.
+We first examine which parts of this tree are given by classifications of chemicals in each data set. To do this, we use the function `display_subtree()`, which takes in a data.table with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree in the set of classification labels of the data.table. In this example we also display the tip labels.
 
 ```{r subtree-plots, fig.cap="subtree-plots",  fig.align='center', fig.dim=c(6,4)}
 display_subtree(data_1 = biosolids_classified, 
@@ -192,7 +192,7 @@ display_subtree(data_1 = usgswater_classified,
                 name_1 = 'USGS Water')
 ```
 
-In the two diagrams of \@ref(fig:subtree-plots), we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. While it is possible to toggle between each diagram to get a sense of how each data set represents chemical space, it would be better if we could directly compare the subtrees they represent. We can do just this with exact same function, entering both data sets into the function `display_subtree()` as the following example demonstrates. 
+In the two diagrams of \@ref(fig:subtree-plots), we observe the labels represented by classifications from each data set shaded red and labels not present in the classifications shaded grey. This helps illustrate where in chemical space these classifications are located. While it is possible to toggle between each diagram to get a sense of how each data set represents chemical space, it would be better if we could directly compare the subtrees they represent. We can do just this using the exact same function, inputting both data sets into the function `display_subtree()` as the following example demonstrates. 
 
 ```{r subtree-plots-overlap, fig.cap="subtree-plots-overlap", fig.align='center', fig.dim=c(6,4)}
 display_subtree(data_1 = biosolids_classified, 
