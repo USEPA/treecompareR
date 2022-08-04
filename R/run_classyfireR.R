@@ -11,7 +11,6 @@
 #' @export
 #' @import data.table
 #' @importFrom purrr map
-#' @import classyfireR
 #'
 #' @references
 #' \insertRef{djoumbou2016classyfire}{treecompareR}
@@ -20,6 +19,11 @@
 #' @seealso \code{\link{classify_by_smiles}}
 #'
 classify_datatable <- function(datatable){
+  if (!requireNamespace("classyfireR", quietly = TRUE)) {
+    warning(paste("Package \"classyfireR\" must be installed to use this function.\n", "Returning input data.table!"))
+    return(datatable)
+  }
+
   INCHIKEY <- NULL
   if (!data.table::is.data.table(datatable)){
     stop('Input must be a data.table object!')
@@ -76,7 +80,6 @@ classify_datatable <- function(datatable){
 #' @export
 #' @import data.table
 #' @importFrom purrr map2
-#' @import classyfireR
 #'
 #' @references
 #' \insertRef{djoumbou2016classyfire}{treecompareR}
@@ -84,6 +87,11 @@ classify_datatable <- function(datatable){
 #' @seealso \code{\link{classify_datatable}}
 #'
 classify_by_smiles <- function(datatable){
+  if (!requireNamespace("classyfireR", quietly = TRUE)) {
+    warning(paste("Package \"classyfireR\" must be installed to use this function.\n", "Returning input data.table!"))
+    return(datatable)
+  }
+
   INCHIKEY <- NULL
   SMILES <- NULL
   kingdom <- NULL

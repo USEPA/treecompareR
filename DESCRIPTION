@@ -16,6 +16,7 @@ Depends:
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
+    classyfireR,
     devtools,
     kableExtra,
     knitr,
@@ -25,7 +26,6 @@ VignetteBuilder: knitr
 Imports: 
     ape,
     circlize,
-    classyfireR,
     clisymbols,
     ComplexHeatmap,
     crayon,
