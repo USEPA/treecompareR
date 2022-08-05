@@ -935,8 +935,84 @@ return(out_obj)
 }
 
 
-#' Add clade labels to an existing ggtree plot.
+#'Add clade labels to an existing \code{\link[ggtree]{ggtree}} plot.
 #'
+#'Wrapper for \code{\link[ggtree]{geom_cladelab}} to add clade labels to an
+#'existing \code{\link[ggtree]{ggtree}} plot. Handles some fiddly data wrangling
+#'and allows the option to plot clade labels with alternating thick/thin bar
+#'widths, which is useful to distinguish clades when they are separated by
+#'little or no space on the plot.
+#'
+#'Currently, \code{add_cladelab} cannot be chained using the
+#'\code{\link{[ggplot2]{`+.gg`}}} operator. This is because \code{add_cladelab}
+#'is not currently defined as an S3 class with an associated \code{ggplot_add}
+#'method.
+#'
+#'#'For example, the following code will *not* work:
+#'
+#'```R ggtree(tree) + add_cladelab() ```
+#'
+#'\code{add_cladelab} also cannot be chained using the
+#'\code{\link[magrittr]{%>%}} operator if the preceding chain involves
+#'\code{`+`}. This is because of operator precedence: R evaluates
+#'\code{\link[magrittr]{%>%}} before \code{\link{[ggplot2]{`+.gg`}}}.
+#'
+#'
+#'For example, the following code also will *not* work:
+#'
+#'```R ggtree(tree) + layout_circular() %>% add_cladelab() ```
+#'
+#'However, the following code *will* work:
+#'
+#'```R ggtree(tree) %>% add_cladelab() ```
+#'
+#'# Clade options
+#'
+#'The \code{cladeopt} parameter may include any of the "additional parameters"
+#'understood by \code{\link[ggtree]{geom_cladelab}}, including
+#'
+#'* offset
+#'* offset.text
+#'* align
+#'* extend
+#'* angle
+#' * horizontal
+#' * barsize
+#' * barcolour
+#' * fontsize
+#'* textcolour
+#'* imagesize
+#' * imagecolour
+#'
+#'Additionally, in \code{add_cladelab}, the following parameters are
+#'understood:
+#'
+#' * \code{wrap}: the number of characters to wrap text labels. Default 20.
+#'    Use NULL for no wrapping.
+#' * \code{barsize = "alternate"}: Alternates thick and thin bars. This is the
+#'    default. It is useful to distinguish tightly-packed clades.
+#' * \code{default_to_tip} Logical: Whether to default to showing tip labels if
+#'    no clade label exists at the specified level. For example, if a tip
+#'     terminates at level 3, but \code{clade_level = 4}, should that tip be
+#'     labeled with its tip label (\code{default_to_tip = TRUE}), or should
+#'     that tip be unlabeled (\code{default_to_tip = FALSE})? The default
+#'     value is \code{TRUE}.
+#'
+#'
+#' @param tree_plot A \code{\link[ggtree]{ggtree}} plot object, e.g. the output
+#'  of \code{\link{display_subtree}} or of \code{\link[ggtree]{ggtree}}.
+#' @param tree Optional: the \code{\link[ape]{phylo}} tree object plotted in
+#'  \code{tree_plot}. Function will run faster if \code{tree} is provided;
+#'  otherwise \code{tree} will be reconstructed from \code{tree_plot$data} using
+#'  \code{\link{generate_taxonomy_tree}}.
+#' @param clade_level Numeric or \code{"auto"}: the taxonomy level at which to
+#'  label clades, where level 0 is the root. Default value \code{"auto"} selects
+#'  the taxonomy level of the MRCA of the tips plus one, or level 2, whichever
+#'  is the greater number. If \code{clade_level = NULL}, no clade labels will be
+#'  added and \code{tree_plot} will be returned unchanged.
+#'@param clade_opts A named list of parameters controlling the appearance of
+#'  clade labels. See "Details."
+#'@return \code{tree_plot} with clade labels added.
 add_cladelab <- function(tree_plot,
                           tree = NULL,
                           clade_level = "auto",
@@ -946,7 +1022,7 @@ add_cladelab <- function(tree_plot,
                                             lineheight = 0.7,
                                             default_to_tip = TRUE))
 {
-
+  if(!is.null(clade_level)){
   clade_opts_default <- list(wrap = 20,
                              barsize = "alternate",
                              fontsize = 3,
@@ -968,7 +1044,7 @@ add_cladelab <- function(tree_plot,
     rm(tmp_df)
   }
 
-  if(!is.null(clade_level)){
+
     dat <- get_tree_df(tree)
     if(clade_level %in% "auto"){
       #automatically set clade level to be level of tree's MRCA plus one,
@@ -986,7 +1062,8 @@ add_cladelab <- function(tree_plot,
     #for rectangular-ish layouts, use angle = 0
 
     #get layout from tree_plot
-    layout <- tree_plot$layers[[1]]$stat_params$layout
+    layout <- eval(expression(layout),
+                   envir = tree_plot$plot_env)
 
     if(!("angle" %in% names(clade_opts))){
       if (layout %in% c("rectangular",
