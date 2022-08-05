@@ -802,33 +802,139 @@ drop_tips_nodes <- function(tree,
                             data = NULL,
                             labels = NULL,
                             nodes = NULL,
+                            level = NULL,
+                            keep_descendants = NULL,
                             tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                  'level5', 'level6', 'level7', 'level8',
                                                  'level9', 'level10', 'level11')){
   if (!is.null(data)){
     #get terminal labels for each item in this data set
     #these are the labels to keep
+    if(is.null(keep_descendants)){
+      keep_descendants = FALSE
+    }
     tip_node_labels <- get_labels(data = data,
                                   tax_level_labels = tax_level_labels)
+    if(isTRUE(keep_descendants)){
+      input_nodes <- get_node_from_label(label = tip_node_labels,
+                                         tree = tree)
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = input_nodes)
+      tip_node_labels2 <- get_label_from_node(node = unlist(tip_nodes),
+                                             tree = tree)
+      tip_node_labels <- union(tip_node_labels,
+                               tip_node_labels2)
+    }
   } else if (!is.null(labels)){
-    #get tip labels corresponding to the input labels
+    if(is.null(keep_descendants)){
+      keep_descendants <- TRUE
+    }
+    #get all descendants of input labels
     #in case input labels are internal nodes (i.e. "clades" to keep)
     input_nodes <- get_node_from_label(label = labels,
                                        tree = tree)
+    if(isTRUE(keep_descendants)){
     tip_nodes <- phangorn::Descendants(x = tree,
                                              node = input_nodes)
+    }else{
+    tip_nodes <- input_nodes
+    }
     tip_node_labels <- get_label_from_node(node = unlist(tip_nodes),
                                            tree = tree)
-    tip_node_labels <- c(labels, tip_node_labels)
+    tip_node_labels <- union(labels, tip_node_labels)
   } else if (!is.null(nodes)){ #if user specified one or more nodes to keep
-    tip_nodes <- phangorn::Descendants(x = tree,
-                                       node = nodes)
-    tip_nodes <- c(nodes, unlist(tip_nodes))
+    #keep nodes and their descendants
+    if(is.null(keep_descendants)){
+      keep_descendants <- TRUE
+    }
+    if(isTRUE(keep_descendants)){
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = nodes)
+      tip_nodes <- c(nodes, unlist(tip_nodes))
+    }else{
+      tip_nodes <- nodes
+    }
+
     tip_node_labels <- get_label_from_node(node = tip_nodes,
                                            tree = tree)
-  }
-  else {
-    stop('Please input either a data.frame of chemical classifications, a list of taxonomic labels, or a list of node numbers!')
+  }else if(!is.null(level)){ #is user has specified a level to prune to
+    #if it's a numeric level, assume 0 = root, etc
+    if(is.numeric(level)){
+      #check to make sure it's a valid level
+      #first check to make sure it is an integer
+      if(!(as.integer(level)==level)){
+        stop(paste("'level' was provided as", level,
+                   "which is not a valid index for the vector of taxonomy levels",
+                   "'tax_level_labels'.",
+                   "If numeric, 'level' must be an integer between 1 and the length of",
+                   "'tax_level_labels', which is",
+                   length(tax_level_labels)))
+      }
+      #check to make sure it's within the length of tax_level_labels
+      if(level > length(tax_level_labels)){
+        stop(paste("'level' was provided as", level,
+                   ", which is greater than the length of tax_level_labels,",
+                   "which is,",
+                   length(tax_level_labels),
+                   ". tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")
+        ))
+      }
+      #check to make sure it's not zero or negative
+      if(level < 1){
+        stop(paste("'level' was provided as", level,
+                   "which is not a valid index for the vector of taxonomy levels",
+                   "'tax_level_labels'.",
+                   "'level' must be an integer between 1 and the length of",
+                   "'tax_level_labels', which is",
+                   length(tax_level_labels),
+                   ". tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")))
+      }
+    }else if(is.character(level)){
+    #if it's a string, match it with tax_level_labels
+      #check to make sure it's a valid level
+      if(level %in% tax_level_labels){
+      level <- match(level, tax_level_labels)
+      }else{
+        stop(paste("'level' was provided as", level,
+                   ", which is not one of the taxonomy level labels,",
+                   "tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")
+        ))
+      }
+    }
+    #find all labels at the given level and do NOT keep descendants by default
+    if(is.null(keep_descendants)){
+      keep_descendants <- FALSE
+    }
+
+    #get tree as data.frame with level numbers for each node
+    tree_df <- get_tree_df(tree)
+    #get the labels of all nodes at the specified level
+    tip_node_labels <- tree_df[tree_df$level %in% level, "Name"]
+
+    #find their descendants only if told to do so
+    #(this will result in just keeping the whole tree, which is silly)
+    if(isTRUE(keep_descendants)){
+      warning(paste("'level' was provided but keep_descendants = TRUE",
+                    "which will result in keeping the whole tree,",
+                    "and not dropping anything"))
+      input_nodes <- get_node_from_label(label = tip_node_labels,
+                                         tree = tree)
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = input_nodes)
+      tip_node_labels2 <- get_label_from_node(node = unlist(tip_nodes),
+                                              tree = tree)
+      tip_node_labels <- union(tip_node_labels,
+                               tip_node_labels2)
+    }
+  }else {
+    stop(paste("Please input either a data.frame of chemical classifications",
+               "in argument 'data',",
+               "one or more tree node labels to keep in argument 'labels',",
+               "one or more tree node numbers to keep in argument 'nodes',",
+               "or a taxonomic level in argument 'level'!"))
   }
 
   max_depth <- max(get_levels(tree)$level)
@@ -1102,6 +1208,7 @@ bind_entities <- function(tree,
 #'@export
 prune_tree <- function(tree,
                        prune_to = NULL,
+                       keep_descendants = NULL,
                        adjust_branch_length = FALSE,
                        tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                             'level5', 'level6', 'level7', 'level8',
@@ -1109,19 +1216,56 @@ prune_tree <- function(tree,
   if(!is.null(prune_to)){ #if user has specified something to prune to
     if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
       #Prune the tree according to the specified dataset
+      if(is.null(keep_descendants)){
+        keep_descendants <- FALSE
+      }
       pruned_tree <- drop_tips_nodes(tree = tree,
                                      data = prune_to,
+                                     keep_descendants = keep_descendants,
                                      tax_level_labels = tax_level_labels)
     }else if(is.character(prune_to)){
+      #check if this is one of the tax_level_labels
+      #if so, interpret it as a level to prune to
+      if(all(prune_to %in% tax_level_labels)){
+        #by default do NOT keep descendants
+        #since that would just result in keeping the whole tree
+        if(is.null(keep_descendants)){
+          keep_descendants <- FALSE
+        }
+        if(isTRUE(keep_descendants)){
+        warning(paste("'prune_to' =",
+                      paste0('\"', prune_to, '\"'),
+        " has been interpreted as a taxonomy level,",
+        "because it is in 'tax_level_labels' = ",
+        paste(tax_level_labels, collapse = ", "),
+        "But 'keep_descendants = TRUE'",
+                      "which will result in keeping the whole tree,",
+                      "and not pruning anything"))
+        }
+        pruned_tree <- drop_tips_nodes(tree = tree,
+                                       level = prune_to,
+                                       keep_descendants = keep_descendants)
+      }else{ #if not a tax_level_label,
       #interpret as node/tip labels
-      #prune to only the subtree including the descendents of this internal node(s)
+      #prune to only the subtree with this label(s)
+        #including the descendents of internal label(s) by default
+      if(is.null(keep_descendants)){
+        keep_descendants <- TRUE
+      }
       pruned_tree <- drop_tips_nodes(tree = tree,
-                                     labels = prune_to)
-    }else if(is.numeric(prune_to)){
+                                     labels = prune_to,
+                                     keep_descendants = keep_descendants)
+    }
+      }else if(is.numeric(prune_to)){
       #interpret as node numbers
-      #prune to only the subtree including the descendents of this internal node(s)
+      #prune to only the subtree with this node(s)
+      #including the descendents of internal node(s) by default
+      if(is.null(keep_descendants)){
+        keep_descendants <- TRUE
+      }
       pruned_tree <- drop_tips_nodes(tree = tree,
-                                     nodes = prune_to)
+                                     nodes = prune_to,
+                                     keep_descendants = keep_descendants)
     }
 
     if (adjust_branch_length) {
