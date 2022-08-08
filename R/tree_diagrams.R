@@ -753,6 +753,37 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
 }
 
 
+#' Display taxonomy tree, annotated with numbers of chemicals and fraction
+#' overlap between chemicals for two data sets.
+#'
+#' @param base_tree A \code{\link[ape]{phylo}}-class tree object to plot.
+#' @param base_name A name for the base tree (used for the plot title)
+#' @param data_1 A \code{data.frame} containing a classified list of entities
+#' @param name_1 A name for the list in \code{data_1}, used for the plot legend
+#' @param data_2 Another \code{data.frame} containing a classified list of
+#'   entities
+#' @param name_2 A name for the list in \code{data_2}, used for the plot legend
+#' @param entity_id_col The name of the variable identifying unique entities in
+#'   both \code{data_1} and \code{data_2}. Must be the same in both data sets.
+#' @param group_level Taxonomy level at which to aggregate entities. Default
+#'   \code{"terminal"}: Calculate number of entities and overlap for each tip
+#'   label. Can also be any element of \code{tax_level_labels}, or an integer
+#'   between 1 and \code{length{tax_level_labels}}. In this case, entities will
+#'   be grouped by unique labels at the specified taxonomic level, rather than
+#'   by terminal (tip) labels, for calculation and plotting of number of chemicals and overlap.
+#' @param tax_level_labels
+#' @param annot_angle
+#' @param ... Additional arguments as for \code{\link{display_subtree}}.
+#' @return A \code{\link[ggtree]{ggtree}} plot object, branches highlighted by
+#'   list membership as in \code{\link{display_subtree}}, with three layers of
+#'   heatmap annotation at the tree tips. The innermost layer represents the
+#'   number of entities in each tip label (or group of tip labels) in list
+#'   \code{data_1}. The second (middle) layer represents the number of entities
+#'   in each tip label (or group of tip labels) for the list \code{data_2}. The
+#'   outermost layer represents the fraction of overlap between the entities at
+#'   each tip label (or group of tip labels), calculated as (size of
+#'   intersection)/(size of union).
+#' @export
 display_overlap <- function(base_tree,
                             base_name,
                             data_1,
@@ -760,18 +791,18 @@ display_overlap <- function(base_tree,
                             data_2,
                             name_2,
                             entity_id_col,
-                            overlap_at_level = "terminal",
+                            group_level = "terminal",
                             tax_level_labels = chemont_tax_levels,
                             annot_angle = "auto",
                             ...){
 
   args <- list(...)
 
-  if(is.numeric(overlap_at_level)){
-    if(overlap_at_level > length(tax_level_labels)){
+  if(is.numeric(group_level)){
+    if(group_level > length(tax_level_labels)){
       stop(
-        paste("Cannot find overlap at level  'overlap_at_level' =",
-              overlap_at_level,
+        paste("Cannot find overlap at level  'group_level' =",
+              group_level,
               "because it is greater than the max level",
               "defined by the length of 'tax_level_labels' =",
               paste(tax_level_labels, collapse = ", ")
@@ -779,27 +810,27 @@ display_overlap <- function(base_tree,
       )
     }else{
       #pull the corresponding taxonomy level label
-      overlap_at_level <- tax_level_labels[overlap_at_level]
+      group_level <- tax_level_labels[group_level]
     }
   }
 
 overlap <- calc_number_overlap(data_1 = data_1,
                                data_2 = data_2,
                                entity_id_col = entity_id_col,
-                               at_level = overlap_at_level,
+                               at_level = group_level,
                                tax_level_labels = tax_level_labels)
 
 overlap$n_1[overlap$n_1==0] <- NA_real_
 overlap$n_2[overlap$n_2==0] <- NA_real_
 
-if(overlap_at_level %in% "terminal"){
-  overlap_at_level <- "terminal_label"
+if(group_level %in% "terminal"){
+  group_level <- "terminal_label"
 }else{
 #get tip labels associated with each label in overlap,
-#if overlap_at_level is not already terminal
+#if group_level is not already terminal
 #geom_fruit only works on tip labels apparently
 
-  overlap$at_node <- get_node_from_label(label = overlap[[overlap_at_level]],
+  overlap$at_node <- get_node_from_label(label = overlap[[group_level]],
                                          tree = base_tree)
 
   overlap <- overlap[!is.na(overlap$at_node), ] #NA for any label not in the base tree
