@@ -364,6 +364,45 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
   return(jaccard_sim)
 }
 
+calc_jaccard <- function(tree, labels_A, labels_B, method = "cpp"){
+  #get ancestry of labels A
+  #convert labels to nodes
+  node_A <- get_node_from_label(label = labels_A,
+                                tree = tree)
+  #get ancestors of each node
+  anc_A <- phangorn::Ancestors(x = tree,
+                                 node = node_A)
+  #add node itself to ancestor tree
+  anc_A <- lapply(seq_along(anc_A),
+                  function(i) c(anc_A[[i]], node_A[i]))
+
+
+  #get ancestry of labels_B in tree
+  node_B <- get_node_from_label(label = labels_B,
+                                tree = tree)
+  #get ancestors of each node
+  anc_B <- phangorn::Ancestors(x = tree,
+                                 node = node_B)
+  #add node itself to ancestor tree
+  anc_B <- lapply(seq_along(anc_B),
+                  function(i) c(anc_B[[i]], node_B[i]))
+
+  if(method %in% "cpp"){
+  outmat <- get_jaccard(list1 = anc_A, list2 = anc_B)
+  }else{
+    outmat <- matrix(nrow = length(labels_A),
+                     ncol = length(labels_B))
+    for(i in 1:length(labels_A)){
+      for(j in 1:length(labels_B)){
+        outmat[i,j] <- length(intersect(anc_A[[i]], anc_B[[j]]))/
+          length(union(anc_A[[i]], anc_B[[j]]))
+      }
+    }
+  }
+
+return(outmat)
+}
+
 #' Resnik similarity
 #'
 #' This determines the Resnik similarity for two input nodes in a given tree.
@@ -1376,8 +1415,8 @@ calc_similarity <- function(data_1,
   #enumerate a matrix of pairs of terminal labels
   #first get all unique labels across both datasets
   #sort them
-  mlabs <- sort(union(unique(data_1[[terminal_label]]),
-                       unique(data_2[[terminal_label]])))
+  mlabs <- sort(union(data_1[[terminal_label]],
+                       data_2[[terminal_label]]))
   #keep only the ones that appear in each data set
   mrowlabs <- mlabs[mlabs %in% data_1[[terminal_label]]]
   mcollabs <- mlabs[mlabs %in% data_2[[terminal_label]]]
