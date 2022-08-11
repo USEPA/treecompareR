@@ -499,7 +499,7 @@ display_overlap(base_tree = oh_tree,
                 data_2 = usgs_class,
                 name_2 = "USGS Water",
                 entity_id_col = "PREFERRED.NAME",
-                overlap_at_level = "terminal",
+                group_level = "terminal",
                 clade_level = 3,
                 layout = "circular")
 ```
@@ -514,7 +514,7 @@ display_overlap(base_tree = oh_tree,
                 data_2 = usgs_class,
                 name_2 = "USGS Water",
                 entity_id_col = "PREFERRED.NAME",
-                overlap_at_level = 3,
+                group_level = 3,
                 clade_level = 3)
 ```
 
@@ -528,7 +528,7 @@ display_overlap(base_tree = oh_tree,
                 data_2 = usgs_class,
                 name_2 = "USGS Water",
                 entity_id_col = "PREFERRED.NAME",
-                overlap_at_level = 3,
+                group_level = 3,
                 clade_level = 3,
                 subtree_mapping = list(color = RColorBrewer:::brewer.pal(n = 4,
                                                                          name = "Set1"),
@@ -540,7 +540,9 @@ display_overlap(base_tree = oh_tree,
 
 We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set, by directly using `ggtreeExtra::geom_fruit()`. To use `geom_fruit`, one needs to supply a `data.frame` with one variable specifying the tip labels at which to plot the data, and another variable specifying the quantity to plot. 
 
-For example, as part of the `biosolids_classified` data set, the variable `Pct.ToxCast.Active` gives the percentage of ToxCast assays in which the chemical showed bioactivity (if the chemical has been screened in any ToxCast assays). We can use `display_subtree()` to get a base plot, then add a visualization of the range of percentage of active ToxCast assays for each terminal label using `geom_fruit()` with `geom = geom_boxplot`. 
+For example, as part of the `biosolids_classified` data set, the variable `Pct.ToxCast.Active` gives the percentage of ToxCast assays in which the chemical showed bioactivity (if the chemical has been screened in any ToxCast assays). We can visually summarize the range of percentage of active ToxCast assays for each chemical class in the Organohalogens subtree. 
+
+We first use `display_subtree()` to create the base plot, drawing the Organohalogens subtree and highlighting the branches according to membership in the biosolids and USGS Water chemical lists. 
 
 ```{r}
 base_plot <- display_subtree(base_tree = oh_tree,
@@ -549,78 +551,121 @@ base_plot <- display_subtree(base_tree = oh_tree,
                 name_1 = "Biosolids",
                 data_2 = usgs_class,
                 name_2 = "USGS Water",
-                layout = "rectangular",
                 clade_level = NULL)
 ```
 
+Then, we prepare a `data.frame` for use with `ggtreeExtra::geom_fruit()`. This `data.frame` should have, at minimum, one column containing the terminal labels for each entity to be plotted, and one column containing the variable to be plotted (here, `Pct.ToxCast.Active`). We can use the grammar of the `tidyverse` suite of packages to prepare the data. We want to plot chemical entities from both the `biosolids_class` and the `usgs_class` datasets.
+
+```{r}
+fruit1 <- dplyr::bind_rows(biosolids = biosolids_class, #row-bind biosolids_class and usgs_class
+                              usgs = usgs_class,
+                              .id = "dataset") %>% #create new column identifying dataset
+  dplyr::select(dataset, #keep only relevant columns
+                DTXSID, #chemical entity identifier
+                terminal_label, #terminal label
+                class, 
+                AVERAGE.MASS) %>% #variable to plot
+  dplyr::distinct() %>%  #keep only unique rows
+  dplyr::filter(terminal_label %in% oh_tree$tip.label)
+  
+  fruit2 <- fruit1 %>%
+  dplyr::group_by(terminal_label) %>%
+  dplyr::summarise(dataset_all = paste(unique(dataset), #create comma-sep string listing dataset(s) for each group
+                                   collapse = ", "),
+                   .groups = "keep") 
+
+  
+  fruit_dat <- dplyr::left_join(fruit1, fruit2)
+str(fruit_dat) #summary of resulting data.frame
+
+```
+
+So that we can map colors to the same list memership categories as the base tree, let's create a categorical (factor) variable from the `dataset` variable, using the same labels as in the base tree.
+
+```{r}
+fruit_dat <- fruit_dat %>%
+  dplyr::mutate(list_mem = factor(dataset_all,
+                                  levels = c("",
+                                  "biosolids",
+                                             "usgs",
+                                             "biosolids, usgs"),
+                                  labels = c("Neither set",
+                                  "Biosolids only",
+                                             "USGS Water only",
+                                             "Biosolids and USGS Water")))
+```
+
+
+ Then, we add a visualization of the range of percentage of active ToxCast assays for each terminal label using `ggtreeExtra::geom_fruit()` with `geom = geom_boxplot`.
+ 
 ```{r}
 
-fruit_dat <- dplyr::bind_rows(biosolids = biosolids_class,
-                              usgs = usgs_class,
-                              .id = "dataset") %>%
-  dplyr::select(dataset, DTXSID, terminal_label, Pct.ToxCast.Active) %>%
-  dplyr::distinct() %>% 
-  dplyr::group_by(DTXSID, terminal_label, Pct.ToxCast.Active) %>%
-  dplyr::summarise(dataset = paste(unique(dataset), collapse = ", ")) %>%
-  as.data.frame()
-
 base_plot +
+  #ggnewscale::new_scale_fill() +
   ggtreeExtra::geom_fruit(data = fruit_dat,
                       geom = geom_boxplot,
                       mapping = aes(y = terminal_label,
-                                    x = Pct.ToxCast.Active),
+                                    x = AVERAGE.MASS,
+                                    fill = list_mem),
                       axis.params = list(axis = "x",
-                                         text.size = 4,
-                                         title.size = 4)) +
-  geom_tiplab(offset = 20) +
-  ggtree::hexpand(0.5)
+                                         text.size = 2),
+                      grid.params = list(),
+                      pwidth = 0.4) +
+  ggplot2::scale_fill_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) +
+  geom_tiplab(offset = 40, mapping = aes(color = List)) +
+    ggplot2::scale_color_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) +
+  ggtree::hexpand(0.5) +
+  NULL
 ```
 
 It's best to start with a base plot without clade labels (`clade_level = NULL`), and then add clade labels after using `geom_fruit()`, with function `add_cladelab()`. This way, you can control the offset of the clade labels in argument `clade_opts`, so that they are drawn outside the `geom_fruit` annotations.
 
 ```{r}
 fruit_plot <- base_plot +
-  ggtreeExtra::geom_fruit(data = biosolids_class,
+  #ggnewscale::new_scale_fill() +
+  ggtreeExtra::geom_fruit(data = fruit_dat,
                       geom = geom_boxplot,
                       mapping = aes(y = terminal_label,
-                                    x = Pct.ToxCast.Active),
+                                    x = AVERAGE.MASS,
+                                    fill = list_mem),
                       axis.params = list(axis = "x",
-                                         text.size = 4,
-                                         title.size = 4)) 
+                                         text.size = 2),
+                      grid.params = list(),
+                      pwidth = 0.4) +
+  ggplot2::scale_fill_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) 
 
 fruit_plot %>%
-  add_cladelab(tree = oh_tree, clade_level = 3, clade_opts = list(offset = 30)) +
-  ggtree::hexpand(0.1)
+  add_cladelab(tree = oh_tree, clade_level = 3, clade_opts = list(offset = 50)) +
+  ggtree::hexpand(0.5)
 ```
 
 
-
-For instance, in the `biosolids_classified` data set, there is a column `AVERAGE_MASS` which gives the average molecular mass for each chemical in the data set. We can group these by their classification and examine boxplots of each set of grouped data. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers. 
-
-```{r circ-tree-biosolids-mass-tip-color, fig.align='center', fig.dim=c(12,8)}
-circ_tree_boxplot(, 
-                  col = 'AVERAGE_MASS', 
-                  title = 'Biosolids', 
-                  tippoint_boxplot = TRUE, 
-                  layers = c('kingdom', 'superclass'))
-```
-
-If we want to suppress the tippoint and boxplot colors, we can easily do so.
-
-```{r circ-tree-biosolids-mass-no-tip-color, fig.align='center', fig.dim=c(12,8)}
-circ_tree_boxplot(biosolids_classified, 
-                  col = 'AVERAGE_MASS', 
-                  title = 'Biosolids', 
-                  layers = c('kingdom', 'superclass'))
-```
 
 # Similarity between trees
 
-The tree visualization functions we have demonstrated thus far have focused on a visual exploration of chemical space and how each data set spreads through it. We have seen how we can examine the overlap in chemical space between data sets and how to examine more closely the subtrees representing each data set. However, there are some more quantitative methods of exploring these overlaps that we have yet to cover.
+The tree visualization functions we have demonstrated thus far have focused on a qualitative visual exploration of chemical space and how each data set spreads through it. We have seen how we can examine the overlap in chemical space between data sets and how to examine more closely the subtrees representing each data set. However, we can also explore these overlaps in a more quantitative way.
 
-The notion of similarity within ontologies and taxonomies has been an area of interest across a variety of disciplines. These aim to compare pairs of nodes in a tree with each other to gain insight on how they relate to each other. Some of these methods involve examining just the pair of paths from the root of the tree to each of the nodes, while others may examine information more intrinsic to each node. While there is a lot to discuss and explore in the area of similarity measures, we will postpone that to the future and focus on how to use these similarity measures. The main points of similarity measures we will highlight and then demonstrate visualizations that leverage them.
+The notion of similarity within ontologies and taxonomies has been an area of interest across a variety of disciplines. These aim to compare pairs of nodes in a tree with each other to gain insight on how they relate to each other. To use a family metaphor: are two nodes siblings? First cousins? First cousins once removed? 
+
+Some of these methods involve examining just the pair of paths from the root of the tree to each of the nodes, while others may examine information more intrinsic to each node. While there is a lot to discuss and explore in the area of similarity measures, we will postpone that to the future and focus on how to use these similarity measures. The main points of similarity measures we will highlight and then demonstrate visualizations that leverage them.
+
+## Jaccard similarity of trees
 
 Jaccard similarity examines the path from the root to each node in the pair of nodes, and relates these paths to the shared path (which may possibly be just the root). We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). This notion of similarity is calculated using the function `general_Jaccard_similarity()`, which takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+
+## Similarity measures that use information content
 
 Some trees may come with a probability distribution attaching probabilities to each node such that the sum of all node probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In fact, we can look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for tips to have a higher value than their ancestors, with the root having the minimum value. One way we can do this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes, evaluating a monotonically decreasing function on these values, and examining their ratio. In particular, for node $v_i$, define $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree. In the case that $v_i$ is a tip, it has no descendants so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties. 
 
@@ -630,13 +675,18 @@ To generate the information content for a tree, we can use the function `attach_
 
 Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
 
+### Resnik similarity
+
 The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $$\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j)).$$ Observe that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants). Also, since the information content of the root is zero, any pair of nodes containing the root will return a similarity value of zero.
 
 There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in Resnik.
 
+### Lin similarity
 The next method is Lin similarity. This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \text{IC}(v_i) + \text{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}$$ from which it follows that $$\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$ 
 
 We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
+
+### Jiang-Conrath similarity
 
 An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j).$$ Taking the difference yields The following inequality $$0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath and is thus named. 
 
@@ -646,15 +696,48 @@ When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe 
 
 Now, the function `attach_information_content()` generates information content for an input tree, and the functions `general_Jaccard_similarity()`, `general_Resnik_similarity()`, `general_Lin_similarity()`, `general_JiangConrath_similarity()` all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function `generate_similarity_matrix()` will do so for a given tree and similarity measure function. The computation is lengthy for the chemont tree and so these matrices have been previously computed and stored. They are accessible as `chemont_jaccard`, `chemont_resnik_IC_SVH`, `chemont_lin_IC_SVH`, and `chemont_jiangconrath_IC_SVH`.
 
+## Calculation of similarity
+
+To calculate the pairwise similarity of ancestry between two lists of entities based on a specified taxonomy tree, use the function `calc_similarity()`. This function takes argument `data_1` and `data_2` (data frames of classified entities), and `tree` (a `phylo` object representing the taxonomy by which the entities are classified). It returns a matrix whose rows represent each terminal label in `data_1`, whose columns represent each terminal label in `data_2`, and whose elements represent the similarity of ancestry between each terminal label in `data_1` and each terminal label in `data_2`.
+
+Note that the terminal labels are typically *not* the entity IDs. This means two different entities with the same terminal label will have 100% similarity.
+
+For example, here is the similarity matrix between `biosolids_class` and `usgs_class`, considering only chemicals that are in the superclass "Organohalogen compounds" -- i.e., those in the pruned subtree `oh_tree`.
+
+```{r}
+sim_oh <- calc_similarity(data_1 = biosolids_class,
+                data_2 = usgs_class,
+                tree = oh_tree)
+
+knitr::kable(sim_oh,
+             digits = 2)
+```
+
+
 Now, we move to using these in visualizations.
 
+```{r}
+m_rows <- biosolids_class[match(rownames(sim_oh),
+                               biosolids_class$terminal_label),
+                         ]
+m_cols <- usgs_class[match(colnames(sim_oh),
+                               usgs_class$terminal_label),
+                         ]
+
+ComplexHeatmap::Heatmap(matrix = sim_oh,
+                        col = circlize::colorRamp2(seq(0, 1, len = 20),
+                                                   viridis::viridis(20, option = 'C')))
+```
+
+
+## Heatmap visualization of simiarlity
 The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified`, columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters based on the hierarchical clustering of the heatmap.
 
 ```{r heatmap-biosolids-usgs, fig.align='center', fig.dim=c(6,4)}
 biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, 
                                       matrix = chemont_jaccard, 
-                                      row_data = usgswater_classified, 
-                                      column_data = biosolids_classified, 
+                                      row_data = usgs_class, 
+                                      column_data = biosolids_class, 
                                       row_split = 9L, column_split = 9L, 
                                       row_title = 'USGS Water', 
                                       column_title = 'Biosolids', 

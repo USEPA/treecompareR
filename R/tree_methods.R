@@ -342,7 +342,26 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 #' general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 #'
 general_Jaccard_similarity <- function(tree, label_A, label_B){
-  return(1 - general_Jaccard_dist(tree, label_A, label_B))
+  #get ancestry of label_A in tree
+  node_A <- get_node_from_label(label = label_A,
+                                tree = tree)
+  anc_A <- c(phangorn::Ancestors(x = tree,
+                               node = node_A),
+             node_A)
+
+
+  #get ancestry of label_B in tree
+  node_B <- get_node_from_label(label = label_B,
+                                tree = tree)
+  anc_B <- c(phangorn::Ancestors(x = tree,
+                                 node = node_B),
+             node_B)
+
+  #intersection of ancestors / union of ancestors for each label
+  jaccard_sim <- length(intersect(anc_A, anc_B))/
+    length(union(anc_A, anc_B))
+
+  return(jaccard_sim)
 }
 
 #' Resnik similarity
@@ -368,7 +387,11 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
 #' general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
 #' general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 #'
-general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
+general_Resnik_similarity <- function(tree,
+                                      label_A = NULL,
+                                      label_B = NULL,
+                                      node_A = NULL,
+                                      node_B = NULL) {
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
@@ -500,8 +523,11 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 #' generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
 #'
 generate_similarity_matrix <- function(tree, similarity = NULL){
-  ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
-  Nnode = length(tree$node.label)
+  ifelse(is.null(tree$IC),
+         tree_copy <- attach_information_content(tree),
+         tree_copy <- tree)
+  Nnode <- length(tree$node.label)
+  #exclude root label
   tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
   N <- length(tree_labels)
 
@@ -509,9 +535,14 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
   rownames(sim_matrix) <- tree_labels
   colnames(sim_matrix) <- tree_labels
 
-  for (i in 1:N){
-    for (j in i:N){
-      sim_matrix[i,j] <- similarity(tree = tree_copy, label_A = tree_labels[i], label_B = tree_labels[j])
+  #similarity matrix is symmetric so we can save time
+  #fill in upper triangular part only
+  for (i in 1:N){ #iterate over all rows
+    for (j in i:N){ #but only iterate over columns equal to rownum or above
+      sim_matrix[i,j] <- similarity(tree = tree_copy,
+                                    label_A = tree_labels[i],
+                                    label_B = tree_labels[j])
+      #assign the symmetric part
       sim_matrix[j,i] <- sim_matrix[i,j]
     }
   }
@@ -1143,6 +1174,7 @@ bind_entities <- function(tree,
 
   #find terminal nodes in original tree without any entities
   tips_no_ents <- setdiff(tree$tip.label, term_labs$terminal_label)
+  if(length(tips_no_ents)>0){ #if any such entity-less tips
   #create some placeholder entities -- these will be deleted later
   term_fake <- data.frame(terminal_label = tips_no_ents,
                           Name = paste0("fake_entity_",
@@ -1164,6 +1196,7 @@ bind_entities <- function(tree,
   fake_df <- dplyr::bind_rows(fake_df_list)
 
   new_df <- dplyr::bind_rows(new_df, fake_df)
+  }
 
   #new node numbers
   new_df$node <- max(tree_df$node) + 1:nrow(new_df)
@@ -1179,11 +1212,13 @@ bind_entities <- function(tree,
              "Name"))
   new_tree <- generate_taxonomy_tree(new_df)
 
+  if(length(tips_no_ents)>0){
   #drop fake entities
   new_tree <- ape::drop.tip(new_tree,
                             term_fake$Name,
                             trim.internal = FALSE,
                             collapse.singles = FALSE)
+  }
   return(new_tree)
 
 }
@@ -1210,9 +1245,7 @@ prune_tree <- function(tree,
                        prune_to = NULL,
                        keep_descendants = NULL,
                        adjust_branch_length = FALSE,
-                       tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
-                                            'level5', 'level6', 'level7', 'level8',
-                                            'level9', 'level10', 'level11')){
+                       tax_level_labels = chemont_tax_levels){
   if(!is.null(prune_to)){ #if user has specified something to prune to
     if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
       #Prune the tree according to the specified dataset
@@ -1309,4 +1342,83 @@ as_classified.phylo <- function(tree,
 
 return(as.data.frame(foo2))
 
+}
+
+calc_similarity <- function(data_1,
+                            data_2,
+                            terminal_label = "terminal_label",
+                            tree = chemont_tree,
+                            tax_level_labels = chemont_tax_levels,
+                            similarity = "jaccard"){
+
+  if(similarity %in% "jaccard"){
+    similarity_fun <- "general_Jaccard_similarity"
+  }
+  #calculate pairwise similarity of ancestry of terminal labels in two data sets
+
+  #check for terminal_label
+  if(terminal_label == "terminal_label"){
+  if(!(terminal_label %in% names(data_1))){
+    data_1 <- add_terminal_label(data = data_1, tax_level_labels = tax_level_labels)
+  }
+
+  if(!(terminal_label %in% names(data_2))){
+    data_2 <- add_terminal_label(data = data_2, tax_level_labels = tax_level_labels)
+  }
+  }
+
+  #Keep only data with terminal labels in the tree
+  data_1 <- data_1[data_1[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+  data_2 <- data_2[data_2[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+
+  #enumerate a matrix of pairs of terminal labels
+  #first get all unique labels across both datasets
+  #sort them
+  mlabs <- sort(union(unique(data_1[[terminal_label]]),
+                       unique(data_2[[terminal_label]])))
+  #keep only the ones that appear in each data set
+  mrowlabs <- mlabs[mlabs %in% data_1[[terminal_label]]]
+  mcollabs <- mlabs[mlabs %in% data_2[[terminal_label]]]
+
+  m <- matrix(nrow = length(mrowlabs),
+              ncol = length(mcollabs))
+  rownames(m) <- mrowlabs
+  colnames(m) <- mcollabs
+
+  #now calculate matrix elements
+  #only need to calc upper triangular part;
+  #can then assign
+
+  for(i in 1:(length(mlabs)-1)){
+    if(mlabs[i] %in% mrowlabs &
+       mlabs[i] %in% mcollabs){
+      #entity is 100% similar to itself
+      m[mlabs[i], mlabs[i]] <- 1
+    }
+    for(j in (i+1):(length(mlabs))){
+      tmp <- do.call(similarity_fun,
+                     list(tree = tree,
+                          label_A = mlabs[i],
+                          label_B = mlabs[j]))
+      if(mlabs[i] %in% mrowlabs &
+         mlabs[j] %in% mcollabs){
+        m[mlabs[i], mlabs[j]] <- tmp
+      }
+
+      if(mlabs[j] %in% mrowlabs &
+               mlabs[i] %in% mcollabs){
+        m[mlabs[j], mlabs[i]] <- tmp
+      }
+
+      if(mlabs[j] %in% mrowlabs &
+         mlabs[j] %in% mcollabs){
+        #entity is 100% similar to itself
+        m[mlabs[j], mlabs[j]] <- 1
+      }
+    } #end j loop
+  } #end i loop
+
+return(m)
 }

@@ -2,84 +2,58 @@
 
 #' Label numbers
 #'
-#' This is a helper function, use for determining number of labels in a given data set per taxonomical level.
+#' This is a helper function, use for determining number of labels in a given
+#' data set per taxonomical level.
 #'
-#' @param datatable A data.table object of chemical classifications.
-#' @param chemont Alternate parameter indicating whether ChemOnt taxonomy is used.
-#' @param log Alternate parameter indicating whether numbers are reported as is or as their log.
-#' @return Number of occurrences of each label in the parameter `datatable`.
-#' @import data.table
+#' @param dat A data.frame object of classified entities, containing one row for
+#'   each entity and one column for each level of the taxonomy.
+#' @param entity_id The name of the variable in \code{dat} that uniquely
+#'   identifies entities. If NULL (default), each row is assumed to be a unique
+#'   entity.
+#' @param tax_level_labels A vector of names for the levels of the taxonomy.
+#'   Default is to use the ChemOnt taxonomy levels.
+#' @param log10_count Optional parameter: TRUE to return log10-transformed label counts;
+#'   FALSE to return non-transformed label counts. Default TRUE.
+#' @return Number of occurrences of each label in the data.
 
-label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
-  kingdom <- NULL
-  superclass <- NULL
-  class <- NULL
-  subclass <- NULL
-  level5 <- NULL
-  level6 <- NULL
-  level7 <- NULL
-  level8 <- NULL
-  level9 <- NULL
-  level10 <- NULL
-  level11 <- NULL
-  PREFERRED_NAME <- NULL
-  . <- NULL
-  if (!chemont){
-    top_level <- names(datatable)[[1]]
-    complete_labels <- 'TO BE DETERMINED'
-    return('TBD')
-  }
+label_numbers <- function(dat,
+                          entity_id = NULL,
+                          tax_level_labels = chemont_tax_levels,
+                          log10_count = TRUE) {
 
-  complete_labels <- c(unlist(unname(datatable[kingdom != '', .(unique(kingdom),
-                                                      unique(superclass),
-                                                      unique(class),
-                                                      unique(subclass),
-                                                      unique(level5),
-                                                      unique(level6),
-                                                      unique(level7),
-                                                      unique(level8),
-                                                      unique(level9),
-                                                      unique(level10),
-                                                      unique(level11)),
-                                        by = .(PREFERRED_NAME)][, c('PREFERRED_NAME') := NULL])))
-  #print(length(complete_labels))
-  empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
+#In effect, we want to count unique entities by the values of each column in turn
+#Easiest way to do it is I think to reshape to long form, then count rows by label
 
-  #print(length(empty_indices))
-  if (length(empty_indices) > 0){
-    complete_labels <- complete_labels[-which(sapply(complete_labels, function(t) {t == ''}))]
-  }
+dat_long <- dat %>% tidyr::pivot_longer(cols = tidyselect::all_of(tax_level_labels),
+                                        names_to = "tax_level",
+                                        values_to = "tax_level_label")
 
-  #print(length(complete_labels))
-  na_indices <- which(sapply(complete_labels, is.na))
-  #print(length(na_indices))
-  if (length(na_indices > 0)){
-    complete_labels <- complete_labels[-na_indices]
-  }
-  #complete_labels <- complete_labels[-which(sapply(complete_labels, is.na))]
-
-  print(length(complete_labels))
-  unique_labels <- unique(complete_labels)
-
-  if (log) {
-    unique_complete_label_numbers <- sapply(unique_labels, function(t){
-      log10(length(which(complete_labels %in% t)))
-      })
-    #print(length(unique_complete_label_numbers))
-  } else {
-    unique_complete_label_numbers <- sapply(unique_labels, function(t){
-      length(which(complete_labels %in% t))
-      })
-  }
-  return (list(unique_complete_label_numbers, complete_labels))
+if(is.null(entity_id)){
+  #count rows per label
+  label_n <- dat_long %>%
+    dplyr::count(tax_level_label)
+}else{
+  #count unique entity IDs per label
+  label_n <- dat_long %>%
+    dplyr:group_by(tax_level_label) %>%
+    dplyr::summarise(n = n_distinct(.data[[entity_id]]))
 }
 
+#remove blank and NA labels
+#trim leading/trailing whitespace so that "   " reads as blank
+label_n <- label_n %>%
+            dplyr::mutate(labeltrim = trimws(tax_level_label)) %>% #trim leading & trailing whitespace
+            dplyr::filter(!is.na(labeltrim) &
+                            nzchar(labeltrim)) %>%
+            dplyr::select(tax_level_label, n) #don't return trimmed labels
 
+#log-transform if so specified
+if(isTRUE(log10_count)){
+    label_n$n <- log10(label_n$n)
+}
 
-
-
-
-
+  return (as.data.frame(label_n))
+}
 
 #' Generate similarity heatmap
 #'
@@ -108,7 +82,17 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
-generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title') {
+generate_heatmap <- function(tree_object,
+                             matrix,
+                             row_indices = NA,
+                             column_indices = NA,
+                             row_data,
+                             column_data,
+                             name = 'Name',
+                             row_split = NULL,
+                             column_split = NULL,
+                             row_title = 'Row title',
+                             column_title = 'Column title') {
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
 
@@ -131,8 +115,8 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
   row_label_data <- label_numbers(row_data)
-  row_label_numbers <- row_label_data[[1]]
-  row_labels <- row_label_data[[2]]
+  row_label_numbers <- row_label_data$n
+  row_labels <- row_label_data$tax_level_label
   row_anno_indices <- match(dimnames(matrix)[[2]][row_indices], row_labels)
   row_na_indices <- which(sapply(row_anno_indices, is.na))
   if (length(row_na_indices) > 0){
@@ -140,8 +124,8 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
   }
 
   column_label_data <- label_numbers(column_data)
-  column_label_numbers <- column_label_data[[1]]
-  column_labels <- column_label_data[[2]]
+  column_label_numbers <- column_label_data$n
+  column_labels <- column_label_data$tax_level_label
   column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
   column_na_indices <- which(sapply(column_anno_indices, is.na))
   if (length(column_na_indices) > 0){
