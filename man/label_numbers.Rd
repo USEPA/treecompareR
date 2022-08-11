@@ -4,18 +4,31 @@
 \alias{label_numbers}
 \title{Label numbers}
 \usage{
-label_numbers(datatable, chemont = TRUE, log = TRUE)
+label_numbers(
+  dat,
+  entity_id = NULL,
+  tax_level_labels = chemont_tax_levels,
+  log10_count = TRUE
+)
 }
 \arguments{
-\item{datatable}{A data.table object of chemical classifications.}
+\item{dat}{A data.frame object of classified entities, containing one row for
+each entity and one column for each level of the taxonomy.}
 
-\item{chemont}{Alternate parameter indicating whether ChemOnt taxonomy is used.}
+\item{entity_id}{The name of the variable in \code{dat} that uniquely
+identifies entities. If NULL (default), each row is assumed to be a unique
+entity.}
 
-\item{log}{Alternate parameter indicating whether numbers are reported as is or as their log.}
+\item{tax_level_labels}{A vector of names for the levels of the taxonomy.
+Default is to use the ChemOnt taxonomy levels.}
+
+\item{log10_count}{Optional parameter: TRUE to return log10-transformed label counts;
+FALSE to return non-transformed label counts. Default TRUE.}
 }
 \value{
-Number of occurrences of each label in the parameter \code{datatable}.
+Number of occurrences of each label in the data.
 }
 \description{
-This is a helper function, use for determining number of labels in a given data set per taxonomical level.
+This is a helper function, use for determining number of labels in a given
+data set per taxonomical level.
 }
