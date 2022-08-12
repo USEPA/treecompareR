@@ -840,7 +840,6 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
-#' @importFrom aplot, insert_left, insert_right
 side_by_side_trees <- function(data_left, data_right){
   if(false) {
     terminal_labels_left <- NULL
