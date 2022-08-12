@@ -25,6 +25,7 @@ Suggests:
 VignetteBuilder: knitr
 Imports: 
     ape,
+    aplot,
     circlize,
     clisymbols,
     ComplexHeatmap,
