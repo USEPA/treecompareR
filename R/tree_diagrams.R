@@ -826,5 +826,63 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
   return(list(plot_1, plot_2))
 }
 
+#' Side by side trees
+#'
+#' This function takes two data sets and construsts both trees and internal
+#' layers for data visualization. The left and right out layer of the diagram
+#' consists of subtrees corresponding to the left and right data sets. The left
+#' and right inner layers display label statistics for the left and right data
+#' sets. The center displays label statistics shared by the left and right data
+#' sets.
+#'
+#' @param data_left The left data.table of chemical classifications.
+#' @param data_right The right data.table of chemical classifications.
+#' @return An `aplot` consisting of two outer layer `ggtree` objects and three
+#'   inner layer `ggplot2` objects.
+#' @export
+#' @importFrom aplot, insert_left, insert_right
+side_by_side_trees <- function(data_left, data_right){
+  if(false) {
+    terminal_labels_left <- NULL
+  terminal_labels_right <- NULL
 
+  left_tree <- NULL
+  right_tree <- NULL
+  right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
+
+
+  tree_data <- data.frame(tip.label = left_tree$tip.label,
+                          left = logical(length(left_tree$tip.label)),
+                          right = logical(length(left_tree$tip.label)))
+  tree_data$left <- tree_data$tip.label %in% terminal_labels_left
+  tree_data$right <- tree_data$tip.label %in% terminal_labels_right
+
+  tree_data$leftval <- NULL
+  tree_data$centerval <- NULL
+  tree_data$rightval <- NULL
+
+  left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
+    geom_point()#Or some other data viz
+  center_data_plot <- ggplot(tree_data, aes(y = tip.label, x = centerval)) +
+    geom_point()#Or some other data viz
+  right_data_plot <- ggplot(tree_data, aes(y = tip.label, x = rightval)) +
+    geom_point()#Or some other data viz
+
+  data_plot <- center_data_plot %>% aplot::insert_left(left_data_plot)
+  data_plot <- data_plot %>% aplot::insert_right(right_data_plot)
+
+  data_plot <- data_plot %>% aplot::insert_left(left_tree)
+
+  data_plot$n <- 5
+  data_plot_new_col <- matrix(5, nrow = 1)
+
+  data_plot$width <- c(data_plot$width, 1)
+  data_plot$layout <- cbind(data_plot$layout, data_plot_new_col)
+  data_plot_axis <- list(ylab(data_plot$plotlist[[4]]$labels$y))
+  data_plot$plotlist[[4]] <- data_plot$plotlist[[4]] + data_plot_axis
+  data_plot$plotlist[[5]] = right_tree
+
+  return(data_plot)
+  }
+}
 
