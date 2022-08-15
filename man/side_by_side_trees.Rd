@@ -4,12 +4,21 @@
 \alias{side_by_side_trees}
 \title{Side by side trees}
 \usage{
-side_by_side_trees(data_left, data_right)
+side_by_side_trees(
+  data_left,
+  data_right,
+  name_left = "Left tree",
+  name_right = "Right tree"
+)
 }
 \arguments{
 \item{data_left}{The left data.table of chemical classifications.}
 
 \item{data_right}{The right data.table of chemical classifications.}
+
+\item{name_left}{Alternate parameter for left data set.}
+
+\item{name_right}{Alternate parameter for right data set.}
 }
 \value{
 An \code{aplot} consisting of two outer layer \code{ggtree} objects and three
