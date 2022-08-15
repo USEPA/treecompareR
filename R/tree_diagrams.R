@@ -841,31 +841,89 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
 #'   inner layer `ggplot2` objects.
 #' @export
 side_by_side_trees <- function(data_left, data_right){
-  if(false) {
-    terminal_labels_left <- NULL
-  terminal_labels_right <- NULL
+  if(TRUE) {
 
-  left_tree <- NULL
-  right_tree <- NULL
+    if (!all('terminal_label' %in% names(data_left))){
+      warning('The column `terminal_label` is missing from one of the first input data.table! Attaching column...')
+      data_left <- add_terminal_label(data_left)
+      }
+    if (!all('terminal_label' %in% names(data_right))){
+      warning('The column `terminal_label` is missing from one of the second input data.table! Attaching column...')
+      data_right <- add_terminal_label(data_right)
+      }
+
+    terminal_label <- NULL
+  terminal_labels_left <- data_left[!is.na(terminal_label), unique(terminal_label)]
+  terminal_labels_right <- data_right[!is.na(terminal_label), unique(terminal_label)]
+
+  terminal_labels <- union(terminal_labels_left, terminal_labels_right)
+
+  left_initial_tree <- prune_and_display_subtree(data = data_left, no_plot = TRUE)
+  right_initial_tree <- prune_and_display_subtree(data = data_right, no_plot = TRUE)
+
+  left_labels <- c(left_initial_tree$tip.label, left_initial_tree$node.label)
+  right_labels <- c(right_initial_tree$tip.label, right_initial_tree$node.label)
+
+  all_labels <- union(left_labels, right_labels)
+
+  union_tree <- drop_tips_nodes(tree = chemont_tree, labels = all_labels)
+  terminal_labels <- intersect(terminal_labels, union_tree$tip.label)
+
+
+  left_tree <- ggtree(union_tree,
+                      aes(color= c(union_tree$tip.label, union_tree$node.label) %in%left_labels))+
+    scale_color_manual(values = c('blue', 'white'),
+                       labels = c('TRUE', 'FALSE'))
+  right_tree <- ggtree(union_tree,
+                       aes(color= c(union_tree$tip.label, union_tree$node.label) %in% right_labels)) +
+    scale_color_manual(values = c('red', 'white'),
+                       labels = c('TRUE', 'FALSE'))
   right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
 
+  nTip <- length(union_tree$tip.label)
 
-  tree_data <- data.frame(tip.label = left_tree$tip.label,
-                          left = logical(length(left_tree$tip.label)),
-                          right = logical(length(left_tree$tip.label)))
-  tree_data$left <- tree_data$tip.label %in% terminal_labels_left
-  tree_data$right <- tree_data$tip.label %in% terminal_labels_right
+  tree_data <- data.frame(tip.label = rep(union_tree$tip.label, 3),
+                          tree = rep(c('left', 'right', 'center'), each = nTip))#,
+                          #left = logical(length(union_tree$tip.label)),
+                          #right = logical(length(union_tree$tip.label)))
+  #tree_data$left <- tree_data$tip.label %in% terminal_labels_left
+  #tree_data$right <- tree_data$tip.label %in% terminal_labels_right
 
-  tree_data$leftval <- NULL
-  tree_data$centerval <- NULL
-  tree_data$rightval <- NULL
 
-  left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
-    geom_point()#Or some other data viz
-  center_data_plot <- ggplot(tree_data, aes(y = tip.label, x = centerval)) +
-    geom_point()#Or some other data viz
-  right_data_plot <- ggplot(tree_data, aes(y = tip.label, x = rightval)) +
-    geom_point()#Or some other data viz
+
+  tree_data_leftval <- double(nTip)
+  tree_data_centerval <- double(nTip)
+  tree_data_rightval <- double(nTip)
+
+  for (i in seq_along(tree_data$tip.label)){
+    t <- tree_data$tip.label[[i]]
+    data_left_chemicals <- data_left[terminal_label == t, unique(INCHIKEY)]
+    data_right_chemicals <- data_right[terminal_label == t, unique(INCHIKEY)]
+    shared_chemicals <- intersect(data_left_chemicals, data_right_chemicals)
+    tree_data_leftval[[i]] <- length(data_left_chemicals)
+    tree_data_rightval[[i]] <- length(data_right_chemicals)
+    tree_data_centerval[[i]] <- length(shared_chemicals)
+  }
+
+  value <- c(tree_data_leftval, tree_data_rightval, tree_data_centerval)
+  tree_data <- cbind(tree_data, value)
+  names(tree_data)[[3]] <- 'value'
+
+  print(str(tree_data))
+  #left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
+  #  geom_tile()#Or some other data viz
+  #return(left_data_plot)
+  #center_data_plot <- ggplot(tree_data, aes(y = tip.label, x = centerval)) +
+  #  geom_tile()#Or some other data viz
+  #right_data_plot <- ggplot(tree_data, aes(y = tip.label, x = rightval)) +
+  #  geom_tile()#Or some other data viz
+
+  #return(tree_data)
+
+  data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
+    geom_tile(aes(fill = value))
+
+  return(data_plot)
 
   data_plot <- center_data_plot %>% aplot::insert_left(left_data_plot)
   data_plot <- data_plot %>% aplot::insert_right(right_data_plot)
