@@ -837,10 +837,12 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
 #'
 #' @param data_left The left data.table of chemical classifications.
 #' @param data_right The right data.table of chemical classifications.
+#' @param name_left Alternate parameter for left data set.
+#' @param name_right Alternate parameter for right data set.
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
-side_by_side_trees <- function(data_left, data_right){
+side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', name_right = 'Right tree'){
   if(TRUE) {
 
     if (!all('terminal_label' %in% names(data_left))){
@@ -867,17 +869,21 @@ side_by_side_trees <- function(data_left, data_right){
   all_labels <- union(left_labels, right_labels)
 
   union_tree <- drop_tips_nodes(tree = chemont_tree, labels = all_labels)
+  union_tree$edge.length <- adjust_branch_lengths(union_tree)
   terminal_labels <- intersect(terminal_labels, union_tree$tip.label)
 
-
   left_tree <- ggtree(union_tree,
-                      aes(color= c(union_tree$tip.label, union_tree$node.label) %in%left_labels))+
-    scale_color_manual(values = c('blue', 'white'),
-                       labels = c('TRUE', 'FALSE'))
+                      aes(color= c(union_tree$tip.label, union_tree$node.label) %in%left_labels),
+                      branch.length = FALSE)+
+    scale_color_manual(values = c('blue', 'black'),
+                       labels = c(name_left, 'FALSE'),
+                       name = 'Left Tree')# + geom_tiplab(size = 3)
   right_tree <- ggtree(union_tree,
-                       aes(color= c(union_tree$tip.label, union_tree$node.label) %in% right_labels)) +
-    scale_color_manual(values = c('red', 'white'),
-                       labels = c('TRUE', 'FALSE'))
+                       aes(color= c(union_tree$tip.label, union_tree$node.label) %in% right_labels),
+                       branch.length = FALSE) +
+    scale_color_manual(values = c('red', 'black'),
+                       labels = c(name_right, 'FALSE'),
+                       name = 'Right Tree')# + geom_tiplab(size = 3)
   right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
 
   nTip <- length(union_tree$tip.label)
@@ -889,13 +895,13 @@ side_by_side_trees <- function(data_left, data_right){
   #tree_data$left <- tree_data$tip.label %in% terminal_labels_left
   #tree_data$right <- tree_data$tip.label %in% terminal_labels_right
 
-
+  tree_data$tree <- factor(tree_data$tree, levels = c('left', 'center', 'right'))
 
   tree_data_leftval <- double(nTip)
   tree_data_centerval <- double(nTip)
   tree_data_rightval <- double(nTip)
 
-  for (i in seq_along(tree_data$tip.label)){
+  for (i in seq_along(union_tree$tip.label)){
     t <- tree_data$tip.label[[i]]
     data_left_chemicals <- data_left[terminal_label == t, unique(INCHIKEY)]
     data_right_chemicals <- data_right[terminal_label == t, unique(INCHIKEY)]
@@ -905,9 +911,16 @@ side_by_side_trees <- function(data_left, data_right){
     tree_data_centerval[[i]] <- length(shared_chemicals)
   }
 
+  print(tree_data_leftval)
+  print(tree_data_rightval)
+  print(tree_data_centerval)
+  print(nTip)
+
   value <- c(tree_data_leftval, tree_data_rightval, tree_data_centerval)
   tree_data <- cbind(tree_data, value)
-  names(tree_data)[[3]] <- 'value'
+  names(tree_data)[[3]] <- "value"
+
+  print(names(tree_data))
 
   print(str(tree_data))
   #left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
@@ -921,25 +934,29 @@ side_by_side_trees <- function(data_left, data_right){
   #return(tree_data)
 
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value))
+    geom_tile(aes(fill = value)) + theme_minimal() + ylab(NULL)# + theme(axis.text.y = element_text(size = 5))
 
-  return(data_plot)
+  #return(data_plot)
 
-  data_plot <- center_data_plot %>% aplot::insert_left(left_data_plot)
-  data_plot <- data_plot %>% aplot::insert_right(right_data_plot)
+  #data_plot <- center_data_plot %>% aplot::insert_left(left_data_plot)
+  #data_plot <- data_plot %>% aplot::insert_right(right_data_plot)
 
   data_plot <- data_plot %>% aplot::insert_left(left_tree)
 
-  data_plot$n <- 5
-  data_plot_new_col <- matrix(5, nrow = 1)
+  #return(data_plot)
+
+  data_plot$n <- 3
+  data_plot_new_col <- matrix(3, nrow = 1)
 
   data_plot$width <- c(data_plot$width, 1)
   data_plot$layout <- cbind(data_plot$layout, data_plot_new_col)
-  data_plot_axis <- list(ylab(data_plot$plotlist[[4]]$labels$y))
-  data_plot$plotlist[[4]] <- data_plot$plotlist[[4]] + data_plot_axis
-  data_plot$plotlist[[5]] = right_tree
+  data_plot_axis <- list(ylab(data_plot$plotlist[[2]]$labels$y))
+  data_plot$plotlist[[2]] <- data_plot$plotlist[[2]] + data_plot_axis
+  data_plot$plotlist[[3]] = right_tree
 
   return(data_plot)
   }
+
+
 }
 
