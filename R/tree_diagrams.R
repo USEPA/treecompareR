@@ -872,18 +872,27 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   union_tree$edge.length <- adjust_branch_lengths(union_tree)
   terminal_labels <- intersect(terminal_labels, union_tree$tip.label)
 
+  left_ancestors <- lapply(left_labels, function(t) {get_ancestors(chemont_tree, t)})
+  right_ancestors <- lapply(right_labels, function(t) {get_ancestors(union_tree, t)})
+
+  all_left_tree <- union(unlist(left_ancestors), left_labels)
+  all_right_tree <- union(unlist(right_ancestors), right_labels)
+
+  print(all_left_tree)
+  print(all_right_tree)
+
   left_tree <- ggtree(union_tree,
-                      aes(color= c(union_tree$tip.label, union_tree$node.label) %in%left_labels),
+                      aes(color= (c(union_tree$tip.label, union_tree$node.label) %in% all_left_tree)),
                       branch.length = FALSE)+
-    scale_color_manual(values = c('blue', 'black'),
-                       labels = c(name_left, 'FALSE'),
-                       name = 'Left Tree')# + geom_tiplab(size = 3)
+    scale_color_manual(values = c('black', 'blue'),
+                       labels = c('FALSE', name_left),
+                       name = 'Left Tree') + geom_nodepoint() + geom_tippoint()# + geom_tiplab(size = 3)
   right_tree <- ggtree(union_tree,
-                       aes(color= c(union_tree$tip.label, union_tree$node.label) %in% right_labels),
+                       aes(color= c(union_tree$tip.label, union_tree$node.label) %in% all_right_tree),
                        branch.length = FALSE) +
-    scale_color_manual(values = c('red', 'black'),
-                       labels = c(name_right, 'FALSE'),
-                       name = 'Right Tree')# + geom_tiplab(size = 3)
+    scale_color_manual(values = c('black', 'red'),
+                       labels = c('FALSE', name_right),
+                       name = 'Right Tree') + geom_nodepoint()#geom_tiplab(size = 3)
   right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
 
   nTip <- length(union_tree$tip.label)
