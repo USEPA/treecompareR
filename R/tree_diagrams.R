@@ -885,15 +885,20 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
                       aes(color= (c(union_tree$tip.label, union_tree$node.label) %in% all_left_tree)),
                       branch.length = FALSE)+
     scale_color_manual(values = c('black', 'blue'),
-                       labels = c('FALSE', name_left),
-                       name = 'Left Tree') + geom_nodepoint() + geom_tippoint()# + geom_tiplab(size = 3)
+                       labels = c('', name_left),
+                       name = 'Left Tree') + geom_tippoint()# + geom_tiplab(size = 3)
   right_tree <- ggtree(union_tree,
                        aes(color= c(union_tree$tip.label, union_tree$node.label) %in% all_right_tree),
                        branch.length = FALSE) +
     scale_color_manual(values = c('black', 'red'),
-                       labels = c('FALSE', name_right),
-                       name = 'Right Tree') + geom_nodepoint()#geom_tiplab(size = 3)
+                       labels = c('', name_right),
+                       name = 'Right Tree') + geom_tippoint()#geom_tiplab(size = 3)
   right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
+
+  if(FALSE){# Add clade labels to each tree.
+    left_tree <- add_cladelab(left_tree)
+    right_tree <- add_cladelab(right_tree)
+  }
 
   nTip <- length(union_tree$tip.label)
 
@@ -943,8 +948,10 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   #return(tree_data)
 
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value)) + theme_minimal() + ylab(NULL)# + theme(axis.text.y = element_text(size = 5))
-
+    geom_tile(aes(fill = value)) + scale_fill_viridis() +
+    theme_minimal() + ylab(NULL)  +
+      theme(axis.text.y = element_text(size = 3),
+            axis.title.y = NULL)
   #return(data_plot)
 
   #data_plot <- center_data_plot %>% aplot::insert_left(left_data_plot)
@@ -962,6 +969,9 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   data_plot_axis <- list(ylab(data_plot$plotlist[[2]]$labels$y))
   data_plot$plotlist[[2]] <- data_plot$plotlist[[2]] + data_plot_axis
   data_plot$plotlist[[3]] = right_tree
+
+
+
 
   return(data_plot)
   }
