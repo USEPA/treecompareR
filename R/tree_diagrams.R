@@ -878,8 +878,8 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   all_left_tree <- union(unlist(left_ancestors), left_labels)
   all_right_tree <- union(unlist(right_ancestors), right_labels)
 
-  print(all_left_tree)
-  print(all_right_tree)
+  #print(all_left_tree)
+  #print(all_right_tree)
 
   left_tree <- ggtree(union_tree,
                       aes(color= (c(union_tree$tip.label, union_tree$node.label) %in% all_left_tree)),
@@ -925,18 +925,18 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
     tree_data_centerval[[i]] <- length(shared_chemicals)
   }
 
-  print(tree_data_leftval)
-  print(tree_data_rightval)
-  print(tree_data_centerval)
-  print(nTip)
+  #print(tree_data_leftval)
+  #print(tree_data_rightval)
+  #print(tree_data_centerval)
+  #print(nTip)
 
   value <- c(tree_data_leftval, tree_data_rightval, tree_data_centerval)
   tree_data <- cbind(tree_data, value)
   names(tree_data)[[3]] <- "value"
 
-  print(names(tree_data))
+  #print(names(tree_data))
 
-  print(str(tree_data))
+  #print(str(tree_data))
   #left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
   #  geom_tile()#Or some other data viz
   #return(left_data_plot)
