@@ -99,13 +99,15 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #' @param column_split Number of cluster for columns.
 #' @param row_title Title for rows.
 #' @param column_title Title for columns.
+#' @param log_trans Alternate parameter for log transforming numbers of label
+#'   occurrence for labels present in each data set.
 #' @return A Heatmap object.
 #' @export
 #' @import ComplexHeatmap
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
-generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title') {
+generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title', log_trans = TRUE) {
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
 
@@ -127,7 +129,7 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
-  row_label_data <- label_numbers(row_data)
+  row_label_data <- label_numbers(row_data, log = log_trans)
   row_label_numbers <- row_label_data[[1]]
   row_labels <- row_label_data[[2]]
   row_anno_indices <- match(dimnames(matrix)[[2]][row_indices], row_labels)
@@ -136,7 +138,7 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
     row_anno_indices <- row_anno_indices[-row_na_indices]
   }
 
-  column_label_data <- label_numbers(column_data)
+  column_label_data <- label_numbers(column_data, log = log_trans)
   column_label_numbers <- column_label_data[[1]]
   column_labels <- column_label_data[[2]]
   column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
@@ -158,13 +160,13 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 
                                      # NEED TO ADD HELPER FUNCTIONS FOR THIS
                                      top_annotation = HeatmapAnnotation(#col_log_count_bar = anno_barplot(column_label_numbers[match(dimnames(matrix)[[2]][column_indices], column_labels)]),
-                                                                        col_log_count_bar = anno_barplot(column_label_numbers[column_anno_indices]),
+                                                                        col_log_count_bar = anno_barplot(column_label_numbers[column_labels[column_anno_indices]]),
                                                                         annotation_name_rot = 45,
                                                                         annotation_label = c('log(col count) bars'),
                                                                         annotation_name_gp = grid::gpar(fontsize = 8)
                                      ),
                                      left_annotation = rowAnnotation(#row_log_count_bar = anno_barplot(row_label_numbers[match(dimnames(matrix)[[1]][row_indices], row_labels)],
-                                                                      row_log_count_bar = anno_barplot(row_label_numbers[row_anno_indices],
+                                                                      row_log_count_bar = anno_barplot(row_label_numbers[row_labels[row_anno_indices]],
                                                                       axis_param = list(direction = 'reverse')),
                                                                       annotation_name_rot = 45,
                                                                       annotation_label = c('log(row count) bars'),
