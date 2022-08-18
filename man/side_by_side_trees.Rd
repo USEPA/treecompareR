@@ -8,7 +8,8 @@ side_by_side_trees(
   data_left,
   data_right,
   name_left = "Left tree",
-  name_right = "Right tree"
+  name_right = "Right tree",
+  log_trans = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ side_by_side_trees(
 \item{name_left}{Alternate parameter for left data set.}
 
 \item{name_right}{Alternate parameter for right data set.}
+
+\item{log_trans}{Alternate parameter for log-transforming data.}
 }
 \value{
 An \code{aplot} consisting of two outer layer \code{ggtree} objects and three
