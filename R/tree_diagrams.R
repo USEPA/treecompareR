@@ -855,6 +855,9 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
       }
 
     terminal_label <- NULL
+    INCHIKEY <- NULL
+    tree <- NULL
+    tip.label <- NULL
   terminal_labels_left <- data_left[!is.na(terminal_label), unique(terminal_label)]
   terminal_labels_right <- data_right[!is.na(terminal_label), unique(terminal_label)]
 
