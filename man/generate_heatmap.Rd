@@ -15,7 +15,8 @@ generate_heatmap(
   row_split = NULL,
   column_split = NULL,
   row_title = "Row title",
-  column_title = "Column title"
+  column_title = "Column title",
+  log_trans = TRUE
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ generate_heatmap(
 \item{row_title}{Title for rows.}
 
 \item{column_title}{Title for columns.}
+
+\item{log_trans}{Alternate parameter for log transforming numbers of label
+occurrence for labels present in each data set.}
 }
 \value{
 A Heatmap object.
