@@ -839,10 +839,11 @@ data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_
 #' @param data_right The right data.table of chemical classifications.
 #' @param name_left Alternate parameter for left data set.
 #' @param name_right Alternate parameter for right data set.
+#' @param log_trans Alternate parameter for log-transforming data.
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
-side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', name_right = 'Right tree'){
+side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', name_right = 'Right tree', log_trans = FALSE){
   if(TRUE) {
 
     if (!all('terminal_label' %in% names(data_left))){
@@ -884,18 +885,30 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   #print(all_left_tree)
   #print(all_right_tree)
 
+  # Adjust the tip label size depending on the number of tips of the tree
+  #if (length(union_tree$tip.label) <= 200){
+  #  tip_size = 3
+  #} else if (length(tree_1$tip.label) <= 500){
+  #  tip_size = 1.5
+  #} else {
+  #  tip_size = .5
+  #}
+
+  tip_size <- 2/length(union_tree$tip.label)
+
   left_tree <- ggtree(union_tree,
                       aes(color= (c(union_tree$tip.label, union_tree$node.label) %in% all_left_tree)),
                       branch.length = FALSE)+
     scale_color_manual(values = c('black', 'blue'),
                        labels = c('', name_left),
-                       name = 'Left Tree') + geom_tippoint()# + geom_tiplab(size = 3)
+                       name = 'Left Tree') + geom_tippoint(size = tip_size)
   right_tree <- ggtree(union_tree,
                        aes(color= c(union_tree$tip.label, union_tree$node.label) %in% all_right_tree),
                        branch.length = FALSE) +
     scale_color_manual(values = c('black', 'red'),
                        labels = c('', name_right),
-                       name = 'Right Tree') + geom_tippoint()#geom_tiplab(size = 3)
+                       name = 'Right Tree') + geom_tippoint(size = tip_size) +
+    geom_tiplab(as_ylab=TRUE, size = 3)
   right_tree <- right_tree + ggplot2::scale_x_continuous(trans = "reverse")
 
   if(FALSE){# Add clade labels to each tree.
@@ -950,8 +963,10 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
 
   #return(tree_data)
 
+  trans <- ifelse(log_trans, 'log1p', 'identity')
+
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value)) + scale_fill_viridis() +
+    geom_tile(aes(fill = value)) + scale_fill_viridis(trans=trans) +
     theme_minimal() + ylab(NULL)  +
       theme(axis.text.y = element_text(size = 3),
             axis.title.y = NULL)
