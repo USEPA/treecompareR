@@ -317,7 +317,7 @@ Now, the function `attach_information_content()` generates information content f
 
 ## Visualizing similarity
 
-Now, we move to using these similarity measures in visualizations.
+Now, we move to using these similarity measures in visualizations. We apply tree visualizations to understand better how data sets relate from the quantitatively-driven point of view of similarity measures. Since similarity measures provide a quantitative approach to exploring the structure of the taxonomy, we can associate these
 
 The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified` and columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be nine row and nine column clusters within the hierarchical clustering of the heatmap.
 
