@@ -317,7 +317,9 @@ Now, the function `attach_information_content()` generates information content f
 
 ## Visualizing similarity
 
-Now, we move to using these similarity measures in visualizations. We apply tree visualizations to understand better how data sets relate from the quantitatively-driven point of view of similarity measures. Since similarity measures provide a quantitative approach to exploring the structure of the taxonomy, we can associate these
+Now, we move to using these similarity measures in visualizations. We apply tree visualizations to understand better how data sets relate from the quantitatively-driven point of view of similarity measures. Since similarity measures provide a quantitative approach to exploring the structure of the taxonomy, we can use these numerical relationships to our advantage in studying how data sets cluster relative to one another within chemical space. In particular, we can look at heatmaps generated from a similarity matrix associated to a similarity measure, and where rows and columns are determined by the classification labels representing each data set. From this, we apply hierarchical clustering and examine the portions of each data set corresponding to the individual row and column clusters. This can highlight particularly well the overlapping areas of each data set within chemical space.
+
+First, we construct the heatmap, which requires us to specify a given similarity measure matrix and supply two data sets with classification data. Then we explore clusters more closely using tree diagrams to visualize where the clusters correspond to in chemical space. We can remove extraneous information in this process to get a more precise look at the coverage of both sets within each cluster.
 
 The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified` and columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be nine row and nine column clusters within the hierarchical clustering of the heatmap.
 
@@ -333,7 +335,9 @@ biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree,
 biosolids_usgs_ht
 ```
 
-In the diagram created by the `generate_heatmap()` function, there are several features that are included. The dendrogram out of which the row and column clusters are determined are displayed on the left side and the top, respectively. Between these dendrograms and the clusters is a layer showing the logarithm of the number of times a row or column label occurs within the set of classifications for each data set. To the right of the diagram is a color gradient indicating the similarity values displayed within the heatmap. Observe that in row cluster two and column cluster two, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster eight, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters using tree diagrams.
+In the diagram created by the `generate_heatmap()` function, there are several features that are included. The dendrograms out of which the row and column clusters are determined are displayed on the left side and the top, respectively. Between these dendrograms and the clusters is a layer showing the (logarithm of the) number of times a row or column label occurs within the set of classifications for each data set. To the right of the diagram is a color gradient indicating the similarity values displayed within the heatmap. Observe that in row cluster two and column cluster two, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster eight, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters using tree diagrams.
+
+To visualize the clusters through tree diagrams, we use the function `generate_tree_cluster()`, which takes in a heatmap object and a row and column cluster. It also takes in a tree corresponding to the full taxonomy and a second tree corresponding to a base tree that will be pruned. The function then returns a tree visualization (or pair of them) detailing how each data set contributes to the specific cluster under investigation.
 
 ```{r rc-cluster-2-2, fig.align='center', fig.dim=c(18,12), out.height=480, out.width=720}
 generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
@@ -342,9 +346,9 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree,
                       column_name = 'Biosolids', isolate_subtree = TRUE)
 ```
 
-Observe that only the superclass 'Benzenoids' is represented. In the second diagram, we prune away all extraneous superclass branches. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets.
+In Figure~ref{fig:rc-cluster-2-2}, observe that only the superclass `Benzenoids` is represented in both diagrams. The first diagram illustrates the portion of the full ChemOnt tree corresponding to the labels in the row and column cluster. The clade defined as all descendants of the `Benzenoid` label and the label itself are highlighted. in light purple, indicating that the superclass label is shared by classifications in both data sets in this particular cluster.
 
-
+In the second diagram, we prune away all extraneous superclass branches, leaving only the `Benzenoids` superclass. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets. Since the red points greatly outnumber the blue points, one can see that within this cluster the number of labels represented solely by the biosolids data is greater than the number of labels solely represented by the USGS Water data. Also note that there are several purple points, indicating that these labels are shared by both data sets.
 
 
 ```{r rc-cluster-9-8, fig.align='center', fig.dim=c(18,10), out.height=350, out.width=630}
@@ -355,6 +359,10 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree,
 
 ```
 
-In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
+In the pair of diagrams in Figure~ref{fig:rc-cluster-9-8}, we observe that there are several superclasses represented, seven corresponding to just USGS classifications (highlighted in light green) and one shared by both Biosolids and USGS (highlighted in light purple). Consequently, there are labels from the USGS Water data set present in all of the superclass clades that are highlighted, though the labels from the biosolids data set are only found within the `Organic nitrogen compounds` superclass.
 
+In the second diagram of Figure~ref{fig:rc-cluster-9-8}, we can observe this more closely. Within the shared clade given by the `Organic nitrogen compounds` clade, there are very few labels that are just given by the biosolids classifications, while most labels are solely from the USGS Water classifications and some are shared by both data sets.
 
+# Summary and discussion
+
+What does this mean in terms of chemicals/classifications in overlaps, where should we gather more data, where can we trust predictions? Make general statement on making predictions in biosolids based on presence in water. Here is how you can use this package to explore domain of applicability.
