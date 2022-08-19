@@ -151,7 +151,13 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
   matrix_row_indices <- intersect(which(dimnames(matrix)[[2]] %in% row_labels), row_indices)
   matrix_column_indices <- intersect(which(dimnames(matrix)[[2]] %in% column_labels), column_indices)
 
-
+  if(log_trans){
+    row_anno_label <- 'log(row count) bars'
+    col_anno_label <- 'log(col count) bars'
+  } else {
+    row_anno_label <- 'row count bars'
+    col_anno_label <- 'col count bars'
+  }
 
   heatmap <- ComplexHeatmap::Heatmap(#matrix = matrix[row_indices, column_indices],
                                      matrix = matrix[matrix_row_indices, matrix_column_indices],
@@ -162,14 +168,14 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
                                      top_annotation = HeatmapAnnotation(#col_log_count_bar = anno_barplot(column_label_numbers[match(dimnames(matrix)[[2]][column_indices], column_labels)]),
                                                                         col_log_count_bar = anno_barplot(column_label_numbers[column_labels[column_anno_indices]]),
                                                                         annotation_name_rot = 45,
-                                                                        annotation_label = c('log(col count) bars'),
+                                                                        annotation_label = col_anno_label,# c('log(col count) bars'),
                                                                         annotation_name_gp = grid::gpar(fontsize = 8)
                                      ),
                                      left_annotation = rowAnnotation(#row_log_count_bar = anno_barplot(row_label_numbers[match(dimnames(matrix)[[1]][row_indices], row_labels)],
                                                                       row_log_count_bar = anno_barplot(row_label_numbers[row_labels[row_anno_indices]],
                                                                       axis_param = list(direction = 'reverse')),
                                                                       annotation_name_rot = 45,
-                                                                      annotation_label = c('log(row count) bars'),
+                                                                      annotation_label = row_anno_label,#c('log(row count) bars'),
                                                                       annotation_name_gp = grid::gpar(fontsize = 8)
                                                                       ),
                                      show_row_names = FALSE,
