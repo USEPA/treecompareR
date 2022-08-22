@@ -644,11 +644,14 @@ circ_tree_boxplot <- function(data, col, tax_level_labels = NULL, title = NULL, 
 #' Leaf fraction subtree
 #'
 #' This function takes in two data.tables, plots the subtree induced by the
-#' first data.table and colors the tips based on the proportion of chemicals from the second data.table
-#' that make up the chemicals from the first, grouped by tip (or terminal) label.
+#' first data.table and colors the tips based on the proportion of chemicals
+#' from the second data.table that make up the chemicals from the first, grouped
+#' by tip (or terminal) label.
 #'
-#' @param data_1 A data.table of chemicals, classifications, and column `terminal_label`.
-#' @param data_2 A data.table of chemicals, classifications, and column `terminal_label`
+#' @param data_1 A data.table of chemicals, classifications, and column
+#'   `terminal_label`.
+#' @param data_2 A data.table of chemicals, classifications, and column
+#'   `terminal_label`
 #' @param name_1 Alternate parameter for name of first data.table.
 #' @param name_2 Alternate parameter for name of second data.table.
 #' @param show_labels Alternate parameter indicating whether to show tip labels.
