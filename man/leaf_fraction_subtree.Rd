@@ -15,9 +15,11 @@ leaf_fraction_subtree(
 )
 }
 \arguments{
-\item{data_1}{A data.table of chemicals, classifications, and column \code{terminal_label}.}
+\item{data_1}{A data.table of chemicals, classifications, and column
+\code{terminal_label}.}
 
-\item{data_2}{A data.table of chemicals, classifications, and column \code{terminal_label}}
+\item{data_2}{A data.table of chemicals, classifications, and column
+\code{terminal_label}}
 
 \item{name_1}{Alternate parameter for name of first data.table.}
 
@@ -35,8 +37,9 @@ A ggtree plot.
 }
 \description{
 This function takes in two data.tables, plots the subtree induced by the
-first data.table and colors the tips based on the proportion of chemicals from the second data.table
-that make up the chemicals from the first, grouped by tip (or terminal) label.
+first data.table and colors the tips based on the proportion of chemicals
+from the second data.table that make up the chemicals from the first, grouped
+by tip (or terminal) label.
 }
 \seealso{
 \code{\link{add_terminal_label}}
