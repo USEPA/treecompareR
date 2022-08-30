@@ -1,59 +1,3 @@
-# This generates the number of descendants for each node. The edges are stored
-# in a two column data.frame, with the first column indicating the parent and
-# the second column indicating the child. Internal numbering of nodes is given
-# by tips first and then nodes, with the root given by the first node of the
-# internal nodes. The output also includes the number of children for each node
-# and the node level.
-
-#' Generate descendants
-#'
-#' This function generates a data.frame of the number of descendants for each
-#' node of the input tree.
-#'
-#' @param tree A phylo object
-#' @return data.frame consisting of the node number, descendants, children, and
-#'   level
-#' @export
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' generate_descendants(tree = tree)
-#'
-generate_descendants <- function(tree){
-  if (!inherits(tree, 'phylo')){
-    stop("Please input an object of 'phylo' class!")
-  }
-
-  node_levels <- get_levels(tree)
-  descendant_numbers <- data.frame(node = 1:dim(node_levels)[[1]],
-                                   descendants = 0,
-                                   children = 0,
-                                   level = node_levels[, 'level'])
-  for (i in max(node_levels[, 'level']):0){
-    # get the tips/internal nodes at level i
-    current_indices <- node_levels[node_levels$level == i, 'node']
-    # filter out tips
-    current_indices <- current_indices[current_indices > length(tree$tip.label)]
-    for (j in seq_along(current_indices)){
-      # Find the children of the current node
-      current_children <- tree$edge[tree$edge[, 1] == current_indices[[j]], 2]
-      # Get number of children
-      number_of_children <- length(current_children)
-      # Get descendant numbers of children
-      descendants_of_children <- descendant_numbers[current_children, 'descendants']
-      # Calculate total descendants
-      total_descendants <- number_of_children + sum(descendants_of_children)
-      # Record in the data.frame
-      descendant_numbers[current_indices[[j]], 'descendants'] <- total_descendants
-      descendant_numbers[current_indices[[j]], 'children'] <- number_of_children
-
-    }
-  }
-  return(descendant_numbers)
-}
-
 #' Generate tree levels
 #'
 #' This function generates a data.frame of node levels for input rooted tree.
@@ -134,7 +78,7 @@ get_tree_df <- function(tree){
 #'
 #' generate_information_content(tree = tree)
 #'
-generate_information_content <- function(tree, log_descendants = TRUE){
+generate_information_content <- function(tree){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")
   }
@@ -144,10 +88,13 @@ generate_information_content <- function(tree, log_descendants = TRUE){
   }
 
   if (log_descendants){
-    descendants <- generate_descendants(tree)
-    n_node <- dim(descendants)[[1]]
-    descendants$log_descendants <- 1 - (log(1 + descendants$descendants)/log(n_node))
-    return(descendants)
+    descendants <- sapply(phangorn::allDescendants(tree),
+                          length)
+    #tips will be listed as their own descendants -- remove these
+    descendants[seq_along(tree$tip.label)] <- 0
+    n_node <- length(descendants)
+    log_descendants <- 1 - (log(1 + descendants)/log(n_node))
+    return(log_descendants)
   }
 }
 
@@ -189,182 +136,13 @@ attach_information_content <- function(tree, log_descendants = TRUE){
     }
   }
 
-  tree$IC <- generate_information_content(tree = tree, log_descendants = log_descendants)
+  tree$IC <- generate_information_content(tree = tree)
 
   return(tree)
 }
 
-#' Ancestors
-#'
-#' Generates a list of ancestors for a given node in a tree.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label The node label.
-#' @param node_number Alternate parameter, the number of the given node.
-#' @return A list of nodes back to the root of ancestors for the given node.
-#' @export
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' get_ancestors(tree = tree, label = 't2')
-#' get_ancestors(tree = tree, label = 'n1')
-get_ancestors <- function(tree, label, node_number = NULL){
-  if (!is.null(node_number)){
-    ifelse(is.numeric(node_number) & (node_number %in% 1:(1 + length(tree$edge))), index <- node_number, stop('Please input a correct value for node_number'))
-  } else {
-    if (label %in% c(tree$tip.label, tree$node.label)){
-      index <- which(c(tree$tip.label, tree$node.label) == label)
-    } else {
-      stop(paste0('Label `', label, '` belongs neither to a node nor a tip!'))
-    }
-  }
-  ancestor_nodes <- rep(-1L, length(tree$node.label))
-  temp <- tree$edge[tree$edge[, 2] == index, 1]
-  counter = 1
-  while(length(temp) > 0){
-    ancestor_nodes[[counter]] <- temp
-    temp <- tree$edge[tree$edge[, 2] == temp, 1]
-    counter <- counter + 1
-  }
-  ancestor_nodes <- ancestor_nodes[ancestor_nodes > 0]
-  return(sapply(ancestor_nodes, function(t) {tree$node.label[[t-length(tree$tip.label)]]}))
-}
 
-
-#' Tree level
-#'
-#' This function returns the tree level of the given node in a rooted tree.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label The node label.
-#' @param node_number Alternate parameter, the number of the given node.
-#' @return The level of the node from the root of the tree.
-#' @export
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' get_tip_level(tree = tree, label = 't2')
-#' get_tip_level(tree = tree, label = 'n1')
-get_tip_level <- function(tree, label, node_number = NULL){
-  return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
-}
-
-
-#' Jaccard distance
-#'
-#' This determines the Jaccard distance for two input node labels in a given
-#' tree. For each node, there is a set of labels along the unique path from the
-#' root to the label. These sets are compared using Jaccard distance. For more
-#' information on Jaccard distance, please consult
-#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label_A The first label.
-#' @param label_B The second label.
-#' @return The Jaccard distance of the label sets for the root to node path.
-#' @export
-#'
-#' @seealso \code{\link{general_Jaccard_similarity}}
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' general_Jaccard_dist(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Jaccard_dist(tree = tree, label_A = 'n3', label_B = 't8')
-#'
-general_Jaccard_dist <- function(tree, label_A, label_B){
-  tree_labels <- c(tree$tip.label, tree$node.label)
-  index_A <- which(label_A == tree_labels)
-  index_B <- which(label_B == tree_labels)
-
-  if ((length(index_A) + length(index_B)) == 0){
-    stop('Please input correct labels for Label_A and Label_B')
-  } else if ((length(index_A) + length(index_B)) == 1){
-    if (length(index_A) == 0){
-      stop('Please input correct label for label_A')
-    }
-    stop('Please input correct label for label_B')
-  }
-
-  # Get path labels for label_A and label_B
-  ancestors_A <- c(label_A, get_ancestors(tree, label_A))
-  ancestors_B <- c(label_B, get_ancestors(tree, label_B))
-
-  # Get node numbers for label_A and label_B paths
-  ancestors_indices_A <- which(tree_labels %in% ancestors_A)
-  ancestors_indices_B <- which(tree_labels %in% ancestors_B)
-  common_ancestors <- intersect(ancestors_A, ancestors_B)
-
-  # Find the node number of the MRCA, it will be in the order of the ancestors_A
-  # which starts at the current label and goes back to the root
-  index_C <- which(tree_labels == common_ancestors[[1]])
-  label_C <- tree_labels[[index_C]]
-
-  level_A <- length(ancestors_A) - 1
-  level_B <- length(ancestors_B) - 1
-  level_C <- length(common_ancestors) - 1
-
-  # In the case both label_A and label_B are the root
-  if ((level_A + level_B) == 0) {return(0)}
-
-  return((level_A + level_B - 2*level_C)/(level_A + level_B - level_C))
-}
-
-# This function takes in a tree and two labels and returns the Jaccard
-# similarity of the two labels within the tree
-
-#' Jaccard similarity
-#'
-#' This determines the Jaccard similarity for two input node labels in a given
-#' tree. For each node, there is a set of labels along the unique path from the
-#' root to the label. These sets are compared using Jaccard similarity. For more
-#' information on Jaccard similarity, please consult
-#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label_A The first label.
-#' @param label_B The second label.
-#' @return The Jaccard distance of the label sets for the root to node path.
-#' @export
-#'
-#' @seealso \code{\link{general_Jaccard_dist}}
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' general_Jaccard_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#'
-general_Jaccard_similarity <- function(tree, label_A, label_B){
-  #get ancestry of label_A in tree
-  node_A <- get_node_from_label(label = label_A,
-                                tree = tree)
-  anc_A <- c(phangorn::Ancestors(x = tree,
-                               node = node_A),
-             node_A)
-
-
-  #get ancestry of label_B in tree
-  node_B <- get_node_from_label(label = label_B,
-                                tree = tree)
-  anc_B <- c(phangorn::Ancestors(x = tree,
-                                 node = node_B),
-             node_B)
-
-  #intersection of ancestors / union of ancestors for each label
-  jaccard_sim <- length(intersect(anc_A, anc_B))/
-    length(union(anc_A, anc_B))
-
-  return(jaccard_sim)
-}
-
-calc_jaccard <- function(tree, labels_A, labels_B, method = "cpp"){
+calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard"){
   #get ancestry of labels A
   #convert labels to nodes
   node_A <- get_node_from_label(label = labels_A,
@@ -372,9 +150,9 @@ calc_jaccard <- function(tree, labels_A, labels_B, method = "cpp"){
   #get ancestors of each node
   anc_A <- phangorn::Ancestors(x = tree,
                                  node = node_A)
-  #add node itself to ancestor tree
-  anc_A <- lapply(seq_along(anc_A),
-                  function(i) c(anc_A[[i]], node_A[i]))
+  # #add node itself to ancestor tree
+  # anc_A <- lapply(seq_along(anc_A),
+  #                 function(i) c(anc_A[[i]], node_A[i]))
 
 
   #get ancestry of labels_B in tree
@@ -383,9 +161,14 @@ calc_jaccard <- function(tree, labels_A, labels_B, method = "cpp"){
   #get ancestors of each node
   anc_B <- phangorn::Ancestors(x = tree,
                                  node = node_B)
-  #add node itself to ancestor tree
-  anc_B <- lapply(seq_along(anc_B),
-                  function(i) c(anc_B[[i]], node_B[i]))
+  # #add node itself to ancestor tree
+  # anc_B <- lapply(seq_along(anc_B),
+  #                 function(i) c(anc_B[[i]], node_B[i]))
+
+  #compute IC
+  IC <- generate_information_content(tree = tree)
+
+
 
   if(method %in% "cpp"){
   outmat <- get_jaccard(list1 = anc_A, list2 = anc_B)

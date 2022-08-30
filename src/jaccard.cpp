@@ -3,10 +3,8 @@ using namespace Rcpp;
 #include <algorithm>    // std::set_intersection, std::sort
 #include <vector>       // std::vector
 
-// Function to return the Jaccard index of two sets
-// [[Rcpp::export]]
-double jaccard_index(NumericVector s1, NumericVector s2)
-{
+
+double size_intersect(NumericVector s1, NumericVector s2){
   // Sizes of both the sets
   double size_s1 = s1.size();
   double size_s2 = s2.size();
@@ -29,10 +27,19 @@ double jaccard_index(NumericVector s1, NumericVector s2)
   // Size of the intersection set
   double size_in = v.size();
 
+  return size_in;
+}
+
+// Function to return the Jaccard index of two sets
+// [[Rcpp::export]]
+double jaccard_index(NumericVector s1, NumericVector s2)
+{
+  int size_s1 = s1.size();
+  int size_s2 = s2.size();
+  int size_in = size_intersect(s1, s2);
   // Calculate the Jaccard index
   // size of intersection/size of union
-  double jaccard_in = size_in
-    / (size_s1 + size_s2 - size_in);
+  double jaccard_in = size_in / (size_s1 + size_s2 - size_in);
 
   // Return the Jaccard index
   return jaccard_in;
@@ -44,9 +51,10 @@ NumericVector get_jaccard(List list1, List list2){
   double length1 = list1.size();
   double length2 = list2.size();
   NumericMatrix jaccard(length1, length2);
+
  //iterate over elements of list1
  for(int i = 0; i < length1; ++i){
-   //and list2
+   //and then iterate over elements of list2
    for(int j = 0; j < length2; ++j){
       jaccard(i,j) = jaccard_index(list1[i], list2[j]);
    }
@@ -56,13 +64,38 @@ NumericVector get_jaccard(List list1, List list2){
 }
 
 
-// You can include R code blocks in C++ files processed with sourceCpp
-// (useful for testing and development). The R code will be automatically
-// run after the compilation.
-//
+// Function to return the pairwise similarities of two lists
+// [[Rcpp::export]]
+NumericMatrix get_similarity(List anc1, //ancestors of nodesin set 1 as list object
+                             List anc2, //ancestors of nodes in set 2 as list object
+                             NumericVector nodes1, //node IDs in set 1
+                             NumericVector nodes2, //node IDs in set 2
+                             NumericVector ic1, //information content of nodes in set 1
+                             NumericVector ic2, //information content of nodes in set 2
+                             int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
+  //sort the input vectors of nodes
+  NumericVector s1 = nodes1.sort();
+  NumericVector s2 = nodes2.sort();
 
-/*** R
-x <- 1:4
-y <- 3:6
-jaccard_index(x, y)
-*/
+  //sorted union of nodes
+  NumericVector allnodes = get_union(s1, s2);
+
+  //declare similarity matrix to store outputs
+  NumericMatrix m(s1.size(), s1.size());
+
+  for(int i = 0; i < allnodes.size(); ++i){
+    for(int j = i; j < allnodes.size(); ++j){
+      int node_i = allnodes[i];
+      int node_j = allnodes[j];
+      if(std::find(s1.begin(), s1.end(), node_i) != s1.end()){
+
+      }
+
+    }
+  }
+switch(sim_metric){
+case 1:
+
+}
+
+}
