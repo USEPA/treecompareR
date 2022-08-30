@@ -6,8 +6,8 @@
 \usage{
 MonteCarlo_similarity(
   tree,
-  data_1,
-  data_2,
+  data_1 = NULL,
+  data_2 = NULL,
   data_1_indices = NULL,
   data_2_indices = NULL,
   name_1 = "data_set_1",
