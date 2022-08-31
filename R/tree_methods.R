@@ -680,6 +680,13 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 #    dataset_2_labels <- data_2_indices
 #  }
 
+  get_indices <- function(indices_1, indices_2) {
+    dat <- expand.grid(indices_1, indices_2)
+    as.matrix(unique(cbind(pmin(dat[, 1], dat[, 2]),
+                           pmax(dat[, 1], dat[,2]))),
+              ncol = 2)
+  }
+
 
   for (i in 1:repetition){
     if (only_tips) {
@@ -708,39 +715,49 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
     #print(all_node_indices)
     #print(all_tip_indices)
 
+
+
+    all_nodes <- get_indices(all_node_indices, all_node_indices)
+    all_tip_all_dataset_1 <- get_indices(all_tip_indices, dataset_1_indices)
+    all_tip_all_dataset_2 <- get_indices(all_tip_indices, dataset_2_indices)
+    all_node_all_dataset_1 <- get_indices(all_node_indices, dataset_1_indices)
+    all_node_all_dataset_2 <- get_indices(all_node_indices, dataset_2_indices)
+
+    print(i)
+
     new_row <- double(22L)
 
     if (!is.null(Jaccard)){
-      new_row[[1]] <- mean(Jaccard[all_node_indices, all_node_indices][upper.tri(Jaccard[all_node_indices, all_node_indices], diag = TRUE)])
-      new_row[[5]] <- mean(Jaccard[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Jaccard[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
-      new_row[[9]] <- mean(Jaccard[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Jaccard[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
-      new_row[[13]] <- mean(Jaccard[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Jaccard[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Jaccard[all_node_indices, dataset_1_indices])
-      new_row[[17]] <- mean(Jaccard[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Jaccard[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[1]] <- mean(Jaccard[all_nodes])#mean(Jaccard[all_node_indices, all_node_indices][upper.tri(Jaccard[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[5]] <- mean(Jaccard[all_tip_all_dataset_1])#mean(Jaccard[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Jaccard[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
+      new_row[[9]] <- mean(Jaccard[all_tip_all_dataset_2])#mean(Jaccard[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Jaccard[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[13]] <- mean(Jaccard[all_node_all_dataset_1])#mean(Jaccard[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Jaccard[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Jaccard[all_node_indices, dataset_1_indices])
+      new_row[[17]] <- mean(Jaccard[all_node_all_dataset_1])#mean(Jaccard[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Jaccard[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])
         #mean(Jaccard[all_node_indices, dataset_2_indices])
     }
 
     if (!is.null(Resnik)){
-      new_row[[2]] <- mean(Resnik[all_node_indices, all_node_indices][upper.tri(Resnik[all_node_indices, all_node_indices], diag = TRUE)])
-      new_row[[6]] <- mean(Resnik[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Resnik[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
-      new_row[[10]] <- mean(Resnik[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Resnik[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
-      new_row[[14]] <- mean(Resnik[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Resnik[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Resnik[all_node_indices, dataset_1_indices])
-      new_row[[18]] <- mean(Resnik[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Resnik[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])#mean(Resnik[all_node_indices, dataset_2_indices])
+      new_row[[2]] <- mean(Resnik[all_nodes])#mean(Resnik[all_node_indices, all_node_indices][upper.tri(Resnik[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[6]] <- mean(Resnik[all_tip_all_dataset_1])#mean(Resnik[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Resnik[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
+      new_row[[10]] <- mean(Resnik[all_tip_all_dataset_2])#mean(Resnik[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Resnik[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[14]] <- mean(Resnik[all_node_all_dataset_1])#mean(Resnik[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Resnik[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Resnik[all_node_indices, dataset_1_indices])
+      new_row[[18]] <- mean(Resnik[all_node_all_dataset_2])#mean(Resnik[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Resnik[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])#mean(Resnik[all_node_indices, dataset_2_indices])
     }
 
     if (!is.null(Lin)){
-      new_row[[3]] <- mean(Lin[all_node_indices, all_node_indices][upper.tri(Lin[all_node_indices, all_node_indices], diag = TRUE)])
-      new_row[[7]] <- mean(Lin[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Lin[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
-      new_row[[11]] <- mean(Lin[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Lin[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
-      new_row[[15]] <- mean(Lin[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Lin[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Lin[all_node_indices, dataset_1_indices])
-      new_row[[19]] <- mean(Lin[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Lin[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])#mean(Lin[all_node_indices, dataset_2_indices])
+      new_row[[3]] <- mean(Lin[all_nodes])#mean(Lin[all_node_indices, all_node_indices][upper.tri(Lin[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[7]] <- mean(Lin[all_tip_all_dataset_1])#mean(Lin[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(Lin[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
+      new_row[[11]] <- mean(Lin[all_tip_all_dataset_1])#mean(Lin[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(Lin[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[15]] <- mean(Lin[all_node_all_dataset_1])#mean(Lin[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(Lin[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)], diag = TRUE)])#mean(Lin[all_node_indices, dataset_1_indices])
+      new_row[[19]] <- mean(Lin[all_node_all_dataset_2])#mean(Lin[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(Lin[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)], diag = TRUE)])#mean(Lin[all_node_indices, dataset_2_indices])
     }
 
     if (!is.null(JiangConrath)){
-      new_row[[4]] <- mean(JiangConrath[all_node_indices, all_node_indices][upper.tri(JiangConrath[all_node_indices, all_node_indices], diag = TRUE)])
-      new_row[[8]] <- mean(JiangConrath[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(JiangConrath[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
-      new_row[[12]] <- mean(JiangConrath[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(JiangConrath[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
-      new_row[[16]] <- mean(JiangConrath[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(JiangConrath[union(all_node_indices, dataset_1_indices),union(all_node_indices, dataset_1_indices)], diag = TRUE)])
-      new_row[[20]] <- mean(JiangConrath[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(JiangConrath[union(all_node_indices, dataset_2_indices),union(all_node_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[4]] <- mean(JiangConrath[all_nodes])#mean(JiangConrath[all_node_indices, all_node_indices][upper.tri(JiangConrath[all_node_indices, all_node_indices], diag = TRUE)])
+      new_row[[8]] <- mean(JiangConrath[all_tip_all_dataset_1])#mean(JiangConrath[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)][upper.tri(JiangConrath[union(all_tip_indices, dataset_1_indices), union(all_tip_indices, dataset_1_indices)], diag = TRUE)])
+      new_row[[12]] <- mean(JiangConrath[all_tip_all_dataset_1])#mean(JiangConrath[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)][upper.tri(JiangConrath[union(all_tip_indices, dataset_2_indices), union(all_tip_indices, dataset_2_indices)], diag = TRUE)])
+      new_row[[16]] <- mean(JiangConrath[all_node_all_dataset_1])#mean(JiangConrath[union(all_node_indices, dataset_1_indices), union(all_node_indices, dataset_1_indices)][upper.tri(JiangConrath[union(all_node_indices, dataset_1_indices),union(all_node_indices, dataset_1_indices)], diag = TRUE)])
+      new_row[[20]] <- mean(JiangConrath[all_node_all_dataset_2])#mean(JiangConrath[union(all_node_indices, dataset_2_indices), union(all_node_indices, dataset_2_indices)][upper.tri(JiangConrath[union(all_node_indices, dataset_2_indices),union(all_node_indices, dataset_2_indices)], diag = TRUE)])
         #mean(JiangConrath[union(all_node_indices, dataset_2_indices),union(all_node_indices, dataset_2_indices)])
     }
 
