@@ -1,6 +1,8 @@
-#' Sample US EPA CompTox Dashboard results for a data set
+#' BIOSOLIDS2021 chemical list from the US EPA CompTox Chemicals Dashboard
 #'
 #' A data set containing a list of 726 chemicals with related information
+#'
+#' \url{https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021}
 #'
 #' @format A csv representing 726 rows and 18 columns
 #' \describe{
@@ -8,26 +10,16 @@
 #' \item{PREFERRED_NAME}{A character string of the name}
 #' \item{CASRN}{A character string of the CASRN identifier}
 #' \item{INCHIKEY}{A character of the InChIKey identifier}
-#' \item{IUPAC_NAME}{A character string of the IUPAC identifier}
 #' \item{SMILES}{A character string of the SMILES identifier}
-#' \item{INCHI_STRING}{A character string of the InCh String identifer}
-#' \item{MOLECULAR_FORMULA}{A character string of the molecular formula}
-#' \item{AVERAGE_MASS}{The molecular mass}
-#' \item{MONOISOTOPIC_MASS}{The monoisotopic mass}
-#' \item{NUMBER_OF_SOURCES}{Number of references}
-#' \item{NUMBER_OF_PUBMED_ARTICLES}{Number of articles in which the chemical is referenced}
-#' \item{PUBCHEM_DATA_SOURCES}{Number of references in the PubChem database}
-#' \item{CPDAT_COUNT}{Number of references in the CPDAT}
-#' \item{QC_Level}{Character giving quality control level of data}
-#' \item{NUMBER_ToxCast_Active}{Number of taxcast active}
-#' \item{PERCENT_ToxCast_Active}{Percent of toxcast active}
-#' \item{Total_Assays}{Total assays referencing the chemical}
 #' }
-'chemical_list_biosolids_2022_05_10'
+#' @seealso \code{\link{BIOSOLIDS2021_class}}
+'BIOSOLIDS2021'
 
-#' Sample US EPA CompTox Dashboard results for a data set
+#' USGSWATER chemical list from the US EPA CompTox Chemicals Dashboard
 #'
 #' A data set containing a list of 707 chemicals with related information
+#'
+#' \url{https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER}
 #'
 #' @format A csv representing 707 rows and 18 columns
 #' \describe{
@@ -35,36 +27,62 @@
 #' \item{PREFERRED_NAME}{A character string of the name}
 #' \item{CASRN}{A character string of the CASRN identifier}
 #' \item{INCHIKEY}{A character of the InChIKey identifier}
-#' \item{IUPAC_NAME}{A character string of the IUPAC identifier}
 #' \item{SMILES}{A character string of the SMILES identifier}
-#' \item{INCHI_STRING}{A character string of the InCh String identifer}
-#' \item{MOLECULAR_FORMULA}{A character string of the molecular formula}
-#' \item{AVERAGE_MASS}{The molecular mass}
-#' \item{MONOISOTOPIC_MASS}{The monoisotopic mass}
-#' \item{NUMBER_OF_SOURCES}{Number of references}
-#' \item{NUMBER_OF_PUBMED_ARTICLES}{Number of articles in which the chemical is referenced}
-#' \item{PUBCHEM_DATA_SOURCES}{Number of references in the PubChem database}
-#' \item{CPDAT_COUNT}{Number of references in the CPDAT}
-#' \item{QC_Level}{Character giving quality control level of data}
-#' \item{NUMBER_ToxCast_Active}{Number of taxcast active}
-#' \item{PERCENT_ToxCast_Active}{Percent of toxcast active}
-#' \item{Total_Assays}{Total assays referencing the chemical}
 #' }
-'chemical_list_USGSWATER_2022_05_17'
+#' @seealso \code{\link{USGSWATER_class}}
+'USGSWATER'
 
-
-
-#' Parent and child data for chemont tree
+#' BIOSOLIDS2021 chemical list with ClassyFire classifications
 #'
-#' A data set containing the information required to build the chemont tree.
+#' A data set containing a list of 726 chemicals with related information
+#'
+#' Original data source:
+#' \url{https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021}.
+#' ClassyFire classifications obtained via ClassyFire API.
+#'
+#' @format A csv representing 726 rows and 18 columns \describe{ \item{DTXSID}{A
+#'   chemical identifier} \item{PREFERRED_NAME}{A character string of the name}
+#'   \item{CASRN}{A character string of the CASRN identifier} \item{INCHIKEY}{A
+#'   character of the InChIKey identifier} \item{SMILES}{A character string of
+#'   the SMILES identifier} \item{kingdom}{ClassyFire kingdom label}
+#'   \item{superclass}{ClassyFire superclass label} \item{class}{ClassyFire
+#'   class label} \item{subclass}{ClassyFire subclass label} \item{level
+#'   5}{ClassyFire level 5 label} \item{level 6}{ClassyFire level 6 label}
+#'   \item{level 7}{ClassyFire level 7 label} \item{level 8}{ClassyFire level 8
+#'   label} \item{level 9}{ClassyFire level 9 label} \item{level 10}{ClassyFire
+#'   level 10 label} \item{level 11}{ClassyFire level 11 label} }
+#' @seealso \code{\link{BIOSOLIDS2021}}
+'BIOSOLIDS2021_class'
+
+#' USGSWATER chemical list with ClassyFire classifications
+#'
+#' A data set containing a list of 707 chemicals with related information
+#'
+#' Original data source:
+#' \url{https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER}. ClassyFire
+#' classifications obtained via ClassyFire API.
+#'
+#' @format A csv representing 707 rows and 18 columns \describe{ \item{DTXSID}{A
+#'   chemical identifier} \item{PREFERRED_NAME}{A character string of the name}
+#'   \item{CASRN}{A character string of the CASRN identifier} \item{INCHIKEY}{A
+#'   character of the InChIKey identifier} \item{SMILES}{A character string of
+#'   the SMILES identifier} }
+#' @seealso \code{\link{USGSWATER}}
+'USGSWATER_class'
+
+#'ChemOnt taxonomy as data.frame
+#'
+#' A data set describing the full ChemOnt taxonomy.
+#'
+#' From \url{http://classyfire.wishartlab.com/tax_nodes.json}
 #'
 #' @format A data frame with 4825 rows and 3 columns:
 #' \describe{
-#' \item{Name}{Name of the chemont label}
-#' \item{ID}{ID of chemont label}
-#' \item{Parent_ID}{ID of parent chemont label}
+#' \item{Name}{ChemOnt text label for this node}
+#' \item{ID}{ChemOnt ID number for this node}
+#' \item{Parent_ID}{ChemOnt ID number for this node's parent}
 #' }
-'chemont_parent_child'
+'chemont_df'
 
 
 #' Jaccard similarity matrix for chemont tree
