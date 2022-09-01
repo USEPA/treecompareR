@@ -9,7 +9,3 @@ get_jaccard <- function(list1, list2) {
     .Call(`_treecompareR_get_jaccard`, list1, list2)
 }
 
-timesTwo <- function(x) {
-    .Call(`_treecompareR_timesTwo`, x)
-}
-
