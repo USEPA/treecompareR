@@ -5,20 +5,23 @@
 \title{Prune and display subtree}
 \usage{
 prune_and_display_subtree(
-  data,
-  tax_level_labels = NULL,
-  tree = NULL,
-  show_tips = TRUE,
-  no_plot = FALSE,
-  adjust_branch_length = TRUE,
-  xlimit = c(0, 150)
+  base_tree = chemont_tree,
+  base_name = NULL,
+  prune_to = NULL,
+  prune_name = NULL,
+  adjust_branch_length = FALSE,
+  tax_level_labels = chemont_tax_levels,
+  ...
 )
 }
 \arguments{
-\item{data}{A data.table with classification data for chemicals.}
+\item{adjust_branch_length}{An alternate parameter determining whether to
+resize branches of subtree.}
 
 \item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
 not using ClassyFire taxonomy.}
+
+\item{data}{A data.table with classification data for chemicals.}
 
 \item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
 
@@ -27,9 +30,6 @@ displayed.}
 
 \item{no_plot}{An alternate parameter for returning only the pruned tree
 without the tree visual.}
-
-\item{adjust_branch_length}{An alternate parameter determining whether to
-resize branches of subtree.}
 
 \item{xlimit}{An alternate parameter determining the scale of the tree
 visualization.}

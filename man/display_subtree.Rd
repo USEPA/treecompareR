@@ -5,33 +5,96 @@
 \title{Display subtree}
 \usage{
 display_subtree(
-  data_1,
+  base_tree = chemont_tree,
+  base_name = NULL,
+  data_1 = NULL,
   data_2 = NULL,
-  name_1 = "Set 1",
-  name_2 = "Set 2",
-  tree = chemont_tree,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
+  name_1 = NULL,
+  name_2 = NULL,
+  tax_level_labels = chemont_tax_levels,
+  layout = "circular",
+  base_opts = list(color = "black", size = 0.5, linetype = 1),
+  subtree_mapping = list(color = "default"),
+  clade_level = "auto",
+  clade_opts = list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7,
+    default_to_tip = TRUE)
 )
 }
 \arguments{
-\item{data_1}{A data.table consisting of classification data for chemicals.}
+\item{base_tree}{The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
+object. Branches of this base tree will be color-coded to indicate subtree
+membership. Default is the full ChemOnt taxonomy,
+\code{\link{chemont_tree}}.}
 
-\item{data_2}{An alternate parameter giving a second data.table with
-classification data for chemicals.}
+\item{base_name}{Will be used as the plot title. Usually this should name or
+describe the base tree. Default is NULL, in which case the \emph{name} of the
+variable passed to \code{base_tree} will be used as the title (with "tree"
+appended).}
 
-\item{name_1}{An alternate parameter giving the name of \code{data.table_1}.}
+\item{data_1}{Highlight branches of the base tree according to their
+membership in this list. One of the following options: A data.frame
+consisting of a list of chemicals with classification data; a list of node
+numbers in the base tree; a list of node labels in the base tree; or another
+phylo object.}
 
-\item{name_2}{An alternate parameter giving the name of \code{data.table_1}.}
+\item{data_2}{Optional: highlight branches of the base tree to compare
+membership in this list and \code{data_1}. One of the following options: A
+data.frame consisting of a list of chemicals with classification data; a
+list of node numbers in the base tree; a list of node labels in the base
+tree; or another phylo object.}
 
-\item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
+\item{name_1}{Optional: A string giving the name of the list in \code{data_1},
+for plot labeling. Default is the variable name passed to \code{data_1}.}
+
+\item{name_2}{Optional: A string giving the name of the list in \code{data_2}
+(if any), for plot labeling. Default is the variable name passed to \code{data_2}.}
 
 \item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
 not using ClassyFire taxonomy.}
+
+\item{layout}{\code{\link{ggtree}} layout option. Default "circular."}
+
+\item{base_color}{Color for base tree (branches not in any input data set).
+Default "gray80" for a light gray.}
+
+\item{subtree_colors}{Vector of colors to use to highlight branches according
+to subtree membership. If \code{data_2} is NULL, only the first element of
+\code{subtree_colors} will be used (to signify that a branch is in
+\code{data_1}). If \code{data_2} is not NULL, then the colors will be used
+in the following order: branch in \code{data_1} only; branch in
+\code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
+is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
+ColorBrewer2 "Set2" set.}
+
+\item{base_size}{Line width for base tree. If NULL, default line width will be
+used.}
+
+\item{subtree_sizes}{Vector of line widths to use to highlight branches
+according to subtree membership. If \code{data_2} is NULL, only the first
+element of \code{subtree_sizes} will be used (to signify that a branch is in
+\code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
+the following order: branch in \code{data_1} only; branch in \code{data_2}
+only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
+will not be used to highlight branches; all branches will be plotted with
+line width given by \code{base_size}. Default is NULL.}
+
+\item{clade_label_level}{The taxonomy level at which to draw clade labels, if
+any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
+Set to NULL to suppress clade labels altogether.}
+
+\item{clade_label_fontsize}{Font size for clade labels. Default 3.}
+
+\item{clade_label_wrap}{Number of characters at which to wrap clade labels to
+a second line. Default 20.}
+
+\item{clade_label_lineheight}{Line height for multi-line clade labels, as a
+multiple of the size of text. Controls vertical space between lines on
+multi-line clade labels. Default 0.7.}
 }
 \value{
-A ggtree object showing the subtree induced by \code{data_1} (and \code{data_2}
-if supplied, and their intersection.).
+A ggtree object visualizing the full base tree, with branches
+color-coded to indicate whether they are present in \code{data_1}, in
+\code{data_2} if supplied, neither, or both.
 }
 \description{
 This function takes in one or two data.tables consisting of chemicals with

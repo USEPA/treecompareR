@@ -38,7 +38,10 @@ Imports:
     phangorn,
     phytools,
     RColorBrewer,
+    Rcpp,
     rjson,
     stringr,
     tidyr,
     viridis
+LinkingTo: 
+    Rcpp

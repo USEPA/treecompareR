@@ -12,8 +12,8 @@ classify_structures(
   retry_query_times = 100,
   queued_wait = 2,
   processing_wait_per_input = 1,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level 5",
-    "level 6", "level 7", "level 8", "level 9", "level 10", "level 11")
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
+    "level6", "level7", "level8", "level9", "level10", "level11")
 )
 }
 \arguments{

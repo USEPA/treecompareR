@@ -4,7 +4,16 @@
 \alias{drop_tips_nodes}
 \title{Drop tips and nodes}
 \usage{
-drop_tips_nodes(tree, data = NULL, labels = NULL, tax_level_labels = NULL)
+drop_tips_nodes(
+  tree,
+  data = NULL,
+  labels = NULL,
+  nodes = NULL,
+  level = NULL,
+  keep_descendants = NULL,
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
+    "level6", "level7", "level8", "level9", "level10", "level11")
+)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
