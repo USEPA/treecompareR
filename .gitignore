@@ -6,3 +6,5 @@
 inst/doc
 data/100_randomTSCAtrees_NSSS_tree_2022-08-31.Rds
 data/100_randomNSSStrees_TSCA_tree_2022-08-31.Rds
+*.png
+
