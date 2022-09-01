@@ -29,22 +29,26 @@ Imports:
     circlize,
     clisymbols,
     ComplexHeatmap,
-    crayon,
     data.table,
     data.tree,
+    dplyr,
     ggnewscale,
     ggplot2,
     ggtree,
     ggtreeExtra,
     httr,
     jsonlite,
+    magrittr,
     methods,
     phangorn,
     phytools,
-    purrr,
     RColorBrewer,
+    Rcpp,
+    rjson,
     Rdpack,
     stringr,
     tidyr,
     viridis
 RdMacros: Rdpack
+LinkingTo: 
+    Rcpp
