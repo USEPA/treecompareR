@@ -4,7 +4,7 @@
 \alias{generate_information_content}
 \title{Generate information content.}
 \usage{
-generate_information_content(tree, log_descendants = TRUE)
+generate_information_content(tree)
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
