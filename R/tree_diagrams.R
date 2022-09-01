@@ -573,9 +573,13 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
 #'   label. Can also be any element of \code{tax_level_labels}, or an integer
 #'   between 1 and \code{length{tax_level_labels}}. In this case, entities will
 #'   be grouped by unique labels at the specified taxonomic level, rather than
-#'   by terminal (tip) labels, for calculation and plotting of number of chemicals and overlap.
-#' @param tax_level_labels
-#' @param annot_angle
+#'   by terminal (tip) labels, for calculation and plotting of number of
+#'   chemicals and overlap.
+#' @param tax_level_labels Taxonomy level labels. By default, the
+#'   ClassyFire/ChemOnt levels: kingdom, superclass, class, subclass, level5,
+#'   ... level11.
+#' @param annot_angle Angle at which to plot the annotation text (names of
+#'   datasets).
 #' @param ... Additional arguments as for \code{\link{display_subtree}}.
 #' @return A \code{\link[ggtree]{ggtree}} plot object, branches highlighted by
 #'   list membership as in \code{\link{display_subtree}}, with three layers of

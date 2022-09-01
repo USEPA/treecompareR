@@ -142,7 +142,7 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 }
 
 
-calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard"){
+calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard", method = "cpp"){
   #get ancestry of labels A
   #convert labels to nodes
   node_A <- get_node_from_label(label = labels_A,
@@ -170,7 +170,7 @@ calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard"){
 
 
 
-  if(method %in% "cpp"){
+  if(method %in% "cpp"){ #use C++ function for speed
   outmat <- get_jaccard(list1 = anc_A, list2 = anc_B)
   }else{
     outmat <- matrix(nrow = length(labels_A),

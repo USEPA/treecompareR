@@ -4,14 +4,13 @@
 \alias{classify_inchikeys}
 \title{InChIKey classification}
 \usage{
-classify_inchikeys(
-  inchikeys,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
-)
+classify_inchikeys(inchikeys)
 }
 \arguments{
 \item{inchikeys}{A vector of InCHiKeys to be classified}
+
+\item{tax_level_labels}{By default, the list of taxonomy levels for ClassyFire:
+\code{kingdom, superclass, class, subclass, level5, ... level11}.}
 }
 \value{
 A data.frame with the same number of rows as the length of input
@@ -22,6 +21,9 @@ given in the input argument \code{tax_level_labels}
 \description{
 This function uses the ClassyFire API to classify chemicals from an input
 data.table using the InChIKey chemical identifier.
+}
+\details{
+This function queries ClassyFire's lookup table of pre-classified InChiKeys
 }
 \seealso{
 \code{\link{classify_structure}}

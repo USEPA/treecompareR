@@ -65,37 +65,36 @@ NumericVector get_jaccard(List list1, List list2){
 
 
 // Function to return the pairwise similarities of two lists
-// [[Rcpp::export]]
-NumericMatrix get_similarity(List anc1, //ancestors of nodesin set 1 as list object
-                             List anc2, //ancestors of nodes in set 2 as list object
-                             NumericVector nodes1, //node IDs in set 1
-                             NumericVector nodes2, //node IDs in set 2
-                             NumericVector ic1, //information content of nodes in set 1
-                             NumericVector ic2, //information content of nodes in set 2
-                             int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
-  //sort the input vectors of nodes
-  NumericVector s1 = nodes1.sort();
-  NumericVector s2 = nodes2.sort();
-
-  //sorted union of nodes
-  NumericVector allnodes = get_union(s1, s2);
-
-  //declare similarity matrix to store outputs
-  NumericMatrix m(s1.size(), s1.size());
-
-  for(int i = 0; i < allnodes.size(); ++i){
-    for(int j = i; j < allnodes.size(); ++j){
-      int node_i = allnodes[i];
-      int node_j = allnodes[j];
-      if(std::find(s1.begin(), s1.end(), node_i) != s1.end()){
-
-      }
-
-    }
-  }
-switch(sim_metric){
-case 1:
-
-}
-
-}
+// NumericMatrix get_similarity(List anc1, //ancestors of nodesin set 1 as list object
+//                              List anc2, //ancestors of nodes in set 2 as list object
+//                              NumericVector nodes1, //node IDs in set 1
+//                              NumericVector nodes2, //node IDs in set 2
+//                              NumericVector ic1, //information content of nodes in set 1
+//                              NumericVector ic2, //information content of nodes in set 2
+//                              int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
+//   //sort the input vectors of nodes
+//   NumericVector s1 = nodes1.sort();
+//   NumericVector s2 = nodes2.sort();
+//
+//   //sorted union of nodes
+//   NumericVector allnodes = get_union(s1, s2);
+//
+//   //declare similarity matrix to store outputs
+//   NumericMatrix m(s1.size(), s1.size());
+//
+//   for(int i = 0; i < allnodes.size(); ++i){
+//     for(int j = i; j < allnodes.size(); ++j){
+//       int node_i = allnodes[i];
+//       int node_j = allnodes[j];
+//       if(std::find(s1.begin(), s1.end(), node_i) != s1.end()){
+//
+//       }
+//
+//     }
+//   }
+// switch(sim_metric){
+// case 1:
+//
+// }
+//
+// }

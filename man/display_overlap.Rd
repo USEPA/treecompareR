@@ -41,7 +41,15 @@ both \code{data_1} and \code{data_2}. Must be the same in both data sets.}
 label. Can also be any element of \code{tax_level_labels}, or an integer
 between 1 and \code{length{tax_level_labels}}. In this case, entities will
 be grouped by unique labels at the specified taxonomic level, rather than
-by terminal (tip) labels, for calculation and plotting of number of chemicals and overlap.}
+by terminal (tip) labels, for calculation and plotting of number of
+chemicals and overlap.}
+
+\item{tax_level_labels}{Taxonomy level labels. By default, the
+ClassyFire/ChemOnt levels: kingdom, superclass, class, subclass, level5,
+... level11.}
+
+\item{annot_angle}{Angle at which to plot the annotation text (names of
+datasets).}
 
 \item{...}{Additional arguments as for \code{\link{display_subtree}}.}
 }

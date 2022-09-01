@@ -8,37 +8,49 @@ classify_structures(
   input,
   label = "query",
   type = "STRUCTURE",
-  retry_times = 100,
-  retry_query_times = 100,
-  queued_wait = 2,
-  processing_wait_per_input = 1,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
+  retry_get_times = 10,
+  wait_min = 5,
+  retry_query_times = 3,
+  processing_wait_per_input = NULL,
+  tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{input}{A character vector of SMILES strings or InChiKeys. May
-optionally be named. If so, names will be returned as "identifier" column
-in output. If not named, the structural identifiers themselves will be
-returned as "identifier" column in output.}
+\item{input}{A character vector of structural identifiers: SMILES strings or
+InChi strings. May optionally be named. If so, the names will be returned as a
+column named  \code{identifier} in the output data.frame. If not named, the
+vector itself will be returned as a column named  \code{identifier} in the
+output data.frame}
 
-\item{label}{An optional text label for the query. Default "query".}
+\item{label}{An optional text label for the ClassyFire query. Default
+\code{"query"}.}
 
-\item{type}{String giving ClassyFire query type. Default "STRUCTURE".}
+\item{type}{String giving ClassyFire query type. Default \code{"STRUCTURE"}.}
 
-\item{retry_times}{Number of times to retry GET command. Default 100.}
+\item{retry_get_times}{Max number of times to retry GET command to ClassyFire
+API to get status of query. Default 10.}
+
+\item{wait_min}{Minimum time to wait before retrying any GET command or
+query. Default 5 seconds (because ClassyFire requests that POST requests be
+limited to 12 per second). Highly recommend not changing this to be less
+than 5 seconds, to be respectful of the ClassyFire server. All wait
+times use exponential backoff with full jitter (\code{wait time = runif(1, wait_min, wait_min *
+  2^(attempt number)}).}
 
 \item{retry_query_times}{Max number of attempts to retry an "In Queue" or
-"Processing" query (with wait time in between tries). Default 100.}
+"Processing" query (with wait time in between tries). Default 3.}
 
-\item{queued_wait}{Number of seconds to wait before retrying to retrieve
-results for a queued query. Default 2.}
+\item{processing_wait_per_input}{Minimum number of seconds to wait per input
+string before retrying to retrieve results for a query whose status is
+"Processing." Default NULL results in \code{wait_min/length(input)}. Uses exponential
+backoff: effective wait time per input = \code{processing_wait_per_input *
+  2^(attempt number)}. Total wait time is either the effective wait time per
+input times the number of input structures, or \code{wait_min} seconds,
+whichever is greater.}
 
-\item{processing_wait_per_input}{Number of seconds to wait per input string
-before retrying to retrieve results for a query whose status is
-"Processing." Default 1.}
-
-\item{tax_level_labels}{The default list of taxonomy levels for ClassyFire.}
+\item{tax_level_labels}{By default, the list of taxonomy levels for
+ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
+  level11}.}
 }
 \value{
 A data frame with ClassyFire classifications for each input
@@ -50,7 +62,7 @@ be obtained.
 }
 \description{
 This function takes a vector of structural identifiers (SMILES strings or
-InChiKeys) and queries the ClassyFire API to get classifications for each
+InChi strings) and queries the ClassyFire API to get classifications for each
 one.
 }
 \seealso{
