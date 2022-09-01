@@ -55,6 +55,7 @@ generate_descendants <- function(tree){
   return(descendant_numbers)
 }
 
+
 #' Generate tree levels
 #'
 #' This function generates a data.frame of node levels for input rooted tree.
@@ -92,6 +93,30 @@ get_levels <- function(tree){
   return(node_levels)
 }
 
+#' Get data.frame representation of phylo tree
+#'
+#' Helper function to get a data.frame listing node numbers, node names, and
+#' level of each node
+#'
+#' @param tree A phylo-class tree object
+#' @return A data.frame with as many rows as the number of nodes in \code{tree},
+#'   and three variables: "node" (the node number), "level" (the hierarchical
+#'   level of each node, where the root is level 0), and "Name" (the label
+#'   corresponding to each node number).
+get_tree_df <- function(tree){
+  #get node numbers & levels
+  tree_df <- get_levels(tree)
+  #get parents of each node
+  tree_df$parent <- unlist(phangorn::Ancestors(x = tree,
+                                        node = tree_df$node,
+                                        type = "parent"))
+  #add labels
+  tree_df$Name <- get_label_from_node(node = tree_df$node,
+                                     tree = tree)
+  #return
+  return(tree_df)
+}
+
 #' Generate information content.
 #'
 #' This function generates a data.frame of information content for the input
@@ -117,7 +142,7 @@ get_levels <- function(tree){
 #'
 #' generate_information_content(tree = tree)
 #'
-generate_information_content <- function(tree, log_descendants = TRUE){
+generate_information_content <- function(tree){
   if (!inherits(tree, 'phylo')){
     stop("Please input an object of 'phylo' class!")
   }
@@ -129,10 +154,13 @@ generate_information_content <- function(tree, log_descendants = TRUE){
   }
 
   if (log_descendants){
-    descendants <- generate_descendants(tree)
-    n_node <- dim(descendants)[[1]]
-    descendants$log_descendants <- 1 - (log(1 + descendants$descendants)/log(n_node))
-    return(descendants)
+    descendants <- sapply(phangorn::allDescendants(tree),
+                          length)
+    #tips will be listed as their own descendants -- remove these
+    descendants[seq_along(tree$tip.label)] <- 0
+    n_node <- length(descendants)
+    log_descendants <- 1 - (log(1 + descendants)/log(n_node))
+    return(log_descendants)
   }
 }
 
@@ -180,147 +208,15 @@ attach_information_content <- function(tree, log_descendants = TRUE){
     }
   }
 
-  tree$IC <- generate_information_content(tree = tree, log_descendants = log_descendants)
+  tree$IC <- generate_information_content(tree = tree)
 
   return(tree)
 }
 
-#' Ancestors
-#'
-#' Generates a list of ancestors for a given node in a tree.
-#'
 #' @param tree A phylo object representing a rooted tree.
-#' @param label The node label.
-#' @param node_number Alternate parameter, the number of the given node.
-#' @return A list of nodes back to the root of ancestors for the given node.
-#' @export
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' get_ancestors(tree = tree, label = 't2')
-#' get_ancestors(tree = tree, label = 'n1')
-get_ancestors <- function(tree, label, node_number = NULL){
-  if (!is.null(node_number)){
-    ifelse(is.numeric(node_number) & (node_number %in% 1:(1 + length(tree$edge))), index <- node_number, stop('Please input a correct value for node_number'))
-  } else {
-    if (label %in% c(tree$tip.label, tree$node.label)){
-      index <- which(c(tree$tip.label, tree$node.label) == label)
-    } else {
-      stop(paste0('Label `', label, '` belongs neither to a node nor a tip!'))
-    }
-  }
-  ancestor_nodes <- rep(-1L, length(tree$node.label))
-  temp <- tree$edge[tree$edge[, 2] == index, 1]
-  counter = 1
-  while(length(temp) > 0){
-    ancestor_nodes[[counter]] <- temp
-    temp <- tree$edge[tree$edge[, 2] == temp, 1]
-    counter <- counter + 1
-  }
-  ancestor_nodes <- ancestor_nodes[ancestor_nodes > 0]
-  return(sapply(ancestor_nodes, function(t) {tree$node.label[[t-length(tree$tip.label)]]}))
-}
-
-
-#' Tree level
-#'
-#' This function returns the tree level of the given node in a rooted tree.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label The node label.
-#' @param node_number Alternate parameter, the number of the given node.
-#' @return The level of the node from the root of the tree.
-#' @export
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' get_tip_level(tree = tree, label = 't2')
-#' get_tip_level(tree = tree, label = 'n1')
-get_tip_level <- function(tree, label, node_number = NULL){
-  return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
-}
-
-
-#' Jaccard distance
-#'
-#' This determines the Jaccard distance for two input node labels in a given
-#' tree. For each node, there is a set of labels along the unique path from the
-#' root to the label. These sets are compared using Jaccard distance. For more
-#' information on Jaccard distance, please consult
-#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label_A The first label.
-#' @param label_B The second label.
-#' @return The Jaccard distance of the label sets for the root to node path.
-#' @export
-#'
-#' @seealso \code{\link{general_Jaccard_similarity}}
-#'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' general_Jaccard_dist(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Jaccard_dist(tree = tree, label_A = 'n3', label_B = 't8')
-#'
-general_Jaccard_dist <- function(tree, label_A, label_B){
-  tree_labels <- c(tree$tip.label, tree$node.label)
-  index_A <- which(label_A == tree_labels)
-  index_B <- which(label_B == tree_labels)
-
-  if ((length(index_A) + length(index_B)) == 0){
-    stop('Please input correct labels for Label_A and Label_B')
-  } else if ((length(index_A) + length(index_B)) == 1){
-    if (length(index_A) == 0){
-      stop('Please input correct label for label_A')
-    }
-    stop('Please input correct label for label_B')
-  }
-
-  # Get path labels for label_A and label_B
-  ancestors_A <- c(label_A, get_ancestors(tree, label_A))
-  ancestors_B <- c(label_B, get_ancestors(tree, label_B))
-
-  # Get node numbers for label_A and label_B paths
-  ancestors_indices_A <- which(tree_labels %in% ancestors_A)
-  ancestors_indices_B <- which(tree_labels %in% ancestors_B)
-  common_ancestors <- intersect(ancestors_A, ancestors_B)
-
-  # Find the node number of the MRCA, it will be in the order of the ancestors_A
-  # which starts at the current label and goes back to the root
-  index_C <- which(tree_labels == common_ancestors[[1]])
-  label_C <- tree_labels[[index_C]]
-
-  level_A <- length(ancestors_A) - 1
-  level_B <- length(ancestors_B) - 1
-  level_C <- length(common_ancestors) - 1
-
-  # In the case both label_A and label_B are the root
-  if ((level_A + level_B) == 0) {return(0)}
-
-  return((level_A + level_B - 2*level_C)/(level_A + level_B - level_C))
-}
-
-# This function takes in a tree and two labels and returns the Jaccard
-# similarity of the two labels within the tree
-
-#' Jaccard similarity
-#'
-#' This determines the Jaccard similarity for two input node labels in a given
-#' tree. For each node, there is a set of labels along the unique path from the
-#' root to the label. These sets are compared using Jaccard similarity. For more
-#' information on Jaccard similarity, please consult
-#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param label_A The first label.
-#' @param label_B The second label.
-#' @return The Jaccard similarity of the label sets for the root to node path.
+#' @param labels_A The first (set of) label(s).
+#' @param labels_B The second (set of) label(s).
+#' @return Matrix of similarity values for pairs of labels from `label_A` and `label_B`.
 #' @export
 #'
 #' @references
@@ -328,17 +224,56 @@ general_Jaccard_dist <- function(tree, label_A, label_B){
 #'
 #' \insertRef{pesquita2009semantic}{treecompareR}
 #'
-#' @seealso \code{\link{general_Jaccard_dist}}
-#'
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#' general_Jaccard_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Jaccard_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#' calc_similarity(tree = tree, labels_A = 't2', labels_B = 't4')
+#' calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
 #'
-general_Jaccard_similarity <- function(tree, label_A, label_B){
-  return(1 - general_Jaccard_dist(tree, label_A, label_B))
+
+calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard", method = "cpp"){
+  #get ancestry of labels A
+  #convert labels to nodes
+  node_A <- get_node_from_label(label = labels_A,
+                                tree = tree)
+  #get ancestors of each node
+  anc_A <- phangorn::Ancestors(x = tree,
+                                 node = node_A)
+  # #add node itself to ancestor tree
+  # anc_A <- lapply(seq_along(anc_A),
+  #                 function(i) c(anc_A[[i]], node_A[i]))
+
+
+  #get ancestry of labels_B in tree
+  node_B <- get_node_from_label(label = labels_B,
+                                tree = tree)
+  #get ancestors of each node
+  anc_B <- phangorn::Ancestors(x = tree,
+                                 node = node_B)
+  # #add node itself to ancestor tree
+  # anc_B <- lapply(seq_along(anc_B),
+  #                 function(i) c(anc_B[[i]], node_B[i]))
+
+  #compute IC
+  IC <- generate_information_content(tree = tree)
+
+
+
+  if(method %in% "cpp"){ #use C++ function for speed
+  outmat <- get_jaccard(list1 = anc_A, list2 = anc_B)
+  }else{
+    outmat <- matrix(nrow = length(labels_A),
+                     ncol = length(labels_B))
+    for(i in 1:length(labels_A)){
+      for(j in 1:length(labels_B)){
+        outmat[i,j] <- length(intersect(anc_A[[i]], anc_B[[j]]))/
+          length(union(anc_A[[i]], anc_B[[j]]))
+      }
+    }
+  }
+return(outmat)
+
 }
 
 #' Resnik similarity
@@ -369,7 +304,11 @@ general_Jaccard_similarity <- function(tree, label_A, label_B){
 #' general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
 #' general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 #'
-general_Resnik_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL) {
+general_Resnik_similarity <- function(tree,
+                                      label_A = NULL,
+                                      label_B = NULL,
+                                      node_A = NULL,
+                                      node_B = NULL) {
   labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
@@ -517,15 +456,21 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
     tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
   }
 
+
   N <- length(tree_labels)
 
   sim_matrix <- matrix(nrow = N, ncol = N)
   rownames(sim_matrix) <- tree_labels
   colnames(sim_matrix) <- tree_labels
 
-  for (i in 1:N){
-    for (j in i:N){
-      sim_matrix[i,j] <- similarity(tree = tree_copy, label_A = tree_labels[i], label_B = tree_labels[j])
+  #similarity matrix is symmetric so we can save time
+  #fill in upper triangular part only
+  for (i in 1:N){ #iterate over all rows
+    for (j in i:N){ #but only iterate over columns equal to rownum or above
+      sim_matrix[i,j] <- similarity(tree = tree_copy,
+                                    label_A = tree_labels[i],
+                                    label_B = tree_labels[j])
+      #assign the symmetric part
       sim_matrix[j,i] <- sim_matrix[i,j]
     }
   }
@@ -885,26 +830,162 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #'
 #' @references
 #' \insertRef{apepackage}{treecompareR}
-#'
-drop_tips_nodes <- function(tree, data = NULL, labels = NULL, tax_level_labels = NULL){
-  if (data.table::is.data.table(data)){
-    tip_node_labels <- unlist(get_labels(data = data, tax_level_labels = tax_level_labels))
+
+drop_tips_nodes <- function(tree,
+                            data = NULL,
+                            labels = NULL,
+                            nodes = NULL,
+                            level = NULL,
+                            keep_descendants = NULL,
+                            tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                 'level5', 'level6', 'level7', 'level8',
+                                                 'level9', 'level10', 'level11')){
+  if (!is.null(data)){
+    #get terminal labels for each item in this data set
+    #these are the labels to keep
+    if(is.null(keep_descendants)){
+      keep_descendants = FALSE
+    }
+    tip_node_labels <- get_labels(data = data,
+                                  tax_level_labels = tax_level_labels)
+    if(isTRUE(keep_descendants)){
+      input_nodes <- get_node_from_label(label = tip_node_labels,
+                                         tree = tree)
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = input_nodes)
+      tip_node_labels2 <- get_label_from_node(node = unlist(tip_nodes),
+                                             tree = tree)
+      tip_node_labels <- union(tip_node_labels,
+                               tip_node_labels2)
+    }
   } else if (!is.null(labels)){
-    tip_node_labels <- unlist(labels)
-  } else {
-    stop('Please input either a data.table of chemical classifications or a list of taxonomic labels!')
+    if(is.null(keep_descendants)){
+      keep_descendants <- TRUE
+    }
+    #get all descendants of input labels
+    #in case input labels are internal nodes (i.e. "clades" to keep)
+    input_nodes <- get_node_from_label(label = labels,
+                                       tree = tree)
+    if(isTRUE(keep_descendants)){
+    tip_nodes <- phangorn::Descendants(x = tree,
+                                             node = input_nodes)
+    }else{
+    tip_nodes <- input_nodes
+    }
+    tip_node_labels <- get_label_from_node(node = unlist(tip_nodes),
+                                           tree = tree)
+    tip_node_labels <- union(labels, tip_node_labels)
+  } else if (!is.null(nodes)){ #if user specified one or more nodes to keep
+    #keep nodes and their descendants
+    if(is.null(keep_descendants)){
+      keep_descendants <- TRUE
+    }
+    if(isTRUE(keep_descendants)){
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = nodes)
+      tip_nodes <- c(nodes, unlist(tip_nodes))
+    }else{
+      tip_nodes <- nodes
+    }
+
+    tip_node_labels <- get_label_from_node(node = tip_nodes,
+                                           tree = tree)
+  }else if(!is.null(level)){ #is user has specified a level to prune to
+    #if it's a numeric level, assume 0 = root, etc
+    if(is.numeric(level)){
+      #check to make sure it's a valid level
+      #first check to make sure it is an integer
+      if(!(as.integer(level)==level)){
+        stop(paste("'level' was provided as", level,
+                   "which is not a valid index for the vector of taxonomy levels",
+                   "'tax_level_labels'.",
+                   "If numeric, 'level' must be an integer between 1 and the length of",
+                   "'tax_level_labels', which is",
+                   length(tax_level_labels)))
+      }
+      #check to make sure it's within the length of tax_level_labels
+      if(level > length(tax_level_labels)){
+        stop(paste("'level' was provided as", level,
+                   ", which is greater than the length of tax_level_labels,",
+                   "which is,",
+                   length(tax_level_labels),
+                   ". tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")
+        ))
+      }
+      #check to make sure it's not zero or negative
+      if(level < 1){
+        stop(paste("'level' was provided as", level,
+                   "which is not a valid index for the vector of taxonomy levels",
+                   "'tax_level_labels'.",
+                   "'level' must be an integer between 1 and the length of",
+                   "'tax_level_labels', which is",
+                   length(tax_level_labels),
+                   ". tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")))
+      }
+    }else if(is.character(level)){
+    #if it's a string, match it with tax_level_labels
+      #check to make sure it's a valid level
+      if(level %in% tax_level_labels){
+      level <- match(level, tax_level_labels)
+      }else{
+        stop(paste("'level' was provided as", level,
+                   ", which is not one of the taxonomy level labels,",
+                   "tax_level_labels =",
+                   paste(tax_level_labels, collapse = ", ")
+        ))
+      }
+    }
+    #find all labels at the given level and do NOT keep descendants by default
+    if(is.null(keep_descendants)){
+      keep_descendants <- FALSE
+    }
+
+    #get tree as data.frame with level numbers for each node
+    tree_df <- get_tree_df(tree)
+    #get the labels of all nodes at the specified level
+    tip_node_labels <- tree_df[tree_df$level %in% level, "Name"]
+
+    #find their descendants only if told to do so
+    #(this will result in just keeping the whole tree, which is silly)
+    if(isTRUE(keep_descendants)){
+      warning(paste("'level' was provided but keep_descendants = TRUE",
+                    "which will result in keeping the whole tree,",
+                    "and not dropping anything"))
+      input_nodes <- get_node_from_label(label = tip_node_labels,
+                                         tree = tree)
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = input_nodes)
+      tip_node_labels2 <- get_label_from_node(node = unlist(tip_nodes),
+                                              tree = tree)
+      tip_node_labels <- union(tip_node_labels,
+                               tip_node_labels2)
+    }
+  }else {
+    stop(paste("Please input either a data.frame of chemical classifications",
+               "in argument 'data',",
+               "one or more tree node labels to keep in argument 'labels',",
+               "one or more tree node numbers to keep in argument 'nodes',",
+               "or a taxonomic level in argument 'level'!"))
   }
 
-  tree_labels <- c(tree$tip.label, tree$node.label)
-  max_depth <- max(sapply(tree$tip.label, get_tip_level, tree = tree))
-  #min_level <- min(sapply(intersect(labels, tree$node.label), get_tip_level, tree = tree))
-  #max_level <- max(sapply(labels, get_tip_level, tree = tree))
+  max_depth <- max(get_levels(tree)$level)
   new_tree <- tree
 
+#do it this way to retain cases where the terminal label was an internal node
+#when we drop tips, newly-terminal internal nodes will be promoted to tip
+#then we'll need to drop them, too
 
   for (i in 1:max_depth){
-    new_tree <- ape::drop.tip(new_tree, setdiff(new_tree$tip.label, intersect(tip_node_labels, new_tree$tip.label)),
-                              trim.internal = FALSE, collapse.singles = FALSE)
+    labels_to_keep <- intersect(tip_node_labels,
+                                new_tree$tip.label)
+    labels_to_drop <- setdiff(new_tree$tip.label,
+                              labels_to_keep)
+    new_tree <- ape::drop.tip(new_tree,
+                             labels_to_drop,
+                              trim.internal = FALSE,
+                              collapse.singles = FALSE)
   }
 
 
@@ -970,6 +1051,7 @@ adjust_branch_lengths <- function(tree){
   return(edge.length)
 }
 
+
 #' Compare similarity measures
 #'
 #' This functions compares the similarity measures of Jaccard, Resnik, Lin, and
@@ -1025,4 +1107,378 @@ compare_similarity_measures <- function(n){
                                 mean(balanced_JiangConrath[upper.tri(balanced_JiangConrath, diag = TRUE)])))
 
   return(simulation)
+}
+
+#'Get node number of clade (ancestor at a specified level)
+#'
+#'Helper function to get the node number defining a clade for a specified input
+#'node number
+#'@param node The node number(s) for which to get the clade(s)
+#'@param tree The underlying tree (node numbers refer to this tree)
+#'@param level The hierarchical taxonomy level at which to get the clade(s). Root
+#'  is level 0. Default value is 2 (superclass level, in ChemOnt).
+get_clade <- function(node,
+                      tree,
+                      level){
+  #get ancestors back to root for each input node
+ancestors <- phangorn::Ancestors(x = tree,
+                                 node = node,
+                                 type = "all")
+if(!is.list(ancestors)){
+  ancestors <- list(ancestors)
+}
+#reverse the order in which ancestors are listed,
+#so that root is listed first
+ancestors <- lapply(ancestors, rev)
+#add the node itself
+ancestors <- lapply(seq_along(ancestors),
+                    function(i) c(ancestors[[i]], node[i]))
+#pull the ancestor at the specified taxonomy level (root = level 0)
+clades <- sapply(ancestors, function(x) {
+  if(length(x)>=(level+1)){
+    x[level+1]
+  }else{ #if there is no ancestor at that level, return NA
+    NA_real_
+  }
+}
+)
+
+return(clades)
+}
+
+#' List all clades in a tree at a specified level
+#'
+#' @param tree The \code{\link[ape]{phylo}}-class tree object
+#' @param level The level at which to display nodes (0 is the root)
+#' @return A data.frame with four variables: \code{node} (the node number in the
+#'   tree); \code{level} (the level of the node in the tree, where root is level
+#'   0); \code{parent} (the node number of the node's immediate parent); and
+#'   \code{Name} (the text label of the node).
+#' @export
+get_all_clades <- function(tree, level){
+tree_df <- get_tree_df(tree = tree)
+clade_df <- tree_df[tree_df$level %in% level, ]
+return(clade_df)
+}
+
+#' Bind individual entities as new tips to a tree
+#'
+#' @param tree The base tree as a \code{phylo}-class object. Tips will be bound to this tree.
+#' @param data Either one data.frame, or a list of data.frames, containing
+#'   classified entities. Each row of the data.frame is one entity. The
+#'   data.frames must include the column names specifeid in
+#'   \code{tax_level_labels} and \code{entity_id_col}.
+#' @param entity_id_col The column name in \code{data} containing identifying
+#'   labels for the entities.
+#' @param tax_level_labels Taxonomy levels used for classification in \code{data}. Default is
+#'   the Chemont taxonomy levels: \code{c('kingdom', 'superclass', 'class',
+#'   'subclass','level5', 'level6', 'level7', 'level8','level9', 'level10',
+#'   'level11')}.
+#' @return A \code{phylo}-class object.
+#'
+bind_entities <- function(tree,
+                          data,
+                          entity_id_col,
+                          tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                               'level5', 'level6', 'level7', 'level8',
+                                               'level9', 'level10', 'level11')){
+
+  #if a list of data frames is provided, rowbind it all together
+  #this will be the "master list" of entities
+  if(!is.data.frame(data)){
+  if(is.list(data) &
+     all(sapply(data, is.data.frame))){
+    data <- dplyr::bind_rows(data)
+  }
+  }
+
+  #if terminal label not already in data, add it
+  if(!"terminal_label" %in% names(data)){
+    data <- add_terminal_label(data = data,
+                               tax_level_labels = tax_level_labels)
+  }
+
+  #get terminal labels for each entity
+  #keep only unique entities & terminal labels
+  term_labs <- unique(data[c(entity_id_col,
+                        "terminal_label")])
+
+  #get node numbers corresponding to terminal labels
+  term_labs$terminal_node <- get_node_from_label(label = term_labs$terminal_label,
+                                                 tree = tree)
+
+  term_labs <- term_labs[!is.na(term_labs$terminal_node), ]
+
+
+
+  #loop over terminal labels
+  #create new tree
+  #bind to the terminal label node
+  #essentially, treat entity as a new level of classification
+  tree_df <- get_tree_df(tree)
+  new_df_list <- lapply(unique(term_labs$terminal_label),
+         function(label){
+          tmpdf <- term_labs[term_labs$terminal_label %in% label, ]
+          #add these as new nodes whose parent is the terminal label node
+          parent_node <- tree_df[tree_df$Name %in% label, "node"]
+          parent_level <- tree_df[tree_df$Name %in% label, "level"]
+          new_level <- parent_level + 1
+          label_df <- data.frame(level = rep(new_level,
+                                             nrow(tmpdf)),
+                                 parent = rep(parent_node,
+                                              nrow(tmpdf)),
+                                 Name = tmpdf[[entity_id_col]])
+  })
+#bind all the list of data.frames into one big one
+  new_df <- dplyr::bind_rows(new_df_list)
+
+  #find terminal nodes in original tree without any entities
+  tips_no_ents <- setdiff(tree$tip.label, term_labs$terminal_label)
+  if(length(tips_no_ents)>0){ #if any such entity-less tips
+  #create some placeholder entities -- these will be deleted later
+  term_fake <- data.frame(terminal_label = tips_no_ents,
+                          Name = paste0("fake_entity_",
+                                        tips_no_ents))
+  fake_df_list <- lapply(term_fake$terminal_label,
+                         function(label){
+                           tmpdf <- term_fake[term_fake$terminal_label %in% label, ]
+                           #add these as new nodes whose parent is the terminal label node
+                           parent_node <- tree_df[tree_df$Name %in% label, "node"]
+                           parent_level <- tree_df[tree_df$Name %in% label, "level"]
+                           new_level <- parent_level + 1
+                           label_df <- data.frame(level = rep(new_level,
+                                                              nrow(tmpdf)),
+                                                  parent = rep(parent_node,
+                                                               nrow(tmpdf)),
+                                                  Name = tmpdf$Name)
+                         })
+
+  fake_df <- dplyr::bind_rows(fake_df_list)
+
+  new_df <- dplyr::bind_rows(new_df, fake_df)
+  }
+
+  #new node numbers
+  new_df$node <- max(tree_df$node) + 1:nrow(new_df)
+
+  new_df <- dplyr::bind_rows(tree_df,
+                             new_df)
+
+  #make into a tree
+  new_df <- setNames(new_df,
+           c("ID",
+             "level",
+             "Parent_ID",
+             "Name"))
+  new_tree <- generate_taxonomy_tree(new_df)
+
+  if(length(tips_no_ents)>0){
+  #drop fake entities
+  new_tree <- ape::drop.tip(new_tree,
+                            term_fake$Name,
+                            trim.internal = FALSE,
+                            collapse.singles = FALSE)
+  }
+  return(new_tree)
+
+}
+
+#'Prune a tree
+#'
+#'Prune a tree to keep only a subtree specified as a classified data set, a
+#'vector of labels, or a vector of node numbers
+#'
+#'@param tree The "base tree" to be pruned.
+#'@param prune_to What to keep. May be a \code{data.frame} of classified data;
+#'  one or more labels in the tree (tip or internal node labels); one or more
+#'  node numbers in the tree (tip or internal nodes). See Details. Default is
+#'  NULL, which results in no pruning being done.
+#'@param adjust_branch_length Whether to adjust branch length so that all
+#'  newly-pruned terminal nodes appear at the same length as tips, even if they
+#'  were originally internal nodes. Default FALSE.
+#'@param tax_level_labels Vector of the possible taxonomy levels that can appear
+#'  as column names in \code{prune_to} if it is a \code{data.frame} of
+#'  classified data.
+#'@return A \code{\link[ape]{phylo}}-class object representing the pruned tree.
+#'@export
+prune_tree <- function(tree,
+                       prune_to = NULL,
+                       keep_descendants = NULL,
+                       adjust_branch_length = FALSE,
+                       tax_level_labels = chemont_tax_levels){
+  if(!is.null(prune_to)){ #if user has specified something to prune to
+    if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
+      #Prune the tree according to the specified dataset
+      if(is.null(keep_descendants)){
+        keep_descendants <- FALSE
+      }
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     data = prune_to,
+                                     keep_descendants = keep_descendants,
+                                     tax_level_labels = tax_level_labels)
+    }else if(is.character(prune_to)){
+      #check if this is one of the tax_level_labels
+      #if so, interpret it as a level to prune to
+      if(all(prune_to %in% tax_level_labels)){
+        #by default do NOT keep descendants
+        #since that would just result in keeping the whole tree
+        if(is.null(keep_descendants)){
+          keep_descendants <- FALSE
+        }
+        if(isTRUE(keep_descendants)){
+        warning(paste("'prune_to' =",
+                      paste0('\"', prune_to, '\"'),
+        " has been interpreted as a taxonomy level,",
+        "because it is in 'tax_level_labels' = ",
+        paste(tax_level_labels, collapse = ", "),
+        "But 'keep_descendants = TRUE'",
+                      "which will result in keeping the whole tree,",
+                      "and not pruning anything"))
+        }
+        pruned_tree <- drop_tips_nodes(tree = tree,
+                                       level = prune_to,
+                                       keep_descendants = keep_descendants)
+      }else{ #if not a tax_level_label,
+      #interpret as node/tip labels
+      #prune to only the subtree with this label(s)
+        #including the descendents of internal label(s) by default
+      if(is.null(keep_descendants)){
+        keep_descendants <- TRUE
+      }
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     labels = prune_to,
+                                     keep_descendants = keep_descendants)
+    }
+      }else if(is.numeric(prune_to)){
+      #interpret as node numbers
+      #prune to only the subtree with this node(s)
+      #including the descendents of internal node(s) by default
+      if(is.null(keep_descendants)){
+        keep_descendants <- TRUE
+      }
+      pruned_tree <- drop_tips_nodes(tree = tree,
+                                     nodes = prune_to,
+                                     keep_descendants = keep_descendants)
+    }
+
+    if (adjust_branch_length) {
+      pruned_tree$edge.length <- adjust_branch_lengths(pruned_tree)
+    }
+
+  }
+  return(pruned_tree)
+}
+
+#' Convert a phylo tree into a wide-format "classified" data.frame
+
+as_classified.phylo <- function(tree,
+                                tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
+                                                                      'level5', 'level6', 'level7', 'level8',
+                                                                      'level9', 'level10', 'level11')){
+
+  foo <- dplyr::bind_rows(
+    lapply(1:(ape::Ntip(tree)),
+         function(tip_node){
+           ancestors <- phangorn::Ancestors(x= tree,
+                                            node = tip_node,
+                                            type = "all")
+           ancestors_rev <- rev(ancestors)[-1] #delete root node
+           ancestors_add_tip <- c(ancestors_rev, tip_node)
+           ancestors_labels <-  get_label_from_node(node = ancestors_add_tip,
+                                                    tree = tree)
+           ancestors_levels <- tax_level_labels[seq_along(ancestors_labels)]
+           return(data.frame(tip_label = tree$tip.label[tip_node],
+                             labels = ancestors_labels,
+                             levels = ancestors_levels))
+         }
+         )
+         )
+
+  foo2 <- tidyr::pivot_wider(foo,
+                             id_cols = tip_label,
+                             names_from = levels,
+                             values_from = labels)
+
+
+return(as.data.frame(foo2))
+
+}
+
+calc_similarity_data <- function(data_1,
+                            data_2,
+                            terminal_label = "terminal_label",
+                            tree = chemont_tree,
+                            tax_level_labels = chemont_tax_levels,
+                            similarity = "jaccard"){
+
+  if(similarity %in% "jaccard"){
+    similarity_fun <- "general_Jaccard_similarity"
+  }
+  #calculate pairwise similarity of ancestry of terminal labels in two data sets
+
+  #check for terminal_label
+  if(terminal_label == "terminal_label"){
+  if(!(terminal_label %in% names(data_1))){
+    data_1 <- add_terminal_label(data = data_1, tax_level_labels = tax_level_labels)
+  }
+
+  if(!(terminal_label %in% names(data_2))){
+    data_2 <- add_terminal_label(data = data_2, tax_level_labels = tax_level_labels)
+  }
+  }
+
+  #Keep only data with terminal labels in the tree
+  data_1 <- data_1[data_1[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+  data_2 <- data_2[data_2[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+
+  #enumerate a matrix of pairs of terminal labels
+  #first get all unique labels across both datasets
+  #sort them
+  mlabs <- sort(union(data_1[[terminal_label]],
+                       data_2[[terminal_label]]))
+  #keep only the ones that appear in each data set
+  mrowlabs <- mlabs[mlabs %in% data_1[[terminal_label]]]
+  mcollabs <- mlabs[mlabs %in% data_2[[terminal_label]]]
+
+  m <- matrix(nrow = length(mrowlabs),
+              ncol = length(mcollabs))
+  rownames(m) <- mrowlabs
+  colnames(m) <- mcollabs
+
+  #now calculate matrix elements
+  #only need to calc upper triangular part;
+  #can then assign
+
+  for(i in 1:(length(mlabs)-1)){
+    if(mlabs[i] %in% mrowlabs &
+       mlabs[i] %in% mcollabs){
+      #entity is 100% similar to itself
+      m[mlabs[i], mlabs[i]] <- 1
+    }
+    for(j in (i+1):(length(mlabs))){
+      tmp <- do.call(similarity_fun,
+                     list(tree = tree,
+                          label_A = mlabs[i],
+                          label_B = mlabs[j]))
+      if(mlabs[i] %in% mrowlabs &
+         mlabs[j] %in% mcollabs){
+        m[mlabs[i], mlabs[j]] <- tmp
+      }
+
+      if(mlabs[j] %in% mrowlabs &
+               mlabs[i] %in% mcollabs){
+        m[mlabs[j], mlabs[i]] <- tmp
+      }
+
+      if(mlabs[j] %in% mrowlabs &
+         mlabs[j] %in% mcollabs){
+        #entity is 100% similar to itself
+        m[mlabs[j], mlabs[j]] <- 1
+      }
+    } #end j loop
+  } #end i loop
+
+return(m)
 }
