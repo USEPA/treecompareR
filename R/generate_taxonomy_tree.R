@@ -62,51 +62,65 @@ get_path_to_root <- function(df, x){
 SetPlotHeight <- function(node, rootHeight = 100) {
 
   #traverse from leaves towards root to calculate the height and store it in height2
-  #Note: cannot call it height, as that already exists on `Node`
+  #Note: cannot call it height, as that attribute already exists on `Node`
   data.tree::Set(node$leaves, height2 = 1)
-  node$Do(function(x) x$height2 <- data.tree::Aggregate(x, "height2", max) + 1, traversal = "post-order", filterFun = data.tree::isNotLeaf)
+  node$Do(function(x) x$height2 <- data.tree::Aggregate(x, "height2", max) +
+            1,
+          traversal = "post-order",
+          filterFun = data.tree::isNotLeaf)
 
   #traverse from root to leaves to calculate the plotHeight
   #(where plotHeight uses the semantics of dendrogram/phylo, where leaves should have height 0 and root height = rootHeight. This meaning is not the same as in the data.tree package)
   node$plotHeight <- rootHeight
-  node$Do(function(x) x$plotHeight <- x$parent$plotHeight * (1 - 1 / x$height2), filterFun = data.tree::isNotRoot)
+  node$Do(function(x) x$plotHeight <- x$parent$plotHeight *
+            (1 - 1 / x$height2),
+          filterFun = data.tree::isNotRoot)
 }
 
 
-
-
-
-
-# In this function, a JSON file or a data.frame is input and a taxonomy tree is
-# constructed, with a 'phylo' class and a data.frame of associated data return.
-# The input JSON file must contain 'Name', 'ID', and 'Parent_ID' attributes for
-# each entry. Alternatively, if using an input data.frame, there must be columns
-# with the same names and information.
-
-
-
-#' Generate tree
+#' Generate taxonomy tree
 #'
 #' This function will convert taxonomy relationships from a data.frame to a
 #' 'phylo' object. In addition to the 'phylo' object, there is a data.frame
 #' returned that includes data relevant to the creation of the 'phylo' object.
 #'
-#' @param file_dir A path to a JSON file
-#' @param dataframe An optional data.frame containing parent_child relationship
-#' @return A list containing a 'phylo' object and data.frame with useful
-#'   information for building the phylo object.
-#' @export
-#' @import data.tree
-#' @import phytools
+#' This function takes a slightly circuitous route. It converts the
+#' \code{data.frame} input argument \code{tax_nodes} to an object of class
+#' \code{\link[data.tree]{Node}}. Then, it converts that
+#' \code{\link[data.tree]{Node}} object into a Newick-format tree
+#' representation. Finally, it converts that Newick-format tree representation
+#' into an object of class \code{\link[phytools]{phylo}}.
 #'
-generate_tree <- function(file_dir, dataframe = NULL){
-  if (is.null(dataframe)){
-    # Read in the JSON file with 'Name', 'ID', and 'Parent_ID' information
-    tax_nodes <- get_parent_child(file_dir)
-  } else {
-    tax_nodes <- dataframe
-  }
-
+#' This is necessary because \code{\link[ggtree]{ggtree}} requires
+#' \code{\link[phytools]{phylo}}-class objects as input, but
+#' \code{\link[phytools]{phytools}} only has methods to create
+#' \code{\link[phytools]{phylo}}-class objects from Newick, SIMMAP, or
+#' Nexus-formatted trees. However, the ClassyFire ontology is not available in
+#' any of those three formats, but only as files defining the name and ID number
+#' of each node in the ontology, and giving the ID number of each node's parent
+#' (if any). For example, the ClassyFire ontology can be downloaded in JSON
+#' format at \url{http://classyfire.wishartlab.com/tax_nodes.json} or in OBO
+#' format at \url{http://classyfire.wishartlab.com/downloads}. (Both JSON and
+#' OBO files contain the same information.) The most-accessible method for
+#' creating a Newick-format tree from this information is found in
+#' \code{\link[data.tree]{ToNewick}}, which requires a
+#' \code{\link[data.tree]{Node}} or \code{\link[ape]{phylo}}-class input.
+#'
+#' The argument \code{tax_nodes} is a \code{data.frame} that defines the
+#' taxonomy. For each node in the taxonomy, it contains a name, an ID, and the
+#' ID of the node's parent. This \code{data.frame} may be read from an OBO file
+#' using e.g. \code{\link[ontologyIndex]{get_ontology}} (and
+#' \code{\link[ontologyIndex]{as.data.frame.ontology_index}}), or from a JSON
+#' file using for example \code{\link[jsonlite]{fromJSON}}.
+#'
+#' @param tax_nodes A data.frame containing parent-child relationships for the
+#'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
+#'   respectively provide a name for each node, an ID for each node, and the ID
+#'   of the parent of each node. Each row represents one node of the taxonomy.
+#' @return A \code{phylo}-class tree object.}
+#' @export
+#'
+generate_taxonomy_tree <- function(tax_nodes = NULL){
   # Get the root of the tree, which will have no parent and thus have null value
   # for the 'Parent_ID'
   root <- tax_nodes[which(!(tax_nodes[, 'Parent_ID'] %in% tax_nodes[, 'ID'])), 'ID']
@@ -122,7 +136,7 @@ generate_tree <- function(file_dir, dataframe = NULL){
     get_path_to_root(tax_nodes, s)
   })
 
-  # Convert the pathString information into an object of 'phylo' class
+  # Convert the pathString information into an object of 'Node' class
   tax_tree <- data.tree::as.Node(tax_nodes, mode = 'table')
 
 
@@ -133,29 +147,46 @@ generate_tree <- function(file_dir, dataframe = NULL){
   plot_heights[1, 'name'] <- 	'-1'
   tax_nodes['plotHeight'] <- plot_heights[match(tax_nodes[,'id_number'], plot_heights[,'name']) ,'plot_height']
 
-  Newick_tax_tree <- data.tree::ToNewick(tax_tree, heightAttribute = 'plotHeight')
+  Newick_tax_tree <- data.tree::ToNewick(tax_tree,
+                                         heightAttribute = 'plotHeight')
   tree_object <- phytools::read.newick(text = Newick_tax_tree)
 
-  #print(paste('tax_tree', is.null(tax_tree), 'Newick', is.null(Newick_tax_tree),
-  #            'tree_object', is.null(tree_object)))
-
   # Rename tip and node labels to original names from the JSON file
-  for (i in seq_along(tree_object$tip.label)){
-    current_tip <- tree_object$tip.label[[i]]
-    temp_index <- match(current_tip,tax_nodes$id_number)
-    tree_object$tip.label[[i]] <- tax_nodes$Name[[temp_index]]
-  }
+  #tip labels:
+  temp_index <- match(tree_object$tip.label,
+                      tax_nodes$id_number)
+  temp_labels <- tax_nodes$Name[temp_index]
+  tree_object$tip.label <- temp_labels
 
-  for (i in seq_along(tree_object$node.label)){
-    current_node <- tree_object$node.label[[i]]
-    # If not 'root_', change the current label back to the original label
-    if (current_node != "root_"){
-      temp_index <- match(current_node,tax_nodes$id_number)
-      tree_object$node.label[[i]] <- tax_nodes$Name[[temp_index]]
-    } else {
-      tree_object$node.label[[i]] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
-    }
-  }
+  #node labels:
+  temp_index <- match(tree_object$node.label,
+                      tax_nodes$id_number)
+  temp_labels <- tax_nodes$Name[temp_index]
+  #handle root node label
+  temp_labels[tree_object$node.label %in% "root_"] <- tax_nodes[tax_nodes$id_number == -1, 'Name']
+  tree_object$node.label <- temp_labels
 
-  return(list(tree_object, tax_nodes))
+  return(tree_object)
+}
+
+#' Get label for a tip or internal node of a phylo tree
+#'
+#' @param node Vector of node numbers in phylo tree
+#' @param tree phylo tree object
+#' @return Character vector of tip or internal node labels
+get_label_from_node <-function(node, tree){
+  label <- vector(mode = "character", length = length(node))
+  label[node < (ape::Ntip(tree)+1)] <- tree$tip.label[node[node <( ape::Ntip(tree)+1)]]
+  label[node > ape::Ntip(tree)] <- tree$node.label[node[node >  ape::Ntip(tree)]-ape::Ntip(tree)]
+  return(label)
+}
+
+get_node_from_label <- function(label, tree){
+#tip labels come first
+tip_nodes <- match(label, tree$tip.label)
+#then internal node labels come
+internal_nodes <- match(label, tree$node.label) + ape::Ntip(tree)
+nodes <- pmin(tip_nodes, internal_nodes, na.rm = TRUE)
+return(nodes)
+
 }
