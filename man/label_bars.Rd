@@ -4,7 +4,7 @@
 \alias{label_bars}
 \title{Label bars}
 \usage{
-label_bars(data = NULL, tax_level_labels = NULL)
+label_bars(data = NULL, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
 \item{data}{A data.table or list of data.tables with chemicals and their
