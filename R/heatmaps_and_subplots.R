@@ -2,8 +2,10 @@
 
 #' Label numbers
 #'
-#' This is a helper function, use for determining number of labels in a given data set per taxonomical level.
+#' This is a helper function, use for determining number of labels in a given
+#' data set per taxonomical level.
 #'
+
 #' @param datatable A data.table object of chemical classifications.
 #' @param chemont Alternate parameter indicating whether ChemOnt taxonomy is used.
 #' @param log Alternate parameter indicating whether numbers are reported as is or as their log.
@@ -75,12 +77,6 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 }
 
 
-
-
-
-
-
-
 #' Generate similarity heatmap
 #'
 #' This function generates a heatmap from an input similarity matrix and
@@ -107,7 +103,19 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
-generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indices = NA, row_data, column_data, name = 'Name', row_split = NULL, column_split = NULL, row_title = 'Row title', column_title = 'Column title', log_trans = TRUE) {
+generate_heatmap <- function(tree_object,
+                             matrix,
+                             row_indices = NA,
+                             column_indices = NA,
+                             row_data,
+                             column_data,
+                             name = 'Name',
+                             row_split = NULL,
+                             column_split = NULL,
+                             row_title = 'Row title',
+                             column_title = 'Column title',
+                             log_trans = TRUE) {
+
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
 
@@ -129,18 +137,22 @@ generate_heatmap <- function(tree_object, matrix, row_indices = NA, column_indic
 
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
+
   row_label_data <- label_numbers(row_data, log = log_trans)
   row_label_numbers <- row_label_data[[1]]
   row_labels <- row_label_data[[2]]
+
   row_anno_indices <- match(dimnames(matrix)[[2]][row_indices], row_labels)
   row_na_indices <- which(sapply(row_anno_indices, is.na))
   if (length(row_na_indices) > 0){
     row_anno_indices <- row_anno_indices[-row_na_indices]
   }
 
+
   column_label_data <- label_numbers(column_data, log = log_trans)
   column_label_numbers <- column_label_data[[1]]
   column_labels <- column_label_data[[2]]
+
   column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
   column_na_indices <- which(sapply(column_anno_indices, is.na))
   if (length(column_na_indices) > 0){
