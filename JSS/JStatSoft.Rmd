@@ -1,0 +1,772 @@
+---
+title: "JStatSoft"
+output: 
+  bookdown::html_document2:
+    base_format: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{JStatSoft}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+#library(treecompareR)
+devtools::load_all()
+#library(kableExtra)
+```
+
+# Abstract
+
+This paper presents the **treecompareR** package for `R`, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from **gplot2**, **ggtree** to provide visualizations tailored for use with taxonomic classification data. It also provides a pipeline for gathering chemical classification data using **classyfireR** and the [Hazard Comparison Dashboard](https://hazard.sciencedataexperts.com/#/). Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using [ClassyFire](http://classyfire.wishartlab.com/), **treecompareR** provides tools for use with more general taxonomies.
+
+
+# Introduction
+
+Classification of objects has been a source of much development of structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess. 
+
+Ontologies provide a framework for comparing objects through a variety of different relation types. Restricting the attention to taxonomies, one can focus specifically on the "is a" relation, e.g. "a dog (*canis familiaris*) is a canid", "a canid is a mammal," "a mammal is an animal", and study how objects relate to one another under this scheme. One well known example of this organizational structure in use is the Linnaean system for classifying life, sometimes referred to as the "tree of life". As a taxonomy, the organizational structure is given by a tree, which consequently lends itself to analysis using graph theory techniques. [CLR: Hug et al. 2016] [other citation?]
+
+[CLR:Add refs to Gene Ontology project?]
+
+Cheminformaticians commonly encounter the question of defining chemical similarity. Particularly when training models (e.g. QSARs), there is a need to define the chemical domain of applicability of the model. Given that the model was trained on a fixed set of chemicals, in order to judge confidence in model predictions for a new chemical, researchers need to quantify how similar the new chemical is to the training set.
+
+Analyses of chemical similarity have tended to focus on molecular fingerprints and structural features. These results tend to be high-dimensional and difficult to visualize. As well, they can be difficult to interpret for non-chemists.
+
+Chemical structural features map to chemical categories, of course. Chemists can look at a diagram of molecular structure and identify whether a chemical is, for example, a dioxin or an amino acid. However, this mapping has not been explicitly defined, until recently.
+
+We present the package **treecompareR** as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space. The ChemOnt taxonomy is analogous to the Linnean "tree of life" or other phylogenetic trees. Therefore, to visualize chemical space using the ChemOnt taxonomy, owe build upon the excellent package [ggtree](https://bioconductor.org/packages/release/bioc/html/ggtree.html), which was originally developed for visualization of phylogenetic tree data. We extend ggtree with functions that simplify the task of creating certain complex visualizations that are frequently of use when visualizing similiarities and differences in chemical lists using the ChemOnt taxonomy.
+
+# The ChemOnt ontology and ClassyFire
+
+In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels (nodes). The ontology is a strictly hierarchical taxononomy, where each node has exactly one parent. Levels of the taxonomy include kingdom (level 1), superclass (level 2), class (level 3), subclass (level 4), and more specific levels of chemical classification from level 5 to level 11. Branches of the ontology may (and do) terminate at any level more specific than kingdom.
+
+Note that the ChemOnt ontology does not include individual chemical structures (or chemical entitites) -- only chemical classes. In other words, the ontology does not attempt to enumerate a universe of possible chemical structures. Instead, *any* list of chemical structures may be classified according to the ChemOnt ontology, using the ClassyFire web tool. This tool takes in chemical structural identifiers such as InChIKey or SMILES strings and places the chemical structure within the ChemOnt ontology, at the most-specific level that is appropriate for that structure. The classification is based on a decision tree that uses elements of molecular structure to determine classification. When a structure admits multiple possible classifications, ClassyFire selects one, but can also return alternate classifications.
+
+The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers, for each of the 4825 nodes in the taxonomy.
+
+## ChemOnt as a 'phylo'-class tree object
+
+There are many possible ways to represent a hierarchical tree as an object in R. This package uses the `"phylo"` class, implemented in the `ape` package for analysis of phylogenetic trees. The `"phylo"` class was selected in order to interface with the excellent group of R packages available for analysis and visualization of phylogenetic trees that operate on `"phylo"`-class objects, including `ape`, `phangorn`, `phytools`, and `ggtree`.
+
+To construct a `"phylo"`-class tree object representing the ChemOnt taxonomy, we first convert the taxonomy to a `data.frame` object with columns `Name`, `ID`, and `Parent_ID`.  This \code{data.frame} may be read from an OBO file using e.g. `ontologyIndex::get_ontology()` and `ontologyIndex::as.data.frame.ontology_index()`, or from a JSON
+file using for example `jsonlite::fromJSON()`. This `data.frame` for the ChemOnt taxonomy is provided with the package, in data object `chemont_df`.
+
+```{r}
+head(chemont_df)
+```
+
+
+With this data in hand, the tree object can be constructed using function `generate_taxonomy_tree()`.
+
+```{r chemont-tree, fig.cap="chemont-tree"}
+chemont_tree <- generate_taxonomy_tree(tax_nodes = chemont_df)
+```
+
+The output of this function is a`phylo` class object, which itself is a list. Its elements describe the edges of the tree (connections between nodes), the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. (In `generate_taxonomy_tree()`, the edge lengths are artificially assigned for visualization purposes, and do not have a meaningful interpretation.)
+
+```{r}
+str(chemont_tree)
+```
+
+This `generate_taxonomy_tree()` function is not limited to the ChemOnt taxonomy. It can produce a tree representation of *any* hierarchical taxonomy, as long as that taxonomy can be represented in the form of a data frame with column names `Name`, `ID`, and `Parent_ID` and one row for each node in the tree. However, it cannot currently handle ontologies which are not strictly hierarchical (e.g. Gene Ontology): it expects each node to have one and only one parent.
+
+A `data.frame` representation of the `phylo` tree can be recovered using function `get_tree_df()`. Instead of ChemOnt IDs, this `data.frame` identifies nodes using their node numbers in the `phylo` tree. (That's useful information when you need to call functions that work on `phylo` trees but require you to specify nodes by number, such as many functions in packages `ape` and `phangorn`.) This `data.frame` also includes a variable `level`, which specifies the level in the tree taxonomy for each node. Here, the root node is defined as level 0. In the ChemOnt taxonomy, "kingdom" is level 1, "superclass" is level 2, "class" is level 3, "subclass" is level 4. Levels 5 and above are "level5", "level6", etc. up to "level11". 
+
+```{r}
+str(get_tree_df(chemont_tree))
+```
+
+
+## Visualizing trees
+
+Once a taxonomy tree is generated, it can be visualized using the function `display_subtree()`. This function is a wrapper around `ggtree()` that facilitates some common visualization tasks needed for comparing lists of classified entities.
+
+```{r}
+display_subtree(base_tree = chemont_tree,
+                base_name = "ChemOnt taxonomy") +
+  hexpand(1)
+```
+
+By default, this visualization will label branches of the tree ("clades"). These are the arcs and labels around the outer edge of the tree.
+
+The level at which clades are labeled is controlled using the `clade_level` argument. The default value of `clade_level` is "auto", which will choose one level below the level of the most recent common ancestor (MRCA) of all tips of the tree, or level 2, whichever is greater. For example, the MRCA of the tips of the full ChemOnt tree is level 0, the root node, "Chemical entities." One level below that is level 1, kingdoms ("Organic compounds" and "Inorganic compounds"). However, because level 1 is not very interesting, `clade_level = "auto"` will default to level 2 if it would otherwise be level 1. To suppress clade labeling altogether, set `clade_level = NULL`.
+
+As you can see, the full ChemOnt tree is extremely dense. To "zoom in" to a specific part of the tree, we can use the function `prune_and_display_subtree()` In the argument `prune_to`, provide the name of one or more nodes at any level desired. The function will prune the tree to keep only the specified node(s) and all of their descendants. For example, we can "zoom in" on the "Organohalogen compounds" superclass.
+
+```{r}
+prune_and_display_subtree(base_tree = chemont_tree,
+                          prune_to = "Organohalogen compounds")
+```
+(Note that the default level for clade labeling is now level 3 (class), because the MRCA of the tips of the pruned organohalogen compounds tree is by construction "Organohalogen compounds", level 2.)
+ 
+To access the pruned phylo-class tree object itself, use the function `prune_tree`. 
+
+```{r}
+oh_tree <- prune_tree(tree = chemont_tree,
+           prune_to = "Organohalogen compounds")
+str(oh_tree)
+```
+
+This pruned tree can be treated in exactly the same way as the original taxonomy tree. Any function that takes a phylo-class tree argument will work on the pruned tree.
+
+To choose clades for pruning, you may want to list the clades of a tree at a specified level, using the function `get_all_clades()`. For example, the following code lists the ChemOnt superclasses (all labels at level 2), truncated after the first 6 items for display purposes. These are the default clade labels shown when the ChemOnt tree is plotted using `display_subtree()`.
+
+```{r}
+head(get_all_clades(tree = chemont_tree, level = 2), 6)
+```
+
+
+## Controlling tree visualization
+
+Features of the tree visualization can be easily controlled using various arguments to `display_subtree()`. 
+
+### Controlling tree layout
+
+By default, `display_subtree()` uses a circular tree layout. However, you can specify any layout known by `ggtree` (see [https://yulab-smu.top/treedata-book/chapter4.html#tree-layouts](https://yulab-smu.top/treedata-book/chapter4.html#tree-layouts) for a full list and examples). (In this example, we use the `ggtree::hexpand()` function to add horizontal space for the labels.)
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                layout = "roundrect") +
+  ggtree::hexpand(0.1)
+```
+### Controlling tree color, size, and linetype
+
+For example, the color, size, and/or linetype of the tree can be controlled using the argument `base_opts`. The default value of this arugment is
+
+```{r, eval = FALSE}
+base_opts = list(color = "black",
+                 size = 0.5,
+                 linetype = 1)
+```
+
+meaning that the tree will be plotted in black (`color = "black"`), with line width 0.5 (`size = 0.5`), and solid lines (`linetype = 1`). If instead we wanted to plot the tree in red, with line width 1, using dotted lines, for example, we could do so:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                base_opts = list(color = "red",
+                                 size = 1,
+                                 linetype = 3)) +
+  hexpand(1)
+```
+
+### Controlling other ggtree parameters
+
+Any other parameters for the base tree (i.e., any parameters that would be optional arguments to `ggtree`) can also be added to `base_opts` as named list elements. See `?ggtree` for options. For example, to use a fan layout with a specified open angle, use `layout = fan` and add `open.angle` to `base_opts`:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                layout = "fan",
+                base_opts = list(open.angle = 100))
+```
+
+### Manipulating plots using the grammar of ggtree and ggplot2
+
+The output of `display_subtree()` is a `ggtree` and `ggplot`-class object, so it can be manipulated using the grammar of `ggtree` and `ggplot2`. We have already seen an example of this when we used `ggtree:hexpand()` to expand the plot margins to make room for labels. For another example, we can use `ggplot2::theme()` to control the appearance of elements such as the plot title -- e.g., setting the title in a serif font, italicizing it, and right-justifying it.
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds") +
+  ggplot2::theme(plot.title = ggplot2::element_text(family = "serif",
+                                  face = "italic",
+                                  hjust = 1)
+                 )
+```
+
+
+# Example Research Problem: Chemical Contaminants in Water and Wastewater
+
+Tree visualizations can be used to explore how different chemical lists are distributed across chemical space as defined by the ChemOnt taxonomy. This can be useful to inform chemical safety research.
+
+Consider the question of chemical contaminants in water and wastewater. Under the Clean water Act, the United States Environmental Protection Agency works to identify chemical contaminants of potential concern to human health and the environment that may occur in both drinking water and in treated wastewater.  In wastewater, a medium of particular interest is *biosolids*, the semisolid, nutrient-rich product obtained by separating wastewater solids from liquids and treating the solids separately. Biosolids may be appplied to land as fertilizer or soil amendment, or may be disposed of in landfills or incinerated. Chemical contaminants in biosolids may make their way to humans, plants, or animals. Therefore, it's of interest to identify chemicals that may be found in biosolids.
+
+One possible starting point is to consider chemical contaminants that have been found in surface water and/or ground water. Surface and ground water sources may be treated and used for drinking water, which ultimately means that this water goes down the drain and becomes part of the wastewater stream. Chemicals found in surface and ground water may therefore make their way into biosolids. Of course, they also may *not* make their way into biosolids. They may be removed during initial treatment of source water; they may be removed during the wastewater treatment process; or when liquids and solids are separated during wastewater treatment, they may preferentially remain in the liquids.
+
+Both biosolids and ground/surface water have been tested for relatively long lists of chemical contaminants of interest. Of course, these lists don't necessarily include every chemical that might be in those media; there may be chemicals we don't even know to look for. However, as a starting point, it might be informative to compare lists of chemicals found in water and chemicals found in biosolids. Are certain classes of chemicals found in one medium but not the other, or in both media? How similar are the two lists of chemicals, and where are the overlaps and differences?
+
+With the ClassyFire/ChemOnt ontology and the **treecompareR** package, we can start to explore these questions through visualization. We can visualize a tree for surface/groundwater chemicals, and a tree for biosolids chemicals. We can visualize where these trees overlap and where they do not. Furthermore, we can calculate quantitative similarity measures between the two trees, and visualize where similarity is higher and lower between branches of each tree.
+
+## Chemical Lists
+
+We use existing curated lists of chemical contaminants found in biosolids and in surface/groundwater, publicly available (with many other curated chemical lists of interest) from the US EPA's CompTox Chemicals Dashboard. A curated list of 726 chemicals found in biosolids is available as the `biosolids` dataset [cite Richardson & Williams 2021 https://www.nature.com/articles/s41597-022-01267-9] at [https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS2021). A curated list of 707 chemicals monitored in surface and groundwater by the United States Geological Service (USGS) is available as the `usgs` dataset at [https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER](https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER).
+
+Each list of chemicals includes chemical identifiers (prefererd name, CASRN, and DSSTox Substance ID or DTXISD) as well as structural identifiers (InChiKey and SMILES strings).
+
+```{r}
+str(biosolids)
+```
+
+```{r}
+str(usgs)
+```
+
+
+## ClassyFire classification of chemical lists
+
+To compare these two chemical lists based on the ChemOnt taxonomy, first, the chemicals on each list must be classified according to ClassyFire. An interface to the API for the ClassyFire web tool is available through the **classyfireR** package. To simplify the process of querying the API for a list of InChiKeys, this package contains two wrapper functions, `classify_inchikeys()` and `classify_structures()`. These functions take user-supplied vectors of InChiKeys or SMILES strings (respectively), query the ClassyFire API for them, and return a `data.frame` with the corresponding classification for each input structure. If a classification was not available, the columns of the data.frame simply contain `NA_character_` values.
+
+```{r, eval = FALSE}
+biosolisd_by_inchikey <- classify_inchikeys(biosolids$INCHIKEY)
+biosolids_by_smiles <- classify_structures(biosolids$SMILES)
+```
+
+The biosolids and usgs data sets with ClassyFire classifications are stored in `biosolids_class` and `usgs_class`.
+
+Now, let us examine these two data sets. 
+
+```{r}
+str(biosolids_class)
+```
+
+This is the `biosolids` data set with eleven additional variables, one for each level of the ChemOnt taxonomy: `kingdom`, `superclass`, etc. Each of these variables will contain a label if assigned for that chemical, or NA if no label was assigned at that level. If all eleven variables are NA for a given chemical, it means that chemical could not be classified by ClassyFire.
+
+Here are the first few chemicals that *could* be classified. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`,  `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
+
+```{r biosolids_classifications}
+kableExtra::kbl(head(biosolids_class[!is.na(biosolids_class$kingdom),
+                                         c('PREFERRED.NAME', 'INCHIKEY',
+                            'kingdom', 'superclass', 'class', 'subclass', 
+                            'level5')], 5),
+                row.names = FALSE) %>%
+ kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
+ kableExtra::kable_classic() %>%
+  kableExtra::landscape()
+```
+
+Note that in the second row, Diazepam has NA in the `level 5` column. This means that the most-specific classification for Diazepam is at the subclass level.
+
+Here are the first few chemicals in the `usgs` data set that could be classified.
+
+```{r usgs_classifications}
+
+kableExtra::kbl(head(usgs_class[!is.na(usgs_class$kingdom),
+                                     c('PREFERRED.NAME', 'INCHIKEY',
+                            'kingdom', 'superclass', 'class', 'subclass', 
+                            'level5')], 5),
+                row.names = FALSE)  %>%
+ kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>%
+ kableExtra::kable_classic() %>%
+  kableExtra::landscape()
+```
+Note that in row 5, Acenaphthenequinone has `NA` in both the `subclass` and `level 5` columns. This means that the most specific classification for Acenaphthenequinone is at the `class` level; it is not classified any more specifically than "Naphthalenes".
+
+# Visualizing subtrees
+
+## Highlighting branches according to their membership in a classified list
+
+We can visualize which parts of the ChemOnt tree, or any subtree, are represented by chemicals in each data set. To do this, we again use the function `display_subtree()`. Now, in addition to the "base tree" specified in argument `base_tree`, we specify an argument `data_1` which is a `data.frame` consisting of a classified list of chemicals. This `data.frame` must include variables for all levels in the taxonomy. For ClassyFire, this is "kingdom", "superclass", "class", "subclass", "level5", "level6", ..., "level11". If a level is not used in the classification of a given chemical, that column should have an NA value for that chemical. The optional argument `name_1` allows you to specify the name to be used in the plot legend (here, "Biosolids"). If `name_1` is not specified, the name of the variable passed to `data_1` will be used by default -- for the above example, this would be "biosolids_class". With these arguments, `display_subtree()` returns a tree diagram with branches color-coded according to their membership in the chemical list. For purposes of illustration, here we use the pruned subtree for the "Organohalogen compounds" clade (`oh_tree`) as our "base tree."
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organhalogen tree",
+                data_1 = biosolids_class, 
+                name_1 = 'Biosolids',
+                base_opts = list(size = 1))
+```
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organhalogen tree",
+                data_1 = usgs_class, 
+                name_1 = 'USGS Water',
+                base_opts = list(size = 1))
+```
+
+These two figures illustrate the locations of the the biosolids and USGS water chemical lists in chemical space. For example, the biosolids list includes more of the "Alkyl halides" group than does the USGS water list, but USGS Water includes "Organobromides", whereas the biosolids list does not.
+
+## Highlighting branches to compare membership in two classified lists
+
+We can more directly compare the two chemical lists by highlighting them on the same tree. The function `display_subtree()` can also accept a second `data.frame` representing a classified list of chemicals, in argument `data_2`. (There is a corresponding optional `name_2` argument that works the same way as `name_1`.)
+
+```{r subtree-plots-overlap}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                data_1 = biosolids_class, 
+                data_2 = usgs_class, 
+                name_1 = 'Biosolids', 
+                name_2 = 'USGS Water',
+                base_opts = list(size = 1))
+```
+
+In the above figure, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
+
+### Customizing how branches are highlighted
+
+The user can customize the aesthetics used to highlight branches with argument `subtree_mapping`, which takes a named list . The list elements can be named "color" (or "colour"), "size", and/or "linetype". These are the three aesthetics that `ggtree` understands. Each named element should contain a vector defining the scale for that aesthetic. This vector can have up to four elements. 
+
+When both `data_1` and `data_2` are defined, the first four vector elements will be mapped to the following categories, in order: branch is in neither data set; branch is in `data_1` only; branch is in `data_2` only; branch is in both data sets. If the vector has fewer than four elements, they will be recycled.
+
+When only `data_1` is defined and `data_2` is null, only the first two elements of the vector will be used, and they will be mapped in order to the following categories: branch is not in `data_1`; branch is in `data_1`.
+
+This is easiest to undertand with some examples. The default value of `subtree_mapping` is the following:
+```{r, eval = FALSE}
+subtree_mapping = list("color" = c("gray50", #medium gray -- neither dataset
+                                   "#66C2A5", #blue-green -- data_1 only
+                                   "#8DA0CB", #purple-blue -- data_2 only
+                                   "#FC8D62" #red-orange -- both datasets
+                                   )
+)
+```
+
+This means that tree branches are highlighted using only color. Branches in neither dataset are drawn in medium gray. Branches only in data set 1 are drawn in blue-green. Branches only in data set 2 are drawn in purple-blue. Branches in both data sets are drawn in red-orange.
+
+If we wanted to highlight branches using size (line width) and linetype as well as color, we would do the following:
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogen compounds",
+                data_1 = biosolids_class, 
+                data_2 = usgs_class, 
+                name_1 = 'Biosolids', 
+                name_2 = 'USGS Water',
+                subtree_mapping = list(
+                  "color" = c("gray50", #neither dataset
+                              "#66C2A5", #dataset 1 only (here, Biosolids)
+                              "#8DA0CB", #dataset 2 only (here, USGS Water)
+                              "#FC8D62" #both datasets
+                  ),
+                  "size" = c(0.5, #neither dataset
+                             1, #dataset 1 only (here, Biosolids)
+                             1.25, #dataset 2 only (here, USGS Water)
+                             2 #both datasets
+                             ), 
+                  "linetype" = c(1,  #neither dataset (solid)
+                                 2, #dataset 1 only (here, Biosolids) (dotted)
+                                 3, #dataset 2 only (here, USGS Water) (dashed)
+                                 4) #both datasets (dot-dashed)
+                ) 
+)
+```
+
+## Pruning a tree to include only members of a classified list
+
+It can also be informative to prune the tree to include only branches in one chemical list. This can be done using functions `prune_and_display_subtree()` and `prune_tree()`, These functions were introduced earlier, using argument `prune_to` to specify one or more node labels to keep in the pruned tree. Argument `prune_to` also accepts a `data.frame` consisting of a classified list of entities. All labels included in the classifications of entities in this `data.frame` will be included in the pruned tree.
+
+For this illustration, let us begin with the ChemOnt tree pruned to include only the "Benzenoids" superclass.
+
+```{r}
+benz_tree <- prune_tree(tree = chemont_tree,
+                        prune_to = "Benzenoids")
+```
+
+THen let us further prune the benzenoids tree to include only the branches represented in `biosolids_class` (i.e., this is the subtree induced by `biosolids_class`)
+
+```{r pruned-subtree,  fig.align='center', fig.dim=c(12,12)}
+prune_and_display_subtree(base_tree = benz_tree,
+                          prune_to = biosolids_class,
+                          prune_name = "Biosolids")
+
+biosolids_benz_tree <- prune_tree(tree = benz_tree,
+                                prune_to = biosolids_class)
+```
+
+You may notice that some of the branches do not go all the way to the bottom. This occurs when a classification in the `prune_to` data.frame terminates with an internal node -- i.e., the terminal classification is a node that had children in the original tree -- and no other entities in the `prune_to` data.frame belong to any of the children of that node.
+
+In this example, "Anthracenes" is one such branch that does not go all the way to the bottom. In the `biosolids_class` dataset, the chemical "Anthracene" (DTXSID0023878) has classification "Organic compounds -- Benzenoids -- Anthracenes."  In the original ChemOnt tree and in the pruned Benzenoids subtree, the class "Anthracenes" has subclasses "Anthraquinones" and "Anthracenecarboxylic acids and derivatives". However, the chemical "Anthracene" does not fall into either of those subclasses. "Anthracenes" is as specific as its classification gets. In a sense, it could be classed as "Other Anthracenes." Furthermore, no *other* chemicals in the `biosolids_class` dataset fall into the subclasses "Anthraquinones" or "Anthracenecarboxylic acids and derivatives". Therefore, when the tree is pruned to include only labels that appear in the classification of the `BIOSOLIDS201_class` dataset, those subclasses are dropped.
+
+If you prefer to adjust the branch lengths so that all of the branches go all the way to the bottom (even if they terminate in nodes that had descendents in the original tree), use argument `adjust_branch_length = TRUE` in `prune_and_display_subtree()` and `prune_tree()`.
+
+```{r}
+prune_and_display_subtree(base_tree = benz_tree,
+                          prune_to = biosolids_class,
+                          prune_name = "Biosolids",
+                          adjust_branch_length = TRUE)
+```
+
+### Highlighting a pruned subtree from one chemical list by membership in another chemical list
+
+The function `prune_and_display_subtree()` can take all of the same arguments as `display_subtree()`. Essentially, it will prune the tree using the `prune_to` argument, then call `display_subtree()` with the remaining arguments. This means it can be used to highlight a pruned subtree from one chemical list by membership in another chemical list.
+
+For example, here is the biosolids subset of the Benzenoids subtree, with branches highlighted to show their membership in the USGS Water list. (Here, we additionally use the grammar of `ggplot2` to plot the legend using thicker lines, so that it is easier to see.)
+
+```{r}
+prune_and_display_subtree(base_tree = benz_tree,
+                          prune_to = biosolids_class,
+                          prune_name = "Biosolids",
+                          data_1 = usgs_class,
+                          name_1 = "USGS Water") +
+  ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 2)))
+```
+
+
+
+
+## Summarizing numbers and overlap of chemicals in two lists
+
+The above diagrams are useful for illustrating which portions of each data set-induced subtree are also represented by labels from the classifications of the other data set. However, these visualizations do not show the *number* of chemicals with a given classification -- i.e., the number of chemicals that populate each branch -- or the number  of chemicals that overlap in each branch. 
+
+One way to visualize the overlap between lists down to the level of individual chemicals is to add the individual chemicals as tips of the chemical-list subtree. This can be done using the function `bind_entities()`. This function takes a tree and a list of one or more classified data sets whose rows are individual entities (e.g., individual chemicals), along with an argument specifying the name of the column in the classified data set(s) to be used as the identifier for individual entities. It binds the individual entities in the data set(s) as new tips of the tree, and returns the resulting tree object. 
+
+To illustrate this point, we first take the organohalogen subtree. 
+
+```{r}
+display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogens",
+                base_opts = list(color = "red"),
+                clade_level = 3)
+```
+
+
+Now, we take the classified chemicals on the biosolids and USGS lists, and bind those individual chemicals as new tips of the subtree. We use the `CASRN` column in the classified data set as the chemical identifier.
+
+```{r}
+#Bind the individual chemicals as tips to the tree
+new_tree <- bind_entities(tree = oh_tree,
+                          data = list(biosolids_class,
+                                      usgs_class),
+                          entity_id_col = "CASRN")
+```
+
+The new tree, with chemical entities bound to the tips, is visualized below. We use the `data_1` and `subtree_mapping` arguments to `display_subtree()` to highlight the original organohalogen subtree in red, and show the newly-bound chemical entities in black. Compare to the previous figure.
+
+```{r}
+display_subtree(base_tree = new_tree,
+                base_name = "Organohalogens -- Biosolids and USGS Chemicals",
+                data_1 = oh_tree,
+                name_1 = "Orig. organohalogen subtree",
+                subtree_mapping = list(color = c("black",
+                                                 "red")),
+                clade_level = 3) 
+```
+
+We can show the overlap between the biosolids and USGS Water chemical lists using this new tree with chemical entities as the base tree, and highlighting its branches according to membership in those two lists. Note that we need to change the argument `tax_level_labels` to include `CASRN` as an additional taxonomy level, because `'new_tree` has that additional level added.
+
+```{r}
+display_subtree(base_tree = new_tree,
+                base_name = "Organohalogens -- Biosolids and USGS Chemicals",
+                base_opts = list(color = "black"),
+                data_1 = biosolids_class,
+                name_1 = "Biosolids",
+                data_2 = usgs_class,
+                name_2 = "USGS Water",
+                clade_level = 4,
+                tax_level_labels = c("kingdom",
+                                     "superclass",
+                                     "class",
+                                     "subclass",
+                                     paste0("level", 5:11),
+                                     "CASRN"),
+                subtree_mapping = list("color" = "default",
+                                       "size" = c(0.5, 1, 1, 1))) 
+```
+
+For example, this figure illustrates that while both lists contain several chemicals in the "Vinyl chlorides" subclass, they only have two of those chemicals in common. The "Alkyl fluorides" subclass is covered only by the biosolids chemical list, while the chemicals in the "Cyclohexyl halides" subclass are all common to both lists.
+
+An alternate way to visualize the overlap at the chemical-entity level is to count the number of chemicals in each list for a given clade, and quantify the degree of overlap between the lists for that clade. The clade could be specified at any level. This summarization is implemented in the function `calc_number_overlap()`. This function takes two classified data sets as input, `data_1` and `data_2`. The function also takes a vector of taxonomy levels, which by default is the taxonomy levels for ChemOnt (kingdom, superclass, class, subclass, level 5, level 6, etc.). At a specified level of the taxonomy (the default is the terminal level of classification for each entity), the function gets the labels that appear in either dataset, and calculates the number of entities with each label in each dataset. Then, it quantifies the overlap between datasets for each label by calculating (number of entities with this label in *both* datasets)/(number of entities with this label in *either* dataset), i.e., (size of intersection)/(size of union). The result is a data.frame where each row is one label at the specified taxonomy level, and the columns count the number of entities for that label in each dataset, the size of the intersection, the size of the union, and the overlap.
+
+For the biosolids and USGS water datasets, the overlap at the terminal label level looks like this:
+
+```{r}
+overlap_data <- calc_number_overlap(data_1 = biosolids_class,
+                    data_2 = usgs_class,
+                    at_level = "terminal", #taxonomy level at which to calculate overlap
+                    entity_id_col = "PREFERRED.NAME")
+str(overlap_data)
+```
+
+The overlap data at level 3 ("class") looks like this:
+```{r}
+overlap_data_L3 <- calc_number_overlap(data_1 = biosolids_class,
+                    data_2 = usgs_class,
+                    at_level = 3, #taxonomy level at which to calculate overlap
+                    entity_id_col = "PREFERRED.NAME")
+str(overlap_data_L3)
+```
+
+
+With reference to the organohalogen subtree, we can subset `overlap_data` to only those labels contained in the organohalogen subtree.
+
+```{r}
+(overlap_oh <- overlap_data[overlap_data$terminal_label %in% oh_tree$tip.label, ])
+```
+
+This overlap summary data can be visualized with the organohalogen subtree, using the function `display_overlap()`. This function is a wrapper for using `ggtree::geom_fruit()` on the overlap summary data from `calc_number_overlap()` (and handles some fiddly data-wrangling).
+
+```{r}
+display_overlap(base_tree = oh_tree,
+                base_name = "Organohalogens",
+                data_1 = biosolids_class,
+                name_1 = "Biosolids",
+                data_2 = usgs_class,
+                name_2 = "USGS Water",
+                entity_id_col = "PREFERRED.NAME",
+                group_level = "terminal",
+                clade_level = 3,
+                layout = "circular")
+```
+
+Overlaps can be calculated and plotted at a different taxonomic level as well. For example, here are the overlaps for the "class" level (level 3).
+
+```{r}
+display_overlap(base_tree = oh_tree,
+                base_name = "Organohalogens",
+                data_1 = biosolids_class,
+                name_1 = "Biosolids",
+                data_2 = usgs_class,
+                name_2 = "USGS Water",
+                entity_id_col = "PREFERRED.NAME",
+                group_level = 3,
+                clade_level = 3)
+```
+
+The `display_overlap()` function accepts the same options and parameters as `display_subtree()`, so you can customize the appearance of the base tree, the aesthetics to be used to highlight branches, etc. just as for `display_subtree()`. For example, the below code uses a different color scheme for the branches, and adds size (linewidth) as an aesthetic to highlight branches.
+
+```{r}
+display_overlap(base_tree = oh_tree,
+                base_name = "Organohalogens",
+                data_1 = biosolids_class,
+                name_1 = "Biosolids",
+                data_2 = usgs_class,
+                name_2 = "USGS Water",
+                entity_id_col = "PREFERRED.NAME",
+                group_level = 3,
+                clade_level = 3,
+                subtree_mapping = list(color = RColorBrewer:::brewer.pal(n = 4,
+                                                                         name = "Set1"),
+                  size = c(0.5, 1, 1, 1)
+                  )
+                )
+```
+
+
+We can also plot additional numeric data from a given data set in layers around the subtree induced by the data set, by directly using `ggtreeExtra::geom_fruit()`. To use `geom_fruit`, one needs to supply a `data.frame` with one variable specifying the tip labels at which to plot the data, and another variable specifying the quantity to plot. 
+
+For example, as part of the `biosolids_classified` data set, the variable `Pct.ToxCast.Active` gives the percentage of ToxCast assays in which the chemical showed bioactivity (if the chemical has been screened in any ToxCast assays). We can visually summarize the range of percentage of active ToxCast assays for each chemical class in the Organohalogens subtree. 
+
+We first use `display_subtree()` to create the base plot, drawing the Organohalogens subtree and highlighting the branches according to membership in the biosolids and USGS Water chemical lists. 
+
+```{r}
+base_plot <- display_subtree(base_tree = oh_tree,
+                base_name = "Organohalogens",
+                data_1 = biosolids_class,
+                name_1 = "Biosolids",
+                data_2 = usgs_class,
+                name_2 = "USGS Water",
+                clade_level = NULL)
+```
+
+Then, we prepare a `data.frame` for use with `ggtreeExtra::geom_fruit()`. This `data.frame` should have, at minimum, one column containing the terminal labels for each entity to be plotted, and one column containing the variable to be plotted (here, `Pct.ToxCast.Active`). We can use the grammar of the `tidyverse` suite of packages to prepare the data. We want to plot chemical entities from both the `biosolids_class` and the `usgs_class` datasets.
+
+```{r}
+fruit1 <- dplyr::bind_rows(biosolids = biosolids_class, #row-bind biosolids_class and usgs_class
+                              usgs = usgs_class,
+                              .id = "dataset") %>% #create new column identifying dataset
+  dplyr::select(dataset, #keep only relevant columns
+                DTXSID, #chemical entity identifier
+                terminal_label, #terminal label
+                class, 
+                AVERAGE.MASS) %>% #variable to plot
+  dplyr::distinct() %>%  #keep only unique rows
+  dplyr::filter(terminal_label %in% oh_tree$tip.label)
+  
+  fruit2 <- fruit1 %>%
+  dplyr::group_by(terminal_label) %>%
+  dplyr::summarise(dataset_all = paste(unique(dataset), #create comma-sep string listing dataset(s) for each group
+                                   collapse = ", "),
+                   .groups = "keep") 
+
+  
+  fruit_dat <- dplyr::left_join(fruit1, fruit2)
+str(fruit_dat) #summary of resulting data.frame
+
+```
+
+So that we can map colors to the same list memership categories as the base tree, let's create a categorical (factor) variable from the `dataset` variable, using the same labels as in the base tree.
+
+```{r}
+fruit_dat <- fruit_dat %>%
+  dplyr::mutate(list_mem = factor(dataset_all,
+                                  levels = c("",
+                                  "biosolids",
+                                             "usgs",
+                                             "biosolids, usgs"),
+                                  labels = c("Neither set",
+                                  "Biosolids only",
+                                             "USGS Water only",
+                                             "Biosolids and USGS Water")))
+```
+
+
+ Then, we add a visualization of the range of percentage of active ToxCast assays for each terminal label using `ggtreeExtra::geom_fruit()` with `geom = geom_boxplot`.
+ 
+```{r}
+
+base_plot +
+  #ggnewscale::new_scale_fill() +
+  ggtreeExtra::geom_fruit(data = fruit_dat,
+                      geom = geom_boxplot,
+                      mapping = aes(y = terminal_label,
+                                    x = AVERAGE.MASS,
+                                    fill = list_mem),
+                      axis.params = list(axis = "x",
+                                         text.size = 2),
+                      grid.params = list(),
+                      pwidth = 0.4) +
+  ggplot2::scale_fill_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) +
+  geom_tiplab(offset = 40, mapping = aes(color = List)) +
+    ggplot2::scale_color_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) +
+  ggtree::hexpand(0.5) +
+  NULL
+```
+
+It's best to start with a base plot without clade labels (`clade_level = NULL`), and then add clade labels after using `geom_fruit()`, with function `add_cladelab()`. This way, you can control the offset of the clade labels in argument `clade_opts`, so that they are drawn outside the `geom_fruit` annotations.
+
+```{r}
+fruit_plot <- base_plot +
+  #ggnewscale::new_scale_fill() +
+  ggtreeExtra::geom_fruit(data = fruit_dat,
+                      geom = geom_boxplot,
+                      mapping = aes(y = terminal_label,
+                                    x = AVERAGE.MASS,
+                                    fill = list_mem),
+                      axis.params = list(axis = "x",
+                                         text.size = 2),
+                      grid.params = list(),
+                      pwidth = 0.4) +
+  ggplot2::scale_fill_manual(name = "List presence",
+                              values = c("Neither set" = "gray70",
+                                  "Biosolids only" = "#66C2A5",
+                                  "USGS Water only"=  "#8DA0CB",
+                                  "Biosolids and USGS Water" = "#FC8D62")) 
+
+fruit_plot %>%
+  add_cladelab(tree = oh_tree, clade_level = 3, clade_opts = list(offset = 50)) +
+  ggtree::hexpand(0.5)
+```
+
+
+
+# Similarity between trees
+
+The tree visualization functions we have demonstrated thus far have focused on a qualitative visual exploration of chemical space and how each data set spreads through it. We have seen how we can examine the overlap in chemical space between data sets and how to examine more closely the subtrees representing each data set. However, we can also explore these overlaps in a more quantitative way.
+
+The notion of similarity within ontologies and taxonomies has been an area of interest across a variety of disciplines. These aim to compare pairs of nodes in a tree with each other to gain insight on how they relate to each other. To use a family metaphor: are two nodes siblings? First cousins? First cousins once removed? 
+
+Some of these methods involve examining just the pair of paths from the root of the tree to each of the nodes, while others may examine information more intrinsic to each node. While there is a lot to discuss and explore in the area of similarity measures, we will postpone that to the future and focus on how to use these similarity measures. The main points of similarity measures we will highlight and then demonstrate visualizations that leverage them.
+
+## Jaccard similarity of trees
+
+Jaccard similarity examines the path from the root to each node in the pair of nodes, and relates these paths to the shared path (which may possibly be just the root). We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). This notion of similarity is calculated using the function `general_Jaccard_similarity()`, which takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+
+## Similarity measures that use information content
+
+Some trees may come with a probability distribution attaching probabilities to each node such that the sum of all node probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In fact, we can look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for tips to have a higher value than their ancestors, with the root having the minimum value. One way we can do this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes, evaluating a monotonically decreasing function on these values, and examining their ratio. In particular, for node $v_i$, define $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree. In the case that $v_i$ is a tip, it has no descendants so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties. 
+
+One way to frame the concept of information content is the idea that the less likely a node appears in a generic path starting from the root and ending at an arbitrary node, the more information it tells when we know the node is one a path given to us. So for instance, the only path a tip can exist on is the unique path connecting it with the root. However, for an ancestor of a tip, there are more paths that include this node, so knowing the ancestor is on a path gives less information about what the path might be. Since every path starting at the root includes the root, knowing the root is on the path yields no information.
+
+To generate the information content for a tree, we can use the function `attach_information_content()` which takes in a tree as the only required parameter. This function also includes the number of descendants, children, and the level for each node. Observe that all of the tips have 0 descendants and an information content of 1, given by the `log_descendants` column. The root has an information content of 0. The remaining two nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
+
+Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
+
+### Resnik similarity
+
+The first such method is called Resnik similarity. This is defined for two nodes $v_i$ and $v_j$ as $$\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(mrca(v_i, v_j)).$$ Observe that this is symmetric and when $v_i = v_j$ just returns the information content of the node itself. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants). Also, since the information content of the root is zero, any pair of nodes containing the root will return a similarity value of zero.
+
+There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in Resnik.
+
+### Lin similarity
+The next method is Lin similarity. This resembles Jaccard similarity in that it is a ratio a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike in Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \text{IC}(v_i) + \text{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}$$ from which it follows that $$\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$ 
+
+We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
+
+### Jiang-Conrath similarity
+
+An alternative take on normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j).$$ Taking the difference yields The following inequality $$0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath and is thus named. 
+
+Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this does not necessarily return a value of zero. In fact, rewriting the expression for this similarity measure, we see that it is equal to $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$$ since $$\text{IC}(v_i) + \text{IC}(v_j) \leq 2.$$ One thing this reflects is that if a pair of such nodes represents a large portion of the tree based on their descendants, they are more likely to be closer to the root and thus more related to each other. 
+
+When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
+
+Now, the function `attach_information_content()` generates information content for an input tree, and the functions `general_Jaccard_similarity()`, `general_Resnik_similarity()`, `general_Lin_similarity()`, `general_JiangConrath_similarity()` all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function `generate_similarity_matrix()` will do so for a given tree and similarity measure function. The computation is lengthy for the chemont tree and so these matrices have been previously computed and stored. They are accessible as `chemont_jaccard`, `chemont_resnik_IC_SVH`, `chemont_lin_IC_SVH`, and `chemont_jiangconrath_IC_SVH`.
+
+## Calculation of similarity
+
+To calculate the pairwise similarity of ancestry between two lists of entities based on a specified taxonomy tree, use the function `calc_similarity()`. This function takes argument `data_1` and `data_2` (data frames of classified entities), and `tree` (a `phylo` object representing the taxonomy by which the entities are classified). It returns a matrix whose rows represent each terminal label in `data_1`, whose columns represent each terminal label in `data_2`, and whose elements represent the similarity of ancestry between each terminal label in `data_1` and each terminal label in `data_2`.
+
+Note that the terminal labels are typically *not* the entity IDs. This means two different entities with the same terminal label will have 100% similarity.
+
+For example, here is the similarity matrix between `biosolids_class` and `usgs_class`, considering only chemicals that are in the superclass "Organohalogen compounds" -- i.e., those in the pruned subtree `oh_tree`.
+
+```{r}
+sim_oh <- calc_similarity(data_1 = biosolids_class,
+                data_2 = usgs_class,
+                tree = oh_tree)
+
+knitr::kable(sim_oh,
+             digits = 2)
+```
+
+
+Now, we move to using these in visualizations.
+
+```{r}
+m_rows <- biosolids_class[match(rownames(sim_oh),
+                               biosolids_class$terminal_label),
+                         ]
+m_cols <- usgs_class[match(colnames(sim_oh),
+                               usgs_class$terminal_label),
+                         ]
+
+ComplexHeatmap::Heatmap(matrix = sim_oh,
+                        col = circlize::colorRamp2(seq(0, 1, len = 20),
+                                                   viridis::viridis(20, option = 'C')))
+```
+
+
+## Heatmap visualization of simiarlity
+The function `generate_heatmap()` will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from `usgswater_classified`, columns representing classifications from `biosolids_classified`. In this diagram, we have specified for there to be 9 row and 9 column clusters based on the hierarchical clustering of the heatmap.
+
+```{r heatmap-biosolids-usgs, fig.align='center', fig.dim=c(6,4)}
+biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, 
+                                      matrix = chemont_jaccard, 
+                                      row_data = usgs_class, 
+                                      column_data = biosolids_class, 
+                                      row_split = 9L, column_split = 9L, 
+                                      row_title = 'USGS Water', 
+                                      column_title = 'Biosolids', 
+                                      name = 'Jaccard Similarity')
+biosolids_usgs_ht
+```
+
+Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
+
+```{r rc-cluster-2-2, fig.align='center', fig.dim=c(12,8)}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
+                      htmap = biosolids_usgs_ht, row_cluster = 2, 
+                      column_cluster = 2, row_name = 'USGS Water', 
+                      column_name = 'Biosolids', isolate_subtree = TRUE)
+```
+
+Observe that only the superclass 'Benzenoids' is represented. In the second diagram, we prune away all extraneous superclass branches. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets.
+
+
+
+
+```{r rc-cluster-9-8, fig.align='center', fig.dim=c(12,9)}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
+                      htmap = biosolids_usgs_ht, row_cluster = 9, 
+                      column_cluster = 8, row_name = 'USGS Water', 
+                      column_name = 'Biosolids', isolate_subtree = TRUE)
+
+```
+
+In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
+
+
