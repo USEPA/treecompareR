@@ -1,38 +1,3 @@
-
-#' Get subtree node numbers
-#'
-#' This is a helper function that takes a classified set and a taxonomy tree and
-#' provides all node numbers in the subtree corresponding to the data set.
-#'
-#' @param data A classified data set.
-#' @param tree A taxonomy tree object, as returned by
-#'   \code{\link{generate_taxonomy_tree}}.
-#' @param tax_level_labels A vector of levels for the taxonomy.
-#' @return A vector of node numbers in the base tree that are represented in the
-#'   subtree corresponding to the data set.
-
-get_subtree_nodes <- function(data,
-                              base_tree = chemont_tree,
-                              tax_level_labels = chemont_tax_levels){
-  #get labels represented by the classified dataset
-  data_labels <- get_labels(data = data,
-                            tax_level_labels = tax_level_labels)
-
-  #get node numbers, levels, & names of base tree
-  tree_df <- get_tree_df(base_tree)
-
-  #get node numbers represented in dataset
-  data_nodes <- tree_df[tree_df$Name %in% data_labels, "node"]
-  #get all ancestors of nodes in input data set,
-  #plus the nodes themselves
-  data_all_nodes <- unique(c(unlist(phangorn::Ancestors(x = base_tree,
-                                                    node = data_nodes)),
-                         data_nodes))
-  #return the vector of node numbers in the subtree
-  return(data_all_nodes)
-
-}
-
 #' Label bars
 #'
 #' This function takes in a (list of) data.table(s) and returns figures
@@ -82,7 +47,7 @@ label_bars <- function(data = NULL,
     }
   }
 
-  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_labels(t, tax_level_labels)))))
+  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_terminal_labels(t, tax_level_labels)))))
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
     tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
@@ -397,16 +362,80 @@ display_subtree <- function(base_tree = chemont_tree,
 
   if(!is.null(data_1)){
 
+    #If it is a list, look at the data type of the list elements,
+    #and concatenate them as appropriate
+    if(class(data_1) %in% "list"){
+      #use rapply to handle possible nested list
+      el_class <- unique(rapply(data_1, class))
+      if(length(unique(el_class))>1){
+        stop("data_1 is a list, but not all list elements are of the same class.")
+      }
+      if(all(el_class %in% "data.frame")){
+        #rbind the data.frames
+        data_1 <- as.data.frame(dplyr::bind_rows(data_1))
+      }else if(all(el_class %in% c("character", "numeric"))){
+        #concatenate, recursively if necessary
+        data_1 <- unlist(data_1, recursive = TRUE)
+      }else if(all(el_class %in% "phylo")){
+        #pull labels from each of the trees and combine
+        data_1 <- unlist(lapply(data_1,
+                         function(x){
+                           c(x$tip.labels,
+                             x$node.labels)
+                         }))
+      }else{
+        stop("data_1 is a list, but one or more elements are not one of the recognized classes: data.frame, numeric, character, or phylo. ")
+      }
+      #and keep only the unique combined elements
+      data_1 <- unique(data_1)
+    } #end if(class(data_1) %in% "list")
+
     if(is.data.frame(data_1)){
+      #Check formatting
+      #Check that all taxonomy levels have a column
+      if(!(all(tax_level_labels %in% names(data_1)))){
+        stop(paste("When data_1 is a data.frame",
+                   "it must have one column named for each taxonomy level",
+                   "as defined in tax_level_labels, here:\n",
+                   paste0(paste(tax_level_labels, collapse = ", "), "\n"),
+                   "data_1 does not have columns for the following levels:\n",
+                   paste(setdiff(tax_level_labels,
+                                 names(data_1)),
+                         collapse = ", ")))
+      }else{ #if all taxonomy levels have a column,
+        #Check for blank labels
+        #If any, throw a warning and replace with NAs
+        data_1 <- data_1 %>%
+          dplyr::mutate(dplyr::across(
+            dplyr::all_of(tax_level_labels),
+            function(x) {
+              x[!nzchar(trimws(x))] <- NA_character_
+              return(x)
+            }
+          )
+          )
+
+        #If there is no entity ID column,
+        #throw a warning and add one
+        if(length(setdiff(names(data_1),
+                          tax_level_labels))<1){
+          warning(paste("data_1 is a data.frame,",
+          "but it has no column to identify entities.",
+          "Each row will be assumed to be one entity."))
+          data_1$id <- 1:nrow(data_1)
+        }
+
+      } #end if(!(all(tax_level_labels %in% names(data_1))))
+
   #Get node numbers of data_1 subtree
   data_1_nodes <- get_subtree_nodes(data = data_1,
                                   base_tree = base_tree,
                                   tax_level_labels = tax_level_labels)
     }else if(is.numeric(data_1)){
       #interpret as node numbers
-      #get ancestors of these nodes
+
     data_1_nodes <- data_1
-    )
+
     }else if(is.character(data_1)){
     #interpret as node labels
       data_1_nodes <- get_node_from_label(label = data_1,
@@ -419,8 +448,11 @@ display_subtree <- function(base_tree = chemont_tree,
       #get nodes
       data_1_nodes <- get_node_from_label(label = data_1_labels,
                                           tree = base_tree)
+    }else{
+      stop("data_2 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
     }
 
+    #get ancestors of data_1_nodes
     data_1_all <- unique(
       c(data_1_nodes,
         unlist(
@@ -441,7 +473,69 @@ display_subtree <- function(base_tree = chemont_tree,
 
   if (!is.null(data_2)) {
 
+    #If it is a list, look at the data type of the list elements,
+    #and concatenate them as appropriate
+    if(class(data_2) %in% "list"){
+      #use rapply to handle possible nested list
+      el_class <- unique(rapply(data_2, class))
+      if(length(unique(el_class))>1){
+        stop("data_2 is a list, but not all list elements are of the same class.")
+      }
+      if(all(el_class %in% "data.frame")){
+        #rbind the data.frames
+        data_2 <- as.data.frame(dplyr::bind_rows(data_2))
+      }else if(all(el_class %in% c("character", "numeric"))){
+        #concatenate, recursively if necessary
+        data_2 <- unlist(data_2, recursive = TRUE)
+      }else if(all(el_class %in% "phylo")){
+        #pull labels from each of the trees and combine
+        data_2 <- unlist(lapply(data_2,
+                                function(x){
+                                  c(x$tip.labels,
+                                    x$node.labels)
+                                }))
+      }else{
+        stop("data_2 is a list, but one or more elements are not one of the recognized classes: data.frame, numeric, character, or phylo. ")
+      }
+      #and keep only the unique combined elements
+      data_2 <- unique(data_2)
+    } #end if(class(data_2) %in% "list")
+
     if(is.data.frame(data_2)){
+      #Check formatting
+      #Check that all taxonomy levels have a column
+      if(!(all(tax_level_labels %in% names(data_2)))){
+        stop(paste("When data_2 is a data.frame",
+                   "it must have one column named for each taxonomy level",
+                   "as defined in tax_level_labels, here:\n",
+                   paste0(paste(tax_level_labels, collapse = ", "), "\n"),
+                   "data_2 does not have columns for the following levels:\n",
+                   paste(setdiff(tax_level_labels,
+                                 names(data_2)),
+                         collapse = ", ")))
+      }else{ #if all taxonomy levels have a column,
+        #Check for blank labels and replace with NAs
+        data_2 <- data_2 %>%
+          dplyr::mutate(dplyr::across(
+            dplyr::all_of(tax_level_labels),
+            function(x) {
+              x[!nzchar(trimws(x))] <- NA_character_
+              return(x)
+            }
+          )
+          )
+
+        #If there is no entity ID column,
+        #throw a warning and add one
+        if(length(setdiff(names(data_2),
+                          tax_level_labels))<1){
+          warning(paste("data_2 is a data.frame,",
+                        "but it has no column to identify entities.",
+                        "Each row will be assumed to be one entity."))
+          data_2$id <- 1:nrow(data_2)
+        }
+
+      } #end if(!(all(tax_level_labels %in% names(data_2))))
       #Get node numbers of data_2 subtree
       data_2_nodes <- get_subtree_nodes(data = data_2,
                                       base_tree = base_tree,
@@ -450,7 +544,6 @@ display_subtree <- function(base_tree = chemont_tree,
       #interpret as node numbers
       #get ancestors of these nodes
       data_2_nodes <- data_2
-      )
     }else if(is.character(data_2)){
       #interpret as node labels
       data_2_nodes <- get_node_from_label(label = data_2,
@@ -462,6 +555,8 @@ display_subtree <- function(base_tree = chemont_tree,
       #get nodes
       data_2_nodes <- get_node_from_label(label = data_2,
                                           tree = base_tree)
+    }else{
+      stop("data_2 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
     }
 
     #get ancestors of these nodes

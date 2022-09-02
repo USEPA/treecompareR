@@ -555,7 +555,7 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
   } else if (!data.table::is.data.table(data_1)){
     stop('The `data_1` parameter only takes in a data.table!')
   } else {
-    dataset_1_labels <- unlist(get_labels(data = data_1))
+    dataset_1_labels <- unlist(get_terminal_labels(data = data_1))
     dataset_1_indices <- which(dimnames %in% dataset_1_labels)
   }
 
@@ -569,7 +569,7 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
   } else if (!data.table::is.data.table(data_2)){
     stop('The `data_2` parameter only takes in a data.table!')
   } else {
-    dataset_2_labels <- unlist(get_labels(data = data_2))
+    dataset_2_labels <- unlist(get_terminal_labels(data = data_2))
     dataset_2_indices <- which(dimnames %in% dataset_2_labels)
   }
 
@@ -612,10 +612,10 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 
 
 #  if (is.data.table(data_1) & is.data.table(data_2)) {
-#    dataset_1_labels <- unlist(get_labels(data = data_1))
+#    dataset_1_labels <- unlist(get_terminal_labels(data = data_1))
 #    dataset_1_indices <- which(dimnames %in% dataset_1_labels)
 #
-#    dataset_2_labels <- unlist(get_labels(data = data_2))
+#    dataset_2_labels <- unlist(get_terminal_labels(data = data_2))
 #    dataset_2_indices <- which(dimnames %in% dataset_2_labels)
 #  } else {
 #    dataset_1_labels <- dimnames[data_1_indices]
@@ -823,7 +823,7 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' @param data A data.table of chemicals with classifications.
 #' @param labels An alternate parameter for a set of labels of the subtree.
 #' @param tax_level_labels An alternate parameter passed to the
-#'   \code{\link{get_labels}} function.
+#'   \code{\link{get_terminal_labels}} function.
 #' @return A phylo object representing the induced subtree of the data.
 #'
 #' @importFrom ape drop.tip
@@ -846,7 +846,7 @@ drop_tips_nodes <- function(tree,
     if(is.null(keep_descendants)){
       keep_descendants = FALSE
     }
-    tip_node_labels <- get_labels(data = data,
+    tip_node_labels <- get_terminal_labels(data = data,
                                   tax_level_labels = tax_level_labels)
     if(isTRUE(keep_descendants)){
       input_nodes <- get_node_from_label(label = tip_node_labels,
@@ -1533,4 +1533,39 @@ calc_similarity_data <- function(data_1,
   } #end i loop
 
 return(m)
+}
+
+#' Get subtree node numbers
+#'
+#' This is a helper function that takes a classified set and a base taxonomy tree and
+#' provides all node numbers in the subtree corresponding to the data set.
+#'
+#' @param data A classified data set.
+#' @param base_tree A phylo-class tree object representing the base tree. Default is \code{\link{chemont_tree}},
+#'   the full ChemOnt taxonomy tree.
+#' @param tax_level_labels A vector of levels for the taxonomy. Default is
+#'   \code{\link{chemont_tax_levels}}, the levels of the ChemOnt taxonomy.
+#' @return A vector of node numbers in the base tree that are represented in the
+#'   subtree corresponding to the data set.
+
+get_subtree_nodes <- function(data,
+                              base_tree = chemont_tree,
+                              tax_level_labels = chemont_tax_levels){
+  #get labels represented by the classified dataset
+  data_labels <- get_terminal_labels(data = data,
+                                     tax_level_labels = tax_level_labels)
+
+  #get node numbers, levels, & names of base tree
+  tree_df <- get_tree_df(base_tree)
+
+  #get node numbers represented in dataset
+  data_nodes <- tree_df[tree_df$Name %in% data_labels, "node"]
+  #get all ancestors of nodes in input data set,
+  #plus the nodes themselves
+  data_all_nodes <- unique(c(unlist(phangorn::Ancestors(x = base_tree,
+                                                        node = data_nodes)),
+                             data_nodes))
+  #return the vector of node numbers in the subtree
+  return(data_all_nodes)
+
 }

@@ -1,16 +1,14 @@
 #' Add terminal label
 #'
-#' This function takes in a data.table of chemicals and their classifications
-#' and determines the terminal classification label for each chemical.
+#' This function takes in a data.frame of classified entities and determines the
+#' terminal classification label for each entity.
 #'
-#' @param data A data.table of classified chemicals.
-#' @param tip An alternate parameter controlling whether to include only tip
-#'   labels.
-#' @param labels An alternate parameter giving a list of the classification
-#'   levels when not using ClassyFire classified data.
+#' @param data A data.frame of classified chemicals.
+#' @param tax_level_labels A vector of taxonomy levels. Default is
+#'   \code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.
 #' @param tree An alternate parameter giving a different tree structure if not
 #'   using ChemOnt taxonomy.
-#' @return A new data.table, augmenting the input data.table with a column
+#' @return A new data.frame, augmenting the input data.frame with a column
 #'   consisting of the terminal labels.
 #' @export
 #' @import data.table
@@ -61,6 +59,15 @@ add_terminal_label <- function(data,
             "but filled with NAs)."))
     #add the missing columns with NAs
     data[missing_tax_levels] <- rep(NA_character_, nrow(data))
+  }
+
+  #entity ID -- all other columns
+  entity_id_col <- setdiff(names(data),
+                           tax_level_labels)
+#if no other columns, add row numbers as columns
+  if(length(entity_id_col)==0){
+    data$rowid <- 1:nrow(data)
+    entity_id_cols <- "rowid"
   }
 
   #sort taxonomy level columns in order as given in tax_level_labels
@@ -246,28 +253,71 @@ get_label_level <- function(data, level_label, tax_level_labels = chemont_tax_le
 }
 
 
-#' Get labels
+#' Get terminal labels
 #'
-#' This is a helper function for retrieving labels in a data.frame of classified
-#' chemicals.
+#' This is a helper function for retrieving terminal labels in a data.frame of
+#' classified chemicals.
 #'
-#' @param data A data.frame consisting of classified items. Rows are items; columns must include all names in \code{tax_level_labels}.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @return A list of terminal classification labels for each item in the input data.
-get_labels <- function(data,
+#' @param data A data.frame consisting of classified items. Rows are entities;
+#'   columns must include all names in \code{tax_level_labels}.
+#' @param tax_level_labels A vector of taxonomy levels. Default is
+#'   \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.
+#' @return A vector of terminal classification labels, one for each entity in the input
+#'   data.
+get_terminal_labels <- function(data,
+                                entity_id_cols = NULL,
                        tax_level_labels = chemont_tax_levels){
+
+  #check that the input data.frame has been classified properly
+  if(!any(tax_level_labels %in% names(data))){
+    stop(paste("The input data.frame does not appear to be classified",
+               "according to the taxonomy with levels defined in",
+               "the input 'tax_level_labels' as",
+               paste(tax_level_labels, collapse = ", "),
+               "because the input data.frame does not contain any columns",
+               "named for these taxonomy levels.",
+               "Please check that the input data.frame is classified,",
+               "and/or check that the input 'tax_level_labels'",
+               "matches the taxonomy levels of the classified data.frame."))
+  }
+
+
+
+  #if data.frame is missing one or more taxonomy levels (but not all of them),
+  #throw a warning and treat those levels as unused (i.e. all NA)
+  if(!all(tax_level_labels %in% names(data))){
+    missing_tax_levels <- setdiff(tax_level_labels,
+                                  names(data))
+    warning(paste("Input data.frame is missing columns for taxonomy levels",
+                  paste(missing_tax_levels, collapse = "; "),
+                  "These levels will be treated as though they were unused",
+                  "(i.e., as though those columns were present,",
+                  "but filled with NAs)."))
+    #add the missing columns with NAs
+    data[missing_tax_levels] <- rep(NA_character_, nrow(data))
+  }
+
+  #if entity ID column not specified, then assume rows are entities
+  if(is.null(entity_id_col)){
+    data <- data %>% tibble::rowid_to_column(var = "rowid")
+    entity_id_cols <- "rowid"
+  }
+
+  #sort columns in order as specified in tax_level_labels
+  #this ensures taht most specific labels come last
+  data <- data[c(setdiff(names(data), #all other columns come first
+                         tax_level_labels),
+                 tax_level_labels)]
 
   labels <- tidyr::pivot_longer(data, #reshape to longer format
                                 cols = tidyselect::all_of(tax_level_labels),
                                 names_to = "tax_level",
                                 values_to = "label") %>%
-    dplyr::filter(!is.na(label)) %>% #remove any unused levels
-    dplyr::group_by( #group by item (e.g. chemical)
+    dplyr::filter(!is.na(label) & #remove any unused levels: NA or blank
+                    nzchar(trimws(label))) %>%
+    dplyr::group_by( #group by entity (e.g. chemical)
       dplyr::across(
-        dplyr::all_of(setdiff(names(data),
-                              tax_level_labels)
-        )
+        tidyselect::all_of(entity_id_cols)
       )
     ) %>%
     dplyr::slice_tail() %>% #take most-specific label for each item
@@ -289,7 +339,7 @@ get_number_of_labels <- function(data,
                                  tax_level_labels = chemont_tax_levels){
 
 
-  labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
+  labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
 
   N <- sum(sapply(labels, length))
 
