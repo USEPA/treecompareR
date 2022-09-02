@@ -443,23 +443,18 @@ display_subtree <- function(base_tree = chemont_tree,
 
     if(is.data.frame(data_2)){
       #Get node numbers of data_2 subtree
-      data_2_all <- get_subtree_nodes(data = data_2,
+      data_2_nodes <- get_subtree_nodes(data = data_2,
                                       base_tree = base_tree,
                                       tax_level_labels = tax_level_labels)
     }else if(is.numeric(data_2)){
       #interpret as node numbers
       #get ancestors of these nodes
-      data_2_all <- unique(c(data_2,
-                             unlist(phangorn::Ancestors(x = base_tree,
-                                                        node = data_2)))
+      data_2_nodes <- data_2
       )
     }else if(is.character(data_2)){
       #interpret as node labels
       data_2_nodes <- get_node_from_label(label = data_2,
                                           tree = base_tree)
-      data_2_all <- unique(c(data_2_nodes,
-                             unlist(phangorn::Ancestors(x = base_tree,
-                                                        node = data_2_nodes))))
     }else if("phylo" %in% class(data_2)){
       #take node and tip labels
       data_2_labels <- c(data_2$tip.label,
@@ -467,11 +462,12 @@ display_subtree <- function(base_tree = chemont_tree,
       #get nodes
       data_2_nodes <- get_node_from_label(label = data_2,
                                           tree = base_tree)
-      #get ancestors of these nodes
-      data_2_all <- unique(c(data_2_nodes,
-                             unlist(phangorn::Ancestors(x = base_tree,
-                                                        node = data_2_nodes))))
     }
+
+    #get ancestors of these nodes
+    data_2_all <- unique(c(data_2_nodes,
+                           unlist(phangorn::Ancestors(x = base_tree,
+                                                      node = data_2_nodes))))
 
     #Categorical column: is each node in Data Set 2?
     #0 = no, 2 = yes
