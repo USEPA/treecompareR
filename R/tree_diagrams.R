@@ -112,34 +112,54 @@ label_bars <- function(data = NULL,
 
 #'Display subtree
 #'
-#'This function takes in one or two data.tables consisting of chemicals with
-#'classification data and returns a tree diagram indiacting the subtree(s)
-#'induced by the data.table(s).
+#'This function takes in a base tree, and (optionally) one or two data sets
+#'consisting of entities with classification labels. It returns a tree diagram
+#'consisting of the base tree; if data sets were provided, branches of the base
+#'tree will be highlighted according to their membership in the provided data
+#'sets.
+#'
+#'If `data_1` or `data_2` are provided as `data.frame` objects containing
+#'classified entities, they must be of the following format: There must be one
+#'column corresponding to each of the taxonomy levels specified in
+#'`tax_level_labels`, containing the label at that level for each entity. These
+#'columns must have names corresponding to the members of `tax_level_labels`.
+#'For example, to use the ChemOnt taxonomy, the `data.frame` must have columns
+#'`kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`, ...
+#'`level11`. The `data.frame` must have at least one additional column that
+#'uniquely identifies individual entities; the name of that additional column
+#'does not matter, as long as it is not the same as one of the taxonomy levels.
+#'For an example of a properly-formatted input `data.frame`, see the built-in
+#'dataset \code{\link{biosolids_class}}.
 #'
 #'@param base_tree The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
-#'  object. Branches of this base tree will be color-coded to indicate subtree
-#'  membership. Default is the full ChemOnt taxonomy,
+#'  object.  Default is the full ChemOnt taxonomy tree,
 #'  \code{\link{chemont_tree}}.
 #'@param base_name Will be used as the plot title. Usually this should name or
 #'  describe the base tree. Default is NULL, in which case the *name* of the
 #'  variable passed to \code{base_tree} will be used as the title (with "tree"
 #'  appended).
-#'@param data_1 Highlight branches of the base tree according to their
-#'  membership in this list. One of the following options: A data.frame
-#'  consisting of a list of chemicals with classification data; a list of node
-#'  numbers in the base tree; a list of node labels in the base tree; or another
-#'  phylo object.
-#'@param data_2 Optional: highlight branches of the base tree to compare
-#'  membership in this list and \code{data_1}. One of the following options: A
-#'  data.frame consisting of a list of chemicals with classification data; a
+#'@param data_1 Optional: Highlight branches of the base tree according to their
+#'  membership in this list. Default is \code{NULL}, to do no highlighting. If
+#'  not \code{NULL}, must be one of the following options: A `data.frame`
+#'  consisting of a list of entities with classification data; a vector of node
+#'  numbers in the base tree; a vector of node labels in the base tree; or a
+#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object.
+#'@param data_2 Optional: Highlight branches of the base tree to compare
+#'  membership in this list and \code{data_1}. Default is \code{NULL}, to do no
+#'  highlighting. If not \code{NULL}, one of the following options: A
+#'  `data.frame` consisting of a list of chemicals with classification data; a
 #'  list of node numbers in the base tree; a list of node labels in the base
-#'  tree; or another phylo object.
+#'  tree; or a subtree of `base_tree` as a \code{\link[ape]{phylo}}-class
+#'  object. See Details.
 #'@param name_1 Optional: A string giving the name of the list in \code{data_1},
 #'  for plot labeling. Default is the variable name passed to \code{data_1}.
 #'@param name_2 Optional: A string giving the name of the list in \code{data_2}
-#'  (if any), for plot labeling. Default is the variable name passed to \code{data_2}.
-#'@param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'  not using ClassyFire taxonomy.
+#'  (if any), for plot labeling. Default is the variable name passed to
+#'  \code{data_2}.
+#'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
+#'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
+#'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
+#'  "subclass", paste0("level", 5:11))}.
 #'@param layout \code{\link{ggtree}} layout option. Default "circular."
 #'@param base_color Color for base tree (branches not in any input data set).
 #'  Default "gray80" for a light gray.
