@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 jaccard_index <- function(s1, s2) {
-    .Call(`_treecompareR_jaccard_index`, s1, s2)
+    .Call('_treecompareR_jaccard_index', PACKAGE = 'treecompareR', s1, s2)
 }
 
 get_jaccard <- function(list1, list2) {
-    .Call(`_treecompareR_get_jaccard`, list1, list2)
+    .Call('_treecompareR_get_jaccard', PACKAGE = 'treecompareR', list1, list2)
 }
 
