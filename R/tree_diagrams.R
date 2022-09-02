@@ -135,9 +135,7 @@ label_bars <- function(data = NULL,
 #'  object.  Default is the full ChemOnt taxonomy tree,
 #'  \code{\link{chemont_tree}}.
 #'@param base_name Will be used as the plot title. Usually this should name or
-#'  describe the base tree. Default is NULL, in which case the *name* of the
-#'  variable passed to \code{base_tree} will be used as the title (with "tree"
-#'  appended).
+#'  describe the base tree. Default is "Base tree".
 #'@param data_1 Optional: Highlight branches of the base tree according to their
 #'  membership in this list. Default is \code{NULL}, to do no highlighting. If
 #'  not \code{NULL}, must be one of the following options: A `data.frame`
@@ -152,10 +150,9 @@ label_bars <- function(data = NULL,
 #'  tree; or a subtree of `base_tree` as a \code{\link[ape]{phylo}}-class
 #'  object. See Details.
 #'@param name_1 Optional: A string giving the name of the list in \code{data_1},
-#'  for plot labeling. Default is the variable name passed to \code{data_1}.
+#'  for plot labeling. Default is "Set 1".
 #'@param name_2 Optional: A string giving the name of the list in \code{data_2}
-#'  (if any), for plot labeling. Default is the variable name passed to
-#'  \code{data_2}.
+#'  (if any), for plot labeling. Default is "Set 2".
 #'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
 #'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
@@ -197,11 +194,11 @@ label_bars <- function(data = NULL,
 #'@import phangorn
 #'@import ggtree
 display_subtree <- function(base_tree = chemont_tree,
-                            base_name = NULL,
+                            base_name = "Base tree",
                             data_1 = NULL,
                             data_2 = NULL,
-                            name_1 = NULL,
-                            name_2 = NULL,
+                            name_1 = "Set 1",
+                            name_2 = "Set 2",
                             tax_level_labels = chemont_tax_levels,
                             layout = "circular",
                             base_opts = list("color" = "black",
@@ -230,11 +227,6 @@ display_subtree <- function(base_tree = chemont_tree,
                         subtree_mapping_default[setdiff(names(subtree_mapping_default),
                                                         names(subtree_mapping))])
 
-
-  if(is.null(base_name)){
-    #get the *name* of the variable that was passed to base_tree and append "tree"
-    base_name <- as.character(substitute(base_tree))
-  }
 
   if(is.null(data_1)){
     #ignore any default subtree mapping
@@ -347,10 +339,6 @@ display_subtree <- function(base_tree = chemont_tree,
                       )
 
   if(!is.null(data_1)){
-    if(is.null(name_1)){
-      #get the name of the variable passed to data_1
-      name_1 <- paste(as.character(substitute(data_1)))
-    }
 
     if(is.data.frame(data_1)){
   #Get node numbers of data_1 subtree
@@ -394,10 +382,6 @@ display_subtree <- function(base_tree = chemont_tree,
 
 
   if (!is.null(data_2)) {
-    if(is.null(name_2)){
-      #get the name of the variable passed to data_1
-      name_2 <- paste(as.character(substitute(data_2)))
-    }
 
     if(is.data.frame(data_2)){
       #Get node numbers of data_2 subtree
