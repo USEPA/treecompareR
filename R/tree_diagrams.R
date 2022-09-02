@@ -186,13 +186,13 @@ label_bars <- function(data = NULL,
 #'  object.  Default is the full ChemOnt taxonomy tree,
 #'  \code{\link{chemont_tree}}.
 #'@param base_name Will be used as the plot title. Usually this should name or
-#'  describe the base tree. Default is "Base tree".
+#'  describe the base tree. Default NULL will result in no plot title.
 #'@param data_1 Optional: Highlight branches of the base tree according to their
 #'  membership in this list. Default is \code{NULL}, to do no highlighting. If
 #'  not \code{NULL}, must be one of the following options: A `data.frame`
 #'  consisting of a list of entities with classification data; a vector of node
 #'  numbers in the base tree; a vector of node labels in the base tree; or a
-#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object.
+#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See Details.
 #'@param data_2 Optional: Highlight branches of the base tree to compare
 #'  membership in this list and \code{data_1}. Default is \code{NULL}, to do no
 #'  highlighting. If not \code{NULL}, one of the following options: A
@@ -229,7 +229,7 @@ label_bars <- function(data = NULL,
 #'  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
 #'  will not be used to highlight branches; all branches will be plotted with
 #'  line width given by \code{base_size}. Default is NULL.
-#'@param clade_label_level The taxonomy level at which to draw clade labels, if
+#'@param clade_level The taxonomy level at which to draw clade labels, if
 #'  any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
 #'  Set to NULL to suppress clade labels altogether.
 #'@param clade_label_fontsize Font size for clade labels. Default 3.
@@ -238,14 +238,14 @@ label_bars <- function(data = NULL,
 #'@param clade_label_lineheight Line height for multi-line clade labels, as a
 #'  multiple of the size of text. Controls vertical space between lines on
 #'  multi-line clade labels. Default 0.7.
-#'@return A ggtree object visualizing the full base tree, with branches
-#'  color-coded to indicate whether they are present in \code{data_1}, in
-#'  \code{data_2} if supplied, neither, or both.
+#'@return A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
+#'  with branches highlighted to indicate presence in
+#'  \code{data_1}, in \code{data_2} if supplied, neither, or both.
 #'@export
 #'@import phangorn
 #'@import ggtree
 display_subtree <- function(base_tree = chemont_tree,
-                            base_name = "Base tree",
+                            base_name = NULL,
                             data_1 = NULL,
                             data_2 = NULL,
                             name_1 = "Set 1",
@@ -399,23 +399,19 @@ display_subtree <- function(base_tree = chemont_tree,
 
     if(is.data.frame(data_1)){
   #Get node numbers of data_1 subtree
-  data_1_all <- get_subtree_nodes(data = data_1,
+  data_1_nodes <- get_subtree_nodes(data = data_1,
                                   base_tree = base_tree,
                                   tax_level_labels = tax_level_labels)
     }else if(is.numeric(data_1)){
       #interpret as node numbers
       #get ancestors of these nodes
-    data_1_all <- unique(c(data_1,
-                    unlist(phangorn::Ancestors(x = base_tree,
-                                               node = data_1)))
+    data_1_nodes <- data_1
     )
     }else if(is.character(data_1)){
     #interpret as node labels
       data_1_nodes <- get_node_from_label(label = data_1,
                                           tree = base_tree)
-      data_1_all <- unique(c(data_1_nodes,
-                             unlist(phangorn::Ancestors(x = base_tree,
-                                                        node = data_1_nodes))))
+
     }else if("phylo" %in% class(data_1)){
       #take node and tip labels
       data_1_labels <- c(data_1$tip.label,
@@ -423,11 +419,16 @@ display_subtree <- function(base_tree = chemont_tree,
       #get nodes
       data_1_nodes <- get_node_from_label(label = data_1_labels,
                                           tree = base_tree)
-      #get ancestors of these nodes
-      data_1_all <- unique(c(data_1_nodes,
-                             unlist(phangorn::Ancestors(x = base_tree,
-                                                        node = data_1_nodes))))
     }
+
+    data_1_all <- unique(
+      c(data_1_nodes,
+        unlist(
+          phangorn::Ancestors(x = base_tree,
+                              node = data_1_nodes)
+        )
+      )
+    )
 
   #Data frame with all node numbers in taxonomy tree
    cohort_data <- get_tree_df(tree = base_tree)
@@ -483,7 +484,7 @@ display_subtree <- function(base_tree = chemont_tree,
     #1 = Set 1 only
     #2 = Set 2 only
     #3 = both
-    cohort_data$List <- factor(cohort_data$inSet1 + cohort_data$inSet2,
+    cohort_data$list_presence <- factor(cohort_data$inSet1 + cohort_data$inSet2,
                                  levels = 0:3,
                                  labels = c("Neither set",
                                             paste(name_1, "only"),
@@ -492,57 +493,98 @@ display_subtree <- function(base_tree = chemont_tree,
 
   }else{
     #Categorical column: Is each node in Data Set 1 or not?
-    cohort_data$List <- factor(cohort_data$inSet1,
+    cohort_data$list_presence <- factor(cohort_data$inSet1,
                                levels = 0:1,
                                labels = c(paste("Not in", name_1),
                                           paste("In", name_1)))
   }
 
-   #Name the subplot_mapping items after the categories in cohort_data$List
+   #Name the subplot_mapping items after the categories in cohort_data$list_presence
    subtree_mapping <- sapply(subtree_mapping,
-                             function(x) setNames(x, levels(cohort_data$List)),
+                             function(x) setNames(x, levels(cohort_data$list_presence)),
                              simplify = FALSE,
                              USE.NAMES = TRUE)
-   #set up for aes call -- list of aesthetic mappings, all applied to "List" in cohort_data
+   #set up for aes call -- list of aesthetic mappings,
+   #all applied to "list_presence" in cohort_data
    subtree_aes <- replicate(n= length(subtree_mapping),
-                             expr = quote(List))
+                             expr = quote(list_presence))
    #name the list elements after the aesthetics in subtree_mapping
    subtree_aes <- setNames(subtree_aes, names(subtree_mapping))
-   #you end up with something like: list(color = quote(List), size = quote(List))
-   #with do.call(aes, subtree_aes), it's equivalent to calling
-   #aes(color = List, size = List)
+   #you end up with something like:
+   #`subtree_aes <- list(color = quote(list_presence),
+   #                   size = quote(list_presence))``
+   #`do.call(aes, subtree_aes)` is then equivalent to:
+   #`aes(color = list_presence, size = list_presence)`
 
-   #prepare a list of manual scales as provided in subtree_mapping
-   #do this using scale_discrete_manual() as follows:
-   #specify aesthetic, like "color" or "size"
-   #then specify the values for the manual scale,
-   #like c("gray80", "#66C2A5", "#8DA0CB","#FC8D62")
+   #Prepare a list of manual scales as provided in subtree_mapping
    scale_list <- lapply(names(subtree_mapping),
                         function(aesthetic) {
-                          ggplot2::scale_discrete_manual(aesthetics = aesthetic,
-                                                         name = "List presence",
-                                                         values =  subtree_mapping[[aesthetic]],
-                                                         breaks = levels(cohort_data$List),
-                                                         limits = levels(cohort_data$List))
+                          ggplot2::scale_discrete_manual(
+                            aesthetics = aesthetic,
+                            name = "List presence",
+                            values =  subtree_mapping[[aesthetic]],
+                            breaks = levels(cohort_data$list_presence),
+                            limits = levels(cohort_data$list_presence)
+                          )
                         }
    )
+   #The result of the above is something like
+#    scale_list <- list(
+#      color = ggplot2::scale_discrete_manual(
+#        aesthetics = "color",
+#    name = "List presence",
+#    values = c("gray70",
+#               "#66C2A5",
+#               "#8DA0CB",
+#               "#FC8D62"),
+#    breaks = c("Neither set",
+#               "In Set1",
+#               "In Set2",
+#               "Both sets"),
+#    limits = c("Neither set",
+#               "In Set1",
+#               "In Set2",
+#               "Both sets")
+#    ),
+#    size = ggplot2::scale_discrete_manual(
+#      aesthetics = "size",
+#      name = "List presence",
+#      values = c(0.5,
+#                 1,
+#                 1,
+#                 1),
+#      breaks = c("Neither set",
+#                 "In Set1",
+#                 "In Set2",
+#                 "Both sets"),
+#      limits = c("Neither set",
+#                 "In Set1",
+#                 "In Set2",
+#                 "Both sets")
+#    )
+# )
+#But the idea is to generate it programatically from argument `subtree_mapping`
 
-#add list presence data
+#add list presence highlighting to tree plot
    tree_plot <- tree_plot %<+% cohort_data +
-     do.call(aes,
+     do.call(aes, #this maps list presence to all aesthetics specified in `subtree_mapping`
              subtree_aes) +
-      scale_list +
+      scale_list + #this applies all of the scales in scale_list to the aesthetics
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
 
-   #if clade labels have been selected
+   #if clade labels have been selected, add them to the plot
+  if(!is.null(clade_level)){
   tree_plot <- add_cladelab(tree_plot = tree_plot,
                                           tree = base_tree,
                                           clade_level = clade_level,
                                           clade_opts = clade_opts)
+  }
 
-  #add title of base tree
+  #add title with base tree name, if provided
+  if(!is.null(base_name)){
   tree_plot <- tree_plot + ggtitle(base_name)
+  }
 
   return(tree_plot)
 
