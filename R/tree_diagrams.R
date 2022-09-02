@@ -118,18 +118,69 @@ label_bars <- function(data = NULL,
 #'tree will be highlighted according to their membership in the provided data
 #'sets.
 #'
+#'# How to specify data sets
+#'
+#'## As `data.frame` objects containing classified entities
+#'
 #'If `data_1` or `data_2` are provided as `data.frame` objects containing
-#'classified entities, they must be of the following format: There must be one
-#'column corresponding to each of the taxonomy levels specified in
-#'`tax_level_labels`, containing the label at that level for each entity. These
-#'columns must have names corresponding to the members of `tax_level_labels`.
-#'For example, to use the ChemOnt taxonomy, the `data.frame` must have columns
-#'`kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`, ...
-#'`level11`. The `data.frame` must have at least one additional column that
-#'uniquely identifies individual entities; the name of that additional column
-#'does not matter, as long as it is not the same as one of the taxonomy levels.
+#'classified entities, they must be of the following format: Rows correspond to
+#'individual entities. There must be one column corresponding to each of the
+#'taxonomy levels specified in `tax_level_labels`, containing the label at that
+#'level for each entity. These columns must have names corresponding to the
+#'members of `tax_level_labels`. For example, to use the ChemOnt taxonomy, the
+#'`data.frame` must have columns `kingdom`, `superclass`, `class`, `subclass`,
+#'`level5`, `level6`, ... `level11`. Whenever an entity does not have a label at
+#'a given level, the corresponding element in the data table for that row and
+#'column should be `NA_character_`.
+#'
+#'The `data.frame` must have at least one additional column that uniquely
+#'identifies individual entities; the name of that additional column does not
+#'matter, as long as it is not the same as one of the taxonomy levels.
+#'
 #'For an example of a properly-formatted input `data.frame`, see the built-in
-#'dataset \code{\link{biosolids_class}}.
+#'dataset \code{\link{biosolids_class}}. The only required columns in
+#'\code{\link{biosolids_class}} are \code{kingdom, superclass, class, subclass,
+#'level5, level6, level7, level8, level9, level10, level11} and any one of the
+#'chemical identifier columns, for example \code{DTXSID}.
+#'
+#'## As vectors of node labels
+#'
+#'If `data_1` or `data_2` are provided as vectors of node labels, they refer to
+#'node labels in \code{base_tree}, i.e. labels that appear in
+#'\code{base_tree$tip.label} or \code{base_tree$node.label}. Any labels in
+#'`data_1` or `data_2` that do not appear in the base tree will be ignored.
+#'
+#'The labels in `data_1` and/or `data_2`, plus all of their ancestors in the
+#'base tree, will be highlighted. Their descendants will not be highlighted
+#'unless those descendants themselves appear in `data_1` or `data_2`.
+#'
+#'## As vectors of node numbers
+#'
+#'If `data_1` or `data_2` are provided as vectors of node numbers, they refer to
+#'node and tip index numbers in the base tree. Tip numbers run from 1 to
+#'\code{ape::Ntip(base_tree)}, and node numbers run from
+#'\code{ape::Ntip(base_tree) + 1} to \code{ape::Ntip(base_tree) +
+#'ape::Nnode(base_tree) - 1}.
+#'
+#'You might specify `data_1` or `data_2` as vectors of node numbers if, for
+#'example, you have used \code{\link[phangorn]{Ancestors}} or
+#'\code{\link[phangorn]{Descendants}} to trace ancestors or descendants of a
+#'specified node, and now you want to visualize those ancestors or descendants.
+#'\code{\link[phangorn]{Ancestors}} and \code{\link[phangorn]{Descendants}} both
+#'return lists or vectors of node numbers, so it would be convenient to be able
+#'to pass those vectors of node numbers directly to \code{display_subtree}.
+#'
+#''The nodes/tips in `data_1` and/or `data_2`, plus all of their ancestors in
+#'the base tree, will be highlighted. Their descendants will not be highlighted
+#'unless those descendants themselves appear in `data_1` or `data_2`.
+#'
+#'## As tree objects
+#'
+#'If `data_1` or `data_2` are provided as \code{\link[ape]{phylo}}-class tree
+#'objects, any labels in their \code{tip.label} or \code{node.label} elements
+#'that do not appear in the tip or node labels of the base tree will be ignored.
+#'In other words, only the portions of `data_1` and `data_2` that are subtrees
+#'of `base_tree` wil be used.
 #'
 #'@param base_tree The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
 #'  object.  Default is the full ChemOnt taxonomy tree,
@@ -224,8 +275,12 @@ display_subtree <- function(base_tree = chemont_tree,
   #Keep defaults for any subtree_mapping not otherwise specified
   subtree_mapping_default <- list(color = "default")
   subtree_mapping <- c(subtree_mapping,
-                        subtree_mapping_default[setdiff(names(subtree_mapping_default),
-                                                        names(subtree_mapping))])
+                       subtree_mapping_default[
+                         setdiff(names(subtree_mapping_default),
+                                 names(subtree_mapping)
+                         )
+                       ]
+  )
 
 
   if(is.null(data_1)){
@@ -317,11 +372,13 @@ display_subtree <- function(base_tree = chemont_tree,
                                           simplify = FALSE,
                                           USE.NAMES =  TRUE)
     }
-    }
+    } #end if(!is.list(subtree_mapping) |
+    # is.null(names(subtree_mapping)) |
+    #   !isTRUE(bad_subtree_map))
 
 
 
-  }
+  } #end if(is.null(data_1))
 
 
 
@@ -492,32 +549,47 @@ display_subtree <- function(base_tree = chemont_tree,
 }
 
 
-
-#' Prune and display subtree
+#'Prune and display subtree
 #'
-#' This function takes a data.table of chemicals and their classification data,
-#' and returns the data-induced subtree with an optional tree diagram of the
-#' subtree.
+#'This function takes in a base tree, a pruning specification as for
+#'\code{\link{prune_tree}}, and other arguments as for
+#'\code{\link{display_subtree}}. It first prunes the base tree using
+#'\code{\link{prune_tree}}, then calls \code{\link{display_subtree}}
+#'substituting the pruned tree as the base tree for plotting.  It returns a tree
+#'diagram consisting of the pruned base tree; if data sets were provided,
+#'branches of the base tree will be highlighted according to their membership in
+#'the provided data sets.
 #'
-#' @param data A data.table with classification data for chemicals.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @param show_tips An alternate parameter determining whether tip labels are
-#'   displayed.
-#' @param no_plot An alternate parameter for returning only the pruned tree
-#'   without the tree visual.
-#' @param adjust_branch_length An alternate parameter determining whether to
-#'   resize branches of subtree.
-#' @param xlimit An alternate parameter determining the scale of the tree
-#'   visualization.
-#' @return A pruned tree or list consisting of a pruned tree and ggtree diagram
-#'   of the pruned tree.
-#' @export
-#' @importFrom ape drop.tip
-#' @import ggtree
+#'@inheritSection prune_to How to specify the subtree to keep
+#'
+#'@param base_tree The "base tree" to prune and then plot, as a
+#'  \code{\link[ape]{phylo}}-class object.  Default is the full ChemOnt taxonomy
+#'  tree, \code{\link{chemont_tree}}.
+#'@param prune_to As for \code{\link{prune_tree}}: What to *keep* from the base
+#'  tree (everything else will be pruned away). May be a \code{data.frame} of
+#'  classified data; one or more labels in the tree (tip or internal node
+#'  labels); one or more node numbers in the tree (tip or internal nodes); or
+#'  the name of a taxonomy level (one of the items in \code{tax_level_labels}).
+#'  Default is NULL, which results in no pruning being done (i.e., the base tree
+#'  is returned as-is). See Details.
+#'@param prune_name Name of pruned tree to use as plot title. Default NULL
+#'  results in no plot title.
+#'@param adjust_branch_length Whether to adjust branch length so that all
+#'  newly-pruned terminal nodes appear at the same length as tips, even if they
+#'  were originally internal nodes. Default FALSE.
+#'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
+#'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
+#'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
+#'  "subclass", paste0("level", 5:11))}.
+#'@param ... Other arguments to \code{\link{display_subtree}}.
+#'@inheritDotParams display_subtree -base_tree -tax_level_labels
+#'@return A ggtree object visualizing the pruned base tree. If\code{data_1}
+#'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
+#'  whether they are present in each set, neither, or both.
+#'@export
+#'@importFrom ape drop.tip
+#'@import ggtree
 prune_and_display_subtree <- function(base_tree = chemont_tree,
-                                      base_name = NULL,
                                       prune_to = NULL,
                                       prune_name = NULL,
                                       adjust_branch_length = FALSE,
@@ -531,22 +603,6 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                             adjust_branch_length = adjust_branch_length,
                             tax_level_labels = tax_level_labels)
 
-  #get prune_name if NULL
-  if(is.null(prune_name)){
-    if(is.null(prune_to)){
-      if(!is.null(base_name)){
-        prune_name <- base_name
-      }else{
-        prune_name <-as.character(substitute(base_tree))
-      }
-    }else{
-      if(is.data.frame(prune_to)){
-        prune_name <- as.character(substitute(prune_to))
-      }else if(is.character(prune_to) | is.numeric(prune_to)){
-        prune_name <- paste(prune_to, collapse = ", ")
-      }
-    }
-  }
 
   tree_plot <- do.call(display_subtree,
                        args = c(list(base_tree = pruned_tree,
@@ -556,7 +612,6 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
 
   return(tree_plot)
 }
-
 
 
 
