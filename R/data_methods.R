@@ -105,13 +105,34 @@ add_terminal_label <- function(data,
 }
 
 
-#' calculate overlap between two classified datasets at the individual entity level
+#'calculate overlap between two classified datasets at the individual entity
+#'level
 #'
-#'@param data_1 A data.frame of classified entities to be used as the base set
-#'@param compare_dat A data.frame of classified entitites to be used as hte comp
+#'@param data_1 A data.frame of classified entities
+#'@param data_2 A data.frame of classified entities
+#'@param entity_id_col Name of column in data.frames that identifies unique
+#'  entities. Must be the same for both \code{data_1} and \code{data_2}. If NULL
+#'  (default), each row is assumed to be a unique entity.
+#'@param at_level Taxonomy level at which to calculate overlap. Default
+#'  \code{"terminal"} calculates overlap for terminal labels. Otherwise, may be
+#'  one of \code{tax_level_labels} to calculate overlap at a more-general level
+#'  of the taxonomy.
+#'@param tax_level_labels Taxonomy levels.
+#'@return A data.frame with a number of rows equal to the number of unique
+#'  labels at the specified level that occur either in \code{data_1} or
+#'  \code{data_2}. The first variable is named with the value of
+#'  \code{at_level}, and contains the unique labels at that level that occur
+#'  either in \code{data_1} or \code{data_2}. The other variables are: \list{
+#'  \item{n_1}{The number of entities for this label in \code{data_1}}
+#'  \item{n_2}{The number of entities for this label in \code{data_2}}
+#'  \item{n_intersect}{The number of entities for this label that are in both
+#'  \code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
+#'  this label that are in either \code{data_1} or \code{data_2}}
+#'  \item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
+#'  and \code{data_2} for each label, \code{n_intersect / n_union}}}
 calc_number_overlap <- function(data_1,
                                 data_2,
-                                entity_id_col,
+                                entity_id_col = NULL,
                                 at_level = "terminal",
                                 tax_level_labels = chemont_tax_levels){
   if(at_level %in% "terminal"){
@@ -221,21 +242,24 @@ calc_number_overlap <- function(data_1,
 }
 
 
-#' Label level
+#' Get labels at a specified taxonomy level
 #'
 #' This function takes in a data.table of chemicals with classification data and
 #' a taxonomy level, and returns all the unique labels for the given taxonomy
 #' level.
 #'
-#' @param data A data.table with data that has been classified by some taxonomy.
+#' @param data A data.frame with data that has been classified by some taxonomy.
 #' @param level_label A string indicating a taxonomy level of the classified
 #'   data.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
+#' @param tax_level_labels A vector of all of the taxonomy levels, in order.
+#'   Default is \code{\link{chemont_tax_levels}}, the levels of the ChemOnt
+#'   taxonomy.
 #' @return The unique labels corresponding to the given level and classified
 #'   data.
 #' @import data.table
-get_label_level <- function(data, level_label, tax_level_labels = chemont_tax_levels){
+get_label_level <- function(data,
+                            level_label,
+                            tax_level_labels = chemont_tax_levels){
 
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
     stop(paste('Please input a valid label!', level_label))
@@ -251,7 +275,6 @@ get_label_level <- function(data, level_label, tax_level_labels = chemont_tax_le
 
   return(labels)
 }
-
 
 #' Get terminal labels
 #'
