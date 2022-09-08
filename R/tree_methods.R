@@ -1551,9 +1551,12 @@ return(m)
 get_subtree_nodes <- function(data,
                               base_tree = chemont_tree,
                               tax_level_labels = chemont_tax_levels){
-  #get labels represented by the classified dataset
-  data_labels <- get_terminal_labels(data = data,
-                                     tax_level_labels = tax_level_labels)
+  #get all labels represented by the classified dataset
+  data_labels <- tidyr::pivot_longer(data,
+                                     cols = dplyr::all_of(tax_level_labels),
+                                     names_to = "level",
+                                     values_to = "label") %>%
+    dplyr::pull(label)
 
   #get node numbers, levels, & names of base tree
   tree_df <- get_tree_df(base_tree)
