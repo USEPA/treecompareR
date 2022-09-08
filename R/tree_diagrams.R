@@ -404,7 +404,7 @@ display_subtree <- function(base_tree = chemont_tree,
                          collapse = ", ")))
       }else{ #if all taxonomy levels have a column,
         #Check for blank labels
-        #If any, throw a warning and replace with NAs
+        #If any, replace with NAs
         data_1 <- data_1 %>%
           dplyr::mutate(dplyr::across(
             dplyr::all_of(tax_level_labels),
