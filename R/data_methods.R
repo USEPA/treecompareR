@@ -321,7 +321,7 @@ get_terminal_labels <- function(data,
   }
 
   #if entity ID column not specified, then assume rows are entities
-  if(is.null(entity_id_col)){
+  if(is.null(entity_id_cols)){
     data <- data %>% tibble::rowid_to_column(var = "rowid")
     entity_id_cols <- "rowid"
   }
