@@ -1,0 +1,109 @@
+---
+title: "Fake Jira"
+author: "Caroline Ring"
+date: "2022-09-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Since we can't use real Jira to file tickets forthings to fix, here is a fake Jira
+
+# TCR-001
+
+Entities seem to get dropped when tree is pruned to a certain taxonomy level?
+
+```{r}
+seem3path_class <- read.csv("C:\\Users\\cring\\OneDrive - Environmental Protection Agency (EPA)\\treecompareR work\\seem3_path_chems_classified.csv")
+
+org_tree <- prune_tree(chemont_tree, prune_to = "Organic compounds")
+
+#if we prune to class, we see only a few
+prune_and_display_subtree(base_tree = org_tree,
+                          prune_to = "class",
+                          data_1 = seem3path_class,
+                          subtree_mapping = list(
+                            color= c("gray80",
+                                     RColorBrewer::brewer.pal(n=3,
+                                                              name = "Dark2")[1]
+                                     ),
+                            size = c(0.5,1)
+                            )
+                          )
+#looks like what, 9 branches appear?
+
+#but number of unique classes is greater than 9 -- there are 32
+length(unique(seem3path_class$class))
+
+#if we prune to subclass we see more
+prune_and_display_subtree(base_tree = org_tree,
+                          prune_to = "subclass",
+                          data_1 = seem3path_class,
+                          subtree_mapping = list(
+                            color= c("gray80",
+                                     RColorBrewer::brewer.pal(n=3,
+                                                              name = "Dark2")[1]
+                                     ),
+                            size = c(0.5,1)
+                            )
+                          )
+
+#this looks like it's showing closer to 32 branches
+#maybe pruning to a taxonomy level isn't working correctly?
+
+
+```
+
+```{r}
+seem3path_tree <- prune_tree(chemont_tree, prune_to = seem3path_class)
+
+prune_and_display_subtree(seem3path_tree, prune_to = "class")
+prune_and_display_subtree(seem3path_tree, prune_to = "subclass")
+```
+
+```{r}
+data_1_nodes <- get_subtree_nodes(data = seem3path_class,
+base_tree = org_tree,
+tax_level_labels = chemont_tax_levels)
+
+length(data_1_nodes)
+
+#if we take a tree pruned to class as base
+data_1_nodes_class <- get_subtree_nodes(data = seem3path_class,
+base_tree = prune_tree(org_tree, prune_to = "class"),
+tax_level_labels = chemont_tax_levels)
+length(data_1_nodes_class)
+
+#if we take a tree pruned to subclass as base
+data_1_nodes_subclass <- get_subtree_nodes(data = seem3path_class,
+base_tree = prune_tree(org_tree, prune_to = "subclass"),
+tax_level_labels = chemont_tax_levels)
+length(data_1_nodes_subclass)
+```
+
+it's because of this line in `get_subtree_nodes`:
+
+```{r}
+ #get labels represented by the classified dataset
+  data_labels <- get_terminal_labels(data = data,
+                                     tax_level_labels = tax_level_labels)
+#get node numbers, levels, & names of base tree
+  tree_df <- get_tree_df(base_tree)
+
+  #get node numbers represented in dataset
+  data_nodes <- tree_df[tree_df$Name %in% data_labels, "node"]
+```
+
+It looks for *terminal* labels of the data in the base tree, which means that when the base tree is pruned to a certain level, it will only keep entities whose *terminal* label was at that level.
+
+Instead we need to handle it a little bit differently.
+
+I think we need to take all the data labels, not just the terminal ones.
+
+OK -- fixed as of 2022-09-08 12:10 PM by Caroline Ring commit SHA abac8b0c
+
+
+
+
