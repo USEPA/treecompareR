@@ -449,7 +449,7 @@ display_subtree <- function(base_tree = chemont_tree,
       data_1_nodes <- get_node_from_label(label = data_1_labels,
                                           tree = base_tree)
     }else{
-      stop("data_2 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
+      stop("data_1 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
     }
 
     #get ancestors of data_1_nodes
@@ -553,7 +553,7 @@ display_subtree <- function(base_tree = chemont_tree,
       data_2_labels <- c(data_2$tip.label,
                          data_2$node.label)
       #get nodes
-      data_2_nodes <- get_node_from_label(label = data_2,
+      data_2_nodes <- get_node_from_label(label = data_2_labels,
                                           tree = base_tree)
     }else{
       stop("data_2 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
