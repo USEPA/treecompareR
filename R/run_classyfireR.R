@@ -136,24 +136,32 @@ classify_inchikeys <- function(inchikeys){
 #' @importFrom magrittr %>%
 #' @seealso \code{\link{classify_inchikeys}}
 #'
-  classify_structures <- function (input,
+  classify_structures <- function (input = NULL,
                                    tax_level_labels = chemont_tax_levels,
                                    ...){
-    if (!requireNamespace("classyfireR", quietly = TRUE)) {
-      warning(paste("Package \"classyfireR\" must be installed to use this function.\n", "Returning input data.table!"))
-      return(input)
-    }
 
     if(is.null(names(input))){
       names(input) <- input
     }
-
-
     #Initialize output data.frame.
     #Structure of output data.frame: One row for each input structure
     #Variables: c("identifier", "structure", "smiles", "inchikey",
     #tax_level_labels, "report")
 
+
+    #If ClassyFire query fails, we'll just return the above.
+
+    #Now, query ClassyFire with these structures.
+    json_parse <- do.call(query_classyfire,
+                          args = c(list(input = input,
+                                        url = NULL),
+                                   ...)
+    )
+
+    #json_parse will be a list, one element for each page of the results.
+    #or at least one element.
+
+    #default output to return if everything else fails
     #prepare a named list of NA columns, one for each taxonomy level
     cols_list <- as.list(rep(NA_character_, length(tax_level_labels)))
     names(cols_list) <- tax_level_labels
@@ -161,164 +169,25 @@ classify_inchikeys <- function(inchikeys){
     output <- do.call(data.frame,
                       c(list("identifier" = names(input),
                              "structure" = input),
-                        cols_list))
+                        cols_list,
+                        json_parse[[1]][c("id",
+                                          "label",
+                                          "classification_status",
+                                          "url",
+                                          "status_code")]
+                        )
+                      )
     output$smiles <- NA_character_
     output$inchikey <- NA_character_
     output$report <- NA_character_
 
-    #If ClassyFire query fails, we'll just return the above.
-
-    #Now, query ClassyFire.
-    json_parse <- do.call(query_classyfire,
-                          args = c(list(input = input),
-                                   ...)
-    )
-    #We expect the JSON output to have the following names
-    expected_json <- c("id",
-                       "label",
-                       "classification_status",
-                       "number_of_elements",
-                       "number_of_pages",
-                       "invalid_entities",
-                       "entities")
-    #If these names are not present, throw a warning and return NAs
-    if(!(all(expected_json %in% names(json_parse)))){
-      warning(paste("The JSON output was not in the expected format and cannot be further parsed."))
-      output$report <- "The JSON output was not in the expected format and cannot be further parsed."
-      return(output)
-    }else{ #if there was a valid response from ClassyFire
-      if(json_parse$classification_status %in% "Done"){
-        #pull list of valid entities (i.e., those with classifications)
-        classified <- json_parse$entities
-
-        #check to see whether classifications actually exist for these
-        if(length(classified)==0){
-          #if no classifications, return empty data.frame,
-          #but with the expected variable names
-          classified_entities <- data.frame(identifier = character(0),
-                                            smiles = character(0),
-                                            inchikey = character(0),
-                                            kingdom = character(0),
-                                            superclass = character(0),
-                                            class = character(0),
-                                            subclass = character(0),
-                                            level5 = character(0),
-                                            level6 = character(0),
-                                            level7 = character(0),
-                                            level8 = character(0),
-                                            level9 = character(0),
-                                            level11 = character(0),
-                                            report = character(0))
-        }else{ #if length(classified)>0
-          #expected named items in classified and their expected classes:
-          # identifier                    smiles                  inchikey
-          # "character"               "character"               "character"
-          # kingdom                superclass                     class
-          # "data.frame"              "data.frame"              "data.frame"
-          # subclass        intermediate_nodes             direct_parent
-          # "data.frame"                    "list"              "data.frame"
-          # alternative_parents       molecular_framework              substituents
-          # "list"               "character"                    "list"
-          # description      external_descriptors                 ancestors
-          # "character"                    "list"                    "list"
-          # predicted_chebi_terms predicted_lipidmaps_terms    classification_version
-          # "list"                    "list"               "character"
-
-
-          #get identifiers, smiles, inchikey
-          #these will be character vectors identifying entities
-          cf <- classified[, c("identifier",
-                               "smiles",
-                               "inchikey")]
-
-          #kingdom, superclass, class, subclass are all data.frames
-          #with one row for each identifier,
-          #and variables name, description, chemont_id, url
-          #giving the relevant ChemOnt taxonomy label for each identifier
-          #(i.e. "name" in the "kingdom" element gives the kingdom for each identifier,
-          #"name" in the "superclass" element gives the superclass for each identifier,
-          #etc.)
-          #rowbind these
-          cf_class1 <- dplyr::bind_rows(as.list(classified[c("kingdom",
-                                                     "superclass",
-                                                     "class",
-                                                     "subclass")]))
-          #add a column for the identifiers -- repeat for each taxonomy level
-          cf_class1$identifier <- rep(classified$identifier,
-                                      4)
-
-         #"intermediate_nodes"
-          #is a list with one element for each item in "input",
-          #a 1-row data.frame with variables name, description, chemont_id, url
-          #giving more-specific levels of classification, if any.
-          #if no intermediate nodes for an entity,
-          #its corresponding element in "intermediate_nodes" is an empty data.frame.
-          cf_class2 <- classified$intermediate_nodes
-          names(cf_class2) <- classified$identifier
-          cf_class2_df <- dplyr::bind_rows(cf_class2, .id = "identifier")
-          rm(cf_class2)
-
-          #rowbind the kingdom-thru-superclass labels,
-          #and the "intermediate nodes" labels.
-          cf_class <- dplyr::bind_rows(cf_class1,
-                                       cf_class2_df)
-
-          #"classified" element 'direct_parent' is a data.frame
-          #with one row for each identifier,
-          #and variables name, description, chemont_id, url
-          direct <- classified$direct_parent
-          direct$identifier <- classified$identifier
-          cf_class <- dplyr::bind_rows(cf_class, direct_final)
-
-          #"direct parent" is the terminal label,
-          #and may be a duplicate of kingdom, superclass, class, subclass,
-          #or something in "intermediate nodes".
-
-          #To remove duplicates,
-          #get level numbers for all labels in the ChemOnt tree,
-          #merge them into cf_class,
-          #and take unique rows only.
-          chemont_tree_df <- get_tree_df(chemont_tree)
-
-          cf_class <- dplyr::left_join(cf_class,
-                                       chemont_tree_df[,
-                                                       c("Name",
-                                                         "level")],
-                                       by = c("name" = "Name")) %>%
-            dplyr::select(identifier, level, name) %>%
-            dplyr::distinct() #keep only unique rows
-
-          #Change the levels from numbers to taxonomy level names
-          #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
-          cf_class <- cf_class %>%
-            dplyr::mutate(level = tax_level_labels[level])
-
-          #reshape to wide format, one column for each level
-          cf_class_wide <- cf_class %>%
-            tidyr::pivot_wider(id_cols = "identifier",
-                               names_from = "level",
-                               values_from = "name")
-
-          #add NA columns for any taxonomy levels not assigned for these entities
-          cols_add <- setdiff(tax_level_labels,
-                              names(cf_class_wide))
-          classified_entities <-  cf_class_wide %>% as.data.frame()
-          classified_entities[cols_add] <- NA_character_
-
-          #add a "report" column
-          classified_entities$report <- "ClassyFire returned a classification"
-
-          #merge in smiles and inchikey
-          classified_entities <- dplyr::left_join(cf,
-                                                  classified_entities,
-                                                  on = "identifier")
-        } #end if length(classified)>0
-
-        #Add the rows for any invalid entities (without classifications)
-        invalid <- json_parse$invalid_entities
+        #first pull list of invalid entities, if any.
+        #this will be the same for all pages, so just pull from the first.
+        invalid <- json_parse[[1]]$invalid_entities
         if(length(invalid)==0){
           #report empty data.frame but with the expected variables
           invalid <- data.frame(identifier = character(0),
+                                structure = character(0),
                                 smiles = character(0),
                                 inchikey = character(0),
                                 kingdom = character(0),
@@ -335,44 +204,45 @@ classify_inchikeys <- function(inchikeys){
         }else{
           #Add identifier column (the names of the inputs)
           invalid$identifier <- names(input)[input %in% invalid$structure]
-
           #Add NA columns for taxonomy levels, to denote no classification
           invalid[tax_level_labels] <- NA_character_
           invalid$smiles <- NA_character_
           invalid$inchikey <- NA_character_
-          invalid$report <- "ClassyFire reports invalid entity"
+          invalid$report2 <- sapply(invalid$report, paste, collapse = " | ")
+          invalid$report <- NULL
+          invalid$report <- invalid$report2
+          invalid$report2 <- NULL
         } # if(length(invalid)>0)
+
+        #pull list of valid entities (i.e., those with classifications)
+        entities_list <- lapply(json_parse,
+                                function(x) x$entities)
+
+        classified <- lapply(entities_list,
+               parse_classified_entities) %>%
+        dplyr::bind_rows() %>%
+          dplyr::mutate(structure = input[identifier])
 
         #Start constructing output:
         #entities handled by ClassyFire (either classified or reported invalid)
-        cf_entities <- dplyr::bind_rows(classified_entities,
+        cf_entities <- dplyr::bind_rows(classified,
                                    invalid)
-        #add structure column
-        cf_entities$structure <- input[cf_entities$identifier]
 
         #Get any entities not handled by ClassyFire
         missing_entities <- dplyr::anti_join(output,
                                              cf_entities,
-                                             by = "identifier")
+                                             by = c("identifier",
+                                                    "structure"))
 
         #Output: bind classified, invalid, and missing entities
-        output <- dplyr::bind_rows(cf_entities,
-                                   missing_entities) %>%
+        output <- dplyr::bind_rows(missing_entities,
+                                   cf_entities) %>%
           as.data.frame() #convert from tibble to data.frame
 
         #set order the same as input
         rownames(output) <- NULL
         output <- output[match(names(input), output$identifier), ]
-      } #end if(json_parse$classification_status %in% "Done")
-    } #end if(length(json_parse)>0)
 
-    rownames(output) <- NULL
-    output <- output[, c("identifier",
-                         "structure",
-                         "smiles",
-                         "inchikey",
-                         tax_level_labels,
-                         "report")]
     return(output)
   }
 
@@ -382,11 +252,14 @@ classify_inchikeys <- function(inchikeys){
 #' InChi strings) and queries the ClassyFire API to get classifications for each
 #' one.
 #'
+#' See ClassyFire API details at http://classyfire.wishartlab.com/access.
+#'
 #' @param input A character vector of structural identifiers: SMILES strings or
-#'   InChi strings. May optionally be named. If so, the names will be returned as a
-#'   column named  \code{identifier} in the output data.frame. If not named, the
-#'   vector itself will be returned as a column named  \code{identifier} in the
-#'   output data.frame
+#'   InChi strings. May optionally be named. Default NULL to use `url` instead.
+#'   Either `input` or `url` must be provided.
+#' @param url Optional: a string giving an existing ClassyFire query URL to
+#'   retry. Default NULL to use `input` instead. Either `input` or `url` must be
+#'   provided.
 #' @param label An optional text label for the ClassyFire query. Default
 #'   \code{"query"}.
 #' @param type String giving ClassyFire query type. Default \code{"STRUCTURE"}.
@@ -395,19 +268,46 @@ classify_inchikeys <- function(inchikeys){
 #' @param wait_min Minimum time to wait before retrying any GET command or
 #'   query. Default 5 seconds (because ClassyFire requests that POST requests be
 #'   limited to 12 per second). Highly recommend not changing this to be less
-#'   than 5 seconds, to be respectful of the ClassyFire server. All wait
-#'   times use exponential backoff with full jitter (\code{wait time = runif(1, wait_min, wait_min *
-#'   2^(attempt number)}).
+#'   than 5 seconds, to be respectful of the ClassyFire server. All wait times
+#'   use exponential backoff with full jitter (\code{wait time = runif(1,
+#'   wait_min, wait_min * 2^(attempt number)}).
 #' @param retry_query_times Max number of attempts to retry an "In Queue" or
 #'   "Processing" query (with wait time in between tries). Default 3.
 #' @param processing_wait_per_input Minimum number of seconds to wait per input
 #'   string before retrying to retrieve results for a query whose status is
-#'   "Processing." Default NULL results in \code{wait_min/length(input)}. Uses exponential
-#'   backoff: effective wait time per input = \code{processing_wait_per_input *
-#'   2^(attempt number)}. Total wait time is either the effective wait time per
-#'   input times the number of input structures, or \code{wait_min} seconds,
-#'   whichever is greater.
-#' @return A named list object: the JSON output from the ClassyFire query, parsed into list form.
+#'   "Processing." Default NULL results in \code{wait_min/length(input)}. Uses
+#'   exponential backoff: effective wait time per input =
+#'   \code{processing_wait_per_input * 2^(attempt number)}. Total wait time is
+#'   either the effective wait time per input times the number of input
+#'   structures, or \code{wait_min} seconds, whichever is greater.
+#' @return A list of lists. The outer list has one element for each page of the
+#'   JSON output from the ClassyFire query (there is one page for every ten
+#'   entities). If the ClassyFire query failed or timed out, the list will have
+#'   one element. Each list element is itself a list, consisting of the parsed
+#'   JSON result for each page. A completed query will have named elements `id`,
+#'   `url`, `status_code`, `label`, `classification_status`,
+#'   `number_of_elements`, `number_of_pages`, `invalid_entities`, and
+#'   `entities`. A failed query will have named elements `id`, `url`,
+#'   `status_code`, `label`, `classification_status`, and `number_of_pages`.
+#'   `id` gives the numerical query ID (assigned by ClassyFire). `url` gives the
+#'   queried URL. `label` gives the user-supplied query label. `status_code`
+#'   gives the HTTP status of the request (200 means successful).
+#'   `classification_status` reports the ClassyFire status: "Done" means
+#'   classification was successfully completed; "In Queue" means the query timed
+#'   out while it was still queued; "In Progress" means the query timed out
+#'   while it was still processing; "No classification" means the query failed
+#'   before ClassyFire could report a status (e.g. HTTP status code other than
+#'   200, or ClassyFire returned some content that did not include a
+#'   classification status). `number_of_elements` gives the number of classified
+#'   entities. `number_of_pages` gives the total number of pages for this query.
+#'   `invalid_entities`, if present, is a data.frame listing queried entity
+#'   identifiers that ClassyFire found invalid. `entities`, if present, is a
+#'   nested data.frame giving classifications. Use function
+#'   \code{\link{parse_classification}} to parse these results into a data.frame
+#'   of classified entities, suitable for use with the tree visualization,
+#'   similarity analysis, or similarity visualization functions. Or call
+#'   \code{\link{classify_structures}} which is a wrapper for this function and
+#'   \code{\link{parse_classification}}.
 #' @export
 #'
  query_classyfire <- function(input = NULL,
@@ -418,6 +318,17 @@ classify_inchikeys <- function(inchikeys){
                               wait_min = 5,
                               retry_query_times = 3,
                               processing_wait_per_input = NULL){
+   #if both input and url are NULL, throw error
+   if(is.null(input) &
+      is.null(url)){
+     stop("Either `input` or `url` must be provided, but both were NULL.")
+   }
+
+   if(!is.null(input) &
+      !is.null(url)){
+     stop("Either `input` or `url` must be provided, but not both. You provided both.")
+   }
+
  #if input provided, construct new query
    if(!is.null(input)){
      if(is.null(processing_wait_per_input)){
@@ -439,7 +350,7 @@ classify_inchikeys <- function(inchikeys){
      #convert to JSON
      q <- rjson::toJSON(list(label = label,
                              query_input = query_input,
-                             query_type = "STRUCTURE")
+                             query_type = type)
      )
      #construct POST request
      resp <- httr::POST(url = base_url,
@@ -451,41 +362,91 @@ classify_inchikeys <- function(inchikeys){
      post_cont <- httr::content(resp)
      #get URL for query
      url <- paste0(base_url, "/", post_cont$id, ".json")
-   }else{
-     if(is.null(url)){
-       stop("Either `input` or `url` must be provided, but both were NULL.")
-     }
+   } #end if(!is.null(input))
+
+   #check url format (whether newly constructed or user-provided)
+   url_good <- grepl(x = url,
+                     pattern = paste0(base_url, "/", "\\d+", ".json"))
+   if(!url_good){
+     stop(paste0("URL is not of valid format. ",
+                 "URL is ", url,
+                 " and expected format is ",
+                 base_url,
+                 "/", "NNNNN.json",
+                 " where NNNNN are one or more digits 0-9 denoting a query ID number."))
    }
 
    #try getting results for query
    resp <- httr::RETRY(verb = "GET",
-                       query_id = url,
+                       url = url,
                        encode = "json",
                        times = retry_get_times,
                        pause_min = wait_min,
                        terminate_on = c(404))
 
-   if (!(resp$status_code %in% 200)){
-     message(paste0("ClassyFire API request failed with status code: ",
-                   resp$status_code).)
-     #return a placeholder json_parse with just the query ID
-     m <- regexec(text=resp$url, pattern = "(\\d+).json")
-     query_id <- regmatches(x = resp$url, m = m)[[1]][2]
-     json_parse <- list("id" = query_id,
-                        "url" = resp$url,
-                        "status_code" = rsep$status_code,
-                        "label" = label)
-   }else{
-     #get and parse the JSON response
-     json_res <- httr::content(resp, "text")
+   json_res <- httr::content(resp, "text")
+   #json_res will be NULL if no content was returned
+   if(!is.null(json_res)){
      json_parse <- jsonlite::fromJSON(json_res)
+   }else{
+     json_parse <- NULL
+   }
 
-     #check classification status
+   #initialize a placeholder json_parse in case everything else fails
+   m <- regexec(text=url, pattern = "(\\d+).json")
+   query_id <- regmatches(x = url, m = m)[[1]][2]
+   json_parse_default <- list("id" = query_id,
+        "url" = url,
+        "status_code" = resp$status_code,
+        "label" = label,
+        "classification_status" = "No classification",
+        "number_of_elements" = NA_real_,
+        "number_of_pages" = 1,
+        "invalid_entities" = list(),
+        "entities" = data.frame("identifier" = character(0),
+                                "smiles" = character(0),
+                                "inchikey" = character(0),
+                                "kingdom" = data.frame("name" = character(0),
+                                                       "description" = character(0),
+                                                       "chemont_id" = character(0),
+                                                       "url" = character(0)),
+                                "superclass" = data.frame("name" = character(0),
+                                                       "description" = character(0),
+                                                       "chemont_id" = character(0),
+                                                       "url" = character(0)),
+                                "class" = data.frame("name" = character(0),
+                                                       "description" = character(0),
+                                                       "chemont_id" = character(0),
+                                                       "url" = character(0)),
+                                "subclass" = data.frame("name" = character(0),
+                                                       "description" = character(0),
+                                                       "chemont_id" = character(0),
+                                                       "url" = character(0)),
+                                "intermediate_nodes" = list(),
+                                "direct_parent" = data.frame("name" = character(0),
+                                                             "description" = character(0),
+                                                             "chemont_id" = character(0),
+                                                             "url" = character(0)),
+                                "classification_version" = character(0))
+   )
+   if(!is.null(input)){
+     json_parse_default$number_of_elements <- length(input)
+   }
+   #fill in any elements in json_parse_default not in json_parse
+   #otherwise, keep elements in json_parse
+   json_parse <- c(
+     json_parse,
+     json_parse_default[
+       setdiff(
+         names(json_parse_default),
+         names(json_parse)
+       )
+     ]
+   )
 
-     #if in queue, wait and retry, up to retry_query_times
+   #retry until Done or until max number of retries is reached
      retry_count <- 0
-     while(!(json_parse$classification_status %in% c("Done")) &
-           resp$status_code %in% 200 &
+     while(!(json_parse$classification_status %in% "Done") &
            retry_count < retry_query_times){
        if(json_parse$classification_status %in% "In Queue"){
          #wait for query to come out of queue
@@ -512,7 +473,7 @@ classify_inchikeys <- function(inchikeys){
                         " seconds (greater of ",
                         wait_min,
                         " seconds, or ",
-                        proc_eff, digits = 2,
+                        proc_eff,
                         " seconds per input, with ",
                         length(input),
                         " inputs) ",
@@ -522,72 +483,204 @@ classify_inchikeys <- function(inchikeys){
        #wait and retry
        Sys.sleep(wait_time)
        resp <- httr::RETRY(verb = "GET",
-                           query_id = url,
+                           url = url,
                            encode = "json",
                            times = retry_get_times,
                            pause_min = wait_min,
                            terminate_on = c(404))
-       if (resp$status_code == 200){
        json_res <- httr::content(resp, "text")
-       json_parse <- jsonlite::fromJSON(json_res)
-       json_parse$url <- resp$url
-       json_parse$status_code <- resp$status_code
-       message(paste("Classification status", json_parse$classification_status))
+       #json_res will be NULL if no content was returned
+       if(!is.null(json_res)){
+         json_parse <- jsonlite::fromJSON(json_res)
        }else{
-         message(paste0("ClassyFire API request failed with status code: ",
-                        resp$status_code))
-         json_parse <- list("id" = query_id,
-                            "url" = resp$url,
-                            "status_code" = rsep$status_code,
-                            "label" = label)
+         json_parse <- NULL
        }
+       json_parse_default$status_code <- resp$status_code
+       #fill in any elements in json_parse_default not in json_parse
+       #otherwise, keep elements in json_parse
+       json_parse <- c(
+         json_parse,
+         json_parse_default[
+           setdiff(
+             names(json_parse_default),
+             names(json_parse)
+           )
+         ]
+       )
        retry_count <- retry_count + 1
      } #end while loop
+     #If classification was done, then results will be paginated
+     #Each page = 10 entities
+     #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
 
-   } #end if (!(resp$status_code %in% 200)) for first attempt
-
-   #If classification was done, then results will be paginated
-   #Each page = 10 entities
-   #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
-
-   if(resp$status_code == 200){
-   if("classification_status" %in% names(json_parse)){
-     if(json_parse$classification_status %in% "Done" &
-        "number_of_pages" %in% names(json_parse)){
+     #check if this URL ends in a page specification or not
+     #if so, return the parsed JSON for this page
+     url_onepage <- grepl(pattern = "?page=\\d+$",
+                          x = url)
+     if(url_onepage){
+     output <- json_parse
+     }else{ #if this is not a specific page, but an overall query,
+       #recursively call this function to get results for each individual page
        #get vector of individual page URLs
-        url_pages <- paste0(url,
-                   "?page=",
-                   seq(from = 1,
-                       to = json_parse$number_of_pages,
-                       by = 1))
-        #send GET request for each page separately
-        #the result is a list of parsed JSON lists
-        json_parse <- lapply(url_pages,
-                         function(url_pg){
-                         resp_pg <- httr::RETRY(verb = "GET",
-                                             query_id = url_pg,
-                                             encode = "json",
-                                             times = retry_get_times,
-                                             pause_min = wait_min,
-                                             terminate_on = c(404))
-                         if (resp_pg$status_code == 200){
-                           json_res_pg <- httr::content(resp_pg, "text")
-                           json_parse_pg <- jsonlite::fromJSON(json_res_pg)
-                           json_parse_pg$url <- resp_pg$url
-                           json_parse_pg$status_code <- resp_pg$status_code
-                         }else{
-                           message(paste0("ClassyFire API request failed with status code: ",
-                                          resp_pg$status_code))
-                           json_parse_pg <- list("id" = query_id,
-                                              "url" = resp_pg$url,
-                                              "status_code" = resp_pg$status_code,
-                                              "label" = label)
-                         }
-                         return(json_parse_pg)
-                         } #end anonymous function over URLs
-        ) #end lapply over page URLs
-   }
-   }
+       url_pages <- paste0(url,
+                           "?page=",
+                           seq(from = 1,
+                               to = json_parse$number_of_pages,
+                               by = 1))
+       output <- lapply(url_pages,
+                        function(url_pg){
+                          query_classyfire(input = NULL,
+                                           url = url_pg,
+                                           label = label,
+                                           type = type,
+                                           retry_get_times = retry_get_times,
+                                           wait_min = wait_min,
+                                           retry_query_times = retry_query_times,
+                                           processing_wait_per_input = processing_wait_per_input)
+                        }
+       )
+     }
+       return(output)
+     }
 
-     return(json_parse)
- }
+
+#' Parse classified entities
+#'
+#' @param entities JSON element of classified entities as returned by ClassyFire
+#'   API query
+#' @param tax_level_labels ChemOnt taxonomy level labels (default
+#'   \code{\link{chemont_tax_levels}})
+#' @param A data.frame with one row for each entity identifier, and variables
+#'   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
+#'   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
+#'   and `report`.
+parse_classified_entities <- function(entities,
+                                      tax_level_labels = chemont_tax_levels){
+  #check to see whether classifications actually exist for these
+  if(length(entities)==0){
+    #if no classifications, return empty data.frame,
+    #but with the expected variable names
+    classified_entities <- data.frame(identifier = character(0),
+                                      smiles = character(0),
+                                      inchikey = character(0),
+                                      kingdom = character(0),
+                                      superclass = character(0),
+                                      class = character(0),
+                                      subclass = character(0),
+                                      level5 = character(0),
+                                      level6 = character(0),
+                                      level7 = character(0),
+                                      level8 = character(0),
+                                      level9 = character(0),
+                                      level11 = character(0),
+                                      classification_version = character(0),
+                                      report = character(0))
+  }else{ #if length(entities)>0
+    #expected named items in entities and their expected classes:
+    # identifier                    smiles                  inchikey
+    # "character"               "character"               "character"
+    # kingdom                superclass                     class
+    # "data.frame"              "data.frame"              "data.frame"
+    # subclass        intermediate_nodes             direct_parent
+    # "data.frame"                    "list"              "data.frame"
+    # alternative_parents       molecular_framework              substituents
+    # "list"               "character"                    "list"
+    # description      external_descriptors                 ancestors
+    # "character"                    "list"                    "list"
+    # predicted_chebi_terms predicted_lipidmaps_terms    classification_version
+    # "list"                    "list"               "character"
+
+
+    #get identifiers, smiles, inchikey
+    #these will be character vectors identifying entities
+    cf <- entities[, c("identifier",
+                         "smiles",
+                         "inchikey",
+                         "classification_version")]
+
+    #kingdom, superclass, class, subclass are all data.frames
+    #with one row for each identifier,
+    #and variables name, description, chemont_id, url
+    #giving the relevant ChemOnt taxonomy label for each identifier
+    #(i.e. "name" in the "kingdom" element gives the kingdom for each identifier,
+    #"name" in the "superclass" element gives the superclass for each identifier,
+    #etc.)
+    #rowbind these
+    cf_class1 <- dplyr::bind_rows(as.list(entities[c("kingdom",
+                                                       "superclass",
+                                                       "class",
+                                                       "subclass")]))
+    #add a column for the identifiers -- repeat for each taxonomy level
+    cf_class1$identifier <- rep(entities$identifier,
+                                4)
+
+    #"intermediate_nodes"
+    #is a list with one element for each item in "input",
+    #a 1-row data.frame with variables name, description, chemont_id, url
+    #giving more-specific levels of classification, if any.
+    #if no intermediate nodes for an entity,
+    #its corresponding element in "intermediate_nodes" is an empty data.frame.
+    cf_class2 <- entities$intermediate_nodes
+    names(cf_class2) <- entities$identifier
+    cf_class2_df <- dplyr::bind_rows(cf_class2, .id = "identifier")
+    rm(cf_class2)
+
+    #rowbind the kingdom-thru-superclass labels,
+    #and the "intermediate nodes" labels.
+    cf_class <- dplyr::bind_rows(cf_class1,
+                                 cf_class2_df)
+
+    # element 'direct_parent' is a data.frame
+    #with one row for each identifier,
+    #and variables name, description, chemont_id, url
+    direct <- entities$direct_parent
+    direct$identifier <- entities$identifier
+    cf_class <- dplyr::bind_rows(cf_class, direct)
+
+    #"direct parent" is the terminal label,
+    #and may be a duplicate of kingdom, superclass, class, subclass,
+    #or something in "intermediate nodes".
+
+    #To remove duplicates,
+    #get level numbers for all labels in the ChemOnt tree,
+    #merge them into cf_class,
+    #and take unique rows only.
+    chemont_tree_df <- get_tree_df(chemont_tree)
+
+    cf_class <- dplyr::left_join(cf_class,
+                                 chemont_tree_df[,
+                                                 c("Name",
+                                                   "level")],
+                                 by = c("name" = "Name")) %>%
+      dplyr::select(identifier, level, name) %>%
+      dplyr::distinct() #keep only unique rows
+
+    #Change the levels from numbers to taxonomy level names
+    #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
+    cf_class <- cf_class %>%
+      dplyr::mutate(level = tax_level_labels[level])
+
+    #reshape to wide format, one column for each level
+    cf_class_wide <- cf_class %>%
+      tidyr::pivot_wider(id_cols = "identifier",
+                         names_from = "level",
+                         values_from = "name")
+
+    #add NA columns for any taxonomy levels not assigned for these entities
+    cols_add <- setdiff(tax_level_labels,
+                        names(cf_class_wide))
+    classified_entities <-  cf_class_wide %>% as.data.frame()
+    classified_entities[cols_add] <- NA_character_
+
+    #add a "report" column
+    classified_entities$report <- "ClassyFire returned a classification"
+
+    #merge in smiles and inchikey
+    classified_entities <- dplyr::left_join(cf,
+                                            classified_entities,
+                                            by = "identifier") %>%
+      as.data.frame()
+  } #end if length(entities)>0
+
+  return(classified_entities)
+}
