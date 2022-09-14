@@ -104,6 +104,21 @@ I think we need to take all the data labels, not just the terminal ones.
 
 OK -- fixed as of 2022-09-08 12:10 PM by Caroline Ring commit SHA abac8b0c
 
+# TCR 101
+
+In display_subtree, if data_2 is given as a phylo tree, it will not be highlighted. However, it works fine if the tree is given as data_1.
+
+Fixed with commit SHA f65c72fc6
+Caroline Ring 2022-09-08 03:21 PM
+
+# TCR 102
+
+Bug in classify_structures() around line 384
+When trying to run on first 10 SMILES in biosolids_class, get the folowing error:
+Error in (function (..., row.names = NULL, check.rows = FALSE, check.names = TRUE,  : 
+  arguments imply differing number of rows: 0, 1
+  
+Presumably this arises when there are no missing items
 
 
 

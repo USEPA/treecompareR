@@ -9,8 +9,8 @@ display_subtree(
   base_name = NULL,
   data_1 = NULL,
   data_2 = NULL,
-  name_1 = NULL,
-  name_2 = NULL,
+  name_1 = "Set 1",
+  name_2 = "Set 2",
   tax_level_labels = chemont_tax_levels,
   layout = "circular",
   base_opts = list(color = "black", size = 0.5, linetype = 1),
@@ -22,37 +22,43 @@ display_subtree(
 }
 \arguments{
 \item{base_tree}{The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
-object. Branches of this base tree will be color-coded to indicate subtree
-membership. Default is the full ChemOnt taxonomy,
+object.  Default is the full ChemOnt taxonomy tree,
 \code{\link{chemont_tree}}.}
 
 \item{base_name}{Will be used as the plot title. Usually this should name or
-describe the base tree. Default is NULL, in which case the \emph{name} of the
-variable passed to \code{base_tree} will be used as the title (with "tree"
-appended).}
+describe the base tree. Default NULL will result in no plot title.}
 
-\item{data_1}{Highlight branches of the base tree according to their
-membership in this list. One of the following options: A data.frame
-consisting of a list of chemicals with classification data; a list of node
-numbers in the base tree; a list of node labels in the base tree; or another
-phylo object.}
+\item{data_1}{Optional: Highlight branches of the base tree according to their
+membership in this list. Default is \code{NULL}, to do no highlighting. If
+not \code{NULL}, must be one of the following options: A \code{data.frame}
+consisting of a list of entities with classification data; a vector of node
+numbers in the base tree; a vector of node labels in the base tree; or a
+subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See Details.}
 
-\item{data_2}{Optional: highlight branches of the base tree to compare
-membership in this list and \code{data_1}. One of the following options: A
-data.frame consisting of a list of chemicals with classification data; a
+\item{data_2}{Optional: Highlight branches of the base tree to compare
+membership in this list and \code{data_1}. Default is \code{NULL}, to do no
+highlighting. If not \code{NULL}, one of the following options: A
+\code{data.frame} consisting of a list of chemicals with classification data; a
 list of node numbers in the base tree; a list of node labels in the base
-tree; or another phylo object.}
+tree; or a subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class
+object. See Details.}
 
 \item{name_1}{Optional: A string giving the name of the list in \code{data_1},
-for plot labeling. Default is the variable name passed to \code{data_1}.}
+for plot labeling. Default is "Set 1".}
 
 \item{name_2}{Optional: A string giving the name of the list in \code{data_2}
-(if any), for plot labeling. Default is the variable name passed to \code{data_2}.}
+(if any), for plot labeling. Default is "Set 2".}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{Optional: a vector of the taxonomy level labels to be
+used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
+the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
+ "subclass", paste0("level", 5:11))}.}
 
 \item{layout}{\code{\link{ggtree}} layout option. Default "circular."}
+
+\item{clade_level}{The taxonomy level at which to draw clade labels, if
+any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
+Set to NULL to suppress clade labels altogether.}
 
 \item{base_color}{Color for base tree (branches not in any input data set).
 Default "gray80" for a light gray.}
@@ -78,10 +84,6 @@ only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
 will not be used to highlight branches; all branches will be plotted with
 line width given by \code{base_size}. Default is NULL.}
 
-\item{clade_label_level}{The taxonomy level at which to draw clade labels, if
-any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-Set to NULL to suppress clade labels altogether.}
-
 \item{clade_label_fontsize}{Font size for clade labels. Default 3.}
 
 \item{clade_label_wrap}{Number of characters at which to wrap clade labels to
@@ -92,12 +94,82 @@ multiple of the size of text. Controls vertical space between lines on
 multi-line clade labels. Default 0.7.}
 }
 \value{
-A ggtree object visualizing the full base tree, with branches
-color-coded to indicate whether they are present in \code{data_1}, in
-\code{data_2} if supplied, neither, or both.
+A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
+with branches highlighted to indicate presence in
+\code{data_1}, in \code{data_2} if supplied, neither, or both.
 }
 \description{
-This function takes in one or two data.tables consisting of chemicals with
-classification data and returns a tree diagram indiacting the subtree(s)
-induced by the data.table(s).
+This function takes in a base tree, and (optionally) one or two data sets
+consisting of entities with classification labels. It returns a tree diagram
+consisting of the base tree; if data sets were provided, branches of the base
+tree will be highlighted according to their membership in the provided data
+sets.
 }
+\section{How to specify data sets}{
+\subsection{As \code{data.frame} objects containing classified entities}{
+
+If \code{data_1} or \code{data_2} are provided as \code{data.frame} objects containing
+classified entities, they must be of the following format: Rows correspond to
+individual entities. There must be one column corresponding to each of the
+taxonomy levels specified in \code{tax_level_labels}, containing the label at that
+level for each entity. These columns must have names corresponding to the
+members of \code{tax_level_labels}. For example, to use the ChemOnt taxonomy, the
+\code{data.frame} must have columns \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
+\code{level5}, \code{level6}, ... \code{level11}. Whenever an entity does not have a label at
+a given level, the corresponding element in the data table for that row and
+column should be \code{NA_character_}.
+
+The \code{data.frame} must have at least one additional column that uniquely
+identifies individual entities; the name of that additional column does not
+matter, as long as it is not the same as one of the taxonomy levels.
+
+For an example of a properly-formatted input \code{data.frame}, see the built-in
+dataset \code{\link{biosolids_class}}. The only required columns in
+\code{\link{biosolids_class}} are \code{kingdom, superclass, class, subclass,
+level5, level6, level7, level8, level9, level10, level11} and any one of the
+chemical identifier columns, for example \code{DTXSID}.
+}
+
+\subsection{As vectors of node labels}{
+
+If \code{data_1} or \code{data_2} are provided as vectors of node labels, they refer to
+node labels in \code{base_tree}, i.e. labels that appear in
+\code{base_tree$tip.label} or \code{base_tree$node.label}. Any labels in
+\code{data_1} or \code{data_2} that do not appear in the base tree will be ignored.
+
+The labels in \code{data_1} and/or \code{data_2}, plus all of their ancestors in the
+base tree, will be highlighted. Their descendants will not be highlighted
+unless those descendants themselves appear in \code{data_1} or \code{data_2}.
+}
+
+\subsection{As vectors of node numbers}{
+
+If \code{data_1} or \code{data_2} are provided as vectors of node numbers, they refer to
+node and tip index numbers in the base tree. Tip numbers run from 1 to
+\code{ape::Ntip(base_tree)}, and node numbers run from
+\code{ape::Ntip(base_tree) + 1} to \code{ape::Ntip(base_tree) +
+ape::Nnode(base_tree) - 1}.
+
+You might specify \code{data_1} or \code{data_2} as vectors of node numbers if, for
+example, you have used \code{\link[phangorn]{Ancestors}} or
+\code{\link[phangorn]{Descendants}} to trace ancestors or descendants of a
+specified node, and now you want to visualize those ancestors or descendants.
+\code{\link[phangorn]{Ancestors}} and \code{\link[phangorn]{Descendants}} both
+return lists or vectors of node numbers, so it would be convenient to be able
+to pass those vectors of node numbers directly to \code{display_subtree}.
+
+'The nodes/tips in \code{data_1} and/or \code{data_2}, plus all of their ancestors in
+the base tree, will be highlighted. Their descendants will not be highlighted
+unless those descendants themselves appear in \code{data_1} or \code{data_2}.
+}
+
+\subsection{As tree objects}{
+
+If \code{data_1} or \code{data_2} are provided as \code{\link[ape]{phylo}}-class tree
+objects, any labels in their \code{tip.label} or \code{node.label} elements
+that do not appear in the tip or node labels of the base tree will be ignored.
+In other words, only the portions of \code{data_1} and \code{data_2} that are subtrees
+of \code{base_tree} wil be used.
+}
+}
+

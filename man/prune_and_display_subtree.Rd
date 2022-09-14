@@ -6,7 +6,6 @@
 \usage{
 prune_and_display_subtree(
   base_tree = chemont_tree,
-  base_name = NULL,
   prune_to = NULL,
   prune_name = NULL,
   adjust_branch_length = FALSE,
@@ -15,31 +14,70 @@ prune_and_display_subtree(
 )
 }
 \arguments{
-\item{adjust_branch_length}{An alternate parameter determining whether to
-resize branches of subtree.}
+\item{base_tree}{The "base tree" to prune and then plot, as a
+\code{\link[ape]{phylo}}-class object.  Default is the full ChemOnt taxonomy
+tree, \code{\link{chemont_tree}}.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{prune_to}{As for \code{\link{prune_tree}}: What to \emph{keep} from the base
+tree (everything else will be pruned away). May be a \code{data.frame} of
+classified data; one or more labels in the tree (tip or internal node
+labels); one or more node numbers in the tree (tip or internal nodes); or
+the name of a taxonomy level (one of the items in \code{tax_level_labels}).
+Default is NULL, which results in no pruning being done (i.e., the base tree
+is returned as-is). See Details.}
 
-\item{data}{A data.table with classification data for chemicals.}
+\item{prune_name}{Name of pruned tree to use as plot title. Default NULL
+results in no plot title.}
 
-\item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
+\item{adjust_branch_length}{Whether to adjust branch length so that all
+newly-pruned terminal nodes appear at the same length as tips, even if they
+were originally internal nodes. Default FALSE.}
 
-\item{show_tips}{An alternate parameter determining whether tip labels are
-displayed.}
+\item{tax_level_labels}{Optional: a vector of the taxonomy level labels to be
+used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
+the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
+ "subclass", paste0("level", 5:11))}.}
 
-\item{no_plot}{An alternate parameter for returning only the pruned tree
-without the tree visual.}
-
-\item{xlimit}{An alternate parameter determining the scale of the tree
-visualization.}
+\item{...}{
+  Arguments passed on to \code{\link[=display_subtree]{display_subtree}}
+  \describe{
+    \item{\code{base_name}}{Will be used as the plot title. Usually this should name or
+describe the base tree. Default NULL will result in no plot title.}
+    \item{\code{data_1}}{Optional: Highlight branches of the base tree according to their
+membership in this list. Default is \code{NULL}, to do no highlighting. If
+not \code{NULL}, must be one of the following options: A \code{data.frame}
+consisting of a list of entities with classification data; a vector of node
+numbers in the base tree; a vector of node labels in the base tree; or a
+subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See Details.}
+    \item{\code{data_2}}{Optional: Highlight branches of the base tree to compare
+membership in this list and \code{data_1}. Default is \code{NULL}, to do no
+highlighting. If not \code{NULL}, one of the following options: A
+\code{data.frame} consisting of a list of chemicals with classification data; a
+list of node numbers in the base tree; a list of node labels in the base
+tree; or a subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class
+object. See Details.}
+    \item{\code{name_1}}{Optional: A string giving the name of the list in \code{data_1},
+for plot labeling. Default is "Set 1".}
+    \item{\code{name_2}}{Optional: A string giving the name of the list in \code{data_2}
+(if any), for plot labeling. Default is "Set 2".}
+    \item{\code{layout}}{\code{\link{ggtree}} layout option. Default "circular."}
+    \item{\code{clade_level}}{The taxonomy level at which to draw clade labels, if
+any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
+Set to NULL to suppress clade labels altogether.}
+  }}
 }
 \value{
-A pruned tree or list consisting of a pruned tree and ggtree diagram
-of the pruned tree.
+A ggtree object visualizing the pruned base tree. If\code{data_1}
+and/or \code{data_2} are supplied, branches will be highlighted to indicate
+whether they are present in each set, neither, or both.
 }
 \description{
-This function takes a data.table of chemicals and their classification data,
-and returns the data-induced subtree with an optional tree diagram of the
-subtree.
+This function takes in a base tree, a pruning specification as for
+\code{\link{prune_tree}}, and other arguments as for
+\code{\link{display_subtree}}. It first prunes the base tree using
+\code{\link{prune_tree}}, then calls \code{\link{display_subtree}}
+substituting the pruned tree as the base tree for plotting.  It returns a tree
+diagram consisting of the pruned base tree; if data sets were provided,
+branches of the base tree will be highlighted according to their membership in
+the provided data sets.
 }

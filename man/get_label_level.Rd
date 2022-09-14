@@ -2,18 +2,19 @@
 % Please edit documentation in R/data_methods.R
 \name{get_label_level}
 \alias{get_label_level}
-\title{Label level}
+\title{Get labels at a specified taxonomy level}
 \usage{
 get_label_level(data, level_label, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{data}{A data.table with data that has been classified by some taxonomy.}
+\item{data}{A data.frame with data that has been classified by some taxonomy.}
 
 \item{level_label}{A string indicating a taxonomy level of the classified
 data.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{A vector of all of the taxonomy levels, in order.
+Default is \code{\link{chemont_tax_levels}}, the levels of the ChemOnt
+taxonomy.}
 }
 \value{
 The unique labels corresponding to the given level and classified

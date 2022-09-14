@@ -7,22 +7,19 @@
 add_terminal_label(data, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{data}{A data.table of classified chemicals.}
+\item{data}{A data.frame of classified chemicals.}
 
-\item{tip}{An alternate parameter controlling whether to include only tip
-labels.}
-
-\item{labels}{An alternate parameter giving a list of the classification
-levels when not using ClassyFire classified data.}
+\item{tax_level_labels}{A vector of taxonomy levels. Default is
+\code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.}
 
 \item{tree}{An alternate parameter giving a different tree structure if not
 using ChemOnt taxonomy.}
 }
 \value{
-A new data.table, augmenting the input data.table with a column
+A new data.frame, augmenting the input data.frame with a column
 consisting of the terminal labels.
 }
 \description{
-This function takes in a data.table of chemicals and their classifications
-and determines the terminal classification label for each chemical.
+This function takes in a data.frame of classified entities and determines the
+terminal classification label for each entity.
 }

@@ -11,8 +11,8 @@ drop_tips_nodes(
   nodes = NULL,
   level = NULL,
   keep_descendants = NULL,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5", "level6",
+    "level7", "level8", "level9", "level10", "level11")
 )
 }
 \arguments{
@@ -23,7 +23,7 @@ drop_tips_nodes(
 \item{labels}{An alternate parameter for a set of labels of the subtree.}
 
 \item{tax_level_labels}{An alternate parameter passed to the
-\code{\link{get_labels}} function.}
+\code{\link{get_terminal_labels}} function.}
 }
 \value{
 A phylo object representing the induced subtree of the data.

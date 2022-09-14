@@ -4,16 +4,7 @@
 \alias{classify_structures}
 \title{Query ClassyFire by structure}
 \usage{
-classify_structures(
-  input,
-  label = "query",
-  type = "STRUCTURE",
-  retry_get_times = 10,
-  wait_min = 5,
-  retry_query_times = 3,
-  processing_wait_per_input = NULL,
-  tax_level_labels = chemont_tax_levels
-)
+classify_structures(input, tax_level_labels = chemont_tax_levels, ...)
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
@@ -22,35 +13,11 @@ column named  \code{identifier} in the output data.frame. If not named, the
 vector itself will be returned as a column named  \code{identifier} in the
 output data.frame}
 
-\item{label}{An optional text label for the ClassyFire query. Default
-\code{"query"}.}
-
-\item{type}{String giving ClassyFire query type. Default \code{"STRUCTURE"}.}
-
-\item{retry_get_times}{Max number of times to retry GET command to ClassyFire
-API to get status of query. Default 10.}
-
-\item{wait_min}{Minimum time to wait before retrying any GET command or
-query. Default 5 seconds (because ClassyFire requests that POST requests be
-limited to 12 per second). Highly recommend not changing this to be less
-than 5 seconds, to be respectful of the ClassyFire server. All wait
-times use exponential backoff with full jitter (\code{wait time = runif(1, wait_min, wait_min *
-  2^(attempt number)}).}
-
-\item{retry_query_times}{Max number of attempts to retry an "In Queue" or
-"Processing" query (with wait time in between tries). Default 3.}
-
-\item{processing_wait_per_input}{Minimum number of seconds to wait per input
-string before retrying to retrieve results for a query whose status is
-"Processing." Default NULL results in \code{wait_min/length(input)}. Uses exponential
-backoff: effective wait time per input = \code{processing_wait_per_input *
-  2^(attempt number)}. Total wait time is either the effective wait time per
-input times the number of input structures, or \code{wait_min} seconds,
-whichever is greater.}
-
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
   level11}.}
+
+\item{...}{Other arguments as for \code{\link{query_classyfire}}.}
 }
 \value{
 A data frame with ClassyFire classifications for each input

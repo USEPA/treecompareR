@@ -207,7 +207,6 @@ label_bars <- function(data = NULL,
 #'  with branches highlighted to indicate presence in
 #'  \code{data_1}, in \code{data_2} if supplied, neither, or both.
 #'@export
-#'@import phangorn
 #'@import ggtree
 display_subtree <- function(base_tree = chemont_tree,
                             base_name = NULL,
@@ -693,7 +692,6 @@ display_subtree <- function(base_tree = chemont_tree,
 #'branches of the base tree will be highlighted according to their membership in
 #'the provided data sets.
 #'
-#'@inheritSection prune_to How to specify the subtree to keep
 #'
 #'@param base_tree The "base tree" to prune and then plot, as a
 #'  \code{\link[ape]{phylo}}-class object.  Default is the full ChemOnt taxonomy
@@ -720,8 +718,6 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
 #'  whether they are present in each set, neither, or both.
 #'@export
-#'@importFrom ape drop.tip
-#'@import ggtree
 prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       prune_to = NULL,
                                       prune_name = NULL,

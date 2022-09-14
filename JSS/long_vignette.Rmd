@@ -1,12 +1,8 @@
 ---
-title: "JStatSoft"
+title: "treecompareR package"
 output: 
   bookdown::html_document2:
     base_format: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{JStatSoft}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -47,7 +43,7 @@ We present the package **treecompareR** as a solution to the specific needs of c
 
 In 2016, the [ClassyFire](http://classyfire.wishartlab.com/) tool was introduced, in the work of [Djoumbou et al](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-016-0174-y). This work consists of a defined chemical ontology, ChemOnt, consisting of 4825 classification labels (nodes). The ontology is a strictly hierarchical taxononomy, where each node has exactly one parent. Levels of the taxonomy include kingdom (level 1), superclass (level 2), class (level 3), subclass (level 4), and more specific levels of chemical classification from level 5 to level 11. Branches of the ontology may (and do) terminate at any level more specific than kingdom.
 
-Note that the ChemOnt ontology does not include individual chemical structures (or chemical entitites) -- only chemical classes. In other words, the ontology does not attempt to enumerate a universe of possible chemical structures. Instead, *any* list of chemical structures may be classified according to the ChemOnt ontology, using the ClassyFire web tool. This tool takes in chemical structural identifiers such as InChIKey or SMILES strings and places the chemical structure within the ChemOnt ontology, at the most-specific level that is appropriate for that structure. The classification is based on a decision tree that uses elements of molecular structure to determine classification. When a structure admits multiple possible classifications, ClassyFire selects one, but can also return alternate classifications.
+Note that the ChemOnt ontology does not include individual chemical structures (or chemical entitites) -- only chemical classes. In other words, the ontology does not attempt to catalog and enumerate the universe of all possible chemical structures (a likely-impossible task). Instead, *any* list of chemical structures may be classified according to the ChemOnt ontology, using the ClassyFire web tool. This tool takes in chemical structural identifiers such as InChIKey or SMILES strings and places the chemical structure within the ChemOnt ontology, at the most-specific level that is appropriate for that structure. The classification is based on a decision tree that uses elements of molecular structure to determine classification. When a structure admits multiple possible classifications, ClassyFire selects one, but can also return alternate classifications.
 
 The ClassyFire ontology can be downloaded in JSON format at [http://classyfire.wishartlab.com/tax_nodes.json](http://classyfire.wishartlab.com/tax_nodes.json)  or in OBO format at [http://classyfire.wishartlab.com/downloads](http://classyfire.wishartlab.com/downloads). Both file formats contain the same information: node labels, node ID numbers, and node parent ID numbers, for each of the 4825 nodes in the taxonomy.
 

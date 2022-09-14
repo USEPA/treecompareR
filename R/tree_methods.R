@@ -213,6 +213,8 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   return(tree)
 }
 
+#' Calculate similarity measures
+#'
 #' @param tree A phylo object representing a rooted tree.
 #' @param labels_A The first (set of) label(s).
 #' @param labels_B The second (set of) label(s).
@@ -1456,6 +1458,14 @@ return(as.data.frame(foo2))
 
 }
 
+#' Calculate similarity measures for two datasets
+#' @param data_1 A data.frame of classified entities
+#' @param data_2 Another data.frame of classified entities
+#' @param terminal_label The variable name in the two data.frames that denotes
+#'   the terminal label of the classification. Default "terminal_label".
+#' @param tree The taxonomy tree to use. Default \code{\link{chemont_tree}}.
+#' @param tax_level_labels The set of taxonomy levels to use. Default \code{\link{chemont_tax_levels}}.
+#' @param similarity The similarity metric to calculate. Default "jaccard".
 calc_similarity_data <- function(data_1,
                             data_2,
                             terminal_label = "terminal_label",

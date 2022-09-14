@@ -25,6 +25,9 @@ data.table using the InChIKey chemical identifier.
 \details{
 This function queries ClassyFire's lookup table of pre-classified InChiKeys
 }
+\references{
+\insertRef{djoumbou2016classyfire}{treecompareR}
+}
 \seealso{
 \code{\link{classify_structure}}
 }

@@ -6,8 +6,8 @@
 \usage{
 as_classified.phylo(
   tree,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5",
-    "level6", "level7", "level8", "level9", "level10", "level11")
+  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5", "level6",
+    "level7", "level8", "level9", "level10", "level11")
 )
 }
 \description{

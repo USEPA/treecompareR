@@ -2,21 +2,48 @@
 % Please edit documentation in R/data_methods.R
 \name{calc_number_overlap}
 \alias{calc_number_overlap}
-\title{calculate overlap between two classified datasets at the individual entity level}
+\title{calculate overlap between two classified datasets at the individual entity
+level}
 \usage{
 calc_number_overlap(
   data_1,
   data_2,
-  entity_id_col,
+  entity_id_col = NULL,
   at_level = "terminal",
   tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{data_1}{A data.frame of classified entities to be used as the base set}
+\item{data_1}{A data.frame of classified entities}
 
-\item{compare_dat}{A data.frame of classified entitites to be used as hte comp}
+\item{data_2}{A data.frame of classified entities}
+
+\item{entity_id_col}{Name of column in data.frames that identifies unique
+entities. Must be the same for both \code{data_1} and \code{data_2}. If NULL
+(default), each row is assumed to be a unique entity.}
+
+\item{at_level}{Taxonomy level at which to calculate overlap. Default
+\code{"terminal"} calculates overlap for terminal labels. Otherwise, may be
+one of \code{tax_level_labels} to calculate overlap at a more-general level
+of the taxonomy.}
+
+\item{tax_level_labels}{Taxonomy levels.}
+}
+\value{
+A data.frame with a number of rows equal to the number of unique
+labels at the specified level that occur either in \code{data_1} or
+\code{data_2}. The first variable is named with the value of
+\code{at_level}, and contains the unique labels at that level that occur
+either in \code{data_1} or \code{data_2}. The other variables are: \list{
+\item{n_1}{The number of entities for this label in \code{data_1}}
+\item{n_2}{The number of entities for this label in \code{data_2}}
+\item{n_intersect}{The number of entities for this label that are in both
+\code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
+this label that are in either \code{data_1} or \code{data_2}}
+\item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
+and \code{data_2} for each label, \code{n_intersect / n_union}}}
 }
 \description{
-calculate overlap between two classified datasets at the individual entity level
+calculate overlap between two classified datasets at the individual entity
+level
 }
