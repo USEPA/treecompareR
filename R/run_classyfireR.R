@@ -410,51 +410,71 @@ classify_inchikeys <- function(inchikeys){
 #' @return A named list object: the JSON output from the ClassyFire query, parsed into list form.
 #' @export
 #'
- query_classyfire <- function(input,
+ query_classyfire <- function(input = NULL,
+                              url = NULL,
                               label = "query",
                               type = "STRUCTURE",
                               retry_get_times = 10,
                               wait_min = 5,
                               retry_query_times = 3,
                               processing_wait_per_input = NULL){
+ #if input provided, construct new query
+   if(!is.null(input)){
+     if(is.null(processing_wait_per_input)){
+       processing_wait_per_input <- wait_min/length(input)
+     }
 
-   if(is.null(processing_wait_per_input)){
-     processing_wait_per_input <- wait_min/length(input)
+     if(is.null(names(input))){
+       names(input) <- input
+     }
+
+     base_url <- "http://classyfire.wishartlab.com/queries"
+
+
+     #create tab-separated input
+     query_input <- paste(names(input),
+                          input,
+                          sep = "\t",
+                          collapse = "\n")
+     #convert to JSON
+     q <- rjson::toJSON(list(label = label,
+                             query_input = query_input,
+                             query_type = "STRUCTURE")
+     )
+     #construct POST request
+     resp <- httr::POST(url = base_url,
+                        body = q,
+                        httr::content_type_json(),
+                        httr::accept_json(),
+                        httr::timeout(getOption("timeout"))
+     )
+     post_cont <- httr::content(resp)
+     #get URL for query
+     url <- paste0(base_url, "/", post_cont$id, ".json")
+   }else{
+     if(is.null(url)){
+       stop("Either `input` or `url` must be provided, but both were NULL.")
+     }
    }
 
-   base_url <- "http://classyfire.wishartlab.com/queries"
-   #create tab-separated input
-   query_input <- paste(names(input),
-                        input,
-                        sep = "\t",
-                        collapse = "\n")
-   #convert to JSON
-   q <- rjson::toJSON(list(label = label,
-                           query_input = query_input,
-                           query_type = "STRUCTURE")
-                      )
-   #construct POST request
-   resp <- httr::POST(url = base_url,
-                      body = q,
-                      httr::content_type_json(),
-                      httr::accept_json(),
-                      httr::timeout(getOption("timeout"))
-                      )
-   post_cont <- httr::content(resp)
-   url <- paste0(base_url, "/", post_cont$id, ".json")
+   #try getting results for query
    resp <- httr::RETRY(verb = "GET",
-                       url = url,
+                       query_id = url,
                        encode = "json",
                        times = retry_get_times,
                        pause_min = wait_min,
                        terminate_on = c(404))
 
    if (!(resp$status_code %in% 200)){
-     message(paste0("ClassyFire API response status code: ",
-                   resp$status_code),
-             ". Returning empty list.")
-     #return an empty list
-     json_parse <- list()
+     message(paste0("ClassyFire API request failed with status code: ",
+                   resp$status_code).)
+     #return a placeholder json_parse with just the query ID
+     m <- regexec(text=resp$url, pattern = "(\\d+).json")
+     query_id <- regmatches(x = resp$url, m = m)[[1]][2]
+     json_parse <- list("id" = query_id,
+                        "url" = resp$url,
+                        "status_code" = rsep$status_code,
+                        "label" = label)
    }else{
      #get and parse the JSON response
      json_res <- httr::content(resp, "text")
@@ -465,6 +485,7 @@ classify_inchikeys <- function(inchikeys){
      #if in queue, wait and retry, up to retry_query_times
      retry_count <- 0
      while(!(json_parse$classification_status %in% c("Done")) &
+           resp$status_code %in% 200 &
            retry_count < retry_query_times){
        if(json_parse$classification_status %in% "In Queue"){
          #wait for query to come out of queue
@@ -500,16 +521,72 @@ classify_inchikeys <- function(inchikeys){
 
        #wait and retry
        Sys.sleep(wait_time)
-       resp <- httr::GET(url = url, httr::accept_json())
+       resp <- httr::RETRY(verb = "GET",
+                           query_id = url,
+                           encode = "json",
+                           times = retry_get_times,
+                           pause_min = wait_min,
+                           terminate_on = c(404))
        if (resp$status_code == 200){
        json_res <- httr::content(resp, "text")
        json_parse <- jsonlite::fromJSON(json_res)
+       json_parse$url <- resp$url
+       json_parse$status_code <- resp$status_code
+       message(paste("Classification status", json_parse$classification_status))
+       }else{
+         message(paste0("ClassyFire API request failed with status code: ",
+                        resp$status_code))
+         json_parse <- list("id" = query_id,
+                            "url" = resp$url,
+                            "status_code" = rsep$status_code,
+                            "label" = label)
        }
        retry_count <- retry_count + 1
      } #end while loop
 
+   } #end if (!(resp$status_code %in% 200)) for first attempt
 
-     message(paste("Classification status", json_parse$classification_status))
+   #If classification was done, then results will be paginated
+   #Each page = 10 entities
+   #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
+
+   if(resp$status_code == 200){
+   if("classification_status" %in% names(json_parse)){
+     if(json_parse$classification_status %in% "Done" &
+        "number_of_pages" %in% names(json_parse)){
+       #get vector of individual page URLs
+        url_pages <- paste0(url,
+                   "?page=",
+                   seq(from = 1,
+                       to = json_parse$number_of_pages,
+                       by = 1))
+        #send GET request for each page separately
+        #the result is a list of parsed JSON lists
+        json_parse <- lapply(url_pages,
+                         function(url_pg){
+                         resp_pg <- httr::RETRY(verb = "GET",
+                                             query_id = url_pg,
+                                             encode = "json",
+                                             times = retry_get_times,
+                                             pause_min = wait_min,
+                                             terminate_on = c(404))
+                         if (resp_pg$status_code == 200){
+                           json_res_pg <- httr::content(resp_pg, "text")
+                           json_parse_pg <- jsonlite::fromJSON(json_res_pg)
+                           json_parse_pg$url <- resp_pg$url
+                           json_parse_pg$status_code <- resp_pg$status_code
+                         }else{
+                           message(paste0("ClassyFire API request failed with status code: ",
+                                          resp_pg$status_code))
+                           json_parse_pg <- list("id" = query_id,
+                                              "url" = resp_pg$url,
+                                              "status_code" = resp_pg$status_code,
+                                              "label" = label)
+                         }
+                         return(json_parse_pg)
+                         } #end anonymous function over URLs
+        ) #end lapply over page URLs
+   }
    }
 
      return(json_parse)
