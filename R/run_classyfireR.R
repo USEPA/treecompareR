@@ -21,90 +21,41 @@
 #' @seealso \code{\link{classify_structure}}
 #'
 
-classify_inchikeys <- function(inchikeys){
-  if (!requireNamespace("classyfireR", quietly = TRUE)) {
-    warning(paste("Package \"classyfireR\" must be installed to use this function.\n", "Returning input data.table!"))
-    return(datatable)
-  }
-
-  tax_level_labels = c("kingdom",
-                       "superclass",
-                       "class",
-                       "subclass",
-                       paste0("level", 5:11))
+classify_inchikeys <- function(inchikeys,
+                               tax_level_labels = chemont_tax_levels){
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
   #get classifications as a list of data.tables, one for each INCHIKEY
-  class_list <- sapply(
+  entities_list <- lapply(
     INCHIKEYS,
     function(this_inchikey){
       #if inchikey is NA, blank, or not in valid InChiKey format,
-      #do not query API; just return NA
+      #do not query API; return NA classification instead
       if(is.na(this_inchikey) || #if InChiKey is NA
          !nzchar(trimws(this_inchikey)) || #if InChiKey is blank
          !webchem::is.inchikey(this_inchikey, #if not valid InChiKey format
                                type = "format")
          ){
-        outlist <- rep(list(NA_character_),
-                       times = length(tax_level_labels))
-        names(outlist) <- tax_level_labels
-        output <- as.data.frame(outlist)
+        output <- list()
       }else{ #if inchikey is valid, query ClassyFire API
-      cf <- classyfireR::get_classification(this_inchikey)
-      #if no classification available, return NA for classification
-      if (is.null(cf) ||
-          !("Classification" %in% names(classyfireR::classification(cf))
-          )
-      ){
-        #return data frame with columns for all taxonomy levels, but NAs
-        outlist <- rep(list(NA_character_),
-                       times = length(tax_level_labels))
-        names(outlist) <- tax_level_labels
-        output <- as.data.frame(outlist)
-      }else{ #if classification is available
-
-        #get classification
-        cf_class <- classyfireR::classification(cf)
-        #select relevant columns
-        cf_class_select <- dplyr::select(cf_class, Level, Classification)
-        #strip whitespace from "level 5", "level 6", etc.
-        cf_class_select <- cf_class_select %>%
-          dplyr::mutate(Level = gsub(pattern = "\\s",
-                                     replacement = "",
-                                     x = Level))
-        #reshape to wider format -- one column for each level
-        #and format it as a data table
-        output <- as.data.frame(
-          tidyr::pivot_wider(cf_class_select,
-                             names_from = "Level",
-                             values_from = "Classification")
-        )
-        #if missing any taxonomy levels, fill them with NAs
-        missing_levels <- setdiff(tax_level_labels,
-                                  names(output))
-        if(length(missing_levels)>0){
-          output[missing_levels] <- NA_character_
-        }
-        #reorder columns to match tax_level_labels
-        output <- output[, tax_level_labels]
-      }
+        output <- query_classyfire_inchikey(inchikey = this_inchikey)
+        output$identifier <- this_inchikey
       }
       return(output)
-    }, #end function to apply to each INCHIKEY
-    simplify = FALSE, #sapply should return a list, not a vector/matrix
-    USE.NAMES = TRUE #sapply should name the list elements after the input INCHIKEY
+    } #end function to apply to each INCHIKEY
   )
 
+  class_list <- lapply(entities_list,
+                       parse_classified_entities,
+                       tax_level_labels = tax_level_labels)
+
   #now rowbind the list of data.frames to get one big data.frame
-  inchi_class <- plyr::rbind.fill(class_list)
-  #add InChiKey identifier column
-  inchi_class$INCHIKEY <- INCHIKEYS #same as names(class_list)
+  inchi_class <- dplyr::bind_rows(class_list)
 
   #now order as for input -- re-inserting any duplicates
-  new_class <- inchi_class[match(inchikeys, inchi_class$INCHIKEY),
-                           c("INCHIKEY",
-                             tax_level_labels)]
+  new_class <- inchi_class[match(inchikeys, inchi_class$identifier),
+                           ]
 
   return(new_class)
 }
@@ -169,12 +120,7 @@ classify_inchikeys <- function(inchikeys){
     output <- do.call(data.frame,
                       c(list("identifier" = names(input),
                              "structure" = input),
-                        cols_list,
-                        json_parse[[1]][c("id",
-                                          "label",
-                                          "classification_status",
-                                          "url",
-                                          "status_code")]
+                        cols_list
                         )
                       )
     output$smiles <- NA_character_
@@ -242,6 +188,17 @@ classify_inchikeys <- function(inchikeys){
         #set order the same as input
         rownames(output) <- NULL
         output <- output[match(names(input), output$identifier), ]
+
+        #add informational columns
+        output[c("id",
+                 "label",
+                 "classification_status",
+                 "url",
+                 "status_code")] <- json_parse[[1]][c("id",
+                          "label",
+                          "classification_status",
+                          "url",
+                          "status_code")]
 
     return(output)
   }
@@ -318,6 +275,8 @@ classify_inchikeys <- function(inchikeys){
                               wait_min = 5,
                               retry_query_times = 3,
                               processing_wait_per_input = NULL){
+
+   base_url <- "http://classyfire.wishartlab.com/queries"
    #if both input and url are NULL, throw error
    if(is.null(input) &
       is.null(url)){
@@ -339,7 +298,7 @@ classify_inchikeys <- function(inchikeys){
        names(input) <- input
      }
 
-     base_url <- "http://classyfire.wishartlab.com/queries"
+
 
 
      #create tab-separated input
@@ -393,7 +352,7 @@ classify_inchikeys <- function(inchikeys){
    }
 
    #initialize a placeholder json_parse in case everything else fails
-   m <- regexec(text=url, pattern = "(\\d+).json")
+   m <- regexec(text=url, pattern = "(\\d+)\\.json")
    query_id <- regmatches(x = url, m = m)[[1]][2]
    json_parse_default <- list("id" = query_id,
         "url" = url,
@@ -593,10 +552,10 @@ parse_classified_entities <- function(entities,
 
     #get identifiers, smiles, inchikey
     #these will be character vectors identifying entities
-    cf <- entities[, c("identifier",
+    cf <- as.data.frame(entities[c("identifier",
                          "smiles",
                          "inchikey",
-                         "classification_version")]
+                         "classification_version")])
 
     #kingdom, superclass, class, subclass are all data.frames
     #with one row for each identifier,
@@ -620,9 +579,15 @@ parse_classified_entities <- function(entities,
     #giving more-specific levels of classification, if any.
     #if no intermediate nodes for an entity,
     #its corresponding element in "intermediate_nodes" is an empty data.frame.
+    #if it is an empty list (as happens for single-InChiKey queries without intermediate nodes)
+    #then handle accordingly
     cf_class2 <- entities$intermediate_nodes
+    if(length(cf_class2)>0){
     names(cf_class2) <- entities$identifier
     cf_class2_df <- dplyr::bind_rows(cf_class2, .id = "identifier")
+    }else{
+    cf_class2_df <- data.frame()
+    }
     rm(cf_class2)
 
     #rowbind the kingdom-thru-superclass labels,
@@ -683,4 +648,75 @@ parse_classified_entities <- function(entities,
   } #end if length(entities)>0
 
   return(classified_entities)
+}
+
+query_classyfire_inchikey <- function(inchikey,
+                                      retry_get_times = 3,
+                                      wait_min = 5){
+
+  base_url <- "http://classyfire.wishartlab.com/entities"
+  url <- paste0(base_url,
+                "/",
+                inchikey,
+                ".json")
+  #try getting results for query
+  resp <- httr::RETRY(verb = "GET",
+                      url = url,
+                      encode = "json",
+                      times = retry_get_times,
+                      pause_min = wait_min,
+                      terminate_on = c(404))
+
+  json_res <- httr::content(resp, "text")
+  #json_res will be NULL if no content was returned
+  if(!is.null(json_res)){
+    json_parse <- jsonlite::fromJSON(json_res, simplifyDataFrame = FALSE)
+  }else{
+    json_parse <- NULL
+  }
+
+  #initialize a placeholder json_parse in case everything else fails
+  #the items that are named lists are usually actually data.frames,
+  #but lists are coerceable to data.frames and making it a list
+  #helps with making it more general.
+  json_parse_default <- list("identifier" = character(0),
+                                   "smiles" = character(0),
+                                   "inchikey" = character(0),
+                                   "kingdom" = list("name" = character(0),
+                                                          "description" = character(0),
+                                                          "chemont_id" = character(0),
+                                                          "url" = character(0)),
+                                   "superclass" = list("name" = character(0),
+                                                             "description" = character(0),
+                                                             "chemont_id" = character(0),
+                                                             "url" = character(0)),
+                                   "class" = list("name" = character(0),
+                                                        "description" = character(0),
+                                                        "chemont_id" = character(0),
+                                                        "url" = character(0)),
+                                   "subclass" = list("name" = character(0),
+                                                           "description" = character(0),
+                                                           "chemont_id" = character(0),
+                                                           "url" = character(0)),
+                                   "intermediate_nodes" = list(),
+                                   "direct_parent" = list("name" = character(0),
+                                                                "description" = character(0),
+                                                                "chemont_id" = character(0),
+                                                                "url" = character(0)),
+                                   "classification_version" = character(0))
+
+  #fill in any elements in json_parse_default not in json_parse
+  #otherwise, keep elements in json_parse
+  json_parse <- c(
+    json_parse,
+    json_parse_default[
+      setdiff(
+        names(json_parse_default),
+        names(json_parse)
+      )
+    ]
+  )
+
+
+  return(json_parse)
 }
