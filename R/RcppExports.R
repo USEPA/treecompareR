@@ -9,3 +9,27 @@ get_jaccard <- function(list1, list2) {
     .Call(`_treecompareR_get_jaccard`, list1, list2)
 }
 
+get_children <- function(this_node, nodes, parents) {
+    .Call(`_treecompareR_get_children`, this_node, nodes, parents)
+}
+
+get_descendants <- function(these_nodes, nodes, parents) {
+    .Call(`_treecompareR_get_descendants`, these_nodes, nodes, parents)
+}
+
+calc_IC <- function(these_nodes, nodes, parents) {
+    .Call(`_treecompareR_calc_IC`, these_nodes, nodes, parents)
+}
+
+get_parents <- function(these_nodes, nodes, parents) {
+    .Call(`_treecompareR_get_parents`, these_nodes, nodes, parents)
+}
+
+get_ancestors <- function(these_nodes, nodes, parents) {
+    .Call(`_treecompareR_get_ancestors`, these_nodes, nodes, parents)
+}
+
+MRCA <- function(node1, node2, nodes, parents) {
+    .Call(`_treecompareR_MRCA`, node1, node2, nodes, parents)
+}
+

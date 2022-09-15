@@ -120,5 +120,28 @@ Error in (function (..., row.names = NULL, check.rows = FALSE, check.names = TRU
   
 Presumably this arises when there are no missing items
 
+Ultimately fixed in the course of commit SHA 0175ff0e which also removed dependency on classyfireR, which has been removed from CRAN and is therefore a barrier.
+
+# TCR 103
+
+Need to update documentation for all of the run_classyfire.R functions to fully describe variables of output data.frames, since I added some columns to describe query URL, query status, classification version, etc.
+
+# TCR 104
+
+To classify_structures() and classify_inchikeys() need to add column recording date and time that classification was made.
+
+# TCR 105
+
+Implement C++ for information content
+
+# TCR 106
+
+Implement C++ for non-Jaccard similarity measures
+
+# TCR 107
+
+Start using testthat and write unit tests for treecompareR functions
+
+
 
 

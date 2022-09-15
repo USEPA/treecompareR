@@ -107,9 +107,9 @@ get_tree_df <- function(tree){
   #get node numbers & levels
   tree_df <- get_levels(tree)
   #get parents of each node
-  tree_df$parent <- unlist(phangorn::Ancestors(x = tree,
+  tree_df$parent <- as.integer(unlist(phangorn::Ancestors(x = tree,
                                         node = tree_df$node,
-                                        type = "parent"))
+                                        type = "parent")))
   #add labels
   tree_df$Name <- get_label_from_node(node = tree_df$node,
                                      tree = tree)
