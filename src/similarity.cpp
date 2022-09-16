@@ -304,37 +304,57 @@ double get_jiang_conrath_std(int node1, int node2, std::vector<int> nodes, std::
   return jiang_conrath;
 }
 
+//Function to calculate the Jaccard index of two nodes
+double get_jaccard_std(int node1, int node2, std::vector<int> nodes, std::vector<int> parents){
+  //put each node into a 1-element vector
+  std::vector<int> node_v{node1, node2};
+  //get ancestors of each node
+  std::vector<std::vector<int>> anc_v = get_ancestors_std(node_v, nodes, parents);
+  //calc size of intersection of ancestors
+  int size_in = size_intersect(anc_v[0], anc_v[1]);
+  // Calculate the Jaccard index
+  // size of intersection/size of union
+  double jaccard = size_in / (anc_v[0].size() + anc_v[1].size() - size_in);
+  return jaccard;
+}
+
 // Function to return the pairwise similarities of two lists
-// NumericMatrix get_similarity(List anc1, //ancestors of nodesin set 1 as list object
-//                              List anc2, //ancestors of nodes in set 2 as list object
-//                              NumericVector nodes1, //node IDs in set 1
-//                              NumericVector nodes2, //node IDs in set 2
-//                              NumericVector ic1, //information content of nodes in set 1
-//                              NumericVector ic2, //information content of nodes in set 2
-//                              int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
-//   //sort the input vectors of nodes
-//   NumericVector s1 = nodes1.sort();
-//   NumericVector s2 = nodes2.sort();
-//
-//   //sorted union of nodes
-//   NumericVector allnodes = get_union(s1, s2);
-//
-//   //declare similarity matrix to store outputs
-//   NumericMatrix m(s1.size(), s1.size());
-//
-//   for(int i = 0; i < allnodes.size(); ++i){
-//     for(int j = i; j < allnodes.size(); ++j){
-//       int node_i = allnodes[i];
-//       int node_j = allnodes[j];
-//       if(std::find(s1.begin(), s1.end(), node_i) != s1.end()){
-//
-//       }
-//
-//     }
-//   }
-// switch(sim_metric){
-// case 1:
-//
-// }
-//
-// }
+// [[Rcpp::export]]
+NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
+                             IntegerVector nodes2, //node IDs in set 2
+                             IntegerVector tree_nodes, //all nodes of tree
+                             IntegerVector tree_parents, //all parents of tree
+                             int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
+
+  int n1 = nodes1.size();
+  int n2 = nodes2.size();
+  //std::vector versions of nodes
+  std::vector<int> nodes1_std = Rcpp::as<std::vector<int>>(nodes1);
+  std::vector<int> nodes2_std = Rcpp::as<std::vector<int>>(nodes2);
+  std::vector<int> tree_nodes_std = Rcpp::as<std::vector<int>>(tree_nodes);
+  std::vector<int> tree_parents_std = Rcpp::as<std::vector<int>>(tree_parents);
+  //declare similarity matrix to store outputs
+  NumericMatrix m(n1, n2);
+
+  for(int i = 0; i < n1; ++i){
+    for(int j = i; j < n2; ++j){
+      int node_i = nodes1_std[i];
+      int node_j = nodes2_std[j];
+      switch(sim_metric){
+      case 1: //Jaccard similarity
+        m(i,j) = get_jaccard_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        break;
+      case 2: //Resnik similarity
+        m(i,j) = get_resnik_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        break;
+      case 3: //Lin similarity
+        m(i,j) = get_lin_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        break;
+      case 4: //Jiang and Conrath similarity
+        m(i,j) = get_jiang_conrath_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        break;
+      }
+    }
+  }
+  return m;
+}
