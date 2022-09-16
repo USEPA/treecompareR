@@ -5,32 +5,44 @@ jaccard_index <- function(s1, s2) {
     .Call(`_treecompareR_jaccard_index`, s1, s2)
 }
 
-get_jaccard <- function(list1, list2) {
-    .Call(`_treecompareR_get_jaccard`, list1, list2)
+get_children <- function(this_node, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_children`, this_node, tree_nodes, tree_parents)
 }
 
-get_children <- function(this_node, nodes, parents) {
-    .Call(`_treecompareR_get_children`, this_node, nodes, parents)
+get_descendants <- function(these_nodes, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_descendants`, these_nodes, tree_nodes, tree_parents)
 }
 
-get_descendants <- function(these_nodes, nodes, parents) {
-    .Call(`_treecompareR_get_descendants`, these_nodes, nodes, parents)
+calc_IC <- function(these_nodes, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_calc_IC`, these_nodes, tree_nodes, tree_parents)
 }
 
-calc_IC <- function(these_nodes, nodes, parents) {
-    .Call(`_treecompareR_calc_IC`, these_nodes, nodes, parents)
+get_parents <- function(these_nodes, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_parents`, these_nodes, tree_nodes, tree_parents)
 }
 
-get_parents <- function(these_nodes, nodes, parents) {
-    .Call(`_treecompareR_get_parents`, these_nodes, nodes, parents)
+get_ancestors <- function(these_nodes, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_ancestors`, these_nodes, tree_nodes, tree_parents)
 }
 
-get_ancestors <- function(these_nodes, nodes, parents) {
-    .Call(`_treecompareR_get_ancestors`, these_nodes, nodes, parents)
+get_MRCA <- function(node1, node2, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_MRCA`, node1, node2, tree_nodes, tree_parents)
 }
 
-get_MRCA <- function(node1, node2, nodes, parents) {
-    .Call(`_treecompareR_get_MRCA`, node1, node2, nodes, parents)
+get_resnik <- function(node1, node2, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_resnik`, node1, node2, tree_nodes, tree_parents)
+}
+
+get_lin <- function(node1, node2, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_lin`, node1, node2, tree_nodes, tree_parents)
+}
+
+get_jiang_conrath <- function(node1, node2, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_jiang_conrath`, node1, node2, tree_nodes, tree_parents)
+}
+
+get_jaccard <- function(node1, node2, tree_nodes, tree_parents) {
+    .Call(`_treecompareR_get_jaccard`, node1, node2, tree_nodes, tree_parents)
 }
 
 get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric) {

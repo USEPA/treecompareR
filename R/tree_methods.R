@@ -218,11 +218,15 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #' @param tree A phylo object representing a rooted tree.
 #' @param labels_A The first (set of) label(s).
 #' @param labels_B The second (set of) label(s).
-#' @return Matrix of similarity values for pairs of labels from `label_A` and `label_B`.
+#' @param metric A string naming the similarity metric to use. Options are
+#'   "jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
+#'   need be entered (e.g., "ja" for "jaccard", "re" for "resnik", "li" for
+#'   "lin", and "ji" for "jiang_conrath"). Case-insensitive.
+#' @return Matrix of similarity values for pairs of labels from `label_A` and
+#'   `label_B`.
 #' @export
 #'
-#' @references
-#' \insertRef{pekar2002taxonomy}{treecompareR}
+#' @references \insertRef{pekar2002taxonomy}{treecompareR}
 #'
 #' \insertRef{pesquita2009semantic}{treecompareR}
 #'
@@ -234,46 +238,34 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #' calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
 #'
 
-calc_similarity <- function(tree, labels_A, labels_B, metric = "jaccard", method = "cpp"){
-  #get ancestry of labels A
-  #convert labels to nodes
+calc_similarity <- function(tree,
+                            labels_A,
+                            labels_B,
+                            metric = "jaccard"){
+
+
+  #convert metric to integer indicator (to pass to C++)
+  metric <- substr(tolower(metric), 1, 2)
+  metric_list <- c("ja",
+                   "re",
+                   "li",
+                   "ji")
+  metric_int <- match(metric, metric_list)
+
+  #convert labels A to node ID numbers
   node_A <- get_node_from_label(label = labels_A,
                                 tree = tree)
-  #get ancestors of each node
-  anc_A <- phangorn::Ancestors(x = tree,
-                                 node = node_A)
-  # #add node itself to ancestor tree
-  # anc_A <- lapply(seq_along(anc_A),
-  #                 function(i) c(anc_A[[i]], node_A[i]))
-
-
-  #get ancestry of labels_B in tree
+  #convert labels B to node numbers
   node_B <- get_node_from_label(label = labels_B,
                                 tree = tree)
-  #get ancestors of each node
-  anc_B <- phangorn::Ancestors(x = tree,
-                                 node = node_B)
-  # #add node itself to ancestor tree
-  # anc_B <- lapply(seq_along(anc_B),
-  #                 function(i) c(anc_B[[i]], node_B[i]))
 
-  #compute IC
-  IC <- generate_information_content(tree = tree)
-
-
-
-  if(method %in% "cpp"){ #use C++ function for speed
-  outmat <- get_jaccard(list1 = anc_A, list2 = anc_B)
-  }else{
-    outmat <- matrix(nrow = length(labels_A),
-                     ncol = length(labels_B))
-    for(i in 1:length(labels_A)){
-      for(j in 1:length(labels_B)){
-        outmat[i,j] <- length(intersect(anc_A[[i]], anc_B[[j]]))/
-          length(union(anc_A[[i]], anc_B[[j]]))
-      }
-    }
-  }
+root_node <- setdiff(tree$edge[,1], tree$edge[,2])
+  #Call C++ function
+  outmat <- get_similarity(nodes1 = node_A,
+                           nodes2 = node_B,
+                           tree_nodes = as.integer(c(tree$edge[,2], root_node)),
+                           tree_parents = as.integer(c(tree$edge[,1], 0)),
+                           sim_metric = metric_int)
 return(outmat)
 
 }
@@ -311,29 +303,31 @@ general_Resnik_similarity <- function(tree,
                                       label_B = NULL,
                                       node_A = NULL,
                                       node_B = NULL) {
-  labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
       stop('Please input a pair of labels or a pair of node numbers')
-    } else {
-      index1 <- node_A
-      index2 <- node_B
+    }else{
+      #ensure they are integers
+      node_A <- as.integer(node_A)
+      node_B <- as.integer(node_B)
     }
   } else {
-    index1 <- which(labels == label_A)
-    index2 <- which(labels == label_B)
+    #convert labels A to node ID numbers
+    node_A <- get_node_from_label(label = label_A,
+                                  tree = tree)
+    #convert labels B to node numbers
+    node_B <- get_node_from_label(label = label_B,
+                                  tree = tree)
   }
 
-  # Get the common ancestors. This may include either of the nodes corresponding
-  # to the input node labels/numbers.
-  commonAncestors <- intersect(c(labels[[index1]],unname(get_ancestors(tree, node_number = index1))),
-                               c(labels[[index2]], unname(get_ancestors(tree, node_number = index2))))
-
-  MRCA <- which(labels %in% commonAncestors[[1]])
-  value <- tree$IC[MRCA, 'log_descendants']
-
-  return(value)
+  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
+  #Call C++ function
+  resSim <- get_resnik(node1 = node_A,
+                    node2 = node_B,
+                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
+                    tree_parents = as.integer(c(tree$edge[,1], 0)))
 }
+
 
 #' Lin similarity
 #'
@@ -358,26 +352,38 @@ general_Resnik_similarity <- function(tree,
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#' general_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#' calc_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
+#' calc_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 #'
-general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
-  labels <- c(tree$tip.label, tree$node.label)
+calc_Lin_similarity <- function(tree,
+                                label_A = NULL,
+                                label_B = NULL,
+                                node_A = NULL,
+                                node_B = NULL){
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
       stop('Please input a pair of labels or a pair of node numbers')
-    } else {
-      index_A <- node_A
-      index_B <- node_B
+    }else{
+      #ensure they are integers
+      node_A <- as.integer(node_A)
+      node_B <- as.integer(node_B)
     }
   } else {
-    index_A <- which(labels == label_A)
-    index_B <- which(labels == label_B)
+    #convert labels A to node ID numbers
+    node_A <- get_node_from_label(label = label_A,
+                                  tree = tree)
+    #convert labels B to node numbers
+    node_B <- get_node_from_label(label = label_B,
+                                  tree = tree)
   }
 
-  resSim <- general_Resnik_similarity(tree, node_A = index_A, node_B = index_B)
-  denominator <- sum(tree$IC[c(index_A, index_B), 'log_descendants'])
-  return(ifelse(denominator == 0, 1, 2*resSim/denominator))
+  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
+  #Call C++ function
+  linSim <- get_lin(node1 = node_A,
+                       node2 = node_B,
+                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
+                    tree_parents = as.integer(c(tree$edge[,1], 0)))
+  return(linSim)
 }
 
 #' Jiang and Conrath similarity
@@ -410,22 +416,29 @@ general_Lin_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A 
 #' general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
 #'
 general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
-  labels <- c(tree$tip.label, tree$node.label)
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
       stop('Please input a pair of labels or a pair of node numbers')
-    } else {
-      index_A <- node_A
-      index_B <- node_B
+    }else{
+      #ensure they are integers
+      node_A <- as.integer(node_A)
+      node_B <- as.integer(node_B)
     }
   } else {
-    index_A <- which(labels == label_A)
-    index_B <- which(labels == label_B)
+    #convert labels A to node ID numbers
+    node_A <- get_node_from_label(label = label_A,
+                                  tree = tree)
+    #convert labels B to node numbers
+    node_B <- get_node_from_label(label = label_B,
+                                  tree = tree)
   }
 
-  resSim <- general_Resnik_similarity(tree, node_A = index_A, node_B = index_B)
-  informationSum <- sum(tree$IC[c(index_A, index_B), 'log_descendants'])
-  return(1 - ((informationSum - 2*resSim)/2))
+  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
+  #Call C++ function
+  jcSim <- get_jiang_conrath(node1 = node_A,
+                    node2 = node_B,
+                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
+                    tree_parents = as.integer(c(tree$edge[,1], 0)))
 }
 
 #' Similarity matrix generator
