@@ -141,6 +141,7 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
                                 std::vector<int> nodes,
                                 std::vector<int> parents){
   int n = these_nodes.size();
+  int tree_size = nodes.size();
 
   //get descendants for each node
   std::vector<std::vector<int>> descendants(n);
@@ -151,7 +152,7 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
   //For each node: count descendants & calculate IC accordingly
   for (int i=0; i<n; i++){
     int n_desc = descendants[i].size();
-    IC[i] = 1 - log(1 + n_desc)/log(n);
+    IC[i] = 1 - log(1 + n_desc)/log(tree_size);
   }
 
   return IC;
