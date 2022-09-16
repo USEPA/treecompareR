@@ -245,8 +245,15 @@ std::vector<int> get_MRCA_std(int node1, int node2, std::vector<int> nodes, std:
   std::vector<int> node2_v{node2};
   std::vector<std::vector<int>> anc1_v = get_ancestors_std(node1_v, nodes, parents);
   std::vector<std::vector<int>> anc2_v = get_ancestors_std(node2_v, nodes, parents);
-  std::vector<int> anc1 = anc1_v[0];
-  std::vector<int> anc2 = anc2_v[0];
+  //create vetors of ancesotrs with the nodes themselves at the beginning
+  //this means that if node1 is an ancestor of node2,
+  //that their MRCA will be node1 itself (or vice versa if node2 is ancestor of node1).
+
+  std::vector<int> anc1{node1};
+  anc1.insert(anc1.end(), anc1_v[0].begin(), anc1_v[0].end());
+  std::vector<int> anc2{node2};
+  anc2.insert(anc2.end(), anc2_v[0].begin(), anc2_v[0].end());
+
 
   //iterator pointing to the first element in anc1 that matches any element in anc2
   std::vector<int>::iterator itr = std::find_first_of(anc1.begin(),
