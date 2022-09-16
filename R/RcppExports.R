@@ -29,7 +29,11 @@ get_ancestors <- function(these_nodes, nodes, parents) {
     .Call(`_treecompareR_get_ancestors`, these_nodes, nodes, parents)
 }
 
-MRCA <- function(node1, node2, nodes, parents) {
-    .Call(`_treecompareR_MRCA`, node1, node2, nodes, parents)
+get_MRCA <- function(node1, node2, nodes, parents) {
+    .Call(`_treecompareR_get_MRCA`, node1, node2, nodes, parents)
+}
+
+get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric) {
+    .Call(`_treecompareR_get_similarity`, nodes1, nodes2, tree_nodes, tree_parents, sim_metric)
 }
 

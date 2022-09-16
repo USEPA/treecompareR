@@ -99,9 +99,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MRCA
-IntegerVector MRCA(int node1, int node2, IntegerVector nodes, IntegerVector parents);
-RcppExport SEXP _treecompareR_MRCA(SEXP node1SEXP, SEXP node2SEXP, SEXP nodesSEXP, SEXP parentsSEXP) {
+// get_MRCA
+IntegerVector get_MRCA(int node1, int node2, IntegerVector nodes, IntegerVector parents);
+RcppExport SEXP _treecompareR_get_MRCA(SEXP node1SEXP, SEXP node2SEXP, SEXP nodesSEXP, SEXP parentsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -109,7 +109,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type node2(node2SEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type nodes(nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type parents(parentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(MRCA(node1, node2, nodes, parents));
+    rcpp_result_gen = Rcpp::wrap(get_MRCA(node1, node2, nodes, parents));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_similarity
+NumericMatrix get_similarity(IntegerVector nodes1, IntegerVector nodes2, IntegerVector tree_nodes, IntegerVector tree_parents, int sim_metric);
+RcppExport SEXP _treecompareR_get_similarity(SEXP nodes1SEXP, SEXP nodes2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP sim_metricSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type nodes1(nodes1SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type nodes2(nodes2SEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
+    Rcpp::traits::input_parameter< int >::type sim_metric(sim_metricSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_similarity(nodes1, nodes2, tree_nodes, tree_parents, sim_metric));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -122,7 +137,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_treecompareR_calc_IC", (DL_FUNC) &_treecompareR_calc_IC, 3},
     {"_treecompareR_get_parents", (DL_FUNC) &_treecompareR_get_parents, 3},
     {"_treecompareR_get_ancestors", (DL_FUNC) &_treecompareR_get_ancestors, 3},
-    {"_treecompareR_MRCA", (DL_FUNC) &_treecompareR_MRCA, 4},
+    {"_treecompareR_get_MRCA", (DL_FUNC) &_treecompareR_get_MRCA, 4},
+    {"_treecompareR_get_similarity", (DL_FUNC) &_treecompareR_get_similarity, 5},
     {NULL, NULL, 0}
 };
 
