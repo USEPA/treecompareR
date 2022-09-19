@@ -49,15 +49,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // calc_IC
-NumericVector calc_IC(IntegerVector these_nodes, IntegerVector tree_nodes, IntegerVector tree_parents);
-RcppExport SEXP _treecompareR_calc_IC(SEXP these_nodesSEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP) {
+NumericVector calc_IC(IntegerVector these_nodes, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content);
+RcppExport SEXP _treecompareR_calc_IC(SEXP these_nodesSEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP information_contentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector >::type these_nodes(these_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(calc_IC(these_nodes, tree_nodes, tree_parents));
+    Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
+    rcpp_result_gen = Rcpp::wrap(calc_IC(these_nodes, tree_nodes, tree_parents, information_content));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -102,8 +103,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_resnik
-double get_resnik(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents);
-RcppExport SEXP _treecompareR_get_resnik(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP) {
+double get_resnik(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content);
+RcppExport SEXP _treecompareR_get_resnik(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP information_contentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -111,13 +112,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type node2(node2SEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_resnik(node1, node2, tree_nodes, tree_parents));
+    Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_resnik(node1, node2, tree_nodes, tree_parents, information_content));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_lin
-double get_lin(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents);
-RcppExport SEXP _treecompareR_get_lin(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP) {
+double get_lin(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content);
+RcppExport SEXP _treecompareR_get_lin(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP information_contentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -125,13 +127,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type node2(node2SEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_lin(node1, node2, tree_nodes, tree_parents));
+    Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_lin(node1, node2, tree_nodes, tree_parents, information_content));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_jiang_conrath
-double get_jiang_conrath(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents);
-RcppExport SEXP _treecompareR_get_jiang_conrath(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP) {
+double get_jiang_conrath(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content);
+RcppExport SEXP _treecompareR_get_jiang_conrath(SEXP node1SEXP, SEXP node2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP information_contentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -139,7 +142,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type node2(node2SEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_jiang_conrath(node1, node2, tree_nodes, tree_parents));
+    Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_jiang_conrath(node1, node2, tree_nodes, tree_parents, information_content));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -158,8 +162,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_similarity
-NumericMatrix get_similarity(IntegerVector nodes1, IntegerVector nodes2, IntegerVector tree_nodes, IntegerVector tree_parents, int sim_metric);
-RcppExport SEXP _treecompareR_get_similarity(SEXP nodes1SEXP, SEXP nodes2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP sim_metricSEXP) {
+NumericMatrix get_similarity(IntegerVector nodes1, IntegerVector nodes2, IntegerVector tree_nodes, IntegerVector tree_parents, int sim_metric, NumericMatrix information_content);
+RcppExport SEXP _treecompareR_get_similarity(SEXP nodes1SEXP, SEXP nodes2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP sim_metricSEXP, SEXP information_contentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -168,7 +172,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type tree_nodes(tree_nodesSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
     Rcpp::traits::input_parameter< int >::type sim_metric(sim_metricSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_similarity(nodes1, nodes2, tree_nodes, tree_parents, sim_metric));
+    Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_similarity(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -177,15 +182,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_treecompareR_jaccard_index", (DL_FUNC) &_treecompareR_jaccard_index, 2},
     {"_treecompareR_get_children", (DL_FUNC) &_treecompareR_get_children, 3},
     {"_treecompareR_get_descendants", (DL_FUNC) &_treecompareR_get_descendants, 3},
-    {"_treecompareR_calc_IC", (DL_FUNC) &_treecompareR_calc_IC, 3},
+    {"_treecompareR_calc_IC", (DL_FUNC) &_treecompareR_calc_IC, 4},
     {"_treecompareR_get_parents", (DL_FUNC) &_treecompareR_get_parents, 3},
     {"_treecompareR_get_ancestors", (DL_FUNC) &_treecompareR_get_ancestors, 3},
     {"_treecompareR_get_MRCA", (DL_FUNC) &_treecompareR_get_MRCA, 4},
-    {"_treecompareR_get_resnik", (DL_FUNC) &_treecompareR_get_resnik, 4},
-    {"_treecompareR_get_lin", (DL_FUNC) &_treecompareR_get_lin, 4},
-    {"_treecompareR_get_jiang_conrath", (DL_FUNC) &_treecompareR_get_jiang_conrath, 4},
+    {"_treecompareR_get_resnik", (DL_FUNC) &_treecompareR_get_resnik, 5},
+    {"_treecompareR_get_lin", (DL_FUNC) &_treecompareR_get_lin, 5},
+    {"_treecompareR_get_jiang_conrath", (DL_FUNC) &_treecompareR_get_jiang_conrath, 5},
     {"_treecompareR_get_jaccard", (DL_FUNC) &_treecompareR_get_jaccard, 4},
-    {"_treecompareR_get_similarity", (DL_FUNC) &_treecompareR_get_similarity, 5},
+    {"_treecompareR_get_similarity", (DL_FUNC) &_treecompareR_get_similarity, 6},
     {NULL, NULL, 0}
 };
 
