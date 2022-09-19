@@ -13,8 +13,8 @@ get_descendants <- function(these_nodes, tree_nodes, tree_parents) {
     .Call(`_treecompareR_get_descendants`, these_nodes, tree_nodes, tree_parents)
 }
 
-calc_IC <- function(these_nodes, tree_nodes, tree_parents) {
-    .Call(`_treecompareR_calc_IC`, these_nodes, tree_nodes, tree_parents)
+calc_IC <- function(these_nodes, tree_nodes, tree_parents, information_content) {
+    .Call(`_treecompareR_calc_IC`, these_nodes, tree_nodes, tree_parents, information_content)
 }
 
 get_parents <- function(these_nodes, tree_nodes, tree_parents) {
@@ -29,23 +29,23 @@ get_MRCA <- function(node1, node2, tree_nodes, tree_parents) {
     .Call(`_treecompareR_get_MRCA`, node1, node2, tree_nodes, tree_parents)
 }
 
-get_resnik <- function(node1, node2, tree_nodes, tree_parents) {
-    .Call(`_treecompareR_get_resnik`, node1, node2, tree_nodes, tree_parents)
+get_resnik <- function(node1, node2, tree_nodes, tree_parents, information_content) {
+    .Call(`_treecompareR_get_resnik`, node1, node2, tree_nodes, tree_parents, information_content)
 }
 
-get_lin <- function(node1, node2, tree_nodes, tree_parents) {
-    .Call(`_treecompareR_get_lin`, node1, node2, tree_nodes, tree_parents)
+get_lin <- function(node1, node2, tree_nodes, tree_parents, information_content) {
+    .Call(`_treecompareR_get_lin`, node1, node2, tree_nodes, tree_parents, information_content)
 }
 
-get_jiang_conrath <- function(node1, node2, tree_nodes, tree_parents) {
-    .Call(`_treecompareR_get_jiang_conrath`, node1, node2, tree_nodes, tree_parents)
+get_jiang_conrath <- function(node1, node2, tree_nodes, tree_parents, information_content) {
+    .Call(`_treecompareR_get_jiang_conrath`, node1, node2, tree_nodes, tree_parents, information_content)
 }
 
 get_jaccard <- function(node1, node2, tree_nodes, tree_parents) {
     .Call(`_treecompareR_get_jaccard`, node1, node2, tree_nodes, tree_parents)
 }
 
-get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric) {
-    .Call(`_treecompareR_get_similarity`, nodes1, nodes2, tree_nodes, tree_parents, sim_metric)
+get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content) {
+    .Call(`_treecompareR_get_similarity`, nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content)
 }
 
