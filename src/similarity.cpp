@@ -124,20 +124,29 @@ List get_descendants(IntegerVector these_nodes, IntegerVector tree_nodes, Intege
 //Here, information content is a function of number of descendants of each node, relative to total tree size
 std::vector<double> calc_IC_std(std::vector<int> these_nodes,
                                 std::vector<int> tree_nodes,
-                                std::vector<int> tree_parents){
+                                std::vector<int> tree_parents,
+                                NumericMatrix information_content){
   int n = these_nodes.size();
   int tree_size = tree_nodes.size();
 
   //get descendants for each node
-  std::vector<std::vector<int>> descendants(n);
-  descendants = get_descendants_std(these_nodes, tree_nodes, tree_parents);
+  //std::vector<std::vector<int>> descendants(n);
+  //descendants = get_descendants_std(these_nodes, tree_nodes, tree_parents);
 
   std::vector<double> IC(n);
 
   //For each node: count descendants & calculate IC accordingly
-  for (int i=0; i<n; i++){
-    int n_desc = descendants[i].size();
-    IC[i] = 1 - log(1 + n_desc)/log(tree_size);
+  //for (int i=0; i<n; i++){
+  //  int n_desc = descendants[i].size();
+  //  IC[i] = 1 - log(1 + n_desc)/log(tree_size);
+  //}
+
+  for (int i = 0; i < n; i++){
+    for (int j = 0; j < tree_size; j++){
+      if (these_nodes[i] == information_content(j, 1)){
+        IC[i] = information_content(j, 5);
+      }
+    }
   }
 
   return IC;
@@ -147,13 +156,14 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
 // [[Rcpp::export]]
 NumericVector calc_IC(IntegerVector these_nodes, //node IDs for which to calc IC
                       IntegerVector tree_nodes, //node IDs for whole taxonomy
-                      IntegerVector tree_parents){ //parent IDs for each node
+                      IntegerVector tree_parents, //parent IDs for each node
+                      NumericMatrix information_content){
   std::vector<int> these_nodes_std = Rcpp::as<std::vector<int>>(these_nodes);
   std::vector<int> nodes_std = Rcpp::as<std::vector<int>>(tree_nodes);
   std::vector<int> parents_std = Rcpp::as<std::vector<int>>(tree_parents);
   int n = these_nodes.size();
   std::vector<double> IC(n);
-  IC = calc_IC_std(these_nodes_std, nodes_std, parents_std);
+  IC = calc_IC_std(these_nodes_std, nodes_std, parents_std, information_content);
   return Rcpp::wrap(IC);
 }
 
@@ -279,12 +289,18 @@ IntegerVector get_MRCA(int node1, int node2, IntegerVector tree_nodes, IntegerVe
 }
 
 //Function to calculate the Resnik similarity of two nodes
-double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents){
+double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents,
+                      NumericMatrix information_content){
   //this is IC of the MRCA
   std::vector<int> MRCA(1);
   MRCA = get_MRCA_std(node1, node2, tree_nodes, tree_parents);
   std::vector<double> resnik(1);
-  resnik = calc_IC_std(MRCA, tree_nodes, tree_parents);
+  for (int i = 0; i < tree_nodes.size(); i++){
+    if (information_content(i,1) == MRCA[0]){
+      resnik[0] = information_content(i, 5);
+    }
+  }
+  //resnik = calc_IC_std(MRCA, tree_nodes, tree_parents);
   return resnik[0]; //resnik will only have 1 element, for the MRCA, so return it
 }
 
@@ -292,19 +308,19 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
 //Do this because Rcpp Vector classes aren't very efficient with regards to .insert or .push_back methods,
 //so it's better to do the actual operations on std::vector instead
 // [[Rcpp::export]]
-double get_resnik(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents){
+double get_resnik(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content){
   std::vector<int> tree_nodes_std = Rcpp::as<std::vector<int>>(tree_nodes);
   std::vector<int> tree_parents_std = Rcpp::as<std::vector<int>>(tree_parents);
-  double resnik = get_resnik_std(node1, node2, tree_nodes_std, tree_parents_std);
+  double resnik = get_resnik_std(node1, node2, tree_nodes_std, tree_parents_std, information_content);
   return resnik;
 }
 
 //Function to calculate the Lin similarity of two nodes
-double get_lin_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents){
-  double resnik = get_resnik_std(node1, node2, tree_nodes, tree_parents);
+double get_lin_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents, NumericMatrix information_content){
+  double resnik = get_resnik_std(node1, node2, tree_nodes, tree_parents, information_content);
   std::vector<double> IC(2);
   std::vector<int>node12{node1, node2};
-  IC = calc_IC_std(node12, tree_nodes, tree_parents);
+  IC = calc_IC_std(node12, tree_nodes, tree_parents, information_content);
   double lin = (2*resnik)/(IC[0] + IC[1]);
   return lin;
 }
@@ -313,19 +329,19 @@ double get_lin_std(int node1, int node2, std::vector<int> tree_nodes, std::vecto
 //Do this because Rcpp Vector classes aren't very efficient with regards to .insert or .push_back methods,
 //so it's better to do the actual operations on std::vector instead
 // [[Rcpp::export]]
-double get_lin(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents){
+double get_lin(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content){
   std::vector<int> tree_nodes_std = Rcpp::as<std::vector<int>>(tree_nodes);
   std::vector<int> tree_parents_std = Rcpp::as<std::vector<int>>(tree_parents);
-  double lin = get_lin_std(node1, node2, tree_nodes_std, tree_parents_std);
+  double lin = get_lin_std(node1, node2, tree_nodes_std, tree_parents_std, information_content);
   return lin;
 }
 
 //Function to calculate the Jiang & Conrath similiarty of two nodes
-double get_jiang_conrath_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents){
-  double resnik = get_resnik_std(node1, node2, tree_nodes, tree_parents);
+double get_jiang_conrath_std(int node1, int node2, std::vector<int> tree_nodes, std::vector<int> tree_parents, NumericMatrix information_content){
+  double resnik = get_resnik_std(node1, node2, tree_nodes, tree_parents, information_content);
   std::vector<double> IC(2);
   std::vector<int>node12{node1, node2};
-  IC = calc_IC_std(node12, tree_nodes, tree_parents);
+  IC = calc_IC_std(node12, tree_nodes, tree_parents, information_content);
   double jiang_conrath = 1 - (IC[0] + IC[1] - 2*resnik)/2;
 
   return jiang_conrath;
@@ -335,10 +351,10 @@ double get_jiang_conrath_std(int node1, int node2, std::vector<int> tree_nodes, 
 //Do this because Rcpp Vector classes aren't very efficient with regards to .insert or .push_back methods,
 //so it's better to do the actual operations on std::vector instead
 // [[Rcpp::export]]
-double get_jiang_conrath(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents){
+double get_jiang_conrath(int node1, int node2, IntegerVector tree_nodes, IntegerVector tree_parents, NumericMatrix information_content){
   std::vector<int> tree_nodes_std = Rcpp::as<std::vector<int>>(tree_nodes);
   std::vector<int> tree_parents_std = Rcpp::as<std::vector<int>>(tree_parents);
-  double jiang_conrath = get_jiang_conrath_std(node1, node2, tree_nodes_std, tree_parents_std);
+  double jiang_conrath = get_jiang_conrath_std(node1, node2, tree_nodes_std, tree_parents_std, information_content);
   return jiang_conrath;
 }
 
@@ -373,7 +389,8 @@ NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
                              IntegerVector nodes2, //node IDs in set 2
                              IntegerVector tree_nodes, //all nodes of tree
                              IntegerVector tree_parents, //all parents of tree
-                             int sim_metric){ // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
+                             int sim_metric, // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
+                             NumericMatrix information_content){
 
   int n1 = nodes1.size();
   int n2 = nodes2.size();
@@ -396,13 +413,13 @@ NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
         m(i,j) = get_jaccard_std(node_i, node_j, tree_nodes_std, tree_parents_std);
         break;
       case 2: //Resnik similarity
-        m(i,j) = get_resnik_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        m(i,j) = get_resnik_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
         break;
       case 3: //Lin similarity
-        m(i,j) = get_lin_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        m(i,j) = get_lin_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
         break;
       case 4: //Jiang and Conrath similarity
-        m(i,j) = get_jiang_conrath_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+        m(i,j) = get_jiang_conrath_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
         break;
       }
     }
