@@ -127,7 +127,7 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
                                 std::vector<int> tree_parents,
                                 NumericMatrix information_content){
   int n = these_nodes.size();
-  int tree_size = tree_nodes.size();
+  //int tree_size = tree_nodes.size();
 
   //get descendants for each node
   //std::vector<std::vector<int>> descendants(n);
@@ -142,9 +142,9 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
   //}
 
   for (int i = 0; i < n; i++){
-    for (int j = 0; j < tree_size; j++){
-      if (these_nodes[i] == information_content(j, 1)){
-        IC[i] = information_content(j, 5);
+    for (int j = 0; j < information_content.nrow(); j++){
+      if (these_nodes[i] == information_content(j, 0)){
+        IC[i] = information_content(j, 4);
       }
     }
   }
@@ -295,9 +295,9 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
   std::vector<int> MRCA(1);
   MRCA = get_MRCA_std(node1, node2, tree_nodes, tree_parents);
   std::vector<double> resnik(1);
-  for (int i = 0; i < tree_nodes.size(); i++){
-    if (information_content(i,1) == MRCA[0]){
-      resnik[0] = information_content(i, 5);
+  for (int i = 0; i < information_content.nrow(); i++){
+    if (information_content(i,0) == MRCA[0]){
+      resnik[0] = information_content(i, 4);
     }
   }
   //resnik = calc_IC_std(MRCA, tree_nodes, tree_parents);
