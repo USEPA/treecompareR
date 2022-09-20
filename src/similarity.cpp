@@ -104,7 +104,7 @@ for(int i=0; i<n; i++){
     //new_desc will be a 1-element vector of an int vector
     //extract the int vector and append it to descendants[i]
     descendants[i].insert(descendants[i].end(), new_desc[0].begin(), new_desc[0].end() );
-    } //end for j-0, j<n, j++
+    } //end for j=0, j<m, j++
   } //end if children.size()>0
 } //end for i=0, i<n, i++
 return descendants;
@@ -123,6 +123,7 @@ List get_descendants(IntegerVector these_nodes, IntegerVector tree_nodes, Intege
 
 //Function to calculate information content for a set of nodes, with respect to a given tree
 //Here, information content is a function of number of descendants of each node, relative to total tree size
+// information_content is a matrix with 5 columns, 'node', 'descendants', 'children', 'level', and 'IC', and a row for each node in the tree.
 std::vector<double> calc_IC_std(std::vector<int> these_nodes,
                                 std::vector<int> tree_nodes,
                                 std::vector<int> tree_parents,
