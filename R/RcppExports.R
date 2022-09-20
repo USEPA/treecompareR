@@ -45,7 +45,7 @@ get_jaccard <- function(node1, node2, tree_nodes, tree_parents) {
     .Call(`_treecompareR_get_jaccard`, node1, node2, tree_nodes, tree_parents)
 }
 
-get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content) {
-    .Call(`_treecompareR_get_similarity`, nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content)
+get_similarity <- function(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content, upper_tri = TRUE) {
+    .Call(`_treecompareR_get_similarity`, nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content, upper_tri)
 }
 
