@@ -38,8 +38,7 @@ int size_intersect(std::vector<int> s1, std::vector<int> s2){
 
 // Calculate Jaccard similarity of two sets
 // [[Rcpp::export]]
-double jaccard_index(NumericVector s1, NumericVector s2)
-{
+double jaccard_index(NumericVector s1, NumericVector s2){
   int size_s1 = s1.size();
   int size_s2 = s2.size();
   std::vector<int> s1_std = Rcpp::as<std::vector<int>>(s1);
@@ -145,6 +144,7 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
     for (int j = 0; j < information_content.nrow(); j++){
       if (these_nodes[i] == information_content(j, 0)){
         IC[i] = information_content(j, 4);
+        break;
       }
     }
   }
@@ -298,6 +298,7 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
   for (int i = 0; i < information_content.nrow(); i++){
     if (information_content(i,0) == MRCA[0]){
       resnik[0] = information_content(i, 4);
+      break;
     }
   }
   //resnik = calc_IC_std(MRCA, tree_nodes, tree_parents);
@@ -390,7 +391,8 @@ NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
                              IntegerVector tree_nodes, //all nodes of tree
                              IntegerVector tree_parents, //all parents of tree
                              int sim_metric, // which similarity metric: 1 = Jaccard, 2 = Resnik, 3 = Lin, 4 = Jiang and Conrath
-                             NumericMatrix information_content){
+                             NumericMatrix information_content,
+                             bool upper_tri = true){
 
   int n1 = nodes1.size();
   int n2 = nodes2.size();
@@ -404,6 +406,7 @@ NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
   //declare similarity matrix to store outputs
   NumericMatrix m(n1, n2);
 
+  if (upper_tri){
   for(int i = 0; i < n1; ++i){
     for(int j = i; j < n2; ++j){
       int node_i = nodes1_std[i];
@@ -421,6 +424,30 @@ NumericMatrix get_similarity(IntegerVector nodes1, //node IDs in set 1
       case 4: //Jiang and Conrath similarity
         m(i,j) = get_jiang_conrath_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
         break;
+      }
+    }
+  }
+  }
+  else
+  {
+    for(int i = 0; i < n1; ++i){
+      for(int j = 0; j < n2; ++j){
+        int node_i = nodes1_std[i];
+        int node_j = nodes2_std[j];
+        switch(sim_metric){
+        case 1: //Jaccard similarity
+          m(i,j) = get_jaccard_std(node_i, node_j, tree_nodes_std, tree_parents_std);
+          break;
+        case 2: //Resnik similarity
+          m(i,j) = get_resnik_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
+          break;
+        case 3: //Lin similarity
+          m(i,j) = get_lin_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
+          break;
+        case 4: //Jiang and Conrath similarity
+          m(i,j) = get_jiang_conrath_std(node_i, node_j, tree_nodes_std, tree_parents_std, information_content);
+          break;
+        }
       }
     }
   }
