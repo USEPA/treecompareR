@@ -142,8 +142,10 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
   //  IC[i] = 1 - log(1 + n_desc)/log(tree_size);
   //}
 
+  int m = information_content.nrow(); //Number of nodes to check
+
   for (int i = 0; i < n; i++){
-    for (int j = 0; j < information_content.nrow(); j++){
+    for (int j = 0; j < m; j++){
       if (these_nodes[i] == information_content(j, 0)){
         IC[i] = information_content(j, 4);
         break;
@@ -298,7 +300,8 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
   std::vector<int> MRCA(1);
   MRCA = get_MRCA_std(node1, node2, tree_nodes, tree_parents);
   std::vector<double> resnik(1);
-  for (int i = 0; i < information_content.nrow(); i++){
+  int m = information_content.nrow(); //Number of nodes to check
+  for (int i = 0; i < m; i++){
     if (information_content(i,0) == MRCA[0]){
       resnik[0] = information_content(i, 4);
       break;
