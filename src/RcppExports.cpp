@@ -162,8 +162,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // get_similarity
-NumericMatrix get_similarity(IntegerVector nodes1, IntegerVector nodes2, IntegerVector tree_nodes, IntegerVector tree_parents, int sim_metric, NumericMatrix information_content);
-RcppExport SEXP _treecompareR_get_similarity(SEXP nodes1SEXP, SEXP nodes2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP sim_metricSEXP, SEXP information_contentSEXP) {
+NumericMatrix get_similarity(IntegerVector nodes1, IntegerVector nodes2, IntegerVector tree_nodes, IntegerVector tree_parents, int sim_metric, NumericMatrix information_content, bool upper_tri);
+RcppExport SEXP _treecompareR_get_similarity(SEXP nodes1SEXP, SEXP nodes2SEXP, SEXP tree_nodesSEXP, SEXP tree_parentsSEXP, SEXP sim_metricSEXP, SEXP information_contentSEXP, SEXP upper_triSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -173,7 +173,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type tree_parents(tree_parentsSEXP);
     Rcpp::traits::input_parameter< int >::type sim_metric(sim_metricSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type information_content(information_contentSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_similarity(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content));
+    Rcpp::traits::input_parameter< bool >::type upper_tri(upper_triSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_similarity(nodes1, nodes2, tree_nodes, tree_parents, sim_metric, information_content, upper_tri));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -190,7 +191,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_treecompareR_get_lin", (DL_FUNC) &_treecompareR_get_lin, 5},
     {"_treecompareR_get_jiang_conrath", (DL_FUNC) &_treecompareR_get_jiang_conrath, 5},
     {"_treecompareR_get_jaccard", (DL_FUNC) &_treecompareR_get_jaccard, 4},
-    {"_treecompareR_get_similarity", (DL_FUNC) &_treecompareR_get_similarity, 6},
+    {"_treecompareR_get_similarity", (DL_FUNC) &_treecompareR_get_similarity, 7},
     {NULL, NULL, 0}
 };
 
