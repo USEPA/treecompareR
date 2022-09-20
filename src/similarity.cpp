@@ -59,9 +59,10 @@ std::vector<int> get_children_std(int this_node, std::vector<int> tree_nodes, st
   std::vector<int> children; //holds immediate children of this_node -- starting length 0
   //count number of nodes whose parent is this_node, if any
   int n_children = std::count(tree_parents.begin(), tree_parents.end(), this_node);
+  int m = tree_nodes.size(); //Number of nodes to check
   if(n_children>0){
     //iterate over all nodes and *find* those whose parent is this_node
-    for (int i=0; i<tree_nodes.size(); i++){
+    for (int i=0; i<m; i++){
       if(tree_parents[i] == this_node){
         //add to children
         children.push_back(tree_nodes[i]);
@@ -90,11 +91,12 @@ std::vector<std::vector<int>> get_descendants_std(std::vector<int> these_nodes, 
 for(int i=0; i<n; i++){
  std::vector<int> children = get_children_std(these_nodes[i], tree_nodes, tree_parents);
   //children will be size 0 if we have reached a tip. Otherwise:
-  if(children.size() > 0){
+  int m = children.size(); //get number of children
+  if(m > 0){
     //append the children to the i-th descendants vector
   descendants[i].insert(descendants[i].end(), children.begin(), children.end());
     //now call get_descendants only on *one* child at a time
-    for(int j=0; j<children.size(); j++){
+    for(int j=0; j<m; j++){
       //make a 1-element vector with this child to pass to get_descendants
     std::vector<int> this_child{children[j]};
       //recursively call get_descendants on this_child
@@ -173,9 +175,10 @@ NumericVector calc_IC(IntegerVector these_nodes, //node IDs for which to calc IC
 //Function to get parent of a given node
 std::vector<std::vector<int>> get_parent_std(std::vector<int> these_nodes, std::vector<int> tree_nodes, std::vector<int> tree_parents){
   int n = these_nodes.size();   //number of nodes to check
+  int m = tree_nodes.size(); //number of nodes in tree to check
   std::vector<std::vector<int>> parent(n); //declare a "list" to hold the parent of each node. Each list element will be either size 0 or size 1
   for(int i=0; i<n; i++){
-    for(int j = 0; j<tree_nodes.size(); j++){
+    for(int j = 0; j<m; j++){
       if(tree_nodes[j] == these_nodes[i]){
         //check if this parent is in tree_nodes; if not, it's root and has no parent
         //(this works because the root node will be listed with some placeholder parent like 0, -1, or even NA
