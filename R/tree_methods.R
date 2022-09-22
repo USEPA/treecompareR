@@ -153,7 +153,7 @@ generate_information_content <- function(tree){
     }
   }
 
-  if (log_descendants){
+
     descendants <- sapply(phangorn::allDescendants(tree),
                           length)
     #tips will be listed as their own descendants -- remove these
@@ -161,7 +161,7 @@ generate_information_content <- function(tree){
     n_node <- length(descendants)
     log_descendants <- 1 - (log(1 + descendants)/log(n_node))
     return(log_descendants)
-  }
+
 }
 
 
@@ -494,6 +494,215 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 
 }
 
+check_similarity_inputs <- function(tree = NULL, label_1 = NULL, label_2 = NULL, node_1 = NULL, node_2 = NULL){
+  if (is.null(tree) | !('phylo' %in% class(tree))){
+    stop('Please input a `phylo` object for the tree parameter!')
+  }
+
+  tree_labels <- c(tree$tip.label, tree$node.label)
+
+  if (is.null(label_1)){
+    if (is.null(node_1) | !is.numeric(node_1)){
+      stop('Please input either a label for `label_1` or a node number for `node_1`!')
+    } else {
+      node1 <- as.integer(node_1)
+    }
+  } else {
+    node1 <- which(tree_labels %in% label_1)
+    if (length(node1) != 1){
+      stop('Please input a single node label for `label_1`!')
+    }
+  }
+
+  if (is.null(label_2)){
+    if (is.null(node_2) | !is.numeric(node_2)){
+      stop('Please input either a label for `label_2` or a node number for `node_2`!')
+    } else {
+      node2 <- as.integer(node_2)
+    }
+  } else {
+    node2 <- which(tree_labels %in% label_2)
+    if (length(node2) != 1){
+      stop('Please input a single node label for `label_2`!')
+    }
+  }
+
+  if (1 <= min(c(node1, node2))){
+    if (max(c(node1, node2)) <= length(tree_labels)){
+      return(c(node1, node2))
+    } else {
+      stop('An input node is out of range!')
+    }
+  }
+  stop('An input node is out of range!')
+
+
+}
+
+jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
+                              node_1 = NULL, node_2 = NULL){
+
+  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
+                                   node_1 = node_1, node_2 = node_2)
+  node1 <- nodes[[1]]
+  node2 <- nodes[[2]]
+
+  root <- length(tree$tip.label) + 1
+
+  # Handle the case where the root is both input nodes.
+  if (all(c(node1, node2) == root)){
+    return(1)
+  }
+
+  tree_nodes <- c(tree$edge[, 2], root)
+  tree_parents <- c(tree$edge[, 1], -1)
+
+  #information_content <- generate_descendants(tree)
+  #information_content$IC <- generate_information_content(tree)
+  #information_content <- as.matrix(information_content)
+
+  jaccard <- get_jaccard(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
+                       tree_parents = tree_parents)
+  return(jaccard)
+
+}
+
+
+resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
+                              node_1 = NULL, node_2 = NULL){
+
+  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
+                                   node_1 = node_1, node_2 = node_2)
+  node1 <- nodes[[1]]
+  node2 <- nodes[[2]]
+
+  root <- length(tree$tip.label) + 1
+
+  tree_nodes <- c(tree$edge[, 2], root)
+  tree_parents <- c(tree$edge[, 1], -1)
+
+  information_content <- generate_descendants(tree)
+  information_content$IC <- generate_information_content(tree)
+  information_content <- as.matrix(information_content)
+
+  resnik <- get_resnik(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
+                       tree_parents = tree_parents, information_content = information_content)
+  return(resnik)
+
+}
+
+lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
+                              node_1 = NULL, node_2 = NULL){
+
+  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
+                                   node_1 = node_1, node_2 = node_2)
+  node1 <- nodes[[1]]
+  node2 <- nodes[[2]]
+
+  root <- length(tree$tip.label) + 1
+
+  # Handle the case where the root is both input nodes.
+  if (all(c(node1, node2) == root)){
+    return(1)
+  }
+
+  tree_nodes <- c(tree$edge[, 2], root)
+  tree_parents <- c(tree$edge[, 1], -1)
+
+  information_content <- generate_descendants(tree)
+  information_content$IC <- generate_information_content(tree)
+  information_content <- as.matrix(information_content)
+
+  lin <- get_lin(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
+                       tree_parents = tree_parents, information_content = information_content)
+  return(lin)
+
+}
+
+jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
+                              node_1 = NULL, node_2 = NULL){
+
+  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
+                                   node_1 = node_1, node_2 = node_2)
+  node1 <- nodes[[1]]
+  node2 <- nodes[[2]]
+
+  root <- length(tree$tip.label) + 1
+
+
+  tree_nodes <- c(tree$edge[, 2], root)
+  tree_parents <- c(tree$edge[, 1], -1)
+
+  information_content <- generate_descendants(tree)
+  information_content$IC <- generate_information_content(tree)
+  information_content <- as.matrix(information_content)
+
+  jiang_conrath <- get_jiang_conrath(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
+                       tree_parents = tree_parents, information_content = information_content)
+  return(jiang_conrath)
+
+}
+
+
+similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
+                              nodes_2 = NULL, tree = NULL, sim_metric = NA_integer_,
+                              upper_tri = TRUE){
+  if (is.null(tree) | !('phylo' %in% class(tree))){
+    stop('Please input a `phylo` object for the tree parameter!')
+  }
+
+  tree_labels <- c(tree$tip.label, tree$node.label)
+
+  if (!is.null(labels_1) & !is.null(labels_2)){
+    labels_1 <- labels_1[!is.na(labels_1)]
+    labels_2 <- labels_2[!is.na(labels_2)]
+
+    nodes1 <- which(tree_labels %in% labels_1)
+    nodes2 <- which(tree_labels %in% labels_2)
+
+
+  } else if (!is.null(nodes_1) & !is.null(nodes_2)){
+    nodes_1 <- nodes_1[!is.na(nodes_1)]
+    nodes_2 <- nodes_2[!is.na(nodes_2)]
+
+    nodes1 <- nodes_1[((nodes_1 >= 1) & (nodes_1 <= length(tree_labels)))]
+    nodes2 <- nodes_2[((nodes_2 >= 1) & (nodes_2 <= length(tree_labels)))]
+
+    nodes1 <- as.integer(nodes1)
+    nodes2 <- as.integer(nodes2)
+  } else {
+    stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
+  }
+
+  if (is.na(sim_metric) | !(sim_metric %in% 1:4)){
+    stop('Please input a valid value for sim_metric parameter!')
+  }
+
+  root <- length(tree$tip.label) + 1
+
+  node1 <- nodes1[nodes1 != root]
+  node2 <- nodes2[nodes2 != root]
+
+  if (any(c(length(nodes1), length(nodes2)) == 0)){
+    stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
+  }
+
+  tree_nodes <- c(tree$edge[, 2], root)
+  tree_parents <- c(tree$edge[, 1], -1)
+
+  information_content <- generate_descendants(tree)
+  information_content$IC <- generate_information_content(tree)
+  information_content <- as.matrix(information_content)
+
+  similarity <- get_similarity(nodes1 = nodes1, nodes2 = nodes2,
+                               tree_nodes = tree_nodes, tree_parents = tree_parents,
+                               sim_metric = sim_metric,
+                               information_content = information_content,
+                               upper_tri = upper_tri)
+
+  return(similarity)
+
+}
 
 #' Random subtree similarity simulation
 #'
