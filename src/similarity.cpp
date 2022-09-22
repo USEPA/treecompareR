@@ -1,7 +1,9 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include <algorithm>    // std::set_intersection, std::sort
-#include <vector>       // std::vector
+#include <vector>       // std::
+#include <iostream>
+using namespace std;
 
 //Get set intersection
 std::vector<int> intersect(std::vector<int> s1, std::vector<int> s2){
@@ -143,15 +145,16 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
   //  IC[i] = 1 - log(1 + n_desc)/log(tree_size);
   //}
 
-  int m = information_content.nrow(); //Number of nodes to check
+  //int m = information_content.nrow(); //Number of nodes to check
 
   for (int i = 0; i < n; i++){
-    for (int j = 0; j < m; j++){
-      if (these_nodes[i] == information_content(j, 0)){
-        IC[i] = information_content(j, 4);
-        break;
-      }
-    }
+    IC[i] = information_content(these_nodes[i], 4);
+    //for (int j = 0; j < m; j++){
+    //  if (these_nodes[i] == information_content(j, 0)){
+    //    IC[i] = information_content(j, 4);
+    //    break;
+    //  }
+    //}
   }
 
   return IC;
@@ -301,13 +304,17 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
   std::vector<int> MRCA(1);
   MRCA = get_MRCA_std(node1, node2, tree_nodes, tree_parents);
   std::vector<double> resnik(1);
-  int m = information_content.nrow(); //Number of nodes to check
-  for (int i = 0; i < m; i++){
-    if (information_content(i,0) == MRCA[0]){
-      resnik[0] = information_content(i, 4);
-      break;
-    }
-  }
+
+  resnik[0] = information_content(MRCA[0], 4);
+
+  //int m = information_content.nrow(); //Number of nodes to check
+  //for (int i = 0; i < m; i++){
+  //  if (information_content(i,0) == MRCA[0]){
+  //    resnik[0] = information_content(i, 4);
+  //    break;
+  //  }
+  //}
+
   //resnik = calc_IC_std(MRCA, tree_nodes, tree_parents);
   return resnik[0]; //resnik will only have 1 element, for the MRCA, so return it
 }
@@ -372,11 +379,21 @@ double get_jaccard_std(int node1, int node2, std::vector<int> tree_nodes, std::v
   std::vector<int> node_v{node1, node2};
   //get ancestors of each node
   std::vector<std::vector<int>> anc_v = get_ancestors_std(node_v, tree_nodes, tree_parents);
+  std::vector<int> anc1{node1};
+  anc1.insert(anc1.end(), anc_v[0].begin(), anc_v[0].end());
+  std::vector<int> anc2{node2};
+  anc2.insert(anc2.end(), anc_v[1].begin(), anc_v[1].end());
+
   //calc size of intersection of ancestors
-  int size_in = size_intersect(anc_v[0], anc_v[1]);
+  int size_in = size_intersect(anc1, anc2);
+  //Rcout << size_in;
+  //Rcout << anc1.size();
+  //Rcout << anc2.size();
   // Calculate the Jaccard index
   // size of intersection/size of union
-  double jaccard = size_in / (anc_v[0].size() + anc_v[1].size() - size_in);
+  double jaccard = (double)(size_in-1) / (double)(anc1.size() + anc2.size() - size_in -1);
+  //std::vector<double> test{jaccard, size_in, anc1.size(), anc2.size()};
+  //return test;
   return jaccard;
 }
 
