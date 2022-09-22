@@ -643,7 +643,27 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
 
 }
 
-
+#' Similarity matrix
+#'
+#' This function takes in a list of node labels for rows and for columns (or
+#' node indices), a tree, and a similarity measure, and returns a matrix with
+#' the calculated similarity values for each pair. Note that the default is to
+#' compute the similarity values only for pairs along and above the diagonal, so
+#' when the set of nodes for rows and columns differ, one must turn off this
+#' feature.
+#'
+#' @param labels_1 Set of node labels for rows.
+#' @param labels_2 Set of node labels for columns.
+#' @param nodes_1 Alternate parameter for set of node numbers for rows.
+#' @param nodes_2 Alternate parameter for set of node numbers for columns.
+#' @param tree The underlying tree being examined.
+#' @param sim_metric The similarity measure. 1 for Jaccard, 2 for Resnik, 3 for
+#'   Lin, 4 for Jiang and Conrath.
+#' @param upper_tri A boolean determining whether the whole matrix or upper
+#'   triangle is computed.
+#' @return A similarity matrix. The dimension names for the rows and columns
+#'   correspond to the associated node labels of the tree.
+#' @export
 similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
                               nodes_2 = NULL, tree = NULL, sim_metric = NA_integer_,
                               upper_tri = TRUE){
@@ -680,8 +700,8 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 
   root <- length(tree$tip.label) + 1
 
-  node1 <- nodes1[nodes1 != root]
-  node2 <- nodes2[nodes2 != root]
+  nodes1 <- nodes1[nodes1 != root]
+  nodes2 <- nodes2[nodes2 != root]
 
   if (any(c(length(nodes1), length(nodes2)) == 0)){
     stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
@@ -699,6 +719,9 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
                                sim_metric = sim_metric,
                                information_content = information_content,
                                upper_tri = upper_tri)
+
+  dimnames(similarity) <- list(tree_labels[nodes1],
+                               tree_labels[nodes2])
 
   return(similarity)
 
