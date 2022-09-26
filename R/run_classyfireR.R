@@ -512,10 +512,10 @@ classify_inchikeys <- function(inchikeys,
 #'   API query
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
-#' @param A data.frame with one row for each entity identifier, and variables
-#'   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
-#'   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
-#'   and `report`.
+# @param A data.frame with one row for each entity identifier, and variables
+#   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
+#   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
+#   and `report`.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
   #check to see whether classifications actually exist for these
