@@ -127,8 +127,8 @@ get_tree_df <- function(tree){
 #' of descendants of each node, and the number of children for each node.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param log_descendants Alternate parameter for specifying type of information
-#'   content.
+# @param log_descendants Alternate parameter for specifying type of information
+#   content.
 #' @return data.frame consisting of node number, children, descendants, level,
 #'   and information content for each node
 #' @export
@@ -567,6 +567,33 @@ jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 
 }
 
+#' Resnik Similarity
+#'
+#' This function takes in a tree and two input nodes (either labels or node
+#' numbers) and returns the Resnik similarity values of the nodes
+#' based on the tree structure. The function uses the formulation as described
+#' in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#' Furthermore, this function is a wrapper for a RCPP function. For rapid
+#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#'
+#'
+#' @param tree The underlying tree being examined.
+#' @param label_1 Set of node labels for rows.
+#' @param label_2 Set of node labels for columns.
+#' @param node_1 Alternate parameter for set of node numbers for rows.
+#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @return The Resnik similarity value between the two input nodes.
+#' @seealso [lin_similarity, jiang_conrath_similarity, similarity_matrix]
+#'
+#' @export
+#'
+#' @references
+#' \insertRef{lin1998information}{treecompareR}
+#'
+#' \insertRef{resnik1995using}{treecompareR}
+#'
 
 resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
                               node_1 = NULL, node_2 = NULL){
@@ -590,6 +617,32 @@ resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
   return(resnik)
 
 }
+
+#' Lin Similarity
+#'
+#' This function takes in a tree and two input nodes (either labels or node
+#' numbers) and returns the Lin similarity values of the nodes
+#' based on the tree structure. The function uses the formulation as described
+#' in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#' Furthermore, this function is a wrapper for a RCPP function. For rapid
+#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#'
+#'
+#' @param tree The underlying tree being examined.
+#' @param label_1 Set of node labels for rows.
+#' @param label_2 Set of node labels for columns.
+#' @param node_1 Alternate parameter for set of node numbers for rows.
+#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @return The Lin similarity value between the two input nodes.
+#' @seealso [resnik_similarity, jiang_conrath_similarity, similarity_matrix]
+#'
+#' @export
+#'
+#' @references
+#' \insertRef{lin1998information}{treecompareR}
+#'
 
 lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
                               node_1 = NULL, node_2 = NULL){
@@ -618,6 +671,33 @@ lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
   return(lin)
 
 }
+
+#' Jiang Conrath Similarity
+#'
+#' This function takes in a tree and two input nodes (either labels or node
+#' numbers) and returns the Jiang and Conrath similarity values of the nodes
+#' based on the tree structure. The function uses the formulation as described
+#' in
+#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
+#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
+#' Furthermore, this function is a wrapper for a RCPP function. For rapid
+#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#'
+#'
+#' @param tree The underlying tree being examined.
+#' @param label_1 Set of node labels for rows.
+#' @param label_2 Set of node labels for columns.
+#' @param node_1 Alternate parameter for set of node numbers for rows.
+#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @return The Jiang Conrath similarity value between the two input nodes.
+#' @seealso [resnik_similarity, lin_similarity, similarity_matrix]
+#'
+#' @export
+#'
+#' @references
+#' \insertRef{seco2004intrinsic}{treecompareR}
+#'
+#' \insertRef{jiang1997semantic}{treecompareR}
 
 jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
                               node_1 = NULL, node_2 = NULL){
@@ -1069,14 +1149,19 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' @param tree A phylo object representing a rooted tree.
 #' @param data A data.table of chemicals with classifications.
 #' @param labels An alternate parameter for a set of labels of the subtree.
+#' @param nodes An alternate parameter for a set of nodes of the subtree.
+#' @param level An alternate parameter specifying the level to which the tree
+#'   should be pruned. The root is level zero and each subsequent generation of
+#'   children nodes is one level greater.
+#' @param keep_descendants Alternate parameter specifying whether to keep all
+#'   descendants of list of nodes input.
 #' @param tax_level_labels An alternate parameter passed to the
 #'   \code{\link{get_terminal_labels}} function.
 #' @return A phylo object representing the induced subtree of the data.
 #'
 #' @importFrom ape drop.tip
 #'
-#' @references
-#' \insertRef{apepackage}{treecompareR}
+#' @references \insertRef{apepackage}{treecompareR}
 
 drop_tips_nodes <- function(tree,
                             data = NULL,
@@ -1669,11 +1754,19 @@ prune_tree <- function(tree,
 }
 
 #' Convert a phylo tree into a wide-format "classified" data.frame
+#'
+#' @param tree An object of class `phylo`.
+#'@param tax_level_labels Vector of the possible taxonomy levels that can appear
+#'  as column names in \code{as_classified.phylo} if it is a \code{data.frame} of
+#'  classified data.
 
 as_classified.phylo <- function(tree,
                                 tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                                       'level5', 'level6', 'level7', 'level8',
                                                                       'level9', 'level10', 'level11')){
+
+  tip_label <- NULL
+
 
   foo <- dplyr::bind_rows(
     lapply(1:(ape::Ntip(tree)),
