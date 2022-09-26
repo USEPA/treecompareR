@@ -48,7 +48,8 @@ membership in this list. Default is \code{NULL}, to do no highlighting. If
 not \code{NULL}, must be one of the following options: A \code{data.frame}
 consisting of a list of entities with classification data; a vector of node
 numbers in the base tree; a vector of node labels in the base tree; or a
-subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See Details.}
+subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See
+Details.}
     \item{\code{data_2}}{Optional: Highlight branches of the base tree to compare
 membership in this list and \code{data_1}. Default is \code{NULL}, to do no
 highlighting. If not \code{NULL}, one of the following options: A
@@ -61,9 +62,13 @@ for plot labeling. Default is "Set 1".}
     \item{\code{name_2}}{Optional: A string giving the name of the list in \code{data_2}
 (if any), for plot labeling. Default is "Set 2".}
     \item{\code{layout}}{\code{\link{ggtree}} layout option. Default "circular."}
-    \item{\code{clade_level}}{The taxonomy level at which to draw clade labels, if
-any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-Set to NULL to suppress clade labels altogether.}
+    \item{\code{base_opts}}{List of parameters with default values that control}
+    \item{\code{subtree_mapping}}{List of color values for displaying subtree.}
+    \item{\code{clade_opts}}{List of parameters with default values for illustrating
+clades within the tree diagram.}
+    \item{\code{clade_level}}{The taxonomy level at which to draw clade labels, if any.
+Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
+to NULL to suppress clade labels altogether.}
   }}
 }
 \value{
