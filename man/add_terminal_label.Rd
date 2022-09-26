@@ -11,9 +11,6 @@ add_terminal_label(data, tax_level_labels = chemont_tax_levels)
 
 \item{tax_level_labels}{A vector of taxonomy levels. Default is
 \code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.}
-
-\item{tree}{An alternate parameter giving a different tree structure if not
-using ChemOnt taxonomy.}
 }
 \value{
 A new data.frame, augmenting the input data.frame with a column
