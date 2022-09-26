@@ -13,7 +13,7 @@ respectively provide a name for each node, an ID for each node, and the ID
 of the parent of each node. Each row represents one node of the taxonomy.}
 }
 \value{
-A \code{phylo}-class tree object.}
+A \code{phylo}-class tree object.
 }
 \description{
 This function will convert taxonomy relationships from a data.frame to a
