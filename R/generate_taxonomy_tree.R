@@ -117,7 +117,7 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
 #'   respectively provide a name for each node, an ID for each node, and the ID
 #'   of the parent of each node. Each row represents one node of the taxonomy.
-#' @return A \code{phylo}-class tree object.}
+#' @return A \code{phylo}-class tree object.
 #' @export
 #'
 generate_taxonomy_tree <- function(tax_nodes = NULL){
