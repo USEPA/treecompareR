@@ -33,7 +33,8 @@ membership in this list. Default is \code{NULL}, to do no highlighting. If
 not \code{NULL}, must be one of the following options: A \code{data.frame}
 consisting of a list of entities with classification data; a vector of node
 numbers in the base tree; a vector of node labels in the base tree; or a
-subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See Details.}
+subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See
+Details.}
 
 \item{data_2}{Optional: Highlight branches of the base tree to compare
 membership in this list and \code{data_1}. Default is \code{NULL}, to do no
@@ -56,47 +57,21 @@ the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 
 \item{layout}{\code{\link{ggtree}} layout option. Default "circular."}
 
-\item{clade_level}{The taxonomy level at which to draw clade labels, if
-any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-Set to NULL to suppress clade labels altogether.}
+\item{base_opts}{List of parameters with default values that control}
 
-\item{base_color}{Color for base tree (branches not in any input data set).
-Default "gray80" for a light gray.}
+\item{subtree_mapping}{List of color values for displaying subtree.}
 
-\item{subtree_colors}{Vector of colors to use to highlight branches according
-to subtree membership. If \code{data_2} is NULL, only the first element of
-\code{subtree_colors} will be used (to signify that a branch is in
-\code{data_1}). If \code{data_2} is not NULL, then the colors will be used
-in the following order: branch in \code{data_1} only; branch in
-\code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
-is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
-ColorBrewer2 "Set2" set.}
+\item{clade_level}{The taxonomy level at which to draw clade labels, if any.
+Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
+to NULL to suppress clade labels altogether.}
 
-\item{base_size}{Line width for base tree. If NULL, default line width will be
-used.}
-
-\item{subtree_sizes}{Vector of line widths to use to highlight branches
-according to subtree membership. If \code{data_2} is NULL, only the first
-element of \code{subtree_sizes} will be used (to signify that a branch is in
-\code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
-the following order: branch in \code{data_1} only; branch in \code{data_2}
-only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
-will not be used to highlight branches; all branches will be plotted with
-line width given by \code{base_size}. Default is NULL.}
-
-\item{clade_label_fontsize}{Font size for clade labels. Default 3.}
-
-\item{clade_label_wrap}{Number of characters at which to wrap clade labels to
-a second line. Default 20.}
-
-\item{clade_label_lineheight}{Line height for multi-line clade labels, as a
-multiple of the size of text. Controls vertical space between lines on
-multi-line clade labels. Default 0.7.}
+\item{clade_opts}{List of parameters with default values for illustrating
+clades within the tree diagram.}
 }
 \value{
 A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
-with branches highlighted to indicate presence in
-\code{data_1}, in \code{data_2} if supplied, neither, or both.
+with branches highlighted to indicate presence in \code{data_1}, in
+\code{data_2} if supplied, neither, or both.
 }
 \description{
 This function takes in a base tree, and (optionally) one or two data sets
