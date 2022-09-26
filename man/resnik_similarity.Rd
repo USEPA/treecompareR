@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{resnik_similarity}
 \alias{resnik_similarity}
-\title{Lin Similarity}
+\title{Resnik Similarity}
 \usage{
 resnik_similarity(
   tree = NULL,
