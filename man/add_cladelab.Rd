@@ -42,7 +42,7 @@ little or no space on the plot.
 }
 \details{
 Currently, \code{add_cladelab} cannot be chained using the
-\code{\link{[ggplot2]{`+.gg`}}} operator. This is because \code{add_cladelab}
+\code{\link[ggplot2]{`+.gg`}} operator. This is because \code{add_cladelab}
 is not currently defined as an S3 class with an associated \code{ggplot_add}
 method.
 
@@ -53,7 +53,7 @@ method.
 \code{add_cladelab} also cannot be chained using the
 \code{\link[magrittr]{\%>\%}} operator if the preceding chain involves
 \code{`+`}. This is because of operator precedence: R evaluates
-\code{\link[magrittr]{\%>\%}} before \code{\link{[ggplot2]{`+.gg`}}}.
+\code{\link[magrittr]{\%>\%}} before \code{\link[ggplot2]{`+.gg`}}.
 
 For example, the following code also will \emph{not} work:
 
