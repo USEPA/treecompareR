@@ -157,7 +157,8 @@ label_bars <- function(data = NULL,
 #'  not \code{NULL}, must be one of the following options: A `data.frame`
 #'  consisting of a list of entities with classification data; a vector of node
 #'  numbers in the base tree; a vector of node labels in the base tree; or a
-#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See Details.
+#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See
+#'  Details.
 #'@param data_2 Optional: Highlight branches of the base tree to compare
 #'  membership in this list and \code{data_1}. Default is \code{NULL}, to do no
 #'  highlighting. If not \code{NULL}, one of the following options: A
@@ -174,38 +175,43 @@ label_bars <- function(data = NULL,
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 #'  "subclass", paste0("level", 5:11))}.
 #'@param layout \code{\link{ggtree}} layout option. Default "circular."
-#'@param base_color Color for base tree (branches not in any input data set).
-#'  Default "gray80" for a light gray.
-#'@param subtree_colors Vector of colors to use to highlight branches according
-#'  to subtree membership. If \code{data_2} is NULL, only the first element of
-#'  \code{subtree_colors} will be used (to signify that a branch is in
-#'  \code{data_1}). If \code{data_2} is not NULL, then the colors will be used
-#'  in the following order: branch in \code{data_1} only; branch in
-#'  \code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
-#'  is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
-#'  ColorBrewer2 "Set2" set.
-#'@param base_size Line width for base tree. If NULL, default line width will be
-#'  used.
-#'@param subtree_sizes Vector of line widths to use to highlight branches
-#'  according to subtree membership. If \code{data_2} is NULL, only the first
-#'  element of \code{subtree_sizes} will be used (to signify that a branch is in
-#'  \code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
-#'  the following order: branch in \code{data_1} only; branch in \code{data_2}
-#'  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
-#'  will not be used to highlight branches; all branches will be plotted with
-#'  line width given by \code{base_size}. Default is NULL.
-#'@param clade_level The taxonomy level at which to draw clade labels, if
-#'  any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-#'  Set to NULL to suppress clade labels altogether.
-#'@param clade_label_fontsize Font size for clade labels. Default 3.
-#'@param clade_label_wrap Number of characters at which to wrap clade labels to
-#'  a second line. Default 20.
-#'@param clade_label_lineheight Line height for multi-line clade labels, as a
-#'  multiple of the size of text. Controls vertical space between lines on
-#'  multi-line clade labels. Default 0.7.
+#'@param base_opts List of parameters with default values that control
+#  line properties within tree diagram.
+#'@param subtree_mapping List of color values for displaying subtree.
+#'@param clade_opts List of parameters with default values for illustrating
+#'  clades within the tree diagram.
+#@param base_color Color for base tree (branches not in any input data set).
+#  Default "gray80" for a light gray.
+#@param subtree_colors Vector of colors to use to highlight branches according
+#  to subtree membership. If \code{data_2} is NULL, only the first element of
+#  \code{subtree_colors} will be used (to signify that a branch is in
+#  \code{data_1}). If \code{data_2} is not NULL, then the colors will be used
+#  in the following order: branch in \code{data_1} only; branch in
+#  \code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
+#  is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
+#  ColorBrewer2 "Set2" set.
+#@param base_size Line width for base tree. If NULL, default line width will be
+#  used.
+#@param subtree_sizes Vector of line widths to use to highlight branches
+#  according to subtree membership. If \code{data_2} is NULL, only the first
+#  element of \code{subtree_sizes} will be used (to signify that a branch is in
+#  \code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
+#  the following order: branch in \code{data_1} only; branch in \code{data_2}
+#  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
+#  will not be used to highlight branches; all branches will be plotted with
+#  line width given by \code{base_size}. Default is NULL.
+#'@param clade_level The taxonomy level at which to draw clade labels, if any.
+#'  Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
+#'  to NULL to suppress clade labels altogether.
+#@param clade_label_fontsize Font size for clade labels. Default 3.
+#@param clade_label_wrap Number of characters at which to wrap clade labels to
+#  a second line. Default 20.
+#@param clade_label_lineheight Line height for multi-line clade labels, as a
+#  multiple of the size of text. Controls vertical space between lines on
+#  multi-line clade labels. Default 0.7.
 #'@return A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
-#'  with branches highlighted to indicate presence in
-#'  \code{data_1}, in \code{data_2} if supplied, neither, or both.
+#'  with branches highlighted to indicate presence in \code{data_1}, in
+#'  \code{data_2} if supplied, neither, or both.
 #'@export
 #'@import ggtree
 display_subtree <- function(base_tree = chemont_tree,
@@ -971,7 +977,7 @@ return(out_obj)
 #'little or no space on the plot.
 #'
 #'Currently, \code{add_cladelab} cannot be chained using the
-#'\code{\link{[ggplot2]{`+.gg`}}} operator. This is because \code{add_cladelab}
+#'\code{\link[ggplot2]{`+.gg`}} operator. This is because \code{add_cladelab}
 #'is not currently defined as an S3 class with an associated \code{ggplot_add}
 #'method.
 #'
@@ -982,7 +988,7 @@ return(out_obj)
 #'\code{add_cladelab} also cannot be chained using the
 #'\code{\link[magrittr]{%>%}} operator if the preceding chain involves
 #'\code{`+`}. This is because of operator precedence: R evaluates
-#'\code{\link[magrittr]{%>%}} before \code{\link{[ggplot2]{`+.gg`}}}.
+#'\code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{`+.gg`}}.
 #'
 #'
 #'For example, the following code also will *not* work:
@@ -1050,6 +1056,9 @@ add_cladelab <- function(tree_plot,
                                             lineheight = 0.7,
                                             default_to_tip = TRUE))
 {
+  phylo_node <- NULL
+  clade_name2 <- NULL
+
   if(!is.null(clade_level)){
   clade_opts_default <- list(wrap = 20,
                              barsize = "alternate",
