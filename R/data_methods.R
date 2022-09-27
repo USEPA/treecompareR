@@ -297,6 +297,7 @@ get_label_level <- function(data,
 get_terminal_labels <- function(data,
                                 entity_id_cols = NULL,
                        tax_level_labels = chemont_tax_levels){
+  label <- NULL
 
   #check that the input data.frame has been classified properly
   if(!any(tax_level_labels %in% names(data))){
