@@ -89,12 +89,12 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #' \code{\link[data.tree]{Node}}. Then, it converts that
 #' \code{\link[data.tree]{Node}} object into a Newick-format tree
 #' representation. Finally, it converts that Newick-format tree representation
-#' into an object of class \code{\link[phytools]{phylo}}.
+#' into an object of class \code{\link[ape]{phylo}}.
 #'
 #' This is necessary because \code{\link[ggtree]{ggtree}} requires
-#' \code{\link[phytools]{phylo}}-class objects as input, but
+#' \code{\link[ape]{phylo}}-class objects as input, but
 #' \code{\link[phytools]{phytools}} only has methods to create
-#' \code{\link[phytools]{phylo}}-class objects from Newick, SIMMAP, or
+#' \code{\link[ape]{phylo}}-class objects from Newick, SIMMAP, or
 #' Nexus-formatted trees. However, the ClassyFire ontology is not available in
 #' any of those three formats, but only as files defining the name and ID number
 #' of each node in the ontology, and giving the ID number of each node's parent
