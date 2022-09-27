@@ -1130,12 +1130,14 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 #' @export
 #'
 #' @examples
-#' \donttest{dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
-#' dt <- classify_by_smiles(dt)
+#' \donttest{
+# dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
+# dt <- classify_by_smiles(dt)
 #'
-#' get_cutoffs(mat = chemont_jaccard, data = dt)
-#' get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)}
-#'
+# dt <- data.table::data.table(BIOSOLIDS2021_class)
+# get_cutoffs(mat = chemont_jaccard, data = dt)
+# get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
+#'}
 get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutoff = NA_real_, labels = NULL, counts = NULL){
   if (is.data.table(data)){
     if (is.null(tax_level_labels)){
