@@ -15,13 +15,13 @@ jiang_conrath_similarity(
 \arguments{
 \item{tree}{The underlying tree being examined.}
 
-\item{label_1}{Set of node labels for rows.}
+\item{label_1}{A label for a node within the \code{tree} object.}
 
-\item{label_2}{Set of node labels for columns.}
+\item{label_2}{A label for a node within the \code{tree} object.}
 
-\item{node_1}{Alternate parameter for set of node numbers for rows.}
+\item{node_1}{An alternate parameter for a node within the \code{tree} object.}
 
-\item{node_2}{Alternate parameter for set of node numbers for columns.}
+\item{node_2}{An alternate parameter for a node within the \code{tree} object.}
 }
 \value{
 The Jiang Conrath similarity value between the two input nodes.
@@ -34,7 +34,8 @@ in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 Furthermore, this function is a wrapper for a RCPP function. For rapid
-calculation of similarity values of several pairs of nodes, consider using \link{similarity_matrix}.
+calculation of similarity values of several pairs of nodes, consider using
+\code{\link{similarity_matrix}}.
 }
 \references{
 \insertRef{seco2004intrinsic}{treecompareR}
@@ -42,5 +43,6 @@ calculation of similarity values of several pairs of nodes, consider using \link
 \insertRef{jiang1997semantic}{treecompareR}
 }
 \seealso{
-\link{resnik_similarity, lin_similarity, similarity_matrix}
+\code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+\code{\link{lin_similarity}}, \code{\link{similarity_matrix}}
 }

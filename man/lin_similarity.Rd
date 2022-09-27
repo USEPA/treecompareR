@@ -15,30 +15,31 @@ lin_similarity(
 \arguments{
 \item{tree}{The underlying tree being examined.}
 
-\item{label_1}{Set of node labels for rows.}
+\item{label_1}{A label for a node within the \code{tree} object.}
 
-\item{label_2}{Set of node labels for columns.}
+\item{label_2}{A label for a node within the \code{tree} object.}
 
-\item{node_1}{Alternate parameter for set of node numbers for rows.}
+\item{node_1}{An alternate parameter for a node within the \code{tree} object.}
 
-\item{node_2}{Alternate parameter for set of node numbers for columns.}
+\item{node_2}{An alternate parameter for a node within the \code{tree} object.}
 }
 \value{
 The Lin similarity value between the two input nodes.
 }
 \description{
 This function takes in a tree and two input nodes (either labels or node
-numbers) and returns the Lin similarity values of the nodes
-based on the tree structure. The function uses the formulation as described
-in
+numbers) and returns the Lin similarity values of the nodes based on the tree
+structure. The function uses the formulation as described in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 Furthermore, this function is a wrapper for a RCPP function. For rapid
-calculation of similarity values of several pairs of nodes, consider using \link{similarity_matrix}.
+calculation of similarity values of several pairs of nodes, consider using
+\code{\link{similarity_matrix}}.
 }
 \references{
 \insertRef{lin1998information}{treecompareR}
 }
 \seealso{
-\link{resnik_similarity, jiang_conrath_similarity, similarity_matrix}
+\code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+\code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
 }
