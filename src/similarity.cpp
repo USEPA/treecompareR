@@ -2,7 +2,7 @@
 using namespace Rcpp;
 #include <algorithm>    // std::set_intersection, std::sort
 #include <vector>       // std::
-#include <iostream>
+//#include <iostream>
 using namespace std;
 
 //Get set intersection
