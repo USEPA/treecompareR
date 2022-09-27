@@ -13,6 +13,10 @@ API query}
 \item{tax_level_labels}{ChemOnt taxonomy level labels (default
 \code{\link{chemont_tax_levels}})}
 }
+\value{
+A data.frame consisting of rows corresponding to each classified
+entry from the \code{entities} input.
+}
 \description{
 Parse classified entities
 }
