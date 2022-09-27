@@ -43,3 +43,7 @@ compute the similarity values only for pairs along and above the diagonal, so
 when the set of nodes for rows and columns differ, one must turn off this
 feature.
 }
+\seealso{
+\code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+\code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}}
+}
