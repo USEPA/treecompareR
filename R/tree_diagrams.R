@@ -841,6 +841,9 @@ if(group_level %in% "terminal"){
                                                       type = "tips")
 
   #now repeat the rest of the columns for each one
+  n_1 <- NULL
+  n_2 <- NULL
+  simil <- NULL
   df_list <- lapply(seq_along(overlap_tip_nodes),
                     function(i){
                       data.frame(tip_nodes = overlap_tip_nodes[[i]],
@@ -977,7 +980,7 @@ return(out_obj)
 #'little or no space on the plot.
 #'
 #'Currently, \code{add_cladelab} cannot be chained using the
-#'\code{\link[ggplot2]{`+.gg`}} operator. This is because \code{add_cladelab}
+#'\code{\link[ggplot2]{\%+\%}} operator. This is because \code{add_cladelab}
 #'is not currently defined as an S3 class with an associated \code{ggplot_add}
 #'method.
 #'
@@ -988,7 +991,7 @@ return(out_obj)
 #'\code{add_cladelab} also cannot be chained using the
 #'\code{\link[magrittr]{%>%}} operator if the preceding chain involves
 #'\code{`+`}. This is because of operator precedence: R evaluates
-#'\code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{`+.gg`}}.
+#'\code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{\%+\%}}.
 #'
 #'
 #'For example, the following code also will *not* work:
