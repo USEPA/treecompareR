@@ -230,13 +230,13 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #'
 #' \insertRef{pesquita2009semantic}{treecompareR}
 #'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' calc_similarity(tree = tree, labels_A = 't2', labels_B = 't4')
-#' calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
-#'
+# @examples
+#
+# tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#
+# calc_similarity(tree = tree, labels_A = 't2', labels_B = 't4')
+# calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
+#
 
 calc_similarity <- function(tree,
                             labels_A,
@@ -295,9 +295,9 @@ return(outmat)
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#' general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#'
+# general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
+# general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#
 general_Resnik_similarity <- function(tree,
                                       label_A = NULL,
                                       label_B = NULL,
@@ -343,18 +343,18 @@ general_Resnik_similarity <- function(tree,
 #' @param node_A Alternate parameter, the first node number.
 #' @param node_B Alternate parameter, the second node number.
 #' @return The Lin similarity in the given tree of the pair of nodes.
-#' @export
+# @export
 #'
 #' @references
 #' \insertRef{lin1998information}{treecompareR}
 #'
-#' @examples
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' calc_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' calc_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#'
+# @examples
+#
+# tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#
+# calc_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
+# calc_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#
 calc_Lin_similarity <- function(tree,
                                 label_A = NULL,
                                 label_B = NULL,
@@ -411,10 +411,10 @@ calc_Lin_similarity <- function(tree,
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
-#' general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#'
+#
+# general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
+# general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
+#
 general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
   if (is.null(label_A) | is.null(label_B)){
     if (is.null(node_A) | is.null(node_B)){
@@ -458,9 +458,9 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 #' @examples
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-#' generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
-#' generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
+#
+# generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
+# generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
 #'
 generate_similarity_matrix <- function(tree, similarity = NULL){
   ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
@@ -494,6 +494,21 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 
 }
 
+#' Check similarity inputs
+#'
+#' This is a helper function for checking user input values within the
+#' \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#' \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}}, and
+#' \code{link{similarity_matrix}} functions.
+#'
+#' @param tree An object of class `phylo`.
+#' @param label_1 A label for a node within the `tree` object.
+#' @param label_2 A label for a node within the `tree` object.
+#' @param node_1 An alternate parameter for a node within the `tree` object.
+#' @param node_2 An alternate parameter for a node within the `tree` object.
+#'
+#' @return A pair of node numbers corresponding to the input parameters
+#'   specifying the first and second nodes.
 check_similarity_inputs <- function(tree = NULL, label_1 = NULL, label_2 = NULL, node_1 = NULL, node_2 = NULL){
   if (is.null(tree) | !('phylo' %in% class(tree))){
     stop('Please input a `phylo` object for the tree parameter!')
@@ -539,6 +554,35 @@ check_similarity_inputs <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 
 }
 
+#' Jaccard similarity
+#'
+#' This function takes in a tree and two input nodes (either labels or node
+#' numbers) and returns the Jaccard similarity values of the nodes based on the
+#' tree structure. For each node, there is a set of labels along the unique path from the
+#' root to the label. These sets are compared using Jaccard similarity. For more
+#' information on Jaccard similarity, please consult
+#' \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
+#'
+#' Furthermore, this function is a wrapper for a RCPP function. For rapid
+#' calculation of similarity values of several pairs of nodes, consider using
+#' \code{\link{similarity_matrix}}.
+#'
+#' @param tree A `phylo` object representing a rooted tree.
+#' @param label_1 A label for a node within the `tree` object.
+#' @param label_2 A label for a node within the `tree` object.
+#' @param node_1 An alternate parameter for a node within the `tree` object.
+#' @param node_2 An alternate parameter for a node within the `tree` object.
+#' @return The Jaccard similarity of the label sets for the root to node path.
+#' @export
+#'
+#' @references
+#' \insertRef{pekar2002taxonomy}{treecompareR}
+#'
+#' \insertRef{pesquita2009semantic}{treecompareR}
+#'
+#' @seealso \code{\link{resnik_similarity}}, \code{\link{lin_similarity}},
+#' \code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
+
 jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
                               node_1 = NULL, node_2 = NULL){
 
@@ -570,29 +614,29 @@ jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #' Resnik Similarity
 #'
 #' This function takes in a tree and two input nodes (either labels or node
-#' numbers) and returns the Resnik similarity values of the nodes
-#' based on the tree structure. The function uses the formulation as described
-#' in
+#' numbers) and returns the Resnik similarity values of the nodes based on the
+#' tree structure. The function uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #' Furthermore, this function is a wrapper for a RCPP function. For rapid
-#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#' calculation of similarity values of several pairs of nodes, consider using
+#' \code{\link{similarity_matrix}}.
 #'
 #'
 #' @param tree The underlying tree being examined.
-#' @param label_1 Set of node labels for rows.
-#' @param label_2 Set of node labels for columns.
-#' @param node_1 Alternate parameter for set of node numbers for rows.
-#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @param label_1 A label for a node within the `tree` object.
+#' @param label_2 A label for a node within the `tree` object.
+#' @param node_1 An alternate parameter for a node within the `tree` object.
+#' @param node_2 An alternate parameter for a node within the `tree` object.
 #' @return The Resnik similarity value between the two input nodes.
-#' @seealso [lin_similarity, jiang_conrath_similarity, similarity_matrix]
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{lin_similarity}},
+#'   \code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
 #'
 #' @export
 #'
-#' @references
-#' \insertRef{lin1998information}{treecompareR}
+#' @references \insertRef{lin1998information}{treecompareR}
 #'
-#' \insertRef{resnik1995using}{treecompareR}
+#'   \insertRef{resnik1995using}{treecompareR}
 #'
 
 resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
@@ -621,27 +665,27 @@ resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #' Lin Similarity
 #'
 #' This function takes in a tree and two input nodes (either labels or node
-#' numbers) and returns the Lin similarity values of the nodes
-#' based on the tree structure. The function uses the formulation as described
-#' in
+#' numbers) and returns the Lin similarity values of the nodes based on the tree
+#' structure. The function uses the formulation as described in
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #' Furthermore, this function is a wrapper for a RCPP function. For rapid
-#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#' calculation of similarity values of several pairs of nodes, consider using
+#' \code{\link{similarity_matrix}}.
 #'
 #'
 #' @param tree The underlying tree being examined.
-#' @param label_1 Set of node labels for rows.
-#' @param label_2 Set of node labels for columns.
-#' @param node_1 Alternate parameter for set of node numbers for rows.
-#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @param label_1 A label for a node within the `tree` object.
+#' @param label_2 A label for a node within the `tree` object.
+#' @param node_1 An alternate parameter for a node within the `tree` object.
+#' @param node_2 An alternate parameter for a node within the `tree` object.
 #' @return The Lin similarity value between the two input nodes.
-#' @seealso [resnik_similarity, jiang_conrath_similarity, similarity_matrix]
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#'   \code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
 #'
 #' @export
 #'
-#' @references
-#' \insertRef{lin1998information}{treecompareR}
+#' @references \insertRef{lin1998information}{treecompareR}
 #'
 
 lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
@@ -681,21 +725,22 @@ lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 #' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 #' Furthermore, this function is a wrapper for a RCPP function. For rapid
-#' calculation of similarity values of several pairs of nodes, consider using [similarity_matrix].
+#' calculation of similarity values of several pairs of nodes, consider using
+#' \code{\link{similarity_matrix}}.
 #'
 #'
 #' @param tree The underlying tree being examined.
-#' @param label_1 Set of node labels for rows.
-#' @param label_2 Set of node labels for columns.
-#' @param node_1 Alternate parameter for set of node numbers for rows.
-#' @param node_2 Alternate parameter for set of node numbers for columns.
+#' @param label_1 A label for a node within the `tree` object.
+#' @param label_2 A label for a node within the `tree` object.
+#' @param node_1 An alternate parameter for a node within the `tree` object.
+#' @param node_2 An alternate parameter for a node within the `tree` object.
 #' @return The Jiang Conrath similarity value between the two input nodes.
-#' @seealso [resnik_similarity, lin_similarity, similarity_matrix]
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#' \code{\link{lin_similarity}}, \code{\link{similarity_matrix}}
 #'
 #' @export
 #'
-#' @references
-#' \insertRef{seco2004intrinsic}{treecompareR}
+#' @references \insertRef{seco2004intrinsic}{treecompareR}
 #'
 #' \insertRef{jiang1997semantic}{treecompareR}
 
@@ -744,6 +789,9 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
 #' @return A similarity matrix. The dimension names for the rows and columns
 #'   correspond to the associated node labels of the tree.
 #' @export
+#'
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#'   \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}}
 similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
                               nodes_2 = NULL, tree = NULL, sim_metric = NA_integer_,
                               upper_tri = TRUE){
@@ -841,21 +889,31 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 #' @importFrom phangorn Ancestors
 #'
 #' @examples
-#' \donttest{dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
-#' dt1 <- classify_by_smiles(dt1)
-#'
-#' dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17)[1:10,])
-#' dt2 <- classify_by_smiles(dt2)
-#'
-#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
-#'                      name_1 = 'Biosolids', name_2 = 'USGS', seed = 42L, Jaccard = chemont_jaccard,
-#'                      Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
-#'                      JiangConrath = chemont_jiangconrath_IC_SVH)
-#' MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
-#'                       name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, seed = 42L,
-#'                       Jaccard = chemont_jaccard,Resnik = chemont_resnik_IC_SVH,
-#'                       Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
-#'
+#' \donttest{
+# dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
+# dt1 <- classify_by_smiles(dt1)
+#
+# dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17)[1:10,])
+# dt2 <- classify_by_smiles(dt2)
+#
+#' dt1 <- data.table::data.table(BIOSOLIDS2021_class[1:20,])
+#' dt2 <- data.table::data.table(USGSWATER_class[1:20, ])
+#
+# MonteCarlo_similarity(tree = chemont_tree, data_1 = dt1,
+#                       data_2 = dt2, name_1 = 'Biosolids 1:20',
+#                       name_2 = 'USGS 1:20', seed = 42L,
+#                       Jaccard = chemont_jaccard,
+#                       Resnik = chemont_resnik_IC_SVH,
+#                       Lin = chemont_lin_IC_SVH,
+#                      JiangConrath = chemont_jiangconrath_IC_SVH)
+# MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1,
+#                       data_2 = dt2, name_1 = 'Biosolids 1:20',
+#                       name_2 = 'USGS 1:20', label_number = 200, seed = 42L,
+#                       Jaccard = chemont_jaccard,
+#                       Resnik = chemont_resnik_IC_SVH,
+#                       Lin = chemont_lin_IC_SVH,
+#                       JiangConrath = chemont_jiangconrath_IC_SVH)
+#'}
 MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_indices = NULL, data_2_indices = NULL,
                                   name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100,
                                   repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL,
