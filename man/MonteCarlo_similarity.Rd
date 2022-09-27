@@ -69,19 +69,8 @@ allows for comparison of the similarity of the input data sets (or subtrees)
 with similarity of random subtrees of specified sizes.
 }
 \examples{
-\donttest{dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
-dt1 <- classify_by_smiles(dt1)
-
-dt2 <- classify_datatable(data.table::data.table(chemical_list_USGSWATER_2022_05_17)[1:10,])
-dt2 <- classify_by_smiles(dt2)
-
-MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
-                     name_1 = 'Biosolids', name_2 = 'USGS', seed = 42L, Jaccard = chemont_jaccard,
-                     Resnik = chemont_resnik_IC_SVH, Lin = chemont_lin_IC_SVH,
-                     JiangConrath = chemont_jiangconrath_IC_SVH)
-MonteCarlo_similarity(tree = treecompareR:::chemont_tree, data_1 = dt1, data_2 = dt2,
-                      name_1 = 'Biosolids', name_2 = 'USGS', label_number = 200, seed = 42L,
-                      Jaccard = chemont_jaccard,Resnik = chemont_resnik_IC_SVH,
-                      Lin = chemont_lin_IC_SVH, JiangConrath = chemont_jiangconrath_IC_SVH)}
-
+\donttest{
+dt1 <- data.table::data.table(BIOSOLIDS2021_class[1:20,])
+dt2 <- data.table::data.table(USGSWATER_class[1:20, ])
+}
 }
