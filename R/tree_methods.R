@@ -213,6 +213,65 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   return(tree)
 }
 
+#' Ancestors
+#'
+#' Generates a list of ancestors for a given node in a tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label The node label.
+#' @param node_number Alternate parameter, the number of the given node.
+#' @return A list of nodes back to the root of ancestors for the given node.
+#' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' get_ancestors(tree = tree, label = 't2')
+#' get_ancestors(tree = tree, label = 'n1')
+get_ancestors <- function(tree, label, node_number = NULL){
+  if (!is.null(node_number)){
+    ifelse(is.numeric(node_number) & (node_number %in% 1:(1 + length(tree$edge))), index <- node_number, stop('Please input a correct value for node_number'))
+  } else {
+    if (label %in% c(tree$tip.label, tree$node.label)){
+      index <- which(c(tree$tip.label, tree$node.label) == label)
+    } else {
+      stop(paste0('Label `', label, '` belongs neither to a node nor a tip!'))
+    }
+  }
+  ancestor_nodes <- rep(-1L, length(tree$node.label))
+  temp <- tree$edge[tree$edge[, 2] == index, 1]
+  counter = 1
+  while(length(temp) > 0){
+    ancestor_nodes[[counter]] <- temp
+    temp <- tree$edge[tree$edge[, 2] == temp, 1]
+    counter <- counter + 1
+  }
+  ancestor_nodes <- ancestor_nodes[ancestor_nodes > 0]
+  return(sapply(ancestor_nodes, function(t) {tree$node.label[[t-length(tree$tip.label)]]}))
+}
+
+
+#' Tree level
+#'
+#' This function returns the tree level of the given node in a rooted tree.
+#'
+#' @param tree A phylo object representing a rooted tree.
+#' @param label The node label.
+#' @param node_number Alternate parameter, the number of the given node.
+#' @return The level of the node from the root of the tree.
+#' @export
+#'
+#' @examples
+#'
+#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'
+#' get_tip_level(tree = tree, label = 't2')
+#' get_tip_level(tree = tree, label = 'n1')
+get_tip_level <- function(tree, label, node_number = NULL){
+  return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
+}
+
 #' Calculate similarity measures
 #'
 #' @param tree A phylo object representing a rooted tree.
