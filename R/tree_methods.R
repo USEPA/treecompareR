@@ -1134,7 +1134,7 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 # dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 # dt <- classify_by_smiles(dt)
 #'
-# dt <- data.table::data.table(BIOSOLIDS2021_class)
+#' dt <- data.table::data.table(BIOSOLIDS2021_class)
 # get_cutoffs(mat = chemont_jaccard, data = dt)
 # get_cutoffs(mat = chemont_jaccard, data = dt, neighbors = 6)
 #'}
@@ -1460,25 +1460,69 @@ compare_similarity_measures <- function(n){
   star <- generate_star(2*n)
   balanced <- generate_balanced(n)
 
+  cat_labels <- c(caterpillar$tip.label, caterpillar$node.label)
+  star_labels <- c(star$tip.label, star$node.label)
+  balanced_labels <- c(balanced$tip.label, balanced$node.label)
+
   cat_IC <- attach_information_content(caterpillar)
   star_IC <- attach_information_content(star)
   balanced_IC <- attach_information_content(balanced)
 
-  cat_Jaccard <- generate_similarity_matrix(caterpillar, similarity = general_Jaccard_similarity)
-  star_Jaccard <- generate_similarity_matrix(star, similarity = general_Jaccard_similarity)
-  balanced_Jaccard <- generate_similarity_matrix(balanced, similarity = general_Jaccard_similarity)
+  #cat_Jaccard <- generate_similarity_matrix(caterpillar, similarity = general_Jaccard_similarity)
+  #star_Jaccard <- generate_similarity_matrix(star, similarity = general_Jaccard_similarity)
+  #balanced_Jaccard <- generate_similarity_matrix(balanced, similarity = general_Jaccard_similarity)
+  cat_Jaccard <- similarity_matrix(labels_1 = cat_labels,
+                                   labels_2 = cat_labels,
+                                   tree = caterpillar, sim_metric = 1)
+  star_Jaccard <- similarity_matrix(labels_1 = star_labels,
+                                    labels_2 = star_labels,
+                                    tree = star, sim_metric = 1)
+  balanced_Jaccard <- similarity_matrix(labels_1 = balanced_labels,
+                                        labels_2 = balanced_labels,
+                                        tree = balanced, sim_metric = 1)
 
-  cat_Resnik <- generate_similarity_matrix(cat_IC, similarity = general_Resnik_similarity)
-  star_Resnik <- generate_similarity_matrix(star_IC, similarity = general_Resnik_similarity)
-  balanced_Resnik <- generate_similarity_matrix(balanced_IC, similarity = general_Resnik_similarity)
+  #cat_Resnik <- generate_similarity_matrix(cat_IC, similarity = general_Resnik_similarity)
+  #star_Resnik <- generate_similarity_matrix(star_IC, similarity = general_Resnik_similarity)
+  #balanced_Resnik <- generate_similarity_matrix(balanced_IC, similarity = general_Resnik_similarity)
 
-  cat_Lin <- generate_similarity_matrix(cat_IC, similarity = general_Lin_similarity)
-  star_Lin <- generate_similarity_matrix(star_IC, similarity = general_Lin_similarity)
-  balanced_Lin <- generate_similarity_matrix(balanced_IC, similarity = general_Lin_similarity)
+  cat_Resnik <- similarity_matrix(labels_1 = cat_labels,
+                                   labels_2 = cat_labels,
+                                   tree = caterpillar, sim_metric = 2)
+  star_Resnik <- similarity_matrix(labels_1 = star_labels,
+                                    labels_2 = star_labels,
+                                    tree = star, sim_metric = 2)
+  balanced_Resnik <- similarity_matrix(labels_1 = balanced_labels,
+                                        labels_2 = balanced_labels,
+                                        tree = balanced, sim_metric = 2)
 
-  cat_JiangConrath <- generate_similarity_matrix(cat_IC, similarity = general_JiangConrath_similarity)
-  star_JiangConrath <- generate_similarity_matrix(star_IC, similarity = general_JiangConrath_similarity)
-  balanced_JiangConrath <- generate_similarity_matrix(balanced_IC, similarity = general_JiangConrath_similarity)
+  #cat_Lin <- generate_similarity_matrix(cat_IC, similarity = general_Lin_similarity)
+  #star_Lin <- generate_similarity_matrix(star_IC, similarity = general_Lin_similarity)
+  #balanced_Lin <- generate_similarity_matrix(balanced_IC, similarity = general_Lin_similarity)
+
+  cat_Lin <- similarity_matrix(labels_1 = cat_labels,
+                                   labels_2 = cat_labels,
+                                   tree = caterpillar, sim_metric = 3)
+  star_Lin <- similarity_matrix(labels_1 = star_labels,
+                                    labels_2 = star_labels,
+                                    tree = star, sim_metric = 3)
+  balanced_Lin <- similarity_matrix(labels_1 = balanced_labels,
+                                        labels_2 = balanced_labels,
+                                        tree = balanced, sim_metric = 3)
+
+
+  #cat_JiangConrath <- generate_similarity_matrix(cat_IC, similarity = general_JiangConrath_similarity)
+  #star_JiangConrath <- generate_similarity_matrix(star_IC, similarity = general_JiangConrath_similarity)
+  #balanced_JiangConrath <- generate_similarity_matrix(balanced_IC, similarity = general_JiangConrath_similarity)
+
+  cat_JiangConrath <- similarity_matrix(labels_1 = cat_labels,
+                                   labels_2 = cat_labels,
+                                   tree = caterpillar, sim_metric = 4)
+  star_JiangConrath <- similarity_matrix(labels_1 = star_labels,
+                                    labels_2 = star_labels,
+                                    tree = star, sim_metric = 4)
+  balanced_JiangConrath <- similarity_matrix(labels_1 = balanced_labels,
+                                        labels_2 = balanced_labels,
+                                        tree = balanced, sim_metric = 4)
 
 
 
@@ -1959,6 +2003,7 @@ return(m)
 get_subtree_nodes <- function(data,
                               base_tree = chemont_tree,
                               tax_level_labels = chemont_tax_levels){
+  label <- NULL
   #get all labels represented by the classified dataset
   data_labels <- tidyr::pivot_longer(data,
                                      cols = dplyr::all_of(tax_level_labels),
