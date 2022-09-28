@@ -522,6 +522,9 @@ classify_inchikeys <- function(inchikeys,
 #' entry from the `entities` input.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
+  identifier <- NULL
+  level <- NULL
+  name <- NULL
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
