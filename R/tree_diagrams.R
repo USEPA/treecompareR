@@ -796,6 +796,7 @@ display_overlap <- function(base_tree,
                             tax_level_labels = chemont_tax_levels,
                             annot_angle = "auto",
                             ...){
+  terminal_label <- NULL
 
   args <- list(...)
 
@@ -1335,7 +1336,7 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   trans <- ifelse(log_trans, 'log1p', 'identity')
 
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value)) + scale_fill_viridis(trans=trans) +
+    geom_tile(aes(fill = value)) + viridis::scale_fill_viridis(trans=trans) +
     theme_minimal() + ylab(NULL)  +
       theme(axis.text.y = element_text(size = 3),
             axis.title.y = NULL)
