@@ -47,5 +47,6 @@ various values of a fixed similarity measure.
 \examples{
 \donttest{
 
+dt <- data.table::data.table(BIOSOLIDS2021_class)
 }
 }
