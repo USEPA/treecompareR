@@ -29,6 +29,7 @@ Imports:
     circlize,
     clisymbols,
     ComplexHeatmap,
+    crayon,
     data.table,
     data.tree,
     dplyr,
@@ -42,13 +43,17 @@ Imports:
     methods,
     phangorn,
     phytools,
+    purrr,
     RColorBrewer,
     Rcpp,
     Rdpack,
     rjson,
     stringr,
+    tibble,
     tidyr,
-    viridis
+    tidyselect,
+    viridis,
+    webchem
 RdMacros: Rdpack
 LinkingTo: 
     Rcpp
