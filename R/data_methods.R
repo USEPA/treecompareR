@@ -281,6 +281,25 @@ get_label_level <- function(data,
   return(labels)
 }
 
+#' Get labels
+#'
+#' This is a helper function for retrieving labels in a data.table of classified
+#' chemicals, grouped by taxonomy level.
+#'
+#' @param data A data.table consisting of classified chemicals.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @return A list of classification labels for each level of taxonomy.
+get_labels <- function(data, tax_level_labels = NULL){
+  if (is.null(tax_level_labels)){
+    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
+                          'level5', 'level6', 'level7', 'level8',
+                          'level9', 'level10', 'level11')
+  }
+  labels <- sapply(tax_level_labels, function(t) {get_label_level(data, t, tax_level_labels)})
+  labels
+}
+
 #' Get terminal labels
 #'
 #' This is a helper function for retrieving terminal labels in a data.frame of
@@ -370,7 +389,8 @@ get_number_of_labels <- function(data,
                                  tax_level_labels = chemont_tax_levels){
 
 
-  labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
+  #labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
+  labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
 
   N <- sum(sapply(labels, length))
 
@@ -380,18 +400,19 @@ get_number_of_labels <- function(data,
   #print(names(number_of_labels))
 
   for (i in seq_along(tax_level_labels)){
-    #print(paste('There are ', length(labels[[i]]), 'levels'))
+    #print(paste('There are ', length(labels[[i]]), 'levels', 'at label', names(labels)[[i]]))
     #print(labels[[i]])
 
     for (j in seq_along(labels[[i]])){
       index <- which(names(number_of_labels) == labels[[i]][[j]])
+      #print(length(index))
       #print(paste(tax_level_labels[[i]], labels[[i]][[j]]))
       #print(names(labels)[[i]])
-      #print(labels[[i]][[j]])
+      #print(paste(labels[[i]][[j]], '\n', j))
       #print(index)
       #print(data[, .(names(labels)[[i]])])
       #print(data[, .SD, .SDcols = c(names(labels)[[i]])])
-      number_of_labels[[index]] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
+      number_of_labels[index] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
       #print(length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]])))
     }
   }
