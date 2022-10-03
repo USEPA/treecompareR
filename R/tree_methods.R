@@ -1617,7 +1617,7 @@ compare_similarity_measures <- function(n){
 #'  is level 0. Default value is 2 (superclass level, in ChemOnt).
 get_clade <- function(node,
                       tree,
-                      level){
+                      level = 2){
   #get ancestors back to root for each input node
 ancestors <- phangorn::Ancestors(x = tree,
                                  node = node,
