@@ -1661,17 +1661,18 @@ return(clade_df)
 
 #' Bind individual entities as new tips to a tree
 #'
-#' @param tree The base tree as a \code{phylo}-class object. Tips will be bound to this tree.
+#' @param tree The base tree as a \code{phylo}-class object. Tips will be bound
+#'   to this tree.
 #' @param data Either one data.frame, or a list of data.frames, containing
 #'   classified entities. Each row of the data.frame is one entity. The
 #'   data.frames must include the column names specifeid in
 #'   \code{tax_level_labels} and \code{entity_id_col}.
 #' @param entity_id_col The column name in \code{data} containing identifying
 #'   labels for the entities.
-#' @param tax_level_labels Taxonomy levels used for classification in \code{data}. Default is
-#'   the Chemont taxonomy levels: \code{c('kingdom', 'superclass', 'class',
-#'   'subclass','level5', 'level6', 'level7', 'level8','level9', 'level10',
-#'   'level11')}.
+#' @param tax_level_labels Taxonomy levels used for classification in
+#'   \code{data}. Default is the Chemont taxonomy levels: \code{c('kingdom',
+#'   'superclass', 'class', 'subclass','level5', 'level6', 'level7',
+#'   'level8','level9', 'level10', 'level11')}.
 #' @return A \code{phylo}-class object.
 #'
 bind_entities <- function(tree,
