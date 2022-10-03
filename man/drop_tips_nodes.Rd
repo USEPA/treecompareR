@@ -18,7 +18,7 @@ drop_tips_nodes(
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{data}{A data.table of chemicals with classifications.}
+\item{data}{A data.table (or data.frame) of chemicals with classifications.}
 
 \item{labels}{An alternate parameter for a set of labels of the subtree.}
 
