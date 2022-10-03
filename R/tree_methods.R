@@ -1266,7 +1266,7 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #' subtree is constructed from these labels in the same manner.
 #'
 #' @param tree A phylo object representing a rooted tree.
-#' @param data A data.table of chemicals with classifications.
+#' @param data A data.table (or data.frame) of chemicals with classifications.
 #' @param labels An alternate parameter for a set of labels of the subtree.
 #' @param nodes An alternate parameter for a set of nodes of the subtree.
 #' @param level An alternate parameter specifying the level to which the tree
@@ -1297,7 +1297,10 @@ drop_tips_nodes <- function(tree,
     if(is.null(keep_descendants)){
       keep_descendants = FALSE
     }
-    tip_node_labels <- get_terminal_labels(data = data,
+    if (!"data.frame" %in% class(data)){
+      stop("Input parameter `data` must be a data.table or a data.frame!")
+    }
+    tip_node_labels <- get_terminal_labels(data = as.data.frame(data),
                                   tax_level_labels = tax_level_labels)
     if(isTRUE(keep_descendants)){
       input_nodes <- get_node_from_label(label = tip_node_labels,
