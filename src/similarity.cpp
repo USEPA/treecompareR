@@ -148,7 +148,7 @@ std::vector<double> calc_IC_std(std::vector<int> these_nodes,
   //int m = information_content.nrow(); //Number of nodes to check
 
   for (int i = 0; i < n; i++){
-    IC[i] = information_content(these_nodes[i], 4);
+    IC[i] = information_content(these_nodes[i] - 1, 4);
     //for (int j = 0; j < m; j++){
     //  if (these_nodes[i] == information_content(j, 0)){
     //    IC[i] = information_content(j, 4);
