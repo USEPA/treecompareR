@@ -1,9 +1,9 @@
-#include <Rcpp.h>
+#include "Rcpp.h"
 using namespace Rcpp;
 #include <algorithm>    // std::set_intersection, std::sort
 #include <vector>       // std::
 //#include <iostream>
-using namespace std;
+//using namespace std;
 
 //Get set intersection
 std::vector<int> intersect(std::vector<int> s1, std::vector<int> s2){
@@ -305,7 +305,7 @@ double get_resnik_std(int node1, int node2, std::vector<int> tree_nodes, std::ve
   MRCA = get_MRCA_std(node1, node2, tree_nodes, tree_parents);
   std::vector<double> resnik(1);
 
-  resnik[0] = information_content(MRCA[0], 4);
+  resnik[0] = information_content(MRCA[0]-1, 4);
 
   //int m = information_content.nrow(); //Number of nodes to check
   //for (int i = 0; i < m; i++){
