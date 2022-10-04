@@ -1969,8 +1969,18 @@ return(as.data.frame(foo2))
 #' @param terminal_label The variable name in the two data.frames that denotes
 #'   the terminal label of the classification. Default "terminal_label".
 #' @param tree The taxonomy tree to use. Default \code{\link{chemont_tree}}.
-#' @param tax_level_labels The set of taxonomy levels to use. Default \code{\link{chemont_tax_levels}}.
+#' @param tax_level_labels The set of taxonomy levels to use. Default
+#'   \code{\link{chemont_tax_levels}}.
 #' @param similarity The similarity metric to calculate. Default "jaccard".
+#'   Additional options include "resnik", "lin", and "jiang_conrath". If none
+#'   match, the default of "jaccard" will be used accompanied by a warning
+#'   message indicating so.
+#' @return A similarity matrix with rows and columns corresponding to labels
+#'   from the `terminal_label` variable in `data_1` and `data_2`, respectively.
+#'
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#' \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}},
+#' \code{\link{similarity_matrix}}
 calc_similarity_data <- function(data_1,
                             data_2,
                             terminal_label = "terminal_label",
@@ -1979,7 +1989,17 @@ calc_similarity_data <- function(data_1,
                             similarity = "jaccard"){
 
   if(similarity %in% "jaccard"){
-    similarity_fun <- "general_Jaccard_similarity"
+    #similarity_fun <- "general_Jaccard_similarity"
+    sim_metric <- 1
+  } else if (similarity %in% "resnik"){
+    sim_metric <- 2
+  } else if (similarity %in% "lin"){
+    sim_metric <- 3
+  } else if (similarity %in% "jiang_conrath"){
+    sim_metric <- 4
+  } else {
+    warning('Defaulting to Jaccard similarity!')
+    sim_metric <- 1
   }
   #calculate pairwise similarity of ancestry of terminal labels in two data sets
 
@@ -2009,10 +2029,15 @@ calc_similarity_data <- function(data_1,
   mrowlabs <- mlabs[mlabs %in% data_1[[terminal_label]]]
   mcollabs <- mlabs[mlabs %in% data_2[[terminal_label]]]
 
-  m <- matrix(nrow = length(mrowlabs),
-              ncol = length(mcollabs))
+  m <- similarity_matrix(labels_1 = mrowlabs, labels_2 = mcollabs, tree = tree,
+                         sim_metric = sim_metric, upper_tri = FALSE)
+
+  #m <- matrix(nrow = length(mrowlabs),
+  #            ncol = length(mcollabs))
   rownames(m) <- mrowlabs
   colnames(m) <- mcollabs
+
+  return(m)
 
   #now calculate matrix elements
   #only need to calc upper triangular part;
