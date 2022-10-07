@@ -37,7 +37,6 @@ label_bars <- function(data = NULL,
   }
 
   data <- lapply(data, as.data.frame)
-  #lapply(data, function(t) {print(paste(class(t), typeof(t)))})
 
   number <- length(data)
 
