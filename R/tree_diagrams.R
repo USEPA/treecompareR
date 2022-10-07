@@ -22,10 +22,11 @@ label_bars <- function(data = NULL,
 
   if (is.null(data))
     stop('Please input data!')
-  if (data.table::is.data.table(data)){
+  if (data.table::is.data.table(data) | is.data.frame(data)){
     data <- list(data)
   } else {
-    if (!is.list(data) | !all(sapply(data, data.table::is.data.table)))
+    if (!is.list(data) | !all(sapply(data, function(t) {
+      data.table::is.data.table(t) | is.data.frame(t)})))
       stop('Please input a single data.table or list of data.tables!')
   }
 
@@ -35,24 +36,34 @@ label_bars <- function(data = NULL,
                           'level9', 'level10', 'level11')
   }
 
+  data <- lapply(data, as.data.frame)
+  #lapply(data, function(t) {print(paste(class(t), typeof(t)))})
+
   number <- length(data)
 
   if (number == 1){
     data_names <- c('Set_1')
   } else {
-    if (is.null(names(data)) | length(names(data)) != number | any(is.na(names(data)))){
-      data_names <- paste0('Set_', seq_len(number))
+    if (is.null(names(data)) | length(names(data)) != number | any(is.na(names(data))) | any(names(data) == '')){
+      data_names <- names(data)
+      missing_names <- which(names(data) == '')
+      data_names[missing_names] <- paste0('Set_', missing_names)
+      warning("There were missing names! Attaching substitute names...")
     } else {
       data_names <- names(data)
     }
   }
 
-  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_terminal_labels(t, tax_level_labels)))))
+  names(data) <- data_names
+
+
+  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_labels(data = t, tax_level_labels = tax_level_labels)))))
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
     tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
   transformed_df["count_sums"] <- as.numeric(transformed_df$count_sums)
   transformed_df["tax_levels"] <- factor(transformed_df$tax_levels, levels = tax_level_labels)
+  transformed_df['dataset'] <- factor(transformed_df$dataset, levels = data_names)
 
   plot_1 <- ggplot(transformed_df) +
     facet_wrap(~dataset, scales = 'free') +
