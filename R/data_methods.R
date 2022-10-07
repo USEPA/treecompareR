@@ -265,6 +265,7 @@ calc_number_overlap <- function(data_1,
 get_label_level <- function(data,
                             level_label,
                             tax_level_labels = chemont_tax_levels){
+  data <- copy(data.table(data))
 
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
     stop(paste('Please input a valid label!', level_label))
