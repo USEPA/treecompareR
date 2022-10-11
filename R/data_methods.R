@@ -186,7 +186,7 @@ calc_number_overlap <- function(data_1,
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
     dplyr::summarise(n_1 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(entity_id_col)
+      #  dplyr::all_of(entity_id_col)
         )
       )
       )
@@ -195,7 +195,7 @@ calc_number_overlap <- function(data_1,
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
     dplyr::summarise(n_2 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(entity_id_col)
+      #  dplyr::all_of(entity_id_col)
       )
     )
     )
