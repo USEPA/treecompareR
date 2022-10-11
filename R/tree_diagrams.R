@@ -730,7 +730,7 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  "subclass", paste0("level", 5:11))}.
 #'@param keep_descendants Whether to keep descendants of specified nodes in the
 #'  subtree or not. The default value of the parameter is NULL and the pruning
-#'  behavior follows that of \code{\link{prune_to}}. If the parameter value is
+#'  behavior follows that of \code{\link{prune_tree}}. If the parameter value is
 #'  TRUE, all descendant nodes will be kept rather than pruned away and if the
 #'  parameter value is FALSE, only the nodes of the subtree will remain while
 #'  all other nodes are pruned.
