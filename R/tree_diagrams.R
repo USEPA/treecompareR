@@ -736,7 +736,7 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  all other nodes are pruned.
 #'@param ... Other arguments to \code{\link{display_subtree}}.
 #'@inheritDotParams display_subtree -base_tree -tax_level_labels
-#'@return A ggtree object visualizing the pruned base tree. If\code{data_1}
+#'@return A ggtree object visualizing the pruned base tree. If \code{data_1}
 #'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
 #'  whether they are present in each set, neither, or both.
 #'@export
@@ -809,7 +809,7 @@ display_overlap <- function(base_tree,
                             name_1,
                             data_2,
                             name_2,
-                            entity_id_col,
+                            entity_id_col = NULL,
                             group_level = "terminal",
                             tax_level_labels = chemont_tax_levels,
                             annot_angle = "auto",
