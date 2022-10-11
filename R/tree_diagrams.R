@@ -728,6 +728,12 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 #'  "subclass", paste0("level", 5:11))}.
+#'@param keep_descendants Whether to keep descendants of specified nodes in the
+#'  subtree or not. The default value of the parameter is NULL and the pruning
+#'  behavior follows that of \code{\link{prune_to}}. If the parameter value is
+#'  TRUE, all descendant nodes will be kept rather than pruned away and if the
+#'  parameter value is FALSE, only the nodes of the subtree will remain while
+#'  all other nodes are pruned.
 #'@param ... Other arguments to \code{\link{display_subtree}}.
 #'@inheritDotParams display_subtree -base_tree -tax_level_labels
 #'@return A ggtree object visualizing the pruned base tree. If\code{data_1}
@@ -739,6 +745,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       prune_name = NULL,
                                       adjust_branch_length = FALSE,
                                       tax_level_labels = chemont_tax_levels,
+                                      keep_descendants = NULL,
                                       ...) { #args as for display_subtree()
 
   args <- list(...)
@@ -746,7 +753,8 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
   pruned_tree <- prune_tree(tree = base_tree,
                             prune_to = prune_to,
                             adjust_branch_length = adjust_branch_length,
-                            tax_level_labels = tax_level_labels)
+                            tax_level_labels = tax_level_labels,
+                            keep_descendants = keep_descendants)
 
 
   tree_plot <- do.call(display_subtree,
