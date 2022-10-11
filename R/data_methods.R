@@ -213,10 +213,13 @@ calc_number_overlap <- function(data_1,
   get_overlap <-  function(grouplab,
                            group_col,
                            entity_id_col){
-    id_1 <- data_1[data_1[[group_col]] %in% grouplab, entity_id_col]
-    id_2 <- data_2[data_2[[group_col]] %in% grouplab, entity_id_col]
-    n_intersect <- length(intersect(id_1, id_2))
-    n_union <-  length(union(id_1, id_2))
+    id_1 <- data_1[data_1[[group_col]] %in% grouplab,]
+    id_2 <- data_2[data_2[[group_col]] %in% grouplab,]
+    shared_names <- intersect(names(data_1), names(data_2))
+    #n_intersect <- length(intersect(id_1, id_2))
+    n_intersect <- dim(dplyr::inner_join(id_1, id_2, by = shared_names))[[1]]
+    n_union <- dim(dplyr::full_join(id_1, id_2, by = shared_names))[[1]]
+    #n_union <-  length(union(id_1, id_2))
     simil <- n_intersect/n_union
     data.frame("group" = grouplab,
                "n_intersect" = n_intersect,
