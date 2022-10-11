@@ -4,19 +4,29 @@
 \alias{classify_inchikeys}
 \title{InChIKey classification}
 \usage{
-classify_inchikeys(inchikeys)
+classify_inchikeys(
+  inchikeys,
+  tax_level_labels = chemont_tax_levels,
+  wait_min = 0.5
+)
 }
 \arguments{
 \item{inchikeys}{A vector of InCHiKeys to be classified}
 
-\item{tax_level_labels}{By default, the list of taxonomy levels for ClassyFire:
-\code{kingdom, superclass, class, subclass, level5, ... level11}.}
+\item{tax_level_labels}{By default, the list of taxonomy levels for
+ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
+  level11}.}
+
+\item{wait_min}{A parameter controlling how many seconds between qqueries
+sent to the ClassyFire API server.}
 }
 \value{
 A data.frame with the same number of rows as the length of input
-argument \code{inchikeys}, and columns consisting of "INCHIKEY" (containing input
-argument \code{inchikeys}) and one column for each of the ClassyFire taxonomy levels
-given in the input argument \code{tax_level_labels}
+argument \code{inchikeys}, and variables consisting of "INCHIKEY"
+(containing input argument \code{inchikeys}) and one column for each of the
+ClassyFire taxonomy levels given in the input argument
+\code{tax_level_labels}. Contains additional variables providing
+information about the query.
 }
 \description{
 This function uses the ClassyFire API to classify chemicals from an input
@@ -29,5 +39,5 @@ This function queries ClassyFire's lookup table of pre-classified InChiKeys
 \insertRef{djoumbou2016classyfire}{treecompareR}
 }
 \seealso{
-\code{\link{classify_structure}}
+\code{\link{classify_structures}}
 }
