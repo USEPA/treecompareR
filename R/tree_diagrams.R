@@ -1216,22 +1216,33 @@ add_cladelab <- function(tree_plot,
 
 #' Side by side trees
 #'
-#' This function takes two data sets and construsts both trees and internal
+#' This function takes two data sets and constructs both trees and internal
 #' layers for data visualization. The left and right out layer of the diagram
 #' consists of subtrees corresponding to the left and right data sets. The left
 #' and right inner layers display label statistics for the left and right data
 #' sets. The center displays label statistics shared by the left and right data
 #' sets.
 #'
-#' @param data_left The left data.table of chemical classifications.
-#' @param data_right The right data.table of chemical classifications.
+#' @param base_tree The tree to be pruned, as a \code{\link[ape]{phylo}}-class
+#'   object.
+#' @param data_left The left data.frame(or data.table) of chemical
+#'   classifications.
+#' @param data_right The right data.frame (or data.table) of chemical
+#'   classifications.
 #' @param name_left Alternate parameter for left data set.
 #' @param name_right Alternate parameter for right data set.
 #' @param log_trans Alternate parameter for log-transforming data.
+#' @param tax_level_labels Vector of the possible taxonomy levels that can
+#'   appear as column names in \code{data_left} and \code{data_right} of
+#'   classified data.
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
-side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', name_right = 'Right tree', log_trans = FALSE){
+side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
+                               name_left = 'Left tree',
+                               name_right = 'Right tree',
+                               log_trans = FALSE,
+                               tax_level_labels = chemont_tax_levels){
   if(TRUE) {
 
     if (!all('terminal_label' %in% names(data_left))){
@@ -1247,20 +1258,26 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
     INCHIKEY <- NULL
     tree <- NULL
     tip.label <- NULL
+
+  data_left <- data.table::data.table(data_left)
+  data_right <- data.table::data.table(data_right)
+
   terminal_labels_left <- data_left[!is.na(terminal_label), unique(terminal_label)]
   terminal_labels_right <- data_right[!is.na(terminal_label), unique(terminal_label)]
 
   terminal_labels <- union(terminal_labels_left, terminal_labels_right)
 
-  left_initial_tree <- prune_and_display_subtree(data = data_left, no_plot = TRUE)
-  right_initial_tree <- prune_and_display_subtree(data = data_right, no_plot = TRUE)
+  left_initial_tree <- prune_tree(tree = base_tree, prune_to = data_left,
+                                  tax_level_labels = tax_level_labels)
+  right_initial_tree <- prune_tree(tree = base_tree, prune_to = data_right,
+                                   tax_level_labels = tax_level_labels)
 
   left_labels <- c(left_initial_tree$tip.label, left_initial_tree$node.label)
   right_labels <- c(right_initial_tree$tip.label, right_initial_tree$node.label)
 
   all_labels <- union(left_labels, right_labels)
 
-  union_tree <- drop_tips_nodes(tree = chemont_tree, labels = all_labels)
+  union_tree <- drop_tips_nodes(tree = chemont_tree, labels = all_labels, keep_descendants = FALSE)
   union_tree$edge.length <- adjust_branch_lengths(union_tree)
   terminal_labels <- intersect(terminal_labels, union_tree$tip.label)
 

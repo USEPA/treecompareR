@@ -5,30 +5,41 @@
 \title{Side by side trees}
 \usage{
 side_by_side_trees(
+  base_tree = chemont_tree,
   data_left,
   data_right,
   name_left = "Left tree",
   name_right = "Right tree",
-  log_trans = FALSE
+  log_trans = FALSE,
+  tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{data_left}{The left data.table of chemical classifications.}
+\item{base_tree}{The tree to be pruned, as a \code{\link[ape]{phylo}}-class
+object.}
 
-\item{data_right}{The right data.table of chemical classifications.}
+\item{data_left}{The left data.frame(or data.table) of chemical
+classifications.}
+
+\item{data_right}{The right data.frame (or data.table) of chemical
+classifications.}
 
 \item{name_left}{Alternate parameter for left data set.}
 
 \item{name_right}{Alternate parameter for right data set.}
 
 \item{log_trans}{Alternate parameter for log-transforming data.}
+
+\item{tax_level_labels}{Vector of the possible taxonomy levels that can
+appear as column names in \code{data_left} and \code{data_right} of
+classified data.}
 }
 \value{
 An \code{aplot} consisting of two outer layer \code{ggtree} objects and three
 inner layer \code{ggplot2} objects.
 }
 \description{
-This function takes two data sets and construsts both trees and internal
+This function takes two data sets and constructs both trees and internal
 layers for data visualization. The left and right out layer of the diagram
 consists of subtrees corresponding to the left and right data sets. The left
 and right inner layers display label statistics for the left and right data
