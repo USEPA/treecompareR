@@ -24,7 +24,8 @@
 #'
 
 classify_inchikeys <- function(inchikeys,
-                               tax_level_labels = chemont_tax_levels){
+                               tax_level_labels = chemont_tax_levels,
+                               wait_min = 0.5){
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
@@ -39,9 +40,12 @@ classify_inchikeys <- function(inchikeys,
          !webchem::is.inchikey(this_inchikey, #if not valid InChiKey format
                                type = "format")
          ){
+        #placeholder blank output list with all expected elements
         output <- list()
       }else{ #if inchikey is valid, query ClassyFire API
-        output <- query_classyfire_inchikey(inchikey = this_inchikey)
+        Sys.sleep(wait_min) #pause minimum number of seconds before querying again
+        output <- query_classyfire_inchikey(inchikey = this_inchikey,
+                                            wait_min = wait_min)
         output$identifier <- this_inchikey
       }
       return(output)
@@ -555,6 +559,18 @@ parse_classified_entities <- function(entities,
 
     #get identifiers, smiles, inchikey
     #these will be character vectors identifying entities
+
+    #note that some of these may be character(0) -- handle
+    #by filling with NAs
+    for(item in c("identifier",
+                  "smiles",
+                  "inchikey",
+                  "classification_version")){
+      if(length(entities[[item]])==0){
+        entities[[item]] <- NA_character_
+      }
+    }
+
     cf <- as.data.frame(entities[c("identifier",
                          "smiles",
                          "inchikey",
@@ -568,6 +584,30 @@ parse_classified_entities <- function(entities,
     #"name" in the "superclass" element gives the superclass for each identifier,
     #etc.)
     #rowbind these
+
+    #note: if no classification for one of these four levels, the item may be NULL.
+    #handle accordingly.
+    for(item in c("kingdom",
+                  "superclass",
+                  "class",
+                  "subclass")){
+      #check if NULL
+      if(is.null(entities[[item]])){
+        #replace with list with NAs
+        entities[[item]] <- list(name = NA_character_,
+                                 description = NA_character_,
+                                 chemont_id = NA_character_,
+                                 url = NA_character_)
+      }
+
+      #check if character(0) and replace with NA
+      for (subitem in names(entities[[item]])){
+        if(length(entities[[item]][[subitem]])==0){
+          entities[[item]][[subitem]] <- NA_character_
+        }
+      }
+    }
+
     cf_class1 <- dplyr::bind_rows(as.list(entities[c("kingdom",
                                                        "superclass",
                                                        "class",
@@ -641,7 +681,11 @@ parse_classified_entities <- function(entities,
     classified_entities[cols_add] <- NA_character_
 
     #add a "report" column
+    if(!"report" %in% names(entities)){
     classified_entities$report <- "ClassyFire returned a classification"
+    }else{
+      classified_entities$report <- entities$report
+    }
 
     #merge in smiles and inchikey
     classified_entities <- dplyr::left_join(cf,
@@ -653,9 +697,11 @@ parse_classified_entities <- function(entities,
   return(classified_entities)
 }
 
+#' Query classyfire by inchikey
+#'
 query_classyfire_inchikey <- function(inchikey,
                                       retry_get_times = 3,
-                                      wait_min = 5){
+                                      wait_min = 0.5){
 
   base_url <- "http://classyfire.wishartlab.com/entities"
   url <- paste0(base_url,
@@ -667,6 +713,7 @@ query_classyfire_inchikey <- function(inchikey,
                       url = url,
                       encode = "json",
                       times = retry_get_times,
+                      pause_base = wait_min,
                       pause_min = wait_min,
                       terminate_on = c(404))
 
@@ -719,6 +766,9 @@ query_classyfire_inchikey <- function(inchikey,
       )
     ]
   )
+
+  #assign identifier as inchikey
+  json_parse$identifier <- inchikey
 
 
   return(json_parse)
