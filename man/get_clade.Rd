@@ -4,7 +4,7 @@
 \alias{get_clade}
 \title{Get node number of clade (ancestor at a specified level)}
 \usage{
-get_clade(node, tree, level)
+get_clade(node, tree, level = 2)
 }
 \arguments{
 \item{node}{The node number(s) for which to get the clade(s)}

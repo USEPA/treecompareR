@@ -5,7 +5,8 @@
 \title{Send ClassyFire query}
 \usage{
 query_classyfire(
-  input,
+  input = NULL,
+  url = NULL,
   label = "query",
   type = "STRUCTURE",
   retry_get_times = 10,
@@ -16,10 +17,12 @@ query_classyfire(
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
-InChi strings. May optionally be named. If so, the names will be returned as a
-column named  \code{identifier} in the output data.frame. If not named, the
-vector itself will be returned as a column named  \code{identifier} in the
-output data.frame}
+InChi strings. May optionally be named. Default NULL to use \code{url} instead.
+Either \code{input} or \code{url} must be provided.}
+
+\item{url}{Optional: a string giving an existing ClassyFire query URL to
+retry. Default NULL to use \code{input} instead. Either \code{input} or \code{url} must be
+provided.}
 
 \item{label}{An optional text label for the ClassyFire query. Default
 \code{"query"}.}
@@ -32,26 +35,56 @@ API to get status of query. Default 10.}
 \item{wait_min}{Minimum time to wait before retrying any GET command or
 query. Default 5 seconds (because ClassyFire requests that POST requests be
 limited to 12 per second). Highly recommend not changing this to be less
-than 5 seconds, to be respectful of the ClassyFire server. All wait
-times use exponential backoff with full jitter (\code{wait time = runif(1, wait_min, wait_min *
-  2^(attempt number)}).}
+than 5 seconds, to be respectful of the ClassyFire server. All wait times
+use exponential backoff with full jitter (\code{wait time = runif(1,
+  wait_min, wait_min * 2^(attempt number)}).}
 
 \item{retry_query_times}{Max number of attempts to retry an "In Queue" or
 "Processing" query (with wait time in between tries). Default 3.}
 
 \item{processing_wait_per_input}{Minimum number of seconds to wait per input
 string before retrying to retrieve results for a query whose status is
-"Processing." Default NULL results in \code{wait_min/length(input)}. Uses exponential
-backoff: effective wait time per input = \code{processing_wait_per_input *
-  2^(attempt number)}. Total wait time is either the effective wait time per
-input times the number of input structures, or \code{wait_min} seconds,
-whichever is greater.}
+"Processing." Default NULL results in \code{wait_min/length(input)}. Uses
+exponential backoff: effective wait time per input =
+\code{processing_wait_per_input * 2^(attempt number)}. Total wait time is
+either the effective wait time per input times the number of input
+structures, or \code{wait_min} seconds, whichever is greater.}
 }
 \value{
-A named list object: the JSON output from the ClassyFire query, parsed into list form.
+A list of lists. The outer list has one element for each page of the
+JSON output from the ClassyFire query (there is one page for every ten
+entities). If the ClassyFire query failed or timed out, the list will have
+one element. Each list element is itself a list, consisting of the parsed
+JSON result for each page. A completed query will have named elements \code{id},
+\code{url}, \code{status_code}, \code{label}, \code{classification_status},
+\code{number_of_elements}, \code{number_of_pages}, \code{invalid_entities}, and
+\code{entities}. A failed query will have named elements \code{id}, \code{url},
+\code{status_code}, \code{label}, \code{classification_status}, and \code{number_of_pages}.
+\code{id} gives the numerical query ID (assigned by ClassyFire). \code{url} gives the
+queried URL. \code{label} gives the user-supplied query label. \code{status_code}
+gives the HTTP status of the request (200 means successful).
+\code{classification_status} reports the ClassyFire status: "Done" means
+classification was successfully completed; "In Queue" means the query timed
+out while it was still queued; "In Progress" means the query timed out
+while it was still processing; "No classification" means the query failed
+before ClassyFire could report a status (e.g. HTTP status code other than
+200, or ClassyFire returned some content that did not include a
+classification status). \code{number_of_elements} gives the number of classified
+entities. \code{number_of_pages} gives the total number of pages for this query.
+\code{invalid_entities}, if present, is a data.frame listing queried entity
+identifiers that ClassyFire found invalid. \code{entities}, if present, is a
+nested data.frame giving classifications. Use function
+\code{\link{parse_classified_entities}} to parse these results into a data.frame
+of classified entities, suitable for use with the tree visualization,
+similarity analysis, or similarity visualization functions. Or call
+\code{\link{classify_structures}} which is a wrapper for this function and
+\code{\link{parse_classified_entities}}.
 }
 \description{
 This function takes a vector of structural identifiers (SMILES strings or
 InChi strings) and queries the ClassyFire API to get classifications for each
 one.
+}
+\details{
+See ClassyFire API details at http://classyfire.wishartlab.com/access.
 }

@@ -10,6 +10,7 @@ prune_and_display_subtree(
   prune_name = NULL,
   adjust_branch_length = FALSE,
   tax_level_labels = chemont_tax_levels,
+  keep_descendants = NULL,
   ...
 )
 }
@@ -38,6 +39,13 @@ used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
 the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
  "subclass", paste0("level", 5:11))}.}
 
+\item{keep_descendants}{Whether to keep descendants of specified nodes in the
+subtree or not. The default value of the parameter is NULL and the pruning
+behavior follows that of \code{\link{prune_to}}. If the parameter value is
+TRUE, all descendant nodes will be kept rather than pruned away and if the
+parameter value is FALSE, only the nodes of the subtree will remain while
+all other nodes are pruned.}
+
 \item{...}{
   Arguments passed on to \code{\link[=display_subtree]{display_subtree}}
   \describe{
@@ -48,7 +56,8 @@ membership in this list. Default is \code{NULL}, to do no highlighting. If
 not \code{NULL}, must be one of the following options: A \code{data.frame}
 consisting of a list of entities with classification data; a vector of node
 numbers in the base tree; a vector of node labels in the base tree; or a
-subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See Details.}
+subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See
+Details.}
     \item{\code{data_2}}{Optional: Highlight branches of the base tree to compare
 membership in this list and \code{data_1}. Default is \code{NULL}, to do no
 highlighting. If not \code{NULL}, one of the following options: A
@@ -61,13 +70,17 @@ for plot labeling. Default is "Set 1".}
     \item{\code{name_2}}{Optional: A string giving the name of the list in \code{data_2}
 (if any), for plot labeling. Default is "Set 2".}
     \item{\code{layout}}{\code{\link{ggtree}} layout option. Default "circular."}
-    \item{\code{clade_level}}{The taxonomy level at which to draw clade labels, if
-any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-Set to NULL to suppress clade labels altogether.}
+    \item{\code{base_opts}}{List of parameters with default values that control}
+    \item{\code{subtree_mapping}}{List of color values for displaying subtree.}
+    \item{\code{clade_opts}}{List of parameters with default values for illustrating
+clades within the tree diagram.}
+    \item{\code{clade_level}}{The taxonomy level at which to draw clade labels, if any.
+Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
+to NULL to suppress clade labels altogether.}
   }}
 }
 \value{
-A ggtree object visualizing the pruned base tree. If\code{data_1}
+A ggtree object visualizing the pruned base tree. If \code{data_1}
 and/or \code{data_2} are supplied, branches will be highlighted to indicate
 whether they are present in each set, neither, or both.
 }

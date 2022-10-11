@@ -18,9 +18,18 @@ drop_tips_nodes(
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
 
-\item{data}{A data.table of chemicals with classifications.}
+\item{data}{A data.table (or data.frame) of chemicals with classifications.}
 
 \item{labels}{An alternate parameter for a set of labels of the subtree.}
+
+\item{nodes}{An alternate parameter for a set of nodes of the subtree.}
+
+\item{level}{An alternate parameter specifying the level to which the tree
+should be pruned. The root is level zero and each subsequent generation of
+children nodes is one level greater.}
+
+\item{keep_descendants}{Alternate parameter specifying whether to keep all
+descendants of list of nodes input.}
 
 \item{tax_level_labels}{An alternate parameter passed to the
 \code{\link{get_terminal_labels}} function.}

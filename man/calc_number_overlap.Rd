@@ -34,14 +34,14 @@ A data.frame with a number of rows equal to the number of unique
 labels at the specified level that occur either in \code{data_1} or
 \code{data_2}. The first variable is named with the value of
 \code{at_level}, and contains the unique labels at that level that occur
-either in \code{data_1} or \code{data_2}. The other variables are: \list{
+either in \code{data_1} or \code{data_2}. The other variables are:
 \item{n_1}{The number of entities for this label in \code{data_1}}
 \item{n_2}{The number of entities for this label in \code{data_2}}
 \item{n_intersect}{The number of entities for this label that are in both
 \code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
 this label that are in either \code{data_1} or \code{data_2}}
 \item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
-and \code{data_2} for each label, \code{n_intersect / n_union}}}
+and \code{data_2} for each label, \code{n_intersect / n_union}}
 }
 \description{
 calculate overlap between two classified datasets at the individual entity

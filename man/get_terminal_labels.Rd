@@ -14,12 +14,15 @@ get_terminal_labels(
 \item{data}{A data.frame consisting of classified items. Rows are entities;
 columns must include all names in \code{tax_level_labels}.}
 
+\item{entity_id_cols}{An alternate parameter giving a column name specifying
+the id's of the analytes in each row.}
+
 \item{tax_level_labels}{A vector of taxonomy levels. Default is
 \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.}
 }
 \value{
-A vector of terminal classification labels, one for each entity in the input
-data.
+A vector of terminal classification labels, one for each entity in
+the input data.
 }
 \description{
 This is a helper function for retrieving terminal labels in a data.frame of

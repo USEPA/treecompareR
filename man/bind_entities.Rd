@@ -13,7 +13,8 @@ bind_entities(
 )
 }
 \arguments{
-\item{tree}{The base tree as a \code{phylo}-class object. Tips will be bound to this tree.}
+\item{tree}{The base tree as a \code{phylo}-class object. Tips will be bound
+to this tree.}
 
 \item{data}{Either one data.frame, or a list of data.frames, containing
 classified entities. Each row of the data.frame is one entity. The
@@ -23,10 +24,10 @@ data.frames must include the column names specifeid in
 \item{entity_id_col}{The column name in \code{data} containing identifying
 labels for the entities.}
 
-\item{tax_level_labels}{Taxonomy levels used for classification in \code{data}. Default is
-the Chemont taxonomy levels: \code{c('kingdom', 'superclass', 'class',
-  'subclass','level5', 'level6', 'level7', 'level8','level9', 'level10',
-  'level11')}.}
+\item{tax_level_labels}{Taxonomy levels used for classification in
+\code{data}. Default is the Chemont taxonomy levels: \code{c('kingdom',
+  'superclass', 'class', 'subclass','level5', 'level6', 'level7',
+  'level8','level9', 'level10', 'level11')}.}
 }
 \value{
 A \code{phylo}-class object.

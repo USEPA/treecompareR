@@ -10,6 +10,13 @@ as_classified.phylo(
     "level7", "level8", "level9", "level10", "level11")
 )
 }
+\arguments{
+\item{tree}{An object of class \code{phylo}.}
+
+\item{tax_level_labels}{Vector of the possible taxonomy levels that can appear
+as column names in \code{as_classified.phylo} if it is a \code{data.frame} of
+classified data.}
+}
 \description{
 Convert a phylo tree into a wide-format "classified" data.frame
 }

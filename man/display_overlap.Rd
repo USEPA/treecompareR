@@ -12,7 +12,7 @@ display_overlap(
   name_1,
   data_2,
   name_2,
-  entity_id_col,
+  entity_id_col = NULL,
   group_level = "terminal",
   tax_level_labels = chemont_tax_levels,
   annot_angle = "auto",

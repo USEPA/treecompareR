@@ -89,12 +89,12 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #' \code{\link[data.tree]{Node}}. Then, it converts that
 #' \code{\link[data.tree]{Node}} object into a Newick-format tree
 #' representation. Finally, it converts that Newick-format tree representation
-#' into an object of class \code{\link[phytools]{phylo}}.
+#' into an object of class \code{\link[ape]{phylo}}.
 #'
 #' This is necessary because \code{\link[ggtree]{ggtree}} requires
-#' \code{\link[phytools]{phylo}}-class objects as input, but
+#' \code{\link[ape]{phylo}}-class objects as input, but
 #' \code{\link[phytools]{phytools}} only has methods to create
-#' \code{\link[phytools]{phylo}}-class objects from Newick, SIMMAP, or
+#' \code{\link[ape]{phylo}}-class objects from Newick, SIMMAP, or
 #' Nexus-formatted trees. However, the ClassyFire ontology is not available in
 #' any of those three formats, but only as files defining the name and ID number
 #' of each node in the ontology, and giving the ID number of each node's parent
@@ -117,7 +117,7 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
 #'   respectively provide a name for each node, an ID for each node, and the ID
 #'   of the parent of each node. Each row represents one node of the taxonomy.
-#' @return A \code{phylo}-class tree object.}
+#' @return A \code{phylo}-class tree object.
 #' @export
 #'
 generate_taxonomy_tree <- function(tax_nodes = NULL){
@@ -175,6 +175,8 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
 #' @param tree phylo tree object
 #' @return Character vector of tip or internal node labels
 get_label_from_node <-function(node, tree){
+  N <- dim(tree$edge)[[1]] + 1
+  node <- node[node > 0 & node <= N]# Filter out node numbers out of bounds
   label <- vector(mode = "character", length = length(node))
   label[node < (ape::Ntip(tree)+1)] <- tree$tip.label[node[node <( ape::Ntip(tree)+1)]]
   label[node > ape::Ntip(tree)] <- tree$node.label[node[node >  ape::Ntip(tree)]-ape::Ntip(tree)]

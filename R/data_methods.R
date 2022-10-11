@@ -6,14 +6,19 @@
 #' @param data A data.frame of classified chemicals.
 #' @param tax_level_labels A vector of taxonomy levels. Default is
 #'   \code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.
-#' @param tree An alternate parameter giving a different tree structure if not
-#'   using ChemOnt taxonomy.
+# @param tree An alternate parameter giving a different tree structure if not
+#   using ChemOnt taxonomy.
 #' @return A new data.frame, augmenting the input data.frame with a column
 #'   consisting of the terminal labels.
 #' @export
 #' @import data.table
 add_terminal_label <- function(data,
                                tax_level_labels = chemont_tax_levels){
+  label <- NULL
+  tax_level <- NULL
+  terminal_tax_level <- NULL
+
+
   data_orig <- copy(data) #save original input data
 
   #check that the input data.frame has been classified properly
@@ -122,14 +127,14 @@ add_terminal_label <- function(data,
 #'  labels at the specified level that occur either in \code{data_1} or
 #'  \code{data_2}. The first variable is named with the value of
 #'  \code{at_level}, and contains the unique labels at that level that occur
-#'  either in \code{data_1} or \code{data_2}. The other variables are: \list{
+#'  either in \code{data_1} or \code{data_2}. The other variables are:
 #'  \item{n_1}{The number of entities for this label in \code{data_1}}
 #'  \item{n_2}{The number of entities for this label in \code{data_2}}
 #'  \item{n_intersect}{The number of entities for this label that are in both
 #'  \code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
 #'  this label that are in either \code{data_1} or \code{data_2}}
 #'  \item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
-#'  and \code{data_2} for each label, \code{n_intersect / n_union}}}
+#'  and \code{data_2} for each label, \code{n_intersect / n_union}}
 calc_number_overlap <- function(data_1,
                                 data_2,
                                 entity_id_col = NULL,
@@ -181,7 +186,7 @@ calc_number_overlap <- function(data_1,
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
     dplyr::summarise(n_1 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(entity_id_col)
+      #  dplyr::all_of(entity_id_col)
         )
       )
       )
@@ -190,7 +195,7 @@ calc_number_overlap <- function(data_1,
     dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
     dplyr::summarise(n_2 = dplyr::n_distinct(
       dplyr::across(
-        dplyr::all_of(entity_id_col)
+      #  dplyr::all_of(entity_id_col)
       )
     )
     )
@@ -208,10 +213,13 @@ calc_number_overlap <- function(data_1,
   get_overlap <-  function(grouplab,
                            group_col,
                            entity_id_col){
-    id_1 <- data_1[data_1[[group_col]] %in% grouplab, entity_id_col]
-    id_2 <- data_2[data_2[[group_col]] %in% grouplab, entity_id_col]
-    n_intersect <- length(intersect(id_1, id_2))
-    n_union <-  length(union(id_1, id_2))
+    id_1 <- data_1[data_1[[group_col]] %in% grouplab,]
+    id_2 <- data_2[data_2[[group_col]] %in% grouplab,]
+    shared_names <- intersect(names(data_1), names(data_2))
+    #n_intersect <- length(intersect(id_1, id_2))
+    n_intersect <- dim(dplyr::inner_join(id_1, id_2, by = shared_names))[[1]]
+    n_union <- dim(dplyr::full_join(id_1, id_2, by = shared_names))[[1]]
+    #n_union <-  length(union(id_1, id_2))
     simil <- n_intersect/n_union
     data.frame("group" = grouplab,
                "n_intersect" = n_intersect,
@@ -260,6 +268,7 @@ calc_number_overlap <- function(data_1,
 get_label_level <- function(data,
                             level_label,
                             tax_level_labels = chemont_tax_levels){
+  data <- copy(data.table(data))
 
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
     stop(paste('Please input a valid label!', level_label))
@@ -276,6 +285,25 @@ get_label_level <- function(data,
   return(labels)
 }
 
+#' Get labels
+#'
+#' This is a helper function for retrieving labels in a data.table of classified
+#' chemicals, grouped by taxonomy level.
+#'
+#' @param data A data.table consisting of classified chemicals.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @return A list of classification labels for each level of taxonomy.
+get_labels <- function(data, tax_level_labels = NULL){
+  if (is.null(tax_level_labels)){
+    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
+                          'level5', 'level6', 'level7', 'level8',
+                          'level9', 'level10', 'level11')
+  }
+  labels <- sapply(tax_level_labels, function(t) {get_label_level(data, t, tax_level_labels)})
+  labels
+}
+
 #' Get terminal labels
 #'
 #' This is a helper function for retrieving terminal labels in a data.frame of
@@ -283,13 +311,16 @@ get_label_level <- function(data,
 #'
 #' @param data A data.frame consisting of classified items. Rows are entities;
 #'   columns must include all names in \code{tax_level_labels}.
+#' @param entity_id_cols An alternate parameter giving a column name specifying
+#'   the id's of the analytes in each row.
 #' @param tax_level_labels A vector of taxonomy levels. Default is
 #'   \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.
-#' @return A vector of terminal classification labels, one for each entity in the input
-#'   data.
+#' @return A vector of terminal classification labels, one for each entity in
+#'   the input data.
 get_terminal_labels <- function(data,
                                 entity_id_cols = NULL,
                        tax_level_labels = chemont_tax_levels){
+  label <- NULL
 
   #check that the input data.frame has been classified properly
   if(!any(tax_level_labels %in% names(data))){
@@ -362,7 +393,8 @@ get_number_of_labels <- function(data,
                                  tax_level_labels = chemont_tax_levels){
 
 
-  labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
+  #labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
+  labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
 
   N <- sum(sapply(labels, length))
 
@@ -372,18 +404,19 @@ get_number_of_labels <- function(data,
   #print(names(number_of_labels))
 
   for (i in seq_along(tax_level_labels)){
-    #print(paste('There are ', length(labels[[i]]), 'levels'))
+    #print(paste('There are ', length(labels[[i]]), 'levels', 'at label', names(labels)[[i]]))
     #print(labels[[i]])
 
     for (j in seq_along(labels[[i]])){
       index <- which(names(number_of_labels) == labels[[i]][[j]])
+      #print(length(index))
       #print(paste(tax_level_labels[[i]], labels[[i]][[j]]))
       #print(names(labels)[[i]])
-      #print(labels[[i]][[j]])
+      #print(paste(labels[[i]][[j]], '\n', j))
       #print(index)
       #print(data[, .(names(labels)[[i]])])
       #print(data[, .SD, .SDcols = c(names(labels)[[i]])])
-      number_of_labels[[index]] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
+      number_of_labels[index] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
       #print(length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]])))
     }
   }

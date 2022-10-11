@@ -23,10 +23,23 @@ the terminal label of the classification. Default "terminal_label".}
 
 \item{tree}{The taxonomy tree to use. Default \code{\link{chemont_tree}}.}
 
-\item{tax_level_labels}{The set of taxonomy levels to use. Default \code{\link{chemont_tax_levels}}.}
+\item{tax_level_labels}{The set of taxonomy levels to use. Default
+\code{\link{chemont_tax_levels}}.}
 
-\item{similarity}{The similarity metric to calculate. Default "jaccard".}
+\item{similarity}{The similarity metric to calculate. Default "jaccard".
+Additional options include "resnik", "lin", and "jiang_conrath". If none
+match, the default of "jaccard" will be used accompanied by a warning
+message indicating so.}
+}
+\value{
+A similarity matrix with rows and columns corresponding to labels
+from the \code{terminal_label} variable in \code{data_1} and \code{data_2}, respectively.
 }
 \description{
 Calculate similarity measures for two datasets
+}
+\seealso{
+\code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+\code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}},
+\code{\link{similarity_matrix}}
 }

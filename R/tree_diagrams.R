@@ -22,10 +22,11 @@ label_bars <- function(data = NULL,
 
   if (is.null(data))
     stop('Please input data!')
-  if (data.table::is.data.table(data)){
+  if (data.table::is.data.table(data) | is.data.frame(data)){
     data <- list(data)
   } else {
-    if (!is.list(data) | !all(sapply(data, data.table::is.data.table)))
+    if (!is.list(data) | !all(sapply(data, function(t) {
+      data.table::is.data.table(t) | is.data.frame(t)})))
       stop('Please input a single data.table or list of data.tables!')
   }
 
@@ -35,24 +36,33 @@ label_bars <- function(data = NULL,
                           'level9', 'level10', 'level11')
   }
 
+  data <- lapply(data, as.data.frame)
+
   number <- length(data)
 
   if (number == 1){
     data_names <- c('Set_1')
   } else {
-    if (is.null(names(data)) | length(names(data)) != number | any(is.na(names(data)))){
-      data_names <- paste0('Set_', seq_len(number))
+    if (is.null(names(data)) | length(names(data)) != number | any(is.na(names(data))) | any(names(data) == '')){
+      data_names <- names(data)
+      missing_names <- which(names(data) == '')
+      data_names[missing_names] <- paste0('Set_', missing_names)
+      warning("There were missing names! Attaching substitute names...")
     } else {
       data_names <- names(data)
     }
   }
 
-  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_terminal_labels(t, tax_level_labels)))))
+  names(data) <- data_names
+
+
+  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_labels(data = t, tax_level_labels = tax_level_labels)))))
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
     tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
   transformed_df["count_sums"] <- as.numeric(transformed_df$count_sums)
   transformed_df["tax_levels"] <- factor(transformed_df$tax_levels, levels = tax_level_labels)
+  transformed_df['dataset'] <- factor(transformed_df$dataset, levels = data_names)
 
   plot_1 <- ggplot(transformed_df) +
     facet_wrap(~dataset, scales = 'free') +
@@ -157,7 +167,8 @@ label_bars <- function(data = NULL,
 #'  not \code{NULL}, must be one of the following options: A `data.frame`
 #'  consisting of a list of entities with classification data; a vector of node
 #'  numbers in the base tree; a vector of node labels in the base tree; or a
-#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See Details.
+#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See
+#'  Details.
 #'@param data_2 Optional: Highlight branches of the base tree to compare
 #'  membership in this list and \code{data_1}. Default is \code{NULL}, to do no
 #'  highlighting. If not \code{NULL}, one of the following options: A
@@ -174,38 +185,43 @@ label_bars <- function(data = NULL,
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 #'  "subclass", paste0("level", 5:11))}.
 #'@param layout \code{\link{ggtree}} layout option. Default "circular."
-#'@param base_color Color for base tree (branches not in any input data set).
-#'  Default "gray80" for a light gray.
-#'@param subtree_colors Vector of colors to use to highlight branches according
-#'  to subtree membership. If \code{data_2} is NULL, only the first element of
-#'  \code{subtree_colors} will be used (to signify that a branch is in
-#'  \code{data_1}). If \code{data_2} is not NULL, then the colors will be used
-#'  in the following order: branch in \code{data_1} only; branch in
-#'  \code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
-#'  is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
-#'  ColorBrewer2 "Set2" set.
-#'@param base_size Line width for base tree. If NULL, default line width will be
-#'  used.
-#'@param subtree_sizes Vector of line widths to use to highlight branches
-#'  according to subtree membership. If \code{data_2} is NULL, only the first
-#'  element of \code{subtree_sizes} will be used (to signify that a branch is in
-#'  \code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
-#'  the following order: branch in \code{data_1} only; branch in \code{data_2}
-#'  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
-#'  will not be used to highlight branches; all branches will be plotted with
-#'  line width given by \code{base_size}. Default is NULL.
-#'@param clade_level The taxonomy level at which to draw clade labels, if
-#'  any. Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy).
-#'  Set to NULL to suppress clade labels altogether.
-#'@param clade_label_fontsize Font size for clade labels. Default 3.
-#'@param clade_label_wrap Number of characters at which to wrap clade labels to
-#'  a second line. Default 20.
-#'@param clade_label_lineheight Line height for multi-line clade labels, as a
-#'  multiple of the size of text. Controls vertical space between lines on
-#'  multi-line clade labels. Default 0.7.
+#'@param base_opts List of parameters with default values that control
+#  line properties within tree diagram.
+#'@param subtree_mapping List of color values for displaying subtree.
+#'@param clade_opts List of parameters with default values for illustrating
+#'  clades within the tree diagram.
+#@param base_color Color for base tree (branches not in any input data set).
+#  Default "gray80" for a light gray.
+#@param subtree_colors Vector of colors to use to highlight branches according
+#  to subtree membership. If \code{data_2} is NULL, only the first element of
+#  \code{subtree_colors} will be used (to signify that a branch is in
+#  \code{data_1}). If \code{data_2} is not NULL, then the colors will be used
+#  in the following order: branch in \code{data_1} only; branch in
+#  \code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
+#  is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
+#  ColorBrewer2 "Set2" set.
+#@param base_size Line width for base tree. If NULL, default line width will be
+#  used.
+#@param subtree_sizes Vector of line widths to use to highlight branches
+#  according to subtree membership. If \code{data_2} is NULL, only the first
+#  element of \code{subtree_sizes} will be used (to signify that a branch is in
+#  \code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
+#  the following order: branch in \code{data_1} only; branch in \code{data_2}
+#  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
+#  will not be used to highlight branches; all branches will be plotted with
+#  line width given by \code{base_size}. Default is NULL.
+#'@param clade_level The taxonomy level at which to draw clade labels, if any.
+#'  Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
+#'  to NULL to suppress clade labels altogether.
+#@param clade_label_fontsize Font size for clade labels. Default 3.
+#@param clade_label_wrap Number of characters at which to wrap clade labels to
+#  a second line. Default 20.
+#@param clade_label_lineheight Line height for multi-line clade labels, as a
+#  multiple of the size of text. Controls vertical space between lines on
+#  multi-line clade labels. Default 0.7.
 #'@return A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
-#'  with branches highlighted to indicate presence in
-#'  \code{data_1}, in \code{data_2} if supplied, neither, or both.
+#'  with branches highlighted to indicate presence in \code{data_1}, in
+#'  \code{data_2} if supplied, neither, or both.
 #'@export
 #'@import ggtree
 display_subtree <- function(base_tree = chemont_tree,
@@ -712,9 +728,15 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 #'  "subclass", paste0("level", 5:11))}.
+#'@param keep_descendants Whether to keep descendants of specified nodes in the
+#'  subtree or not. The default value of the parameter is NULL and the pruning
+#'  behavior follows that of \code{\link{prune_to}}. If the parameter value is
+#'  TRUE, all descendant nodes will be kept rather than pruned away and if the
+#'  parameter value is FALSE, only the nodes of the subtree will remain while
+#'  all other nodes are pruned.
 #'@param ... Other arguments to \code{\link{display_subtree}}.
 #'@inheritDotParams display_subtree -base_tree -tax_level_labels
-#'@return A ggtree object visualizing the pruned base tree. If\code{data_1}
+#'@return A ggtree object visualizing the pruned base tree. If \code{data_1}
 #'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
 #'  whether they are present in each set, neither, or both.
 #'@export
@@ -723,6 +745,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       prune_name = NULL,
                                       adjust_branch_length = FALSE,
                                       tax_level_labels = chemont_tax_levels,
+                                      keep_descendants = NULL,
                                       ...) { #args as for display_subtree()
 
   args <- list(...)
@@ -730,7 +753,8 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
   pruned_tree <- prune_tree(tree = base_tree,
                             prune_to = prune_to,
                             adjust_branch_length = adjust_branch_length,
-                            tax_level_labels = tax_level_labels)
+                            tax_level_labels = tax_level_labels,
+                            keep_descendants = keep_descendants)
 
 
   tree_plot <- do.call(display_subtree,
@@ -785,11 +809,12 @@ display_overlap <- function(base_tree,
                             name_1,
                             data_2,
                             name_2,
-                            entity_id_col,
+                            entity_id_col = NULL,
                             group_level = "terminal",
                             tax_level_labels = chemont_tax_levels,
                             annot_angle = "auto",
                             ...){
+  terminal_label <- NULL
 
   args <- list(...)
 
@@ -835,6 +860,9 @@ if(group_level %in% "terminal"){
                                                       type = "tips")
 
   #now repeat the rest of the columns for each one
+  n_1 <- NULL
+  n_2 <- NULL
+  simil <- NULL
   df_list <- lapply(seq_along(overlap_tip_nodes),
                     function(i){
                       data.frame(tip_nodes = overlap_tip_nodes[[i]],
@@ -971,7 +999,7 @@ return(out_obj)
 #'little or no space on the plot.
 #'
 #'Currently, \code{add_cladelab} cannot be chained using the
-#'\code{\link{[ggplot2]{`+.gg`}}} operator. This is because \code{add_cladelab}
+#'\code{\link[ggplot2]{\%+\%}} operator. This is because \code{add_cladelab}
 #'is not currently defined as an S3 class with an associated \code{ggplot_add}
 #'method.
 #'
@@ -982,7 +1010,7 @@ return(out_obj)
 #'\code{add_cladelab} also cannot be chained using the
 #'\code{\link[magrittr]{%>%}} operator if the preceding chain involves
 #'\code{`+`}. This is because of operator precedence: R evaluates
-#'\code{\link[magrittr]{%>%}} before \code{\link{[ggplot2]{`+.gg`}}}.
+#'\code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{\%+\%}}.
 #'
 #'
 #'For example, the following code also will *not* work:
@@ -1050,6 +1078,9 @@ add_cladelab <- function(tree_plot,
                                             lineheight = 0.7,
                                             default_to_tip = TRUE))
 {
+  phylo_node <- NULL
+  clade_name2 <- NULL
+
   if(!is.null(clade_level)){
   clade_opts_default <- list(wrap = 20,
                              barsize = "alternate",
@@ -1323,7 +1354,7 @@ side_by_side_trees <- function(data_left, data_right, name_left = 'Left tree', n
   trans <- ifelse(log_trans, 'log1p', 'identity')
 
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value)) + scale_fill_viridis(trans=trans) +
+    geom_tile(aes(fill = value)) + viridis::scale_fill_viridis(trans=trans) +
     theme_minimal() + ylab(NULL)  +
       theme(axis.text.y = element_text(size = 3),
             axis.title.y = NULL)

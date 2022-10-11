@@ -20,12 +20,13 @@
 #' @references \insertRef{djoumbou2016classyfire}{treecompareR}
 #'
 #'
-#' @seealso \code{\link{classify_structure}}
+#' @seealso \code{\link{classify_structures}}
 #'
 
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = chemont_tax_levels,
                                wait_min = 0.5){
+
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
 
@@ -96,6 +97,7 @@ classify_inchikeys <- function(inchikeys,
   classify_structures <- function (input = NULL,
                                    tax_level_labels = chemont_tax_levels,
                                    ...){
+    identifier <- NULL
 
     #Names of input structures are their identifiers.
     #If no names, use the structures themselves as identifiers.
@@ -267,11 +269,11 @@ classify_inchikeys <- function(inchikeys,
 #'   `invalid_entities`, if present, is a data.frame listing queried entity
 #'   identifiers that ClassyFire found invalid. `entities`, if present, is a
 #'   nested data.frame giving classifications. Use function
-#'   \code{\link{parse_classification}} to parse these results into a data.frame
+#'   \code{\link{parse_classified_entities}} to parse these results into a data.frame
 #'   of classified entities, suitable for use with the tree visualization,
 #'   similarity analysis, or similarity visualization functions. Or call
 #'   \code{\link{classify_structures}} which is a wrapper for this function and
-#'   \code{\link{parse_classification}}.
+#'   \code{\link{parse_classified_entities}}.
 #' @export
 #'
  query_classyfire <- function(input = NULL,
@@ -516,12 +518,17 @@ classify_inchikeys <- function(inchikeys,
 #'   API query
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
-#' @param A data.frame with one row for each entity identifier, and variables
-#'   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
-#'   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
-#'   and `report`.
+# @param A data.frame with one row for each entity identifier, and variables
+#   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
+#   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
+#   and `report`.
+#' @return A data.frame consisting of rows corresponding to each classified
+#' entry from the `entities` input.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
+  identifier <- NULL
+  level <- NULL
+  name <- NULL
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
@@ -697,8 +704,20 @@ parse_classified_entities <- function(entities,
   return(classified_entities)
 }
 
-#' Query classyfire by inchikey
+
+#' Query ClassyFire InChIKey
 #'
+#' This is a helper function that is used to communicate with the ClassyFire API
+#' in order to retrieve classifications.
+#'
+#' @param inchikey A character string encoding the InChIKey of the chemical
+#'   under query.
+#' @param retry_get_times The number of times to retry the query, a positive
+#'   integer with default value 3.
+#' @param wait_min The number of seconds to pause in between attempts, used in
+#'   the \code{\link{httr}{RETRY}} function.
+#'
+#' @return A JSON file with the classification data.
 query_classyfire_inchikey <- function(inchikey,
                                       retry_get_times = 3,
                                       wait_min = 0.5){
