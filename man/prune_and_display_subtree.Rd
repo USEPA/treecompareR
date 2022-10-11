@@ -80,7 +80,7 @@ to NULL to suppress clade labels altogether.}
   }}
 }
 \value{
-A ggtree object visualizing the pruned base tree. If\code{data_1}
+A ggtree object visualizing the pruned base tree. If \code{data_1}
 and/or \code{data_2} are supplied, branches will be highlighted to indicate
 whether they are present in each set, neither, or both.
 }
