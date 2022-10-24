@@ -10,6 +10,8 @@
 #' @param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
+#' @param wait_min A parameter controlling how many seconds between qqueries
+#'   sent to the ClassyFire API server.
 #' @return A data.frame with the same number of rows as the length of input
 #'   argument \code{inchikeys}, and variables consisting of "INCHIKEY"
 #'   (containing input argument \code{inchikeys}) and one column for each of the

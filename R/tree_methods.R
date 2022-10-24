@@ -2043,36 +2043,36 @@ calc_similarity_data <- function(data_1,
   #only need to calc upper triangular part;
   #can then assign
 
-  for(i in 1:(length(mlabs)-1)){
-    if(mlabs[i] %in% mrowlabs &
-       mlabs[i] %in% mcollabs){
-      #entity is 100% similar to itself
-      m[mlabs[i], mlabs[i]] <- 1
-    }
-    for(j in (i+1):(length(mlabs))){
-      tmp <- do.call(similarity_fun,
-                     list(tree = tree,
-                          label_A = mlabs[i],
-                          label_B = mlabs[j]))
-      if(mlabs[i] %in% mrowlabs &
-         mlabs[j] %in% mcollabs){
-        m[mlabs[i], mlabs[j]] <- tmp
-      }
+  #for(i in 1:(length(mlabs)-1)){
+  #  if(mlabs[i] %in% mrowlabs &
+  #     mlabs[i] %in% mcollabs){
+  #    #entity is 100% similar to itself
+  #    m[mlabs[i], mlabs[i]] <- 1
+  #  }
+  #  for(j in (i+1):(length(mlabs))){
+  #    tmp <- do.call(similarity_fun,
+  #                   list(tree = tree,
+  #                        label_A = mlabs[i],
+  #                        label_B = mlabs[j]))
+  #    if(mlabs[i] %in% mrowlabs &
+  #       mlabs[j] %in% mcollabs){
+  #      m[mlabs[i], mlabs[j]] <- tmp
+  #    }
 
-      if(mlabs[j] %in% mrowlabs &
-               mlabs[i] %in% mcollabs){
-        m[mlabs[j], mlabs[i]] <- tmp
-      }
+  #    if(mlabs[j] %in% mrowlabs &
+  #             mlabs[i] %in% mcollabs){
+  #      m[mlabs[j], mlabs[i]] <- tmp
+  #    }
 
-      if(mlabs[j] %in% mrowlabs &
-         mlabs[j] %in% mcollabs){
-        #entity is 100% similar to itself
-        m[mlabs[j], mlabs[j]] <- 1
-      }
-    } #end j loop
-  } #end i loop
+  #    if(mlabs[j] %in% mrowlabs &
+  #       mlabs[j] %in% mcollabs){
+  #      #entity is 100% similar to itself
+  #      m[mlabs[j], mlabs[j]] <- 1
+  #    }
+  #  } #end j loop
+  #} #end i loop
 
-return(m)
+#return(m)
 }
 
 #' Get subtree node numbers
