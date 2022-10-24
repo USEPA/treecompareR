@@ -1150,6 +1150,8 @@ add_cladelab <- function(tree_plot,
                                                      tree = tree),
                           tree = tree,
                           level = clade_level)
+  clade_plot_lab <- get_label_from_node(node = clade_plot,
+                                        tree = tree)
 
   if(isTRUE(clade_opts$default_to_tip)){
   #if there is no clade at the specified level, i.e. branch terminates before that level,
@@ -1158,7 +1160,9 @@ add_cladelab <- function(tree_plot,
                                                        tree = tree)
   }else{
     #remove any NA values from clade_plot -- these will not be labeled
-    clade_plot <- clade_plot[!is.na(clade_plot)]
+    #clade_plot <- clade_plot[!is.na(clade_plot)]
+    #remove any clade labels that are the same as tip labels
+    clade_plot <- clade_plot[!(clade_plot_lab %in% tips_plot)]
   }
   #clade_plot <- clade_plot[!is.na(clade_plot)]
   #tips_clade gives the clades in order of plotting
