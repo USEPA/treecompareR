@@ -169,26 +169,4 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   return(tree_object)
 }
 
-#' Get label for a tip or internal node of a phylo tree
-#'
-#' @param node Vector of node numbers in phylo tree
-#' @param tree phylo tree object
-#' @return Character vector of tip or internal node labels
-get_label_from_node <-function(node, tree){
-  N <- dim(tree$edge)[[1]] + 1
-  node <- node[node > 0 & node <= N]# Filter out node numbers out of bounds
-  label <- vector(mode = "character", length = length(node))
-  label[node < (ape::Ntip(tree)+1)] <- tree$tip.label[node[node <( ape::Ntip(tree)+1)]]
-  label[node > ape::Ntip(tree)] <- tree$node.label[node[node >  ape::Ntip(tree)]-ape::Ntip(tree)]
-  return(label)
-}
 
-get_node_from_label <- function(label, tree){
-#tip labels come first
-tip_nodes <- match(label, tree$tip.label)
-#then internal node labels come
-internal_nodes <- match(label, tree$node.label) + ape::Ntip(tree)
-nodes <- pmin(tip_nodes, internal_nodes, na.rm = TRUE)
-return(nodes)
-
-}
