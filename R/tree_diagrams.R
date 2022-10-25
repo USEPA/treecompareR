@@ -1428,3 +1428,119 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 }
 
 
+#' patchwork-based geom_fruit implementation -- Experimental
+#'
+#' @param
+#'
+fruit_patch <- function(dat,
+                        treeplot,
+                        geom,
+                        mapping,
+                        ...){
+
+# Ensure the y aesthetic goes in the same order as the treeplot
+# Get tips of tree in their plotting order in the treeplot
+tips_ord <- ggtree::get_taxa_name(tree_view = treeplot)
+
+#
+dat$
+qDT[, id:=factor(DTXSID, levels = foo)]
+
+offset <- 0.12 #fraction of tree range
+pwidth <- 0.3 #fraction of tree range
+
+#convert offset to absolute units
+offset_abs <- diff(range(treeplot$data$x)) * offset
+#Get the minimum for what will become the x axis
+x_min <- max(treeplot$data$x) + offset
+#Get the maximum for what will become the x axis
+width_abs <- diff(range(treeplot$data$x)) * pwidth
+x_max <- x_min + width_abs
+
+#data transformation
+
+#create a transformation to rescale the y axis
+#we want the data to to begin at x_min and end at x_max
+#but the axis to begin at the bottom of the treeplot range
+
+#version of transformation without log scaling
+offset_trans <- function(lims_orig,
+                         data_lims_new){
+  scales::trans_new(name = "offset_trans",
+                    transform = function(x) scales::rescale(x,
+                                                            to = lims_new,
+                                                            from = lims_orig),
+                    inverse = function(x) scales::rescale(x,
+                                                          to = lims_orig,
+                                                          from = lims_new))
+}
+
+#version of transformation with log scaling
+offset_log_trans <- function(lims_orig,
+                             lims_new,
+                             base = 10){
+  force(base)
+  trans <- function(x) scales::rescale(log(x, base),
+                                       to = lims_new,
+                                       from = log(lims_orig, base))
+  inv <- function(x) base^(scales::rescale(x,
+                                           to = log(lims_orig, base),
+                                           from = lims_new))
+  scales::trans_new(name = "offset_trans",
+                    transform = trans,
+                    inverse = inv,
+                    log_breaks(base = base),
+                    domain = c(1e-100, Inf))
+}
+
+pct_cols <- grep(x = names(q\DT),
+                 pattern = "^P",
+                 perl = TRUE,
+                 value = TRUE)
+
+qDT[, (pct_cols) := lapply(.SD, function(x) {
+  x[x==0] <- NA
+  x}
+),
+.SDcols = pct_cols]
+
+#make plot to go around the outside
+myplot <-  ggplot(qDT[!is.na(id)]) +
+  geom_boxplot(aes(x = id,
+                   ymin = P5,
+                   lower = P25,
+                   middle = P50,
+                   upper = P75,
+                   ymax = P95),
+               stat = "identity") +
+  geom_point(aes(x = id,
+                 y = P1)) +
+  geom_point(aes(x = id,
+                 y = P99))
+
+#get original plot limits
+plot_lims <- layer_scales(myplot)$y$get_limits()
+
+p1 <- myplot +
+  geom_hline(yintercept = min(plot_lims)) + #the inset plot should fit within this circle
+  scale_y_continuous(trans = offset_log_trans(lims_orig = plot_lims,
+                                              lims_new = c(x_min, x_max),
+                                              base = 10),
+                     limits = c(offset_log_trans(
+                       lims_orig = plot_lims,
+                       lims_new = c(x_min, x_max))$inv(0),
+                       NA) #expand lower x limit to be zero on transformed scale
+  ) +
+  coord_polar() +
+  theme(axis.text.x = element_blank())
+
+library(patchwork)
+p1 +
+  theme_void() +
+  inset_element(treeplot + ggtitle(NULL) + theme_void(),
+                left = unit(offset, "npc"),
+                right = unit((1-offset), "npc"),
+                bottom = unit(offset, "npc"),
+                top = unit((1-offset), "npc"),
+                align_to = "plot",
+                on_top = TRUE)
