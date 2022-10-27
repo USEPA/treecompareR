@@ -63,10 +63,10 @@ classify_inchikeys <- function(inchikeys,
   inchi_class <- dplyr::bind_rows(class_list)
 
   #now order as for input -- re-inserting any duplicates
-  new_class <- inchi_class[match(inchikeys, inchi_class$identifier),
-                           ]
+  # new_class <- inchi_class[match(inchikeys, inchi_class$identifier),
+  #                          ]
 
-  return(new_class)
+  return(inchi_class)
 }
 
 
@@ -520,12 +520,12 @@ classify_inchikeys <- function(inchikeys,
 #'   API query
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
-# @param A data.frame with one row for each entity identifier, and variables
-#   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
-#   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
-#   and `report`.
+# @param
 #' @return A data.frame consisting of rows corresponding to each classified
-#' entry from the `entities` input.
+#' entry from the `entities` input. A data.frame with one row for each entity identifier, and variables
+#'  `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
+#'   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
+#'    and `report`.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
   identifier <- NULL
@@ -677,18 +677,33 @@ parse_classified_entities <- function(entities,
     cf_class <- cf_class %>%
       dplyr::mutate(level = tax_level_labels[level])
 
-    #reshape to wide format, one column for each level
-    cf_class_wide <- cf_class %>%
-      tidyr::pivot_wider(id_cols = "identifier",
-                         names_from = "level",
-                         values_from = "name")
+    #We have found at least one instance where the ChemOnt tree listed something at the wrong level
+    #(see data-raw/make_chemont_taxonomy.R).
+    #Though we manually fixed that instance, there may be others.
+    #If so, cf_class will have more than one "name" at a given "level."
+    #This will cause `tidyr::pivot_wider()` to return a list-type column,
+    #which then breaks downstream use of `dplyr::bind_rows()`.
+    #I don't know how to handle this situation automatically.
+    #I think we just have to continue returning the long format data.frame,
+    #and make the user deal with it as they see fit.
 
-    #add NA columns for any taxonomy levels not assigned for these entities
-    cols_add <- setdiff(tax_level_labels,
-                        names(cf_class_wide))
-    classified_entities <-  cf_class_wide %>% as.data.frame()
-    classified_entities[cols_add] <- NA_character_
+    # #reshape to wide format, one column for each level
+    # cf_class_wide <- cf_class %>%
+    #   tidyr::pivot_wider(id_cols = "identifier",
+    #                      names_from = "level",
+    #                      values_from = "name")
+    #
+    # #add NA columns for any taxonomy levels not assigned for these entities
+    # cols_add <- setdiff(tax_level_labels,
+    #                     names(cf_class_wide))
+    # classified_entities <-  cf_class_wide %>% as.data.frame()
+    # if(!is.na(cols_add) &
+    #    length(cols_add > 0)){
+    # classified_entities[cols_add] <- NA_character_
+    # }
 
+
+    classified_entities <- cf_class
     #add a "report" column
     if(!"report" %in% names(entities)){
     classified_entities$report <- "ClassyFire returned a classification"
