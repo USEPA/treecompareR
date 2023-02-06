@@ -26,7 +26,4 @@ labels in the ordering given by the tree.
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
-generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
-generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
-
 }
