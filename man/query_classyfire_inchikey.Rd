@@ -4,7 +4,7 @@
 \alias{query_classyfire_inchikey}
 \title{Query ClassyFire InChIKey}
 \usage{
-query_classyfire_inchikey(inchikey, retry_get_times = 3, wait_min = 5)
+query_classyfire_inchikey(inchikey, retry_get_times = 3, wait_min = 0.5)
 }
 \arguments{
 \item{inchikey}{A character string encoding the InChIKey of the chemical
