@@ -4,7 +4,7 @@
 \alias{calc_similarity}
 \title{Calculate similarity measures}
 \usage{
-calc_similarity(tree, labels_A, labels_B, metric = "jaccard", method = "cpp")
+calc_similarity(tree, labels_A, labels_B, metric = "jaccard")
 }
 \arguments{
 \item{tree}{A phylo object representing a rooted tree.}
@@ -12,20 +12,18 @@ calc_similarity(tree, labels_A, labels_B, metric = "jaccard", method = "cpp")
 \item{labels_A}{The first (set of) label(s).}
 
 \item{labels_B}{The second (set of) label(s).}
+
+\item{metric}{A string naming the similarity metric to use. Options are
+"jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
+need be entered (e.g., "ja" for "jaccard", "re" for "resnik", "li" for
+"lin", and "ji" for "jiang_conrath"). Case-insensitive.}
 }
 \value{
-Matrix of similarity values for pairs of labels from \code{label_A} and \code{label_B}.
+Matrix of similarity values for pairs of labels from \code{label_A} and
+\code{label_B}.
 }
 \description{
 Calculate similarity measures
-}
-\examples{
-
-tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-
-calc_similarity(tree = tree, labels_A = 't2', labels_B = 't4')
-calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
-
 }
 \references{
 \insertRef{pekar2002taxonomy}{treecompareR}
