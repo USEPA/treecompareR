@@ -2113,3 +2113,41 @@ get_subtree_nodes <- function(data,
   return(data_all_nodes)
 
 }
+
+#' Get label for a tip or internal node ID in a phylo tree
+#'
+#' @param node Vector of node ID numbers in phylo tree.
+#' @param tree phylo tree object
+#' @return Character vector of tip or internal node labels corresponding to each
+#'   node ID. \code{NA_character_} if no node label corresponds to the input
+#'   node ID.
+get_label_from_node <-function(node, tree){
+  #get total number of nodes in the tree
+  N <- dim(tree$edge)[[1]] + 1
+  #get total number of tips in the tree
+  #ntips <- ape::Ntip(tree)
+  node[node<=0] <- N+100 #this will force return NA label for negative or 0 node IDs
+  node[is.na(node)] <- N+100 #same for any NA nodes
+  #get all tree labels: tips then nodes
+  treelabs <- c(tree$tip.label,
+                tree$node.label)
+  #get labels corresponding to each node
+  label <- treelabs[node]
+
+  return(label)
+}
+
+#' Get node ID for a label in a phylo tree
+#'
+#' @param label Vector of labels for tips or internal nodes in phylo tree
+#' @param tree phylo tree object
+#' @return Numeric vector of tip or internal node ID numbers
+get_node_from_label <- function(label, tree){
+  #tip labels come first
+  tip_nodes <- match(label, tree$tip.label)
+  #then internal node labels come
+  internal_nodes <- match(label, tree$node.label) + ape::Ntip(tree)
+  nodes <- pmin(tip_nodes, internal_nodes, na.rm = TRUE)
+  return(nodes)
+
+}

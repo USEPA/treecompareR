@@ -241,7 +241,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                               barsize = "alternate",
                                               fontsize = 3,
                                               lineheight = 0.7,
-                                              default_to_tip = TRUE)
+                                              default_to_tip = TRUE,
+                                              draw_text = TRUE)
 ){
 
   #Keep defaults for any base_opts not otherwise specified
@@ -1053,6 +1054,8 @@ return(out_obj)
 #'     labeled with its tip label (\code{default_to_tip = TRUE}), or should
 #'     that tip be unlabeled (\code{default_to_tip = FALSE})? The default
 #'     value is \code{TRUE}.
+#' * \code{draw_text} Logical: Whether to draw the text of clade labels,
+#'    or only the bars. If TRUE, draw text. If FALSE, do not. Default TRUE.
 #'
 #'
 #' @param tree_plot A \code{\link[ggtree]{ggtree}} plot object, e.g. the output
@@ -1076,7 +1079,8 @@ add_cladelab <- function(tree_plot,
                                             barsize = "alternate",
                                             fontsize = 3,
                                             lineheight = 0.7,
-                                            default_to_tip = TRUE))
+                                            default_to_tip = TRUE,
+                                            draw_text = TRUE))
 {
   phylo_node <- NULL
   clade_name2 <- NULL
@@ -1086,12 +1090,14 @@ add_cladelab <- function(tree_plot,
                              barsize = "alternate",
                              fontsize = 3,
                              lineheight = 0.7,
-                             default_to_tip = TRUE)
+                             default_to_tip = TRUE,
+                             draw_text = TRUE)
  #keep defaults for any clade_opts not specified
   clade_opts <- c(clade_opts,
                       clade_opts_default[setdiff(names(clade_opts_default),
                                                  names(clade_opts))])
 
+  #if tree is not passed explicitly
   if(is.null(tree)){
     #get tree from tree_plot$data
     tmp_df <- tree_plot$data[, c("label", "node", "parent")]
@@ -1139,36 +1145,47 @@ add_cladelab <- function(tree_plot,
     }
 
 
-  #plot clade bars with alternating widths
+  #plot clade bars with alternating widths by default
   #to do this:
-  #first need to get order in which clades are plotted
-  #start with order in which *tips* are plotted
+  #first need to get order in which clades are plotted.
+  #start with order in which *tips* are plotted.
   #ggtree:get_taxa_name() gives us tips in plotting order
   tips_plot <- ggtree::get_taxa_name(tree_view = tree_plot)
-  #get clade label corresponding to each of these tips at the specified level
+  #get clade label corresponding to each of these tips, at the specified level.
+  #if there is no clade at the specified level, it will be NA.
+  #first get node ID for the clade of each tip at specified level.
+  #node ID will be NA if no clade at the specified level.
   clade_plot <- get_clade(node = get_node_from_label(label = tips_plot,
                                                      tree = tree),
                           tree = tree,
                           level = clade_level)
+  #now get labels for the clade node IDs. Will be NA if no clade at specified level.
+  clade_plot_lab <- get_label_from_node(node = clade_plot,
+                                        tree = tree)
 
-  if(isTRUE(clade_opts$default_to_tip)){
-  #if there is no clade at the specified level, i.e. branch terminates before that level,
-  #then label as tip
+  #if we should print tip labels when there is no clade at the specified level:
+  if(clade_opts$default_to_tip %in% TRUE){
+  #replace NA clade labels with the corresponding tip labels.
   clade_plot[is.na(clade_plot)] <- get_node_from_label(label = tips_plot[is.na(clade_plot)],
                                                        tree = tree)
-  }else{
-    #remove any NA values from clade_plot -- these will not be labeled
+  }else{ #if we should not print tip labels when no clade at specified level:
+    #remove any NA values from clade_plot
     clade_plot <- clade_plot[!is.na(clade_plot)]
+    #remove any clade labels that are the *same* as tip labels
+    clade_plot <- clade_plot[!(clade_plot_lab %in% tips_plot)]
   }
-  #clade_plot <- clade_plot[!is.na(clade_plot)]
-  #tips_clade gives the clades in order of plotting
+
+  #keep only the unique clades, in plotting order corresponding to tips
+  clade_plot <- unique(clade_plot)
+
   #assign alternating bar widths in plotting order
-  clade_dat <- data.frame(phylo_node = unique(clade_plot),
-                          clade_name = get_label_from_node(node = unique(clade_plot),
+  #create data frame with the node IDs, labels, and bar widths
+  clade_dat <- data.frame(phylo_node = clade_plot,
+                          clade_name = get_label_from_node(node = clade_plot,
                                                            tree = tree),
                           barsize = rep(1:2,
                                         length.out = length(
-                                          unique(clade_plot)
+                                          clade_plot
                                         )
                           )
   )
@@ -1182,6 +1199,7 @@ add_cladelab <- function(tree_plot,
   #so it needs to match the order of the base tree to begin with,
   #so that the auto-reordering will be correct.
 
+  #we had it in tip plotting order; now put it in base tree order.
   dat3 <- clade_dat[match(intersect(dat$node,
                                     clade_dat$phylo_node),
                           clade_dat$phylo_node), ]
@@ -1193,20 +1211,27 @@ add_cladelab <- function(tree_plot,
     clade_opts$barsize <- dat3$barsize
   }
 
+   #
 
-  if("wrap" %in% names(clade_opts)){
-    #wrap clade names to have width clade_label_wrap characters
-    dat3$clade_name2 <- stringr::str_wrap(dat3$clade_name,
-                                          clade_opts$wrap)
-  }
-
+    #if draw_text is FALSE, set all clade label text to blank
+    if(clade_opts$draw_text %in% FALSE){
+      dat3$clade_name2 <- ""
+    }else{ #if draw_text is TRUE
+      if(!is.null(clade_opts$wrap)){ #if wrapping is turned on
+        #wrap clade names to width clade_opts$wrap
+        dat3$clade_name2 <- stringr::str_wrap(dat3$clade_name,
+                                              clade_opts$wrap)
+      }else{
+        dat3$clade_name2 <- dat3$clade_name2
+      }
+    }
 
   tree_plot +
     do.call(geom_cladelab,
             args = c(list(data = dat3,
                           mapping = aes(node = phylo_node,
                                         label = clade_name2,
-                                        group = clade_name2)),
+                                        group = clade_name)),
                      clade_opts))
   }else{
   tree_plot

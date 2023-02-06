@@ -1,28 +1,68 @@
 
-#' InChIKey classification
+#'InChIKey classification
 #'
-#' This function uses the ClassyFire API to classify chemicals from an input
-#' data.table using the InChIKey chemical identifier.
+#'This function uses the ClassyFire API to classify chemicals from an input
+#'data.table using the InChIKey chemical identifier.
 #'
-#' This function queries ClassyFire's lookup table of pre-classified InChiKeys
+#'This function queries ClassyFire's lookup table of pre-classified InChiKeys
 #'
-#' @param inchikeys A vector of InCHiKeys to be classified
-#' @param tax_level_labels By default, the list of taxonomy levels for
-#'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
-#'   level11}.
-#' @param wait_min A parameter controlling how many seconds between qqueries
-#'   sent to the ClassyFire API server.
-#' @return A data.frame with the same number of rows as the length of input
-#'   argument \code{inchikeys}, and variables consisting of "INCHIKEY"
-#'   (containing input argument \code{inchikeys}) and one column for each of the
-#'   ClassyFire taxonomy levels given in the input argument
-#'   \code{tax_level_labels}. Contains additional variables providing
-#'   information about the query.
-#' @export
-#' @references \insertRef{djoumbou2016classyfire}{treecompareR}
+#'@param inchikeys A vector of InCHiKeys to be classified
+#'@param tax_level_labels By default, the list of taxonomy levels for
+#'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
+#'  level11}.
+#'@param wait_min A parameter controlling how many seconds between qqueries sent
+#'  to the ClassyFire API server.
+#'@return A data.frame with the following variables: \list{
+#'  \item{identifier}{The input InCHiKey that was queried. For example,
+#'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{smiles}{The corresponding SMILES
+#'  returned by ClassyFire, if any} \item{inchikey}{The InCHiKey returned by
+#'  ClassyFire, if any. Will be of format
+#'  "InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{classification_version}{The
+#'  version number returned by ClassyFire. For example, "2.1"} \item{level}{The
+#'  names of all levels in this InCHiKey's classification. Will be elements of
+#'  \code{tax_level_labels}.} \item{name}{The name or label of each level in
+#'  this InCHiKey's classification.} \item{report}{A text string reporting the
+#'  status of the classification, "ClassyFire returned a classification" if
+#'  successful; otherwise the report returned by ClassyFire, or a report about
+#'  an internal error.} }
+#'
+#'  Note that the data.frame is in "long" format, with multiple rows for each
+#'  InCHiKey. There is one row for each level of classification for each
+#'  InCHiKey. For example, the classification for InCHiKey
+#'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N" terminates at level 5, so there will be five
+#'  rows for that InCHiKey. The classification for InCHiKey
+#'  "PZNXLZZWWBSQQK-UHFFFAOYSA-N" terminates at level 4 (subclass), so there
+#'  will be four rows for that InCHiKey.
+#'
+#'  For use with \code{treecompareR} functions that expect a `data.frame` of
+#'  classified entities, this `data.frame` will need to be reshaped into wider
+#'  format, with one row for each InCHiKey and one column for each level of
+#'  classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
+#'  names_from = "level", values_from = "name")} (where \code{dat} is the
+#'  returned `data.frame`.) However, be on the lookout for pathological cases
+#'  where an InCHiKey is listed with two different labels at the same level.
+#'  These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
+#'  throw a warning if this happens -- pay attention to it!
+#'
+#'  Note also that the returned data.frame includes only unique, valid
+#'  InCHiKeys. Any duplicates, blanks, NAs, or anything that is not a valid
+#'  InCHiKey according to `webchem::is.inchikey()`is not queried, and is not
+#'  included in the output.
+#'
+#'  If you have a source `data.frame` with duplicate, missing, or invalid
+#'  InCHiKeys, you can merge the returned `data.frame` with it (or pivot wider,
+#'  then merge). For example, if your source `data.frame` is called
+#'  \code{source_dat} with variable \code{"INCHIKEY"} containing the InCHiKeys,
+#'  and the returned `data.frame` is in variable \code{dat}, the following code
+#'  will do the merge: \code{dplyr::left_join(source_dat, dat, by = "INCHIKEY" =
+#'  "identifier")}. In that case, classification columns will be filled with NA
+#'  for any missing or invalid InCHiKeys.
+#'
+#'@export
+#'@references \insertRef{djoumbou2016classyfire}{treecompareR}
 #'
 #'
-#' @seealso \code{\link{classify_structures}}
+#'@seealso \code{\link{classify_structures}}
 #'
 
 classify_inchikeys <- function(inchikeys,
@@ -63,10 +103,12 @@ classify_inchikeys <- function(inchikeys,
   inchi_class <- dplyr::bind_rows(class_list)
 
   #now order as for input -- re-inserting any duplicates
-  new_class <- inchi_class[match(inchikeys, inchi_class$identifier),
-                           ]
+  # new_class <- inchi_class[match(inchikeys, inchi_class$identifier),
+  #                          ]
 
-  return(new_class)
+  #result will be long-format
+
+  return(inchi_class)
 }
 
 
@@ -175,6 +217,7 @@ classify_inchikeys <- function(inchikeys,
         entities_list <- lapply(json_parse,
                                 function(x) x$entities)
 
+        #parse classified entities JSON
         classified <- lapply(entities_list,
                parse_classified_entities) %>%
         dplyr::bind_rows() %>%
@@ -520,12 +563,12 @@ classify_inchikeys <- function(inchikeys,
 #'   API query
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
-# @param A data.frame with one row for each entity identifier, and variables
-#   `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
-#   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
-#   and `report`.
+# @param
 #' @return A data.frame consisting of rows corresponding to each classified
-#' entry from the `entities` input.
+#' entry from the `entities` input. A data.frame with one row for each entity identifier, and variables
+#'  `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`, `class`,
+#'   `subclass`, `level5`, `level6`, ... `level11`, `classification_version`,
+#'    and `report`.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
   identifier <- NULL
@@ -677,18 +720,33 @@ parse_classified_entities <- function(entities,
     cf_class <- cf_class %>%
       dplyr::mutate(level = tax_level_labels[level])
 
-    #reshape to wide format, one column for each level
-    cf_class_wide <- cf_class %>%
-      tidyr::pivot_wider(id_cols = "identifier",
-                         names_from = "level",
-                         values_from = "name")
+    #We have found at least one instance where the ChemOnt tree listed something at the wrong level
+    #(see data-raw/make_chemont_taxonomy.R).
+    #Though we manually fixed that instance, there may be others.
+    #If so, cf_class will have more than one "name" at a given "level."
+    #This will cause `tidyr::pivot_wider()` to return a list-type column,
+    #which then breaks downstream use of `dplyr::bind_rows()`.
+    #I don't know how to handle this situation automatically.
+    #I think we just have to continue returning the long format data.frame,
+    #and make the user deal with it as they see fit.
 
-    #add NA columns for any taxonomy levels not assigned for these entities
-    cols_add <- setdiff(tax_level_labels,
-                        names(cf_class_wide))
-    classified_entities <-  cf_class_wide %>% as.data.frame()
-    classified_entities[cols_add] <- NA_character_
+    # #reshape to wide format, one column for each level
+    # cf_class_wide <- cf_class %>%
+    #   tidyr::pivot_wider(id_cols = "identifier",
+    #                      names_from = "level",
+    #                      values_from = "name")
+    #
+    # #add NA columns for any taxonomy levels not assigned for these entities
+    # cols_add <- setdiff(tax_level_labels,
+    #                     names(cf_class_wide))
+    # classified_entities <-  cf_class_wide %>% as.data.frame()
+    # if(!is.na(cols_add) &
+    #    length(cols_add > 0)){
+    # classified_entities[cols_add] <- NA_character_
+    # }
 
+
+    classified_entities <- cf_class
     #add a "report" column
     if(!"report" %in% names(entities)){
     classified_entities$report <- "ClassyFire returned a classification"
