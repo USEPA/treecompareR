@@ -4,7 +4,7 @@
 \alias{classify_structures}
 \title{Query ClassyFire by structure}
 \usage{
-classify_structures(input, tax_level_labels = chemont_tax_levels, ...)
+classify_structures(input = NULL, tax_level_labels = chemont_tax_levels, ...)
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
