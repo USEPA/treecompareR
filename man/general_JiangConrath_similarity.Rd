@@ -37,10 +37,6 @@ Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 \examples{
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-
-general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
-general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-
 }
 \references{
 \insertRef{seco2004intrinsic}{treecompareR}
