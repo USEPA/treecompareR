@@ -17,7 +17,7 @@ display_subtree(
   subtree_mapping = list(color = "default"),
   clade_level = "auto",
   clade_opts = list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7,
-    default_to_tip = TRUE)
+    default_to_tip = TRUE, draw_text = TRUE)
 )
 }
 \arguments{
