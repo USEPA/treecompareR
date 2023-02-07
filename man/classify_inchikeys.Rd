@@ -15,18 +15,57 @@ classify_inchikeys(
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
-  level11}.}
+ level11}.}
 
-\item{wait_min}{A parameter controlling how many seconds between qqueries
-sent to the ClassyFire API server.}
+\item{wait_min}{A parameter controlling how many seconds between qqueries sent
+to the ClassyFire API server.}
 }
 \value{
-A data.frame with the same number of rows as the length of input
-argument \code{inchikeys}, and variables consisting of "INCHIKEY"
-(containing input argument \code{inchikeys}) and one column for each of the
-ClassyFire taxonomy levels given in the input argument
-\code{tax_level_labels}. Contains additional variables providing
-information about the query.
+A data.frame with the following variables: \list{
+\item{identifier}{The input InCHiKey that was queried. For example,
+"XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{smiles}{The corresponding SMILES
+returned by ClassyFire, if any} \item{inchikey}{The InCHiKey returned by
+ClassyFire, if any. Will be of format
+"InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{classification_version}{The
+version number returned by ClassyFire. For example, "2.1"} \item{level}{The
+names of all levels in this InCHiKey's classification. Will be elements of
+\code{tax_level_labels}.} \item{name}{The name or label of each level in
+this InCHiKey's classification.} \item{report}{A text string reporting the
+status of the classification, "ClassyFire returned a classification" if
+successful; otherwise the report returned by ClassyFire, or a report about
+an internal error.} }
+
+Note that the data.frame is in "long" format, with multiple rows for each
+InCHiKey. There is one row for each level of classification for each
+InCHiKey. For example, the classification for InCHiKey
+"XGQJGMGAMHFMAO-UHFFFAOYSA-N" terminates at level 5, so there will be five
+rows for that InCHiKey. The classification for InCHiKey
+"PZNXLZZWWBSQQK-UHFFFAOYSA-N" terminates at level 4 (subclass), so there
+will be four rows for that InCHiKey.
+
+For use with \code{treecompareR} functions that expect a \code{data.frame} of
+classified entities, this \code{data.frame} will need to be reshaped into wider
+format, with one row for each InCHiKey and one column for each level of
+classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
+ names_from = "level", values_from = "name")} (where \code{dat} is the
+returned \code{data.frame}.) However, be on the lookout for pathological cases
+where an InCHiKey is listed with two different labels at the same level.
+These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
+throw a warning if this happens -- pay attention to it!
+
+Note also that the returned data.frame includes only unique, valid
+InCHiKeys. Any duplicates, blanks, NAs, or anything that is not a valid
+InCHiKey according to \code{webchem::is.inchikey()}is not queried, and is not
+included in the output.
+
+If you have a source \code{data.frame} with duplicate, missing, or invalid
+InCHiKeys, you can merge the returned \code{data.frame} with it (or pivot wider,
+then merge). For example, if your source \code{data.frame} is called
+\code{source_dat} with variable \code{"INCHIKEY"} containing the InCHiKeys,
+and the returned \code{data.frame} is in variable \code{dat}, the following code
+will do the merge: \code{dplyr::left_join(source_dat, dat, by = "INCHIKEY" =
+ "identifier")}. In that case, classification columns will be filled with NA
+for any missing or invalid InCHiKeys.
 }
 \description{
 This function uses the ClassyFire API to classify chemicals from an input
