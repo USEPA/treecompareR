@@ -15,7 +15,10 @@ API query}
 }
 \value{
 A data.frame consisting of rows corresponding to each classified
-entry from the \code{entities} input.
+entry from the \code{entities} input. A data.frame with one row for each entity identifier, and variables
+\code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom}, \code{superclass}, \code{class},
+\code{subclass}, \code{level5}, \code{level6}, ... \code{level11}, \code{classification_version},
+and \code{report}.
 }
 \description{
 Parse classified entities
