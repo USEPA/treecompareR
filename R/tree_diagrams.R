@@ -1083,6 +1083,7 @@ add_cladelab <- function(tree_plot,
                                             draw_text = TRUE))
 {
   phylo_node <- NULL
+  clade_name <- NULL
   clade_name2 <- NULL
 
   if(!is.null(clade_level)){
