@@ -9,7 +9,7 @@ add_cladelab(
   tree = NULL,
   clade_level = "auto",
   clade_opts = list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7,
-    default_to_tip = TRUE)
+    default_to_tip = TRUE, draw_text = TRUE)
 )
 }
 \arguments{
@@ -94,6 +94,8 @@ terminates at level 3, but \code{clade_level = 4}, should that tip be
 labeled with its tip label (\code{default_to_tip = TRUE}), or should
 that tip be unlabeled (\code{default_to_tip = FALSE})? The default
 value is \code{TRUE}.
+\item \code{draw_text} Logical: Whether to draw the text of clade labels,
+or only the bars. If TRUE, draw text. If FALSE, do not. Default TRUE.
 }
 }
 
