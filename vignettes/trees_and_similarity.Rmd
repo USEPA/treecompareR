@@ -115,8 +115,6 @@ jaccard_similarity(tip_8, 't5', 't8')
 If we would like to determine the Jaccard similarity for each pair of nodes, we can generate a matrix of similarity values. The matrix is symmetric as $\text{sim}_{\text{Jac}}(v_i, v_j) = \text{sim}_{\text{Jac}}(v_j, v_i)$. To generate such a matrix, we use the function `similarity_matrix()` which takes a tree and a similarity function as parameters.
 
 
-THERE IS A BUG IN THIS FUNCTION CALL THAT CRASHES THE R SESSION. IT IS LIKELY IN THE rcpp COMPONENT.
-
 ```{r, eval=FALSE}
 tip_8_Jaccard_sim <- similarity_matrix(tree = tip_8, sim_metric = 1, all = TRUE)
 tip_8_Jaccard_sim
@@ -146,7 +144,7 @@ The first such method is called Resnik similarity. This is defined for two nodes
 Below we display the matrix of Resnik similarity measures for the current tree. Note that we do not include the root of the tree in this as the information content of the root is zero so paired with any other node, this Resnik similarity would be zero.
 
 ```{r}
-tip_8_Resnik_sim <- generate_similarity_matrix(tip_8, similarity = general_Resnik_similarity)
+tip_8_Resnik_sim <- similarity_matrix(tree = tip_8, sim_metric = 2, all = TRUE)
 tip_8_Resnik_sim
 ```
 Notice that `t4` has similarity values 0 for all nodes aside from itself. When a pair of nodes are compared with the root as their most recent common ancestor, the similarity value will always be zero. Note that for nodes that are not tips, their self-similarity is not always equal to 1. This implicitly encodes the fact that such a node tells less information than more specific nodes (nodes with fewer descendants).
@@ -160,7 +158,7 @@ This resembles Jaccard similarity in that it is a ratio a value derived from the
 The Lin similarity values of pairs of nodes of the current tree are displayed below in the matrix. Like in the previous case, we do not consider pairing the root of the tree with other nodes given the relation with Resnik similarity. We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps in tact the relation above between Resnik similarity and Lin similarity.
 
 ```{r}
-tip_8_Lin_sim <- generate_similarity_matrix(tip_8, similarity = general_Lin_similarity)
+tip_8_Lin_sim <- similarity_matrix(tree = tip_8, sim_metric = 3, all = TRUE)
 tip_8_Lin_sim
 ```
 
@@ -173,7 +171,7 @@ Things to note are that when the most recent common ancestor for a pair of nodes
 We display the matrix of similarity values below for Jiang and Conrath similarity.
 
 ```{r}
-tip_8_JiangConrath_sim <- generate_similarity_matrix(tip_8, similarity = general_JiangConrath_similarity)
+tip_8_JiangConrath_sim <- similarity_matrix(tree = tip_8, sim_metric = 4, all = TRUE)
 tip_8_JiangConrath_sim
 ```
 When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, then observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but diverge otherwise.
