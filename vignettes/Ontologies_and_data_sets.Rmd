@@ -55,7 +55,7 @@ head(chemont_taxnodes)
 Now, we can read in this data.frame using `generate_tree()` to build the taxonomy.
 
 ```{r}
-chemont_taxonomy <- generate_tree(dataframe = chemont_taxnodes)
+chemont_taxonomy <- generate_taxonomy_tree(tax_nodes = chemont_taxnodes)
 str(chemont_taxonomy)
 ```
 
@@ -66,7 +66,7 @@ Alternatively, we can run `generate_tree()` on a JSON file. The column names fro
 ```{r}
 chemont_taxnodes_JSON <- jsonlite::toJSON(chemont_taxnodes)
 
-chemont_taxonomy_2 <- generate_tree(chemont_taxnodes_JSON)
+chemont_taxonomy_2 <- generate_taxonomy_tree(chemont_taxnodes_JSON)
 
 identical(chemont_taxonomy, chemont_taxonomy_2)
 ```
@@ -74,7 +74,7 @@ identical(chemont_taxonomy, chemont_taxonomy_2)
 We now isolate the tree structure and produce a simple visualization.
 
 ```{r, fig.align='center', fig.dim=c(6,4)}
-chemont_tree <- chemont_taxonomy[[1]]
+chemont_tree <- chemont_taxonomy
 ggtree(chemont_tree) + layout_circular()
 ```
 
