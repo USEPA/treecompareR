@@ -878,8 +878,8 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
     nodes1 <- as.integer(nodes1)
     nodes2 <- as.integer(nodes2)
   } else if (all){
-    nodes1 <- tree_labels
-    nodes2 <- tree_labels
+    nodes1 <- 1:(length(tree_labels))
+    nodes2 <- 1:(length(tree_labels))
   } else {
     stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
   }
