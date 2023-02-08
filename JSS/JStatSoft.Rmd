@@ -629,7 +629,7 @@ base_plot +
                                   "Biosolids only" = "#66C2A5",
                                   "USGS Water only"=  "#8DA0CB",
                                   "Biosolids and USGS Water" = "#FC8D62")) +
-  geom_tiplab(offset = 40, mapping = aes(color = List)) +
+  geom_tiplab(offset = 40, mapping = aes(color = list_presence)) +
     ggplot2::scale_color_manual(name = "List presence",
                               values = c("Neither set" = "gray70",
                                   "Biosolids only" = "#66C2A5",
@@ -718,7 +718,7 @@ Note that the terminal labels are typically *not* the entity IDs. This means two
 For example, here is the similarity matrix between `biosolids_class` and `usgs_class`, considering only chemicals that are in the superclass "Organohalogen compounds" -- i.e., those in the pruned subtree `oh_tree`.
 
 ```{r}
-sim_oh <- calc_similarity(data_1 = biosolids_class,
+sim_oh <- calc_similarity_data(data_1 = biosolids_class,
                 data_2 = usgs_class,
                 tree = oh_tree)
 
