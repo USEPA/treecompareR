@@ -853,7 +853,7 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
 #'   \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}}
 similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
                               nodes_2 = NULL, tree = NULL, sim_metric = NA_integer_,
-                              upper_tri = TRUE){
+                              upper_tri = TRUE, all = FALSE){
   if (is.null(tree) | !('phylo' %in% class(tree))){
     stop('Please input a `phylo` object for the tree parameter!')
   }
@@ -877,6 +877,9 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 
     nodes1 <- as.integer(nodes1)
     nodes2 <- as.integer(nodes2)
+  } else if (all){
+    nodes1 <- tree_labels
+    nodes2 <- tree_labels
   } else {
     stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
   }
