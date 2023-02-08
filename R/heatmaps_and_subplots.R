@@ -24,7 +24,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
   level9 <- NULL
   level10 <- NULL
   level11 <- NULL
-  PREFERRED_NAME <- NULL
+  PREFERRED.NAME <- NULL
   . <- NULL
   if (!chemont){
     top_level <- names(datatable)[[1]]
@@ -43,7 +43,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                                       unique(level9),
                                                       unique(level10),
                                                       unique(level11)),
-                                        by = .(PREFERRED_NAME)][, c('PREFERRED_NAME') := NULL])))
+                                        by = .(PREFERRED.NAME)][, c('PREFERRED.NAME') := NULL])))
   #print(length(complete_labels))
   empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
 
@@ -135,6 +135,13 @@ generate_heatmap <- function(tree_object,
     column_split <- NULL
   }
 
+  if (is.data.frame(row_data) & !data.table::is.data.table(row_data)){
+    row_data <- data.table::as.data.table(row_data)
+  }
+
+  if (is.data.frame(column_data) & !data.table::is.data.table(column_data)){
+    column_data <- data.table::as.data.table(column_data)
+  }
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
 
@@ -701,9 +708,11 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
 
 
     #subtree <- ape::drop.tip(tree, setdiff(tree$tip.label, intersect(tree$tip.label, c(superclasses, ancestors, descendants))))
-    subtree <- drop_tips_nodes(tree = tree, labels = c(superclasses, ancestors, descendants))
+    subtree <- drop_tips_nodes(tree = tree, labels = c(superclasses, ancestors, descendants), keep_descendants = FALSE)
     # get labels
     subtree_labels <- c(subtree$tip.label, subtree$node.label)
+
+
 
     tree_visual_sub <- ggtree(subtree) +
       ggtree::layout_circular() +
@@ -721,6 +730,8 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                          values= color_values,
                          labels= color_labels)+
       ggtree::theme(legend.position = c(1.2, 0.2))
+
+
 
     if (show_clades){
       if (length(row_superclasses) > 0){
