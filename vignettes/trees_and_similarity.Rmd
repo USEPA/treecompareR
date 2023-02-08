@@ -110,12 +110,15 @@ If we want to compare the nodes for a given tree, there are a variety of methods
 For instance, consider tips `t5` and `t8`. The root-to-node path for `t5` consists of nodes $\{\text{n1, n2, n3, t5}\}$ and the root-to-node path for `t8` consists of nodes $\{\text{n1, n2, t8}\}$. The shared portion of the path is given by the nodes $\{\text{n1, n2}\}$. The lengths of these paths are 3, 2, and 1, respectively. We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(mrca(v_1, v_2))}{l(v_1) + l(v_2) - l(mrca(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $mrca(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-nodes paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). In the case of `t5` and `t8`, $\text{sim}_{\text{Jac}}(\text{t5, t8}) = \frac{1}{3 + 2 - 1} = \frac{1}{4}$. This notion of similarity is known as Jaccard similarity, and the function `general_Jaccard_similarity()` takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
 
 ```{r}
-general_Jaccard_similarity(tip_8, 't5', 't8')
+jaccard_similarity(tip_8, 't5', 't8')
 ```
-If we would like to determine the Jaccard similarity for each pair of nodes, we can generate a matrix of similarity values. The matrix is symmetric as $\text{sim}_{\text{Jac}}(v_i, v_j) = \text{sim}_{\text{Jac}}(v_j, v_i)$. To generate such a matrix, we use the function `generate_similarity_matrix()` which takes a tree and a similarity function as parameters.
+If we would like to determine the Jaccard similarity for each pair of nodes, we can generate a matrix of similarity values. The matrix is symmetric as $\text{sim}_{\text{Jac}}(v_i, v_j) = \text{sim}_{\text{Jac}}(v_j, v_i)$. To generate such a matrix, we use the function `similarity_matrix()` which takes a tree and a similarity function as parameters.
 
-```{r}
-tip_8_Jaccard_sim <- generate_similarity_matrix(tip_8, similarity = general_Jaccard_similarity)
+
+THERE IS A BUG IN THIS FUNCTION CALL THAT CRASHES THE R SESSION. IT IS LIKELY IN THE rcpp COMPONENT.
+
+```{r, eval=FALSE}
+tip_8_Jaccard_sim <- similarity_matrix(tree = tip_8, sim_metric = 1, all = TRUE)
 tip_8_Jaccard_sim
 ```
 This method relates the lengths of the paths of both nodes from the root with the length of the path of their most recent common ancestor to the root. However, it does not take into account any information on the number of children or descendants either node has. So a pair of nodes that are tips and a pair of nodes that are internal nodes with several descendants may end up having the same level of similarity as defined by this method. To take into account such node-specific information, we introduce the notion of information content.
