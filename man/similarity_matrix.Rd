@@ -11,7 +11,8 @@ similarity_matrix(
   nodes_2 = NULL,
   tree = NULL,
   sim_metric = NA_integer_,
-  upper_tri = TRUE
+  upper_tri = TRUE,
+  all = FALSE
 )
 }
 \arguments{
