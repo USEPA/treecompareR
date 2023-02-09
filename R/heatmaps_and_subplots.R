@@ -24,7 +24,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
   level9 <- NULL
   level10 <- NULL
   level11 <- NULL
-  PREFERRED.NAME <- NULL
+  DTXISD <- NULL
   . <- NULL
   if (!chemont){
     top_level <- names(datatable)[[1]]
@@ -43,7 +43,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
                                                       unique(level9),
                                                       unique(level10),
                                                       unique(level11)),
-                                        by = .(PREFERRED.NAME)][, c('PREFERRED.NAME') := NULL])))
+                                        by = .(DTXSID)][, c('DTXSID') := NULL])))
   #print(length(complete_labels))
   empty_indices <- which(sapply(complete_labels, function(t) {t == ''}))
 
@@ -88,8 +88,8 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #'   `tree_object`.
 #' @param row_indices The row indices for the matrix.
 #' @param column_indices The column indices for the matrix.
-#' @param row_data A data.table object of chemical classifications.
-#' @param column_data A data.table object of chemical classifications.
+#' @param row_data A data.table or data.frame object of chemical classifications.
+#' @param column_data A data.table or data.frame object of chemical classifications.
 #' @param name Name of the heatmap similarity measure.
 #' @param row_split Number of clusters for rows.
 #' @param column_split Number of cluster for columns.
