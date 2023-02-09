@@ -29,9 +29,9 @@ generate_heatmap(
 
 \item{column_indices}{The column indices for the matrix.}
 
-\item{row_data}{A data.table object of chemical classifications.}
+\item{row_data}{A data.table or data.frame object of chemical classifications.}
 
-\item{column_data}{A data.table object of chemical classifications.}
+\item{column_data}{A data.table or data.frame object of chemical classifications.}
 
 \item{name}{Name of the heatmap similarity measure.}
 
