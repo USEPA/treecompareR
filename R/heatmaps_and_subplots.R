@@ -24,7 +24,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
   level9 <- NULL
   level10 <- NULL
   level11 <- NULL
-  DTXISD <- NULL
+  DTXSID <- NULL
   . <- NULL
   if (!chemont){
     top_level <- names(datatable)[[1]]
