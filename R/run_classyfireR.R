@@ -12,7 +12,7 @@
 #'  level11}.
 #'@param wait_min A parameter controlling how many seconds between qqueries sent
 #'  to the ClassyFire API server.
-#'@return A data.frame with the following variables: \list{
+#'@return A data.frame with the following variables: \itemize{
 #'  \item{identifier}{The input InCHiKey that was queried. For example,
 #'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{smiles}{The corresponding SMILES
 #'  returned by ClassyFire, if any} \item{inchikey}{The InCHiKey returned by
