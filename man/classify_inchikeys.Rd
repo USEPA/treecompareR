@@ -21,7 +21,7 @@ ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 to the ClassyFire API server.}
 }
 \value{
-A data.frame with the following variables: \list{
+A data.frame with the following variables: \itemize{
 \item{identifier}{The input InCHiKey that was queried. For example,
 "XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{smiles}{The corresponding SMILES
 returned by ClassyFire, if any} \item{inchikey}{The InCHiKey returned by
