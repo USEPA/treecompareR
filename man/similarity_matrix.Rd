@@ -31,6 +31,10 @@ Lin, 4 for Jiang and Conrath.}
 
 \item{upper_tri}{A boolean determining whether the whole matrix or upper
 triangle is computed.}
+
+\item{all}{A boolean determining whether to construct the matrix for all
+pairs of nodes and tips. This only occurs if both \code{labels_1} and
+\code{labels_2}, and \code{nodes_1} and \code{nodes_2} are missing.}
 }
 \value{
 A similarity matrix. The dimension names for the rows and columns
