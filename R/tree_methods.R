@@ -845,6 +845,9 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
 #'   Lin, 4 for Jiang and Conrath.
 #' @param upper_tri A boolean determining whether the whole matrix or upper
 #'   triangle is computed.
+#' @param all A boolean determining whether to construct the matrix for all
+#'   pairs of nodes and tips. This only occurs if both `labels_1` and
+#'   `labels_2`, and `nodes_1` and `nodes_2` are missing.
 #' @return A similarity matrix. The dimension names for the rows and columns
 #'   correspond to the associated node labels of the tree.
 #' @export
