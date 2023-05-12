@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 ```{r setup}
 #library(treecompareR)
 devtools::load_all()
+sot_poster_subtree_mapping = list(color = c("gray50", RColorBrewer::brewer.pal(n = 3, name = "Dark2")),
+                                  size = c(0.5, 1, 1, 1))
 #library(kableExtra)
 ```
 
@@ -87,11 +89,12 @@ str(get_tree_df(chemont_tree))
 
 Once a taxonomy tree is generated, it can be visualized using the function `display_subtree()`. This function is a wrapper around `ggtree()` that facilitates some common visualization tasks needed for comparing lists of classified entities.
 
-```{r}
+```{r, fig.dim= c(8,6)}
 display_subtree(base_tree = chemont_tree,
                 base_name = "ChemOnt taxonomy",
                 base_opts = list(color = "gray70")) +
-  hexpand(1)
+ hexpand(1) 
+  #ggtree:geom_hilight(node = 915)
 ```
 
 ### Clade labeling
@@ -106,7 +109,8 @@ As you can see, the full ChemOnt tree is extremely dense. To "zoom in" to a spec
 
 ```{r}
 prune_and_display_subtree(base_tree = chemont_tree,
-                          prune_to = "Organohalogen compounds")
+                          prune_to = "Organohalogen compounds",
+                          subtree_mapping = sot_poster_subtree_mapping)
 ```
 (Note that the default level for clade labeling is now level 3 (class), because the MRCA of the tips of the pruned organohalogen compounds tree is by construction "Organohalogen compounds", level 2.)
  
@@ -175,7 +179,8 @@ Any other parameters for the base tree (i.e., any parameters that would be optio
 display_subtree(base_tree = oh_tree,
                 base_name = "Organohalogen compounds",
                 layout = "fan",
-                base_opts = list(open.angle = 100))
+                base_opts = list(open.angle = 100),
+                subtree_mapping = sot_poster_subtree_mapping)
 ```
 
 ### Manipulating plots using the grammar of ggtree and ggplot2
@@ -184,7 +189,8 @@ The output of `display_subtree()` is a `ggtree` and `ggplot`-class object, so it
 
 ```{r}
 display_subtree(base_tree = oh_tree,
-                base_name = "Organohalogen compounds") +
+                base_name = "Organohalogen compounds",
+                subtree_mapping = sot_poster_subtree_mapping) +
   ggplot2::theme(plot.title = ggplot2::element_text(family = "serif",
                                   face = "italic",
                                   hjust = 1)
@@ -279,7 +285,9 @@ display_subtree(base_tree = oh_tree,
                 base_name = "Organhalogen tree",
                 data_1 = biosolids_class, 
                 name_1 = 'Biosolids',
-                base_opts = list(size = 1))
+                base_opts = list(size = 1),
+                subtree_mapping = c(sot_poster_subtree_mapping,
+                                    'size' = c(0.1, 1, 1, 1)))
 ```
 
 ```{r}
@@ -287,7 +295,8 @@ display_subtree(base_tree = oh_tree,
                 base_name = "Organhalogen tree",
                 data_1 = usgs_class, 
                 name_1 = 'USGS Water',
-                base_opts = list(size = 1))
+                base_opts = list(size = 1),
+                subtree_mapping = sot_poster_subtree_mapping)
 ```
 
 These two figures illustrate the locations of the the biosolids and USGS water chemical lists in chemical space. For example, the biosolids list includes more of the "Alkyl halides" group than does the USGS water list, but USGS Water includes "Organobromides", whereas the biosolids list does not.
@@ -303,7 +312,8 @@ display_subtree(base_tree = oh_tree,
                 data_2 = usgs_class, 
                 name_1 = 'Biosolids', 
                 name_2 = 'USGS Water',
-                base_opts = list(size = 1))
+                base_opts = list(size = 1),
+                subtree_mapping = sot_poster_subtree_mapping)
 ```
 
 In the above figure, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
@@ -316,7 +326,7 @@ When both `data_1` and `data_2` are defined, the first four vector elements will
 
 When only `data_1` is defined and `data_2` is null, only the first two elements of the vector will be used, and they will be mapped in order to the following categories: branch is not in `data_1`; branch is in `data_1`.
 
-This is easiest to undertand with some examples. The default value of `subtree_mapping` is the following:
+This is easiest to understand with some examples. The default value of `subtree_mapping` is the following:
 ```{r, eval = FALSE}
 subtree_mapping = list("color" = c("gray50", #medium gray -- neither dataset
                                    "#66C2A5", #blue-green -- data_1 only
@@ -442,8 +452,9 @@ display_subtree(base_tree = new_tree,
                 base_name = "Organohalogens -- Biosolids and USGS Chemicals",
                 data_1 = oh_tree,
                 name_1 = "Orig. organohalogen subtree",
-                subtree_mapping = list(color = c("black",
-                                                 "red")),
+                subtree_mapping = list(color = c("red", 
+                                                 "black")),
+                                                 #"red")),
                 clade_level = 3) 
 ```
 
@@ -464,8 +475,10 @@ display_subtree(base_tree = new_tree,
                                      "subclass",
                                      paste0("level", 5:11),
                                      "CASRN"),
-                subtree_mapping = list("color" = "default",
-                                       "size" = c(0.5, 1, 1, 1))) 
+                subtree_mapping = sot_poster_subtree_mapping
+                  #list("color" = "default",
+                                   #    "size" = c(0.5, 1, 1, 1))
+                  ) 
 ```
 
 For example, this figure illustrates that while both lists contain several chemicals in the "Vinyl chlorides" subclass, they only have two of those chemicals in common. The "Alkyl fluorides" subclass is covered only by the biosolids chemical list, while the chemicals in the "Cyclohexyl halides" subclass are all common to both lists.
