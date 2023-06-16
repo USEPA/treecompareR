@@ -17,7 +17,7 @@ if (!library(devtools, logical.return = TRUE)){
 }
 
 
-devtools::install_git(url = 'https://ccte-bitbucket.epa.gov/scm/~pkruse/treecomparer.git')
+devtools::install_git(url = 'https://bitbucket.epa.gov/scm/~pkruse/treecomparer.git')
 ```
 ### ClassyFire
 
