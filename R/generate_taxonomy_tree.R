@@ -169,4 +169,87 @@ generate_taxonomy_tree <- function(tax_nodes = NULL){
   return(tree_object)
 }
 
+#' Generate parent child from table
+#'
+#' @param data A data.frame with columns for each taxonomic level, and a row for
+#'   each node/tip, organized in a tree structure (children rows immediately
+#'   follow their parent rows)
+#' @param col_indices Columns of taxonomic levels
+#' @param id_index A column giving taxonomic id label
+#' @param root_label The root label
+#'
+#' @return A data.frame with the parent child relationships for each node/tip in
+#'   the tree. These are encoded in three columns 'Name', 'ID', 'Parent_ID' and
+#'   each row corresponds to a unique node/tip.
+#' @export
+#'
+generate_parent_child <- function(data, col_indices, id_index, root_label = 'Root_label'){
+  df <- data.frame(Name = 'Root',
+                   ID = root_label,
+                   Parent_ID = NA_character_)
+  if (length(col_indices) == 0){
+    return(df)
+  }
+    col_index <- col_indices[[1]]
+    row_indices <- which(data[, col_index] != '')
+    for (i in seq_along(row_indices)){
+      df <- rbind(df, data.frame(Name = data[row_indices[[i]], col_index],
+                                 ID = data[row_indices[[i]], id_index],
+                                 Parent_ID = root_label))
+    }
 
+    print(df)
+
+    if (length(col_indices) > 1){
+      col_num <- length(col_indices) - 1
+      for (i in 1:col_num){
+        current_col <- i
+        next_col <- i+1
+        current_rows <- which(data[, col_indices[current_col]] != '')
+        next_rows <- which(data[, col_indices[next_col]] != '')
+        print(paste('Index i = ', i))
+        print('Current row')
+        print(current_rows)
+        print('Next rows')
+        print(next_rows)
+
+          #temp <- data.frame(Name = data[next_rows, col_indices[next_col]],
+          #                   Id = data[next_rows, id_index],
+          #                   Parent_Id = data[current_rows[[1]], id_index])
+          #df <- rbind(df, temp)
+
+          #print(df)
+         if (length(current_rows) > 1) {
+          for (j in 2:(length(current_rows))){
+            print(df)
+            temp_rows <- next_rows[which(next_rows < current_rows[[j]] & next_rows > current_rows[[j-1]])]
+            if (length(temp_rows) > 0){
+            temp <- data.frame(Name = data[temp_rows, col_indices[next_col]],
+                              ID = data[temp_rows, id_index],
+                              Parent_ID = data[current_rows[[j-1]], id_index])
+            #print('Printing temp')
+            #print(temp)
+            df <- rbind(df, temp)
+            }
+          }
+          temp_rows <- next_rows[which(next_rows > current_rows[[length(current_rows)]])]
+          #print('Temp rows')
+          #print(temp_rows)
+          if (length(temp_rows) > 0){
+          temp <- data.frame(Name = data[temp_rows, col_indices[next_col]],
+                             ID = data[temp_rows, id_index],
+                             Parent_ID = data[current_rows[[length(current_rows)]], id_index])
+          #print('Printing temp')
+          #print(temp)
+          df <- rbind(df, temp)
+          #print(df)
+          }
+
+        }
+      }
+    }
+
+
+
+  return(df)
+}
