@@ -322,6 +322,11 @@ get_terminal_labels <- function(data,
                        tax_level_labels = chemont_tax_levels){
   label <- NULL
 
+  #check if data is data.table or data.frame. If data.table, cast as data.frame
+  if (data.table::is.data.table(class(data))){
+    data <- as.data.frame(data)
+  }
+
   #check that the input data.frame has been classified properly
   if(!any(tax_level_labels %in% names(data))){
     stop(paste("The input data.frame does not appear to be classified",
