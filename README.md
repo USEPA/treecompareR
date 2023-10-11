@@ -17,7 +17,7 @@ if (!library(devtools, logical.return = TRUE)){
 }
 
 
-devtools::install_git(url = 'https://bitbucket.epa.gov/scm/~pkruse/treecomparer.git', branch = 'merge_kr_rcpp_kruse')
+devtools::install_git(url = 'https://bitbucket.epa.gov/scm/~pkruse/treecomparer.git', branch = 'merge_kr_rcpp_kruse', git = 'external')
 ```
 ### ClassyFire
 
