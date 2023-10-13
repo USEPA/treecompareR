@@ -233,15 +233,33 @@ classify_inchikeys <- function(inchikeys,
                                              cf_entities,
                                              by = c("identifier",
                                                     "structure"))
+        # debugging the code
+        print("missing entities")
+        print(missing_entities)
+        print("\n")
+        print("classified entities")
+        print(cf_entities)
+        print("\n")
+        # debugging the code
 
         #Output: bind classified, invalid, and missing entities
         output <- dplyr::bind_rows(missing_entities,
                                    cf_entities) %>%
           as.data.frame() #convert from tibble to data.frame
 
+        # debugging the code
+        print('output')
+        print(output)
+        # debugging the code
+
         #set order the same as input
         rownames(output) <- NULL
         output <- output[match(names(input), output$identifier), ]
+
+        # debugging the code
+        print('output, again')
+        print(output)
+        # debugging the code
 
         #add informational columns
         output[c("id",
