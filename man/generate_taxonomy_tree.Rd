@@ -10,7 +10,8 @@ generate_taxonomy_tree(tax_nodes = NULL)
 \item{tax_nodes}{A data.frame containing parent-child relationships for the
 taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
 respectively provide a name for each node, an ID for each node, and the ID
-of the parent of each node. Each row represents one node of the taxonomy.}
+of the parent of each node. Each row represents one node of the taxonomy.
+This may also be a JSON file with the same format of data.}
 }
 \value{
 A \code{phylo}-class tree object.
