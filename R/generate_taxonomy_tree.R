@@ -117,10 +117,16 @@ SetPlotHeight <- function(node, rootHeight = 100) {
 #'   taxonomy. Must contain columns "Name", "ID", and "Parent_ID", which
 #'   respectively provide a name for each node, an ID for each node, and the ID
 #'   of the parent of each node. Each row represents one node of the taxonomy.
+#'   This may also be a JSON file with the same format of data.
 #' @return A \code{phylo}-class tree object.
 #' @export
 #'
 generate_taxonomy_tree <- function(tax_nodes = NULL){
+  # Check if tax_nodes is JSON and convert to data.frame.
+  if (is(tax_nodes, 'json')){
+    tax_nodes <- get_parent_child(tax_nodes)
+  }
+
   # Get the root of the tree, which will have no parent and thus have null value
   # for the 'Parent_ID'
   root <- tax_nodes[which(!(tax_nodes[, 'Parent_ID'] %in% tax_nodes[, 'ID'])), 'ID']
