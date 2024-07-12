@@ -1443,4 +1443,222 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 
 }
 
+#' Circular tree with boxplots
+#'
+#' This function takes in a data.table of chemicals with classification data and
+#' additional numeric data, and displays selected numeric data grouped by tip
+#' label on the data-induced subtree of the classification taxonomy.
+#'
+#' @param data A data.table consisting of classification data and additional
+#'   numeric data.
+#' @param col A specified numeric column for use in displaying boxplots.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @param title An alternate parameter for the title of the plot.
+#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @param layers An alternate parameter giving which taxonomic layers to display
+#'   outside of the boxplot layer. This can be either a string with a single
+#'   column name, a vector of column names, or a list of column names. If the
+#'   input is a vector or a list, it is fine for it to be length 1.
+#' @param tippoint_boxplot Alternate parameter for determining whether to color
+#'   the tippoints and the boxplots. If TRUE, they will match in colors, and if
+#'   FALSE, the boxplots will be filled white with black outline and the
+#'   tippoints will be black.
+#' @return A ggtree object consisting of subtree induced by data and boxplots
+#'   corresponding to specified numeric column of data.
+#' @export
+#' @import ggtree
+#' @import ggtreeExtra
+#' @import viridis
+#' @importFrom ggnewscale new_scale_fill
+#' @importFrom grDevices colorRampPalette
+#' @importFrom RColorBrewer brewer.pal
+circ_tree_boxplot <- function(data,
+                              col,
+                              tax_level_labels = chemont_tax_levels,
+                              title = NULL,
+                              tree = chemont_tree,
+                              layers = NULL,
+                              adjust_branch_length = FALSE,
+                              tippoint_boxplot = FALSE){
+  val <- NULL
+  terminal_label <- NULL
+  grp <- NULL
+  Label <- NULL
+  ID <- NULL
 
+
+
+  if (!(col %in% names(data)))
+    stop(paste('The column', col, 'is not in the input data!'))
+
+  #print(col)
+  if (!('terminal_label' %in% names(data))){
+    data <- add_terminal_label(copy(data))
+  }
+
+  # Cast as data.table
+  data <- data.table::data.table(data)
+
+  columns <- which(names(data) %in% c(col, 'terminal_label'))
+  print(columns)
+  column_names <- names(data)[columns]
+  print(column_names)
+
+  new_data <- as.data.frame(data[, .SD, .SDcols = names(data)[columns]])
+  index <- which(names(new_data) %in% col)
+  new_data[, index] <- as.numeric(new_data[, index])
+  new_data <- new_data[!is.na(new_data[, index]),]
+  new_data[["grp"]] <- new_data$terminal_label
+  new_data[["val"]] <- new_data[, index]
+  new_data[["node"]] <- new_data$terminal_label
+
+  #summary(new_data)
+
+  new_data_tree <- prune_and_display_subtree(prune_to = data,
+                                             tax_level_labels = tax_level_labels,
+                                             tree = tree,
+                                             show_tips = FALSE,
+                                             adjust_branch_length = adjust_branch_length,
+                                             no_plot = TRUE)
+  print(new_data_tree)
+  num_nodes_tips <- length(new_data_tree$tip.label) + new_data_tree$Nnode
+  print(num_nodes_tips)
+
+  tip_node_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label),
+                              'Label' = c(new_data_tree$tip.label, new_data_tree$node.label))
+  tip_node_data$Label <- factor(tip_node_data$Label)
+  print(tip_node_data)
+
+  circ_plot <- ggtree(new_data_tree,
+                      layout = 'circular')
+  if (tippoint_boxplot) {
+    circ_plot <- circ_plot %<+% tip_node_data +
+      geom_tippoint(aes(color = Label), show.legend = FALSE) +
+      scale_color_viridis(name = 'Terminal label',
+                          option = 'magma',
+                          discrete = TRUE) + ggnewscale::new_scale_fill()
+
+    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+                                                     mapping = aes(x = val,
+                                                                   y = terminal_label,
+                                                                   fill = grp),
+                                                     size = 0.2,
+                                                     outlier.size = 0.5,
+                                                     outlier.stroke = 0.08,
+                                                     outlier.shape = 21,
+                                                     axis.params = list(axis = 'x',
+                                                                        text.size = 1.8,
+                                                                        text.angle = 270,
+                                                                        hjust = 0),
+                                                     grid.params = list(),
+                                                     show.legend = FALSE) +
+      scale_fill_viridis(name = 'Terminal label',
+                         option = 'magma',
+                         discrete = TRUE) + new_scale_fill()
+  } else {
+    circ_plot <- circ_plot + geom_tippoint()
+    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+                                                     mapping = aes(x = val,
+                                                                   y = terminal_label),
+                                                     size = 0.2,
+                                                     outlier.size = 0.5,
+                                                     outlier.stroke = 0.08,
+                                                     outlier.shape = 21,
+                                                     axis.params = list(axis = 'x',
+                                                                        text.size = 1.8,
+                                                                        text.angle = 270,
+                                                                        hjust = 0),
+                                                     grid.params = list(),
+                                                     show.legend = FALSE) + new_scale_fill()
+  }
+
+  #circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
+  #                                                 mapping = aes(x = val,
+  #                                                               y = terminal_label,
+  #                                                               fill = grp),
+  #                                                 size = 0.2,
+  #                                                 outlier.size = 0.5,
+  #                                                 outlier.stroke = 0.08,
+  #                                                 outlier.shape = 21,
+  #                                                 axis.params = list(axis = 'x',
+  #                                                                    text.size = 1.8,
+  #                                                                    text.angle = 270,
+  #                                                                    hjust = 0),
+  #                                                 grid.params = list(),
+  #                                                 show.legend = FALSE) + new_scale_fill()
+  #circ_plot <- circ_plot + scale_fill_discrete(guide = 'none')
+  #circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
+  #                                             guide = guide_legend(keywidth = 0.2,
+  #                                                                  keyheight = 0.2,
+  #                                                                  ncol = 2))
+  #
+
+  if (!is.null(layers)){
+    label_levels <- get_labels(data, tax_level_labels = tax_level_labels)
+    if (is.list(layers) | is.vector(layers)){
+      level_names <- names(label_levels)[which(names(label_levels) %in% layers)]
+    } else {
+      warning('The `layers` parameter must be a list or a vector! Skipping extra layers for now...')
+      level_names <- c()
+    }
+    #print(which(names(label_levels) %in% layers))
+    #print(names(label_levels))
+    #print(level_names)
+
+    fruit_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label))
+    palettes <- c('Blues', 'Oranges', 'BuGn', 'OrRd', 'BuPu', 'Reds','GnBu', 'RdPu','Greens', 'YlOrBr',
+                  'PuBu', 'YlOrRd', 'PuBuGn', 'YlGnBu', 'PuRd', 'YlGn', 'Purples', 'Greys')
+
+    for (i in rev(seq_along(level_names))){
+      values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
+      values <- values[!is.na(values)]
+      values <- values[-which(sapply(values, function(t) {t == ''}))]
+      #print(which(sapply(values, function(t) {t == ''})))
+      #print(values)
+      tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
+      for (j in seq_along(values)){
+        #print(values[[j]])
+        total_descendants <- c(tree$tip.label, tree$node.label)[c(phangorn::Descendants(tree, which(c(tree$tip.label, tree$node.label) %in% values[[j]]), type = 'all'), which(c(tree$tip.label, tree$node.label) %in% values[[j]]))]
+        name_indices <- which(c(new_data_tree$tip.label, new_data_tree$node.label) %in% total_descendants)
+        #print(name_indices)
+        names(tree_nodes)[name_indices] <- values[[j]]
+        #names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
+        #print(which(is.na(names(tree_nodes))))
+      }
+      level_number <- length(unique(names(tree_nodes)))
+      level_labels <- unique(names(tree_nodes))
+      names(tree_nodes)[which(is.na(names(tree_nodes)))] <- paste0('_', level_names[[i]])
+
+      fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
+
+
+      colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(n = 9, name = palettes[[i]]))
+      current_palette <- colors(level_number)
+
+      circ_plot <- circ_plot + geom_fruit(data = fruit_data,
+                                          geom = geom_tile,
+                                          mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
+                                          width = 3,
+                                          pwidth = 0,
+                                          color = 'white') +
+        scale_fill_manual(values = current_palette,
+                          labels = level_labels) +
+        ggnewscale::new_scale_fill()
+
+      #print(names(tree_nodes))
+      #attr(new_data_tree, paste0('_', level_names[[i]])) <- factor(names(tree_nodes))
+      #new_data_tree[[paste0('_', level_names[[i]])]] <- factor(new_data_tree[[paste0('_', level_names[[i]])]])
+      #new_data_tree <- groupOTU(new_data_tree, tree_nodes, paste0('_', level_names[[i]]))
+    }
+
+
+  }
+
+  if (is.character(title)){
+    circ_plot <- circ_plot + ggtitle(title, subtitle = paste('Boxplots of the data from', col, 'column')) +
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5))
+  }
+  return(circ_plot)
+}
