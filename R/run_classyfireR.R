@@ -111,6 +111,84 @@ classify_inchikeys <- function(inchikeys,
   return(inchi_class)
 }
 
+#' Classify data.table
+#'
+#' @param data A data.table with rows corresponding to chemicals. A column named
+#' `INCHIKEY` containing the InChIKey for each chemical is required.
+#'
+#' @return A data.table containing the original data as well as the ClassyFire
+#' classification data for each chemical, when available.
+#' @export
+#'
+#' @examplesIf FALSE
+#' # Chemical information for Bisphenol A
+#' bpa <- data.table(PREFERRED_NAME = 'Bisphenol A',
+#'                   CASRN = '80-05-7',
+#'                   INCHIKEY = 'IISBACLAFKSPIT-UHFFFAOYSA-N')
+#' bpa_classified <- classify_datatable(bpa)
+#' bpa_classified
+classify_datatable <- function(data) {
+  if (!is.data.frame(data)){
+    stop("Input data must be a data.table!")
+  }
+
+  if (!data.table::is.data.table(data)){
+    warning('Casting input data.frame to data.table')
+      datatable <- data.table::data.table(data)
+  } else {
+      datatable <- data.table::copy(data)
+    }
+
+  if (!('INCHIKEY' %in% names(datatable))){
+    stop('Input data must include a column of InChIKeys name `INCHIKEY`!')
+  }
+
+  # Grab unique inchikeys
+  inchikeys <- datatable[, unique(INCHIKEY)]
+
+  # Classify inchikeys
+  inchikeys_classified <- classify_inchikeys(inchikeys = inchikeys)
+
+  # Cast as a data.table
+  inchikeys_classified <- data.table::data.table(inchikeys_classified)
+
+  # Default format of ClassyFire results
+  default_table <- data.table::data.table(identifier = character(),
+                                          smiles = character(),
+                                          inchikey = character(),
+                                          report = character(),
+                                          kingdom = character(),
+                                          superclass = character(),
+                                          class = character(),
+                                          subclass = character(),
+                                          level5 = character(),
+                                          level6 = character(),
+                                          level7 = character(),
+                                          level8 = character(),
+                                          level9 = character(),
+                                          level10 = character(),
+                                          level11 = character())
+  default_names <- names(default_table)
+
+  if (dim(inchikeys_classified)[[1]] == 0){
+    return(data)
+  }
+
+  # Convert from long to wide format
+  wide_classifications <- dcast(inchikeys_classified, formula = identifier + smiles + inchikey + report ~ level, value.var = 'name')
+
+  # Bind with default results
+  temp_table <- rbindlist(list(default_table, wide_classifications), fill = TRUE)
+  setcolorder(temp_table, neworder = default_names)
+
+  final_table <- data.table::merge.data.table(x = datatable,
+                                              y = temp_table,
+                                              by.x = 'INCHIKEY',
+                                              by.y = 'identifier',
+                                              all = TRUE)
+  return(final_table)
+}
+
 
 #' Query ClassyFire by structure
 #'
@@ -599,17 +677,19 @@ parse_classified_entities <- function(entities,
     classified_entities <- data.frame(identifier = character(0),
                                       smiles = character(0),
                                       inchikey = character(0),
-                                      kingdom = character(0),
-                                      superclass = character(0),
-                                      class = character(0),
-                                      subclass = character(0),
-                                      level5 = character(0),
-                                      level6 = character(0),
-                                      level7 = character(0),
-                                      level8 = character(0),
-                                      level9 = character(0),
-                                      level11 = character(0),
+                                      #kingdom = character(0),
+                                      #superclass = character(0),
+                                      #class = character(0),
+                                      #subclass = character(0),
+                                      #level5 = character(0),
+                                      #level6 = character(0),
+                                      #level7 = character(0),
+                                      #level8 = character(0),
+                                      #level9 = character(0),
+                                      #level11 = character(0),
                                       classification_version = character(0),
+                                      level = character(0),
+                                      name = character(0),
                                       report = character(0))
   }else{ #if length(entities)>0
     #expected named items in entities and their expected classes:
