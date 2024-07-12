@@ -743,11 +743,14 @@ display_subtree <- function(base_tree = chemont_tree,
 #'  TRUE, all descendant nodes will be kept rather than pruned away and if the
 #'  parameter value is FALSE, only the nodes of the subtree will remain while
 #'  all other nodes are pruned.
+#' @param no_plot Boolean indicating whether to return the subtree instead of
+#' the ggtree object.
 #'@param ... Other arguments to \code{\link{display_subtree}}.
 #'@inheritDotParams display_subtree -base_tree -tax_level_labels
 #'@return A ggtree object visualizing the pruned base tree. If \code{data_1}
 #'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
-#'  whether they are present in each set, neither, or both.
+#'  whether they are present in each set, neither, or both. In the case of
+#'  `no_plot = TRUE` the subtree phylo object is returned instead.
 #'@export
 prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       prune_to = NULL,
@@ -755,6 +758,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                                       adjust_branch_length = FALSE,
                                       tax_level_labels = chemont_tax_levels,
                                       keep_descendants = NULL,
+                                      no_plot = FALSE,
                                       ...) { #args as for display_subtree()
 
   args <- list(...)
@@ -765,6 +769,8 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                             tax_level_labels = tax_level_labels,
                             keep_descendants = keep_descendants)
 
+  if (no_plot)
+    return(pruned_tree)
 
   tree_plot <- do.call(display_subtree,
                        args = c(list(base_tree = pruned_tree,
