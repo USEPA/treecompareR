@@ -13,6 +13,7 @@ display_subtree(
   name_2 = "Set 2",
   tax_level_labels = chemont_tax_levels,
   layout = "circular",
+  show_tips = TRUE,
   base_opts = list(color = "black", size = 0.5, linetype = 1),
   subtree_mapping = list(color = "default"),
   clade_level = "auto",
