@@ -11,6 +11,7 @@ prune_and_display_subtree(
   adjust_branch_length = FALSE,
   tax_level_labels = chemont_tax_levels,
   keep_descendants = NULL,
+  no_plot = FALSE,
   ...
 )
 }
@@ -45,6 +46,9 @@ behavior follows that of \code{\link{prune_tree}}. If the parameter value is
 TRUE, all descendant nodes will be kept rather than pruned away and if the
 parameter value is FALSE, only the nodes of the subtree will remain while
 all other nodes are pruned.}
+
+\item{no_plot}{Boolean indicating whether to return the subtree instead of
+the ggtree object.}
 
 \item{...}{
   Arguments passed on to \code{\link[=display_subtree]{display_subtree}}
@@ -82,7 +86,8 @@ to NULL to suppress clade labels altogether.}
 \value{
 A ggtree object visualizing the pruned base tree. If \code{data_1}
 and/or \code{data_2} are supplied, branches will be highlighted to indicate
-whether they are present in each set, neither, or both.
+whether they are present in each set, neither, or both. In the case of
+\code{no_plot = TRUE} the subtree phylo object is returned instead.
 }
 \description{
 This function takes in a base tree, a pruning specification as for
