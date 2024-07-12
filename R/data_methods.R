@@ -18,6 +18,10 @@ add_terminal_label <- function(data,
   tax_level <- NULL
   terminal_tax_level <- NULL
 
+  if (is(data, 'data.table')){
+    data <- as.data.frame(data)
+  }
+
 
   data_orig <- copy(data) #save original input data
 
