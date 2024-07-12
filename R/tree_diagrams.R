@@ -232,6 +232,7 @@ display_subtree <- function(base_tree = chemont_tree,
                             name_2 = "Set 2",
                             tax_level_labels = chemont_tax_levels,
                             layout = "circular",
+                            show_tips = TRUE,
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
@@ -376,11 +377,13 @@ display_subtree <- function(base_tree = chemont_tree,
                       )
                       )
 
+
+
   if(!is.null(data_1)){
 
     #If it is a list, look at the data type of the list elements,
     #and concatenate them as appropriate
-    if(class(data_1) %in% "list"){
+    if(is(data_1, "list")){
       #use rapply to handle possible nested list
       el_class <- unique(rapply(data_1, class))
       if(length(unique(el_class))>1){
@@ -680,8 +683,13 @@ display_subtree <- function(base_tree = chemont_tree,
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
 
+  if (show_tips){
+    tree_plot <- tree_plot + geom_tiplab(size = 1)
+  }
+
    #if clade labels have been selected, add them to the plot
-  if(!is.null(clade_level)){
+  # When show_tip = TRUE, do not display clade labels
+  if(!show_tips & !is.null(clade_level)){
   tree_plot <- add_cladelab(tree_plot = tree_plot,
                                           tree = base_tree,
                                           clade_level = clade_level,
@@ -763,6 +771,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
                                base_name = prune_name,
                                tax_level_labels = tax_level_labels),
                                args))
+
 
   return(tree_plot)
 }
