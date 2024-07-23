@@ -1,8 +1,16 @@
 ---
 title: "treecompareR package"
+author:
+  - name: "Paul Kruse"
+    affiliation: "United States Environmental Protection Agency"
+    email: "kruse.paul@epa.gov"
 output: 
   bookdown::html_document2:
     base_format: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{treecompareR package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
