@@ -22,18 +22,21 @@ to the ClassyFire API server.}
 }
 \value{
 A data.frame with the following variables: \itemize{
-\item{identifier}{The input InCHiKey that was queried. For example,
-"XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{smiles}{The corresponding SMILES
-returned by ClassyFire, if any} \item{inchikey}{The InCHiKey returned by
-ClassyFire, if any. Will be of format
-"InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"} \item{classification_version}{The
-version number returned by ClassyFire. For example, "2.1"} \item{level}{The
-names of all levels in this InCHiKey's classification. Will be elements of
-\code{tax_level_labels}.} \item{name}{The name or label of each level in
-this InCHiKey's classification.} \item{report}{A text string reporting the
-status of the classification, "ClassyFire returned a classification" if
-successful; otherwise the report returned by ClassyFire, or a report about
-an internal error.} }
+\item{identifier: The input InCHiKey that was queried. For example,
+"XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
+\item{smiles: The corresponding SMILES returned by ClassyFire, if any}
+\item{inchikey: The InCHiKey returned by ClassyFire, if any. Will be of
+format "InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
+\item{classification_version: The version number returned by ClassyFire.
+For example, "2.1"}
+\item{level: The names of all levels in this InCHiKey's classification.
+Will be elements of \code{tax_level_labels}.}
+\item{name: The name or label of each level in this InCHiKey's
+classification.}
+\item{report: A text string reporting the status of the classification,
+"ClassyFire returned a classification" if successful; otherwise the report
+returned by ClassyFire, or a report about an internal error.}
+}
 
 Note that the data.frame is in "long" format, with multiple rows for each
 InCHiKey. There is one row for each level of classification for each

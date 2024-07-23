@@ -74,6 +74,7 @@ for plot labeling. Default is "Set 1".}
     \item{\code{name_2}}{Optional: A string giving the name of the list in \code{data_2}
 (if any), for plot labeling. Default is "Set 2".}
     \item{\code{layout}}{\code{\link{ggtree}} layout option. Default "circular."}
+    \item{\code{show_tips}}{Whether to display the tip labels. Default value of TRUE.}
     \item{\code{base_opts}}{List of parameters with default values that control}
     \item{\code{subtree_mapping}}{List of color values for displaying subtree.}
     \item{\code{clade_opts}}{List of parameters with default values for illustrating

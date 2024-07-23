@@ -58,6 +58,8 @@ the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 
 \item{layout}{\code{\link{ggtree}} layout option. Default "circular."}
 
+\item{show_tips}{Whether to display the tip labels. Default value of TRUE.}
+
 \item{base_opts}{List of parameters with default values that control}
 
 \item{subtree_mapping}{List of color values for displaying subtree.}
