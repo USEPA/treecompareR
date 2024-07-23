@@ -185,6 +185,7 @@ label_bars <- function(data = NULL,
 #'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
 #'  "subclass", paste0("level", 5:11))}.
 #'@param layout \code{\link{ggtree}} layout option. Default "circular."
+#'@param show_tips Whether to display the tip labels. Default value of TRUE.
 #'@param base_opts List of parameters with default values that control
 #  line properties within tree diagram.
 #'@param subtree_mapping List of color values for displaying subtree.
@@ -1460,6 +1461,9 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 #'   outside of the boxplot layer. This can be either a string with a single
 #'   column name, a vector of column names, or a list of column names. If the
 #'   input is a vector or a list, it is fine for it to be length 1.
+#' @param adjust_branch_length Whether to adjust branch length so that all
+#'  newly-pruned terminal nodes appear at the same length as tips, even if they
+#'  were originally internal nodes. Default FALSE.
 #' @param tippoint_boxplot Alternate parameter for determining whether to color
 #'   the tippoints and the boxplots. If TRUE, they will match in colors, and if
 #'   FALSE, the boxplots will be filled white with black outline and the
