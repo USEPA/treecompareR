@@ -110,7 +110,8 @@ As you can see, the full ChemOnt tree is extremely dense. To "zoom in" to a spec
 ```{r}
 prune_and_display_subtree(base_tree = chemont_tree,
                           prune_to = "Organohalogen compounds",
-                          subtree_mapping = sot_poster_subtree_mapping)
+                          subtree_mapping = sot_poster_subtree_mapping,
+                          show_tips = FALSE)
 ```
 (Note that the default level for clade labeling is now level 3 (class), because the MRCA of the tips of the pruned organohalogen compounds tree is by construction "Organohalogen compounds", level 2.)
  
@@ -167,7 +168,8 @@ display_subtree(base_tree = oh_tree,
                 base_name = "Organohalogen compounds",
                 base_opts = list(color = "red",
                                  size = 1,
-                                 linetype = 3)) +
+                                 linetype = 3),
+                show_tips = FALSE) +
   hexpand(1)
 ```
 
@@ -180,7 +182,8 @@ display_subtree(base_tree = oh_tree,
                 base_name = "Organohalogen compounds",
                 layout = "fan",
                 base_opts = list(open.angle = 100),
-                subtree_mapping = sot_poster_subtree_mapping)
+                subtree_mapping = sot_poster_subtree_mapping,
+                show_tips = FALSE)
 ```
 
 ### Manipulating plots using the grammar of ggtree and ggplot2
@@ -190,7 +193,8 @@ The output of `display_subtree()` is a `ggtree` and `ggplot`-class object, so it
 ```{r}
 display_subtree(base_tree = oh_tree,
                 base_name = "Organohalogen compounds",
-                subtree_mapping = sot_poster_subtree_mapping) +
+                subtree_mapping = sot_poster_subtree_mapping,
+                show_tips = FALSE) +
   ggplot2::theme(plot.title = ggplot2::element_text(family = "serif",
                                   face = "italic",
                                   hjust = 1)
@@ -287,7 +291,8 @@ display_subtree(base_tree = oh_tree,
                 name_1 = 'Biosolids',
                 base_opts = list(size = 1),
                 subtree_mapping = c(sot_poster_subtree_mapping,
-                                    'size' = c(0.1, 1, 1, 1)))
+                                    'size' = c(0.1, 1, 1, 1)),
+                show_tips = FALSE)
 ```
 
 ```{r}
@@ -296,7 +301,8 @@ display_subtree(base_tree = oh_tree,
                 data_1 = usgs_class, 
                 name_1 = 'USGS Water',
                 base_opts = list(size = 1),
-                subtree_mapping = sot_poster_subtree_mapping)
+                subtree_mapping = sot_poster_subtree_mapping,
+                show_tips = FALSE)
 ```
 
 These two figures illustrate the locations of the the biosolids and USGS water chemical lists in chemical space. For example, the biosolids list includes more of the "Alkyl halides" group than does the USGS water list, but USGS Water includes "Organobromides", whereas the biosolids list does not.
@@ -313,7 +319,8 @@ display_subtree(base_tree = oh_tree,
                 name_1 = 'Biosolids', 
                 name_2 = 'USGS Water',
                 base_opts = list(size = 1),
-                subtree_mapping = sot_poster_subtree_mapping)
+                subtree_mapping = sot_poster_subtree_mapping, 
+                show_tips = FALSE)
 ```
 
 In the above figure, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps and the areas unique to each data set.
@@ -362,7 +369,8 @@ display_subtree(base_tree = oh_tree,
                                  2, #dataset 1 only (here, Biosolids) (dotted)
                                  3, #dataset 2 only (here, USGS Water) (dashed)
                                  4) #both datasets (dot-dashed)
-                ) 
+                ),
+                show_tips = FALSE
 )
 ```
 
@@ -382,7 +390,8 @@ THen let us further prune the benzenoids tree to include only the branches repre
 ```{r pruned-subtree,  fig.align='center', fig.dim=c(12,12)}
 prune_and_display_subtree(base_tree = benz_tree,
                           prune_to = biosolids_class,
-                          prune_name = "Biosolids")
+                          prune_name = "Biosolids",
+                          show_tips = FALSE)
 
 biosolids_benz_tree <- prune_tree(tree = benz_tree,
                                 prune_to = biosolids_class)
@@ -398,7 +407,8 @@ If you prefer to adjust the branch lengths so that all of the branches go all th
 prune_and_display_subtree(base_tree = benz_tree,
                           prune_to = biosolids_class,
                           prune_name = "Biosolids",
-                          adjust_branch_length = TRUE)
+                          adjust_branch_length = TRUE,
+                          show_tips = FALSE)
 ```
 
 ### Highlighting a pruned subtree from one chemical list by membership in another chemical list
@@ -412,7 +422,8 @@ prune_and_display_subtree(base_tree = benz_tree,
                           prune_to = biosolids_class,
                           prune_name = "Biosolids",
                           data_1 = usgs_class,
-                          name_1 = "USGS Water") +
+                          name_1 = "USGS Water",
+                          show_tips = FALSE) +
   ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(size = 2)))
 ```
 
@@ -431,7 +442,8 @@ To illustrate this point, we first take the organohalogen subtree.
 display_subtree(base_tree = oh_tree,
                 base_name = "Organohalogens",
                 base_opts = list(color = "red"),
-                clade_level = 3)
+                clade_level = 3,
+                show_tips = FALSE)
 ```
 
 
@@ -455,7 +467,8 @@ display_subtree(base_tree = new_tree,
                 subtree_mapping = list(color = c("red", 
                                                  "black")),
                                                  #"red")),
-                clade_level = 3) 
+                clade_level = 3,
+                show_tips = FALSE) 
 ```
 
 We can show the overlap between the biosolids and USGS Water chemical lists using this new tree with chemical entities as the base tree, and highlighting its branches according to membership in those two lists. Note that we need to change the argument `tax_level_labels` to include `CASRN` as an additional taxonomy level, because `'new_tree` has that additional level added.
@@ -475,10 +488,11 @@ display_subtree(base_tree = new_tree,
                                      "subclass",
                                      paste0("level", 5:11),
                                      "CASRN"),
-                subtree_mapping = sot_poster_subtree_mapping
+                subtree_mapping = sot_poster_subtree_mapping,
+                show_tips = FALSE
                   #list("color" = "default",
                                    #    "size" = c(0.5, 1, 1, 1))
-                  ) 
+                  )
 ```
 
 For example, this figure illustrates that while both lists contain several chemicals in the "Vinyl chlorides" subclass, they only have two of those chemicals in common. The "Alkyl fluorides" subclass is covered only by the biosolids chemical list, while the chemicals in the "Cyclohexyl halides" subclass are all common to both lists.
