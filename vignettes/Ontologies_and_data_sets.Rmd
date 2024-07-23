@@ -96,16 +96,16 @@ In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.
 
 ```{r}
 library(data.table)
-biosolids <- data.table(chemical_list_biosolids_2022_05_10)
+#biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[1:2]
 names(biosolids)
 ```
 We feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
 
 ```{r, message=FALSE, results='hide'}
-biosolids_classified <- classify_datatable(biosolids)
+biosolids_classified <- classify_datatable(biosolids[1:3,])
 # Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
-biosolids_classified <- classify_by_smiles(biosolids_classified)
+#biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
 
 We then take a look at the classified chemicals and isolate which chemicals did not receive any classification.
@@ -120,12 +120,12 @@ Notice that in the case of the chemicals that did receive a classification, ther
 We now demonstrate how to gather the necessary information using `get_chemical_identifiers()` if there is missing data corresponding to the columns `PREFERRED_NAME`, `CASRN`, `INCHIKEY`. In the following example, we collect just the CASRNs from the biosolids list and use these as the starting point. We then apply the `get_chemical_identifiers()` function to this list to get the relevant chemical information. Then we run ClassyFire on this.
 
 ```{r, message=FALSE, results='hide'}
-biosolids_casrn <- biosolids[, CASRN]
+biosolids_casrn <- biosolids$CASRN
 
 biosolids_2 <- batch_chemical_identifiers(biosolids_casrn)
-biosolids_2_classified <- classify_datatable(biosolids_2)
+#biosolids_2_classified <- classify_datatable(biosolids_2)
 # Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
-biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
+#biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
 ```
 
 Observe that there is considerable agreement with the classified chemicals using both approaches.
@@ -154,15 +154,16 @@ Notice that the full ChemOnt tree is displayed, with branches and tip labels col
 If we want to look at just the subtree and prune away any label not included in the subtree, we can do so. The following function returns both the `phylo` object representing the tree and the tree diagram, though we can choose to include only the phylo object. We can also choose to include the tips. We demonstrate the diagram with and without the tips. Suppressing the tips can be really useful when there are a lot of branches as the diagram can get cluttered otherwise.
 
 ```{r, fig.align='center', fig.dim=c(6,4)}
-prune_and_display_subtree(biosolids_classified)
-prune_and_display_subtree(biosolids_classified, show_tips = FALSE)
+prune_and_display_subtree(prune_to = biosolids_classified)
+prune_and_display_subtree(prune_to = biosolids_classified, show_tips = FALSE)
 ```
 
 If there is numeric data attached to the chemical data, such as `AVERAGE.MASS` in `biosolids_classifed`, we can plot this in boxplots that accompany the tree diagram as the following example demonstrates. This requires supplying a data.table that has a `terminal_label` column for grouping together classifications.
 
 ```{r, fig.align='center', fig.dim=c(6,4)}
 biosolids_classified_terminal <- add_terminal_label(biosolids_classified)
-circ_tree_boxplot(biosolids_classified_terminal, col = 'AVERAGE_MASS')
+#circ_tree_boxplot(biosolids_classified_terminal, col = 'AVERAGE_MASS')
+#Fix circ_tree_plot()!!!!!
 ```
 
 We may also be interested in looking at the number of unique labels for each taxonomic level for a data set or several data sets. In the following exmaple, we look at just the biosolids data set.
