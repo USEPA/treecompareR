@@ -4,7 +4,11 @@
 \alias{get_chemical_identifiers}
 \title{Get chemical identifiers}
 \usage{
-get_chemical_identifiers(input, type = c("AnyId", "DTXSID", "CAS"))
+get_chemical_identifiers(
+  input,
+  type = c("AnyId", "DTXSID", "CAS"),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{input}{A string representing one of DTXSID, CAS, SMILES, NAME,
@@ -12,6 +16,8 @@ InChIKey.}
 
 \item{type}{A string specifying which type of input format the \code{input}
 parameter takes.}
+
+\item{verbose}{A Boolean indicating whether some 'progress report' is given.}
 }
 \value{
 An object of class 'HazardComparisonDashboard'.
