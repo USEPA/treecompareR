@@ -9,14 +9,17 @@
 #'   InChIKey.
 #' @param type A string specifying which type of input format the `input`
 #'   parameter takes.
+#' @param verbose A Boolean indicating whether some 'progress report' is given.
 #' @return An object of class 'HazardComparisonDashboard'.
 #' @export
 #' @import httr
 #' @import methods
 #'
-get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
+get_chemical_identifiers <- function(input,
+                                     type = c('AnyId', 'DTXSID', 'CAS'),
+                                     verbose = FALSE){
   type <- match.arg(type)
-  #print(type)
+  print(type)
   entity_url <- 'http://hazard-dev.sciencedataexperts.com/api/resolver/lookup?query='
 
 
@@ -33,27 +36,28 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
     stop('Request rate limit exceeded!')
   }
 
-  if (response$status_code == 404){
+  if ((response$status_code == 404) & verbose){
     cat(crayon::red(clisymbols::symbol$cross, input), '\n')
   }
 
-  if (response$status_code == 200){
+  if ((response$status_code == 200) & verbose){
     content <- httr::content(response)
 
-    if (length(content) == 0){
-      cat(crayon::red(clisymbols::symbol$cross, input), '\n')
-      return(invisible(NULL))
-    } else {
-      cat(crayon::green(clisymbols::symbol$tick, input), '\n')
-    }
+      if (length(content) == 0){
+        cat(crayon::red(clisymbols::symbol$cross, input), '\n')
+        return(invisible(NULL))
+      } else {
+        cat(crayon::green(clisymbols::symbol$tick, input), '\n')
+      }
 
 
 
-    dtxsid <- content[[1]]$sid
-    casrn <- content[[1]]$casrn
-    name <- content[[1]]$name
-    smiles <- content[[1]]$smiles
-    InChIKey <- content[[1]]$inchiKey
+
+    dtxsid <- content[[1]]$chemical$sid
+    casrn <- content[[1]]$chemical$casrn
+    name <- content[[1]]$chemical$name
+    smiles <- content[[1]]$chemical$smiles
+    InChIKey <- content[[1]]$chemical$inchiKey
 
     object <- methods::new('HazardComparisonDashboard')
 
@@ -82,13 +86,15 @@ get_chemical_identifiers <- function(input, type = c('AnyId', 'DTXSID', 'CAS')){
 #'
 #' @param input_list A list of input values valid for
 #'   `get_chemical_identifiers()`
+#' @param verbose A Boolean indicating whether some 'progress report' is given.
 #' @return A data.table with the input list as a column, and chemical
 #'   identifiers as subsequent columns
 #' @export
 #' @import data.table
 #'
 #' @seealso \code{\link{get_chemical_identifiers}}
-batch_chemical_identifiers <- function(input_list){
+batch_chemical_identifiers <- function(input_list,
+                                       verbose = FALSE){
   INPUT <- NULL
   new_table <- data.table('INPUT' = input_list,
                           'DTXSID' = character(length(input_list)),
@@ -97,7 +103,7 @@ batch_chemical_identifiers <- function(input_list){
                           'SMILES' = character(length(input_list)),
                           'INCHIKEY' = character(length(input_list)))
 
-  list_of_identifiers <- purrr::map(input_list, get_chemical_identifiers)
+  list_of_identifiers <- purrr::map(input_list, get_chemical_identifiers, verbose = verbose)
 
   for (i in seq_along(list_of_identifiers)){
     if (is.null(list_of_identifiers[[i]])){
