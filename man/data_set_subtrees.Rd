@@ -9,7 +9,7 @@ data_set_subtrees(
   data_2,
   name_1 = "data_1",
   name_2 = "data_2",
-  tax_level_labels = NULL,
+  tax_level_labels = chemont_tax_levels,
   tree = NULL,
   show_tips = TRUE,
   adjust_branch_length = TRUE
