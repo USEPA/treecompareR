@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+#library(httptest)
+#httptest::start_vignette("1")
 ```
 
 ```{r setup}
@@ -34,7 +36,7 @@ An ontology is a useful tool that provides a organizational framework to relate 
 
 The ontology we will study in this vignette is the ChemOnt ontology of ClassyFire. This has a taxonomy structure, that of a rooted tree, where for any pair of labels either one is a child (or descendant) of the other or they share a common ancestor. The labels of the ontology, with their identification number and their parent identification name can be found at [ChemOnt tax nodes](http://classyfire.wishartlab.com/tax_nodes.json). We download this and read it (as of writing this, May 10, 2022).
 
-```{r}
+```{r, read-in-taxnodes}
 library(jsonlite)
 tax_nodes <- jsonlite::read_json('http://classyfire.wishartlab.com/tax_nodes.json')
 length(tax_nodes)
@@ -44,7 +46,7 @@ str(tax_nodes[[1]])
 
 Observe that there are 4825 entries in `tax_nodes` and each entry is a list of length three, with entries `name`, `chemont_id`, and `parent_chemont_id`. We need to collect this information and organize it. To do so, we now build a data.frame from this list. The column names will be `Name`, `ID`, and `Parent_ID`. We first set the `parent_chemont_id` value of the first entry in `tax_nodes` to `NA` so that we can read in the list correctly.
 
-```{r}
+```{r, format-tax-nodes}
 tax_nodes[[1]]$parent_chemont_id <- NA
 chemont_taxnodes <- data.frame('Name' = sapply(tax_nodes, function(t) {t[[1]]}),
                                'ID' = sapply(tax_nodes, function(t) {t[[2]]}),
@@ -54,7 +56,7 @@ head(chemont_taxnodes)
 
 Now, we can read in this data.frame using `generate_tree()` to build the taxonomy.
 
-```{r}
+```{r, generate-tree-from-tax-nodes}
 chemont_taxonomy <- generate_taxonomy_tree(tax_nodes = chemont_taxnodes)
 str(chemont_taxonomy)
 ```
@@ -63,7 +65,7 @@ What `generate_tree()` returns is a list of two objects, a phylo object and a da
 
 Alternatively, we can run `generate_tree()` on a JSON file. The column names from the dataframe `chemont_taxnodes` - `Name`, `ID`, `Parent_ID` - need to be the names for each entry in the JSON file. We convert the dataframe `chemont_taxnodes` to JSON format and read it in using `generate_tree()`. Then we verify that indeed the output matches the output from using the dataframe.
 
-```{r}
+```{r, confirm-identical-structures}
 chemont_taxnodes_JSON <- jsonlite::toJSON(chemont_taxnodes)
 
 chemont_taxonomy_2 <- generate_taxonomy_tree(chemont_taxnodes_JSON)
@@ -73,7 +75,7 @@ identical(chemont_taxonomy, chemont_taxonomy_2)
 
 We now isolate the tree structure and produce a simple visualization.
 
-```{r, fig.align='center', fig.dim=c(6,4)}
+```{r, plot-chemont-tree, fig.align='center', fig.dim=c(6,4)}
 chemont_tree <- chemont_taxonomy
 ggtree(chemont_tree) + layout_circular()
 ```
@@ -94,7 +96,7 @@ Using the Hazard Comparison Dashboard API approach, we feed in a list of `DTXSID
 
 In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.rda` which contains a set of 726 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [biosolids](https://comptox.epa.gov/dashboard/chemical-lists/BIOSOLIDS) and was downloaded as a csv file on May 10, 2022.
 
-```{r}
+```{r, examine-biosolids}
 library(data.table)
 #biosolids <- data.table(chemical_list_biosolids_2022_05_10)
 biosolids[1:2]
@@ -102,7 +104,7 @@ names(biosolids)
 ```
 We feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
 
-```{r, message=FALSE, results='hide'}
+```{r, classify-biosolids, message=FALSE, results='hide'}
 biosolids_classified <- classify_datatable(biosolids[1:3,])
 # Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
 #biosolids_classified <- classify_by_smiles(biosolids_classified)
@@ -110,7 +112,7 @@ biosolids_classified <- classify_datatable(biosolids[1:3,])
 
 We then take a look at the classified chemicals and isolate which chemicals did not receive any classification.
 
-```{r}
+```{r, examine-classified-results}
 head(biosolids_classified)
 biosolids_classified[kingdom == '',]
 ```
@@ -119,24 +121,34 @@ Notice that in the case of the chemicals that did receive a classification, ther
 
 We now demonstrate how to gather the necessary information using `get_chemical_identifiers()` if there is missing data corresponding to the columns `PREFERRED_NAME`, `CASRN`, `INCHIKEY`. In the following example, we collect just the CASRNs from the biosolids list and use these as the starting point. We then apply the `get_chemical_identifiers()` function to this list to get the relevant chemical information. Then we run ClassyFire on this.
 
-```{r, message=FALSE, results='hide'}
+```{r, retrieve-chemical-identifiers, message=FALSE, results='hide'}
+library(ctxR)
 biosolids_casrn <- biosolids$CASRN
+biosolids_2 <- chemical_identifiers(biosolids_casrn)
+```
 
-biosolids_2 <- batch_chemical_identifiers(biosolids_casrn)
-#biosolids_2_classified <- classify_datatable(biosolids_2)
+```{r, eval=FALSE}
+biosolids_2_classified <- classify_datatable(biosolids_2)
 # Need to address the retry and 403 errors from running the next line (stemming from classyfireR::submit_query)
 #biosolids_2_classified <- classify_by_smiles(biosolids_2_classified)
+```
+
+To save time from running the API requests, we load in the data previously classified.
+
+```{r}
+load('../data/BIOSOLIDS2021_class.rda')
+biosolids_classified <- BIOSOLIDS2021_class
 ```
 
 Observe that there is considerable agreement with the classified chemicals using both approaches.
 
 ```{r}
-biosolids_classified[kingdom != '', .N]
-biosolids_2_classified[kingdom != '', .N]
-length(intersect(biosolids_classified[kingdom != '', unique(CASRN)], biosolids_2_classified[kingdom != '', unique(CASRN)]))
-
-setdiff(biosolids_classified[kingdom != '', unique(CASRN)], biosolids_2_classified[kingdom != '', unique(CASRN)])
-setdiff(biosolids_2_classified[kingdom != '', unique(CASRN)], biosolids_classified[kingdom != '', unique(CASRN)])
+# biosolids_classified[kingdom != '', .N]
+# biosolids_2_classified[kingdom != '', .N]
+# length(intersect(biosolids_classified[kingdom != '', unique(CASRN)], biosolids_2_classified[kingdom != '', unique(CASRN)]))
+# 
+# setdiff(biosolids_classified[kingdom != '', unique(CASRN)], biosolids_2_classified[kingdom != '', unique(CASRN)])
+# setdiff(biosolids_2_classified[kingdom != '', unique(CASRN)], biosolids_classified[kingdom != '', unique(CASRN)])
 ```
 We can observe that using the information provided from the CompTox dashboard directly, 693 of 726 chemicals were classified. Using just the CASRN values as inputs, collecting relevant data from the Hazard Comparison Dashboard API, and running ClassyFire on this data resulted in the classification of 694 of 726 chemicals. Note that there were 692 chemicals in common that were classified with 1 in the first method not in the second, 2 in the second method not in the first. This means that if we were to combine both sets of classified data, there would be 695 of 725 chemicals with classifications. Potential sources of discrepancies in these numbers included different availability of data contained in the CompTox Dashboard and the Hazard Comparison Dashboard. The underlying conclusion though is that these two methods yield two different pathways for attaining chemical classification programmatically and are similar in their level of success.
 
@@ -149,7 +161,7 @@ For instance, we can show the subtree of the ChemOnt tree representing the class
 display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
 ```
 
-Notice that the full ChemOnt tree is displayed, with branches and tip labels colored depending on whterh they are included among the labels represented by the data set.
+Notice that the full ChemOnt tree is displayed, with branches and tip labels colored depending on whether they are included among the labels represented by the data set.
 
 If we want to look at just the subtree and prune away any label not included in the subtree, we can do so. The following function returns both the `phylo` object representing the tree and the tree diagram, though we can choose to include only the phylo object. We can also choose to include the tips. We demonstrate the diagram with and without the tips. Suppressing the tips can be really useful when there are a lot of branches as the diagram can get cluttered otherwise.
 
@@ -179,17 +191,23 @@ To illustrate these visualizations and their functionality more effectively, we 
 In the `data` folder, we read in a rda file `chemical_list_USGSWATER_2022_05_17.rda` which contains a set of 707 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [usgswater](https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER) and was downloaded as a xlsx file on May 17, 2022.
 
 ```{r}
-usgswater <- data.table(chemical_list_USGSWATER_2022_05_17)
+usgswater <- data.table(usgs)
 usgswater[1:2,]
 names(usgswater)
 ```
 
 We then classify these chemicals. We also add the terminal label to the data.table.
 
-```{r}
+```{r, eval = FALSE}
 usgswater_classified <- classify_datatable(usgswater)
-usgswater_classified <- classify_by_smiles(usgswater_classified)
+#usgswater_classified <- classify_by_smiles(usgswater_classified)
+```
 
+```{r, results = 'hide'}
+usgswater_classified <- data.table(USGSWATER_class)
+```
+
+```{r}
 usgswater_classified_terminal <- add_terminal_label(usgswater_classified)
 ```
 
@@ -260,4 +278,8 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = b
 ```
 
 In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
+
+```{r, include = FALSE}
+#httptest::end_vignette()
+```
 
