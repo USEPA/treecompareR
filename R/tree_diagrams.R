@@ -453,7 +453,6 @@ display_subtree <- function(base_tree = chemont_tree,
                                   tax_level_labels = tax_level_labels)
     }else if(is.numeric(data_1)){
       #interpret as node numbers
-
     data_1_nodes <- data_1
 
     }else if(is.character(data_1)){
@@ -1680,4 +1679,217 @@ circ_tree_boxplot <- function(data,
             plot.subtitle = element_text(hjust = 0.5))
   }
   return(circ_plot)
+}
+
+#' Leaf fraction subtree
+#'
+#' This function takes in two data.tables, plots the subtree induced by the
+#' first data.table and colors the tips based on the proportion of chemicals
+#' from the second data.table that make up the chemicals from the first, grouped
+#' by tip (or terminal) label.
+#'
+#' @param data_1 A data.table of chemicals, classifications, and column
+#'   `terminal_label`.
+#' @param data_2 A data.table of chemicals, classifications, and column
+#'   `terminal_label`
+#' @param name_1 Alternate parameter for name of first data.table.
+#' @param name_2 Alternate parameter for name of second data.table.
+#' @param show_labels Alternate parameter indicating whether to show tip labels.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @return A ggtree plot.
+#' @export
+#' @import data.table
+#' @import ggtree
+#' @import ggtreeExtra
+#' @import ggplot2
+#'
+#' @seealso \code{\link{add_terminal_label}}
+#'
+leaf_fraction_subtree <- function(data_1, data_2,
+                                  name_1 = 'data_1', name_2 = 'data_2',
+                                  show_labels = FALSE,
+                                  tax_level_labels = chemont_tax_levels,
+                                  tree = NULL){
+  data_1 <- data.table::as.data.table(data_1)
+  data_2 <- data.table::as.data.table(data_2)
+  if (!all('terminal_label' %in% names(data_1))){
+    warning('The column `terminal_label` is missing from one of the first input data.table! Attaching column...')
+    data_1 <- add_terminal_label(data_1)
+  }
+  if (!all('terminal_label' %in% names(data_2))){
+    warning('The column `terminal_label` is missing from one of the second input data.table! Attaching column...')
+    data_2 <- add_terminal_label(data_2)  }
+  # Find all the terminal_label values from data_1.
+  terminal_label <- NULL
+  INCHIKEY <- NULL
+  percentages <- NULL
+  terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
+
+  #print(terminal_labels)
+
+  # For each terminal_label value, determine the chemicals from data_2 that are
+  # also in data_1. This checks using the INCHIKEY of each chemical.
+  label_percentages <- sapply(terminal_labels, function(t) {
+    data_1_chemicals <- data_1[terminal_label == t, unique(INCHIKEY)]
+    data_2_chemicals <- data_2[terminal_label == t, unique(INCHIKEY)]
+    shared_chemicals <- intersect(data_1_chemicals, data_2_chemicals)
+    return(length(shared_chemicals)/length(data_1_chemicals))
+  })
+
+  label_data <- data.frame('label' = terminal_labels,
+                           'percentages' = unname(label_percentages),
+                           'data_1_numbers' <- unname(sapply(terminal_labels, function(t) {
+                             length(data_1[terminal_label == t, unique(INCHIKEY)])
+                           })),
+                           'data_2_numbers' <- unname(sapply(terminal_labels, function(t) {
+                             length(intersect(data_1[terminal_label == t, unique(INCHIKEY)],
+                                              data_2[terminal_label == t, unique(INCHIKEY)]))
+                           }
+                           ))
+  )
+
+  # print(names(label_data))
+  # print(name_1)
+  # print(name_2)
+
+  names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
+
+  #print(label_data)
+
+  data_1_tree <- prune_and_display_subtree(prune_to = data_1,
+                                           tax_level_labels = tax_level_labels,
+                                           tree = tree, no_plot = TRUE)
+
+  if (length(data_1_tree$tip.label) <= 200){
+    tip_size = 3
+  } else if (length(data_1_tree$tip.label) <= 500){
+    tip_size = 1.5
+  } else {
+    tip_size = .5
+  }
+
+  #tree <- full_join(data_1_tree, label_data, by = 'label')
+
+  tree_plot <- ggtree(data_1_tree, layout = 'circular') %<+% label_data
+  tree_plot <- tree_plot + ggtitle(paste0(name_1, ' subtree')) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  tree_plot <- tree_plot + geom_tippoint(aes(color = percentages),
+                                         size = tip_size)
+  tree_plot <- tree_plot +
+    scale_color_viridis_c(name = paste0('Percentage of ',name_1, ' chemicals that are ', name_2, ' chemicals'),
+                          option = 'plasma')
+
+  if (show_labels){
+    tree_plot <- tree_plot + geom_tiplab(aes(color = percentages), size = 1)
+  } else {
+    tree_plot <- tree_plot + ggtreeExtra::geom_fruit(geom = geom_tile,
+                                                     mapping = aes(color = percentages),
+                                                     width = 10,
+                                                     height = .1,
+                                                     offset = 0.1)
+  }
+
+  return(list(tree_plot, label_data))
+
+}
+
+
+#' Compare data set subtrees
+#'
+#' This function takes in two data.tables of chemicals with classification data,
+#' and creates two plots each of which show a visual comparison of the subtrees
+#' induced by two data sets. The visual comparison consists of branches of one
+#' data-induced subtree colored and labeled based on whether they are
+#' represented by chemicals from the other data set.
+#'
+#' @param data_1 A data.table of chemicals and their classifications.
+#' @param data_2 A data.table of chemicals and their classifications.
+#' @param name_1 An alternate parameter giving the name of the first data set.
+#' @param name_2 An alternate parameter giving the name of the second data set.
+#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
+#'   not using ClassyFire taxonomy.
+#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
+#' @param show_tips An alternate parameter determining whether to show tip
+#'   labels.
+#' @param adjust_branch_length An alternate parameter determining whether to
+#'   resize branches of subtree.
+#' @return A list of two ggtree objects.
+#' @export
+#' @import ggtree
+data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = chemont_tax_levels, tree = NULL, show_tips = TRUE, adjust_branch_length = TRUE){
+  membership <- NULL
+  # Prune subtrees for each data set.
+  tree_1 <- prune_and_display_subtree(prune_to = data_1,
+                                      tax_level_labels = tax_level_labels,
+                                      tree = tree, show_tips = show_tips,
+                                      no_plot = TRUE,
+                                      adjust_branch_length = adjust_branch_length)
+  tree_2 <- prune_and_display_subtree(prune_to = data_2,
+                                      tax_level_labels = tax_level_labels,
+                                      tree = tree, show_tips = show_tips,
+                                      no_plot = TRUE,
+                                      adjust_branch_length = adjust_branch_length)
+
+  # Get all taxonomy labels associated with the data
+  data_labels_1 <- setNames(unlist(get_labels(data_1)), NULL)
+  data_labels_2 <- setNames(unlist(get_labels(data_2)), NULL)
+
+  # Create membership tables
+  membership_1 <- data.frame('node' = 1:length(c(tree_1$tip.label, tree_1$node.label)),
+                             'membership' = c(tree_1$tip.label, tree_1$node.label) %in% data_labels_2)
+  membership_2 <- data.frame('node' = 1:length(c(tree_2$tip.label, tree_2$node.label)),
+                             'membership' = c(tree_2$tip.label, tree_2$node.label) %in% data_labels_1)
+
+  # Create tree plots
+  plot_1 <- ggtree(tree_1) %<+% membership_1 +
+    aes(color = membership) +
+    layout_circular() +
+    scale_color_manual(name = paste('Labels from', name_2, 'that are in', name_1),
+                       labels = c('True', 'False'),
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
+    ggtitle(paste0(name_1, ' subtree')) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  plot_2 <- ggtree(tree_2) %<+% membership_2 +
+    aes(color = membership) +
+    layout_circular() +
+    scale_color_manual(name = paste('Labels from', name_1, 'that are in', name_2),
+                       labels = c('True', 'False'),
+                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
+    ggtitle(paste0(name_2, ' subtree'))  +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  if (show_tips){
+    # Adjust the tip label size depending on the number of tips of the tree
+    if (length(tree_1$tip.label) <= 200){
+      tip_size_1 = 3
+    } else if (length(tree_1$tip.label) <= 500){
+      tip_size_1 = 1.5
+    } else {
+      tip_size_1 = .5
+    }
+
+    # Adjust the tip label size depending on the number of tips of the tree
+    if (length(tree_2$tip.label) <= 200){
+      tip_size_2 = 3
+    } else if (length(tree_1$tip.label) <= 500){
+      tip_size_2 = 1.5
+    } else {
+      tip_size_2 = .5
+    }
+
+    plot_1 <- plot_1 + geom_tiplab(size = tip_size_1)
+    plot_1 <- plot_1 + xlim(0, max(plot_1$data$x) + 50)
+
+    plot_2 <- plot_2 + geom_tiplab(size = tip_size_2)
+    plot_2 <- plot_2 + xlim(0, max(plot_2$data$x) + 50)
+  }
+
+  plot_1 <- plot_1 + theme(legend.justification = 'top')
+  plot_2 <- plot_2 + theme(legend.justification = 'top')
+
+  return(list(plot_1, plot_2))
 }
