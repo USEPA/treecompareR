@@ -4,11 +4,13 @@
 \alias{batch_chemical_identifiers}
 \title{Batch chemical identifiers.}
 \usage{
-batch_chemical_identifiers(input_list)
+batch_chemical_identifiers(input_list, verbose = FALSE)
 }
 \arguments{
 \item{input_list}{A list of input values valid for
 \code{get_chemical_identifiers()}}
+
+\item{verbose}{A Boolean indicating whether some 'progress report' is given.}
 }
 \value{
 A data.table with the input list as a column, and chemical
