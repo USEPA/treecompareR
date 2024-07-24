@@ -18,6 +18,7 @@ LazyDataCompression: xz
 Suggests: 
     classyfireR,
     devtools,
+    httptest,
     kableExtra,
     knitr,
     partitions,
