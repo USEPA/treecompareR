@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-#library(httptest)
-#httptest::start_vignette("1")
+library(httptest)
+httptest::start_vignette("1")
 ```
 
 ```{r setup}
@@ -38,20 +38,23 @@ The ontology we will study in this vignette is the ChemOnt ontology of ClassyFir
 
 ```{r, read-in-taxnodes}
 library(jsonlite)
-tax_nodes <- jsonlite::read_json('http://classyfire.wishartlab.com/tax_nodes.json')
+#tax_nodes_1 <- jsonlite::read_json('http://classyfire.wishartlab.com/tax_nodes.json')
+tax_nodes <- jsonlite::fromJSON(httr::content(httr::GET(url = 'http://classyfire.wishartlab.com/tax_nodes.json'), as = 'text', encoding = 'UTF-8'))
 length(tax_nodes)
-tax_nodes[[1]]
-str(tax_nodes[[1]])
+tax_nodes[1, ]
+str(tax_nodes)
 ```
 
-Observe that there are 4825 entries in `tax_nodes` and each entry is a list of length three, with entries `name`, `chemont_id`, and `parent_chemont_id`. We need to collect this information and organize it. To do so, we now build a data.frame from this list. The column names will be `Name`, `ID`, and `Parent_ID`. We first set the `parent_chemont_id` value of the first entry in `tax_nodes` to `NA` so that we can read in the list correctly.
+Observe that there are 4825 entries in `tax_nodes` and each entry is a list of length three, with entries `name`, `chemont_id`, and `parent_chemont_id`. We need to collect this information and organize it. To do so, we now build a data.frame from this list. The column names will be `Name`, `ID`, and `Parent_ID`.
 
 ```{r, format-tax-nodes}
-tax_nodes[[1]]$parent_chemont_id <- NA
-chemont_taxnodes <- data.frame('Name' = sapply(tax_nodes, function(t) {t[[1]]}),
-                               'ID' = sapply(tax_nodes, function(t) {t[[2]]}),
-                               'Parent_ID' = sapply(tax_nodes, function(t) {t[[3]]}))
-head(chemont_taxnodes)
+setnames(tax_nodes, old = c('name', 'chemont_id', 'parent_chemont_id'), new = c('Name', 'ID', 'Parent_ID'))
+chemont_taxnodes <- tax_nodes
+# tax_nodes_1[[1]]$parent_chemont_id <- NA
+# chemont_taxnodes <- data.frame('Name' = sapply(tax_nodes_1, function(t) {t[[1]]}),
+#                                'ID' = sapply(tax_nodes_1, function(t) {t[[2]]}),
+#                                'Parent_ID' = sapply(tax_nodes_1, function(t) {t[[3]]}))
+# head(chemont_taxnodes)
 ```
 
 Now, we can read in this data.frame using `generate_tree()` to build the taxonomy.
@@ -99,7 +102,7 @@ In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.
 ```{r, examine-biosolids}
 library(data.table)
 #biosolids <- data.table(chemical_list_biosolids_2022_05_10)
-biosolids[1:2]
+biosolids[1:2, ]
 names(biosolids)
 ```
 We feed this data.table to `classify_datatable()`, and then feed the output data.table from `classify_datatable()` to `classify_by_smiles()`.
@@ -280,6 +283,6 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = b
 In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
 
 ```{r, include = FALSE}
-#httptest::end_vignette()
+httptest::end_vignette()
 ```
 
