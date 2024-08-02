@@ -7,7 +7,7 @@
 #' `PREFFERED_NAME`, `SMILES`, `INCHIKEY` and each row corresponding to a
 #' searched term.
 #' @export
-#'
+#' @import data.table
 #' @examplesIf FALSE
 #' # Grab identifiers
 #' input_list <- c('DTXSID7020182', '67-64-1')
@@ -16,6 +16,21 @@ chemical_identifiers <- function(input_list,
                                  verbose = FALSE){
 
   n <- length(input_list)
+  INPUT <- NULL
+  DTXSID <- NULL
+  dtxsid <- NULL
+  CASRN <- NULL
+  casrn <- NULL
+  PREFERRED_NAME <- NULL
+  preferredName <- NULL
+  SMILES <- NULL
+  smiles <- NULL
+  INCHIKEY <- NULL
+  inchikey <- NULL
+  searchValue <- NULL
+  . <- NULL
+
+
 
   new_table <- data.table::data.table('INPUT' = character(),
                                       'DTXSID' = character(),
