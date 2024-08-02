@@ -1,0 +1,166 @@
+{
+    "smiles": "ClC1=C(Cl)C=C2C(OC3=CC(Cl)=C(Cl)C=C23)=C1",
+    "inchikey": "InChIKey=KSMVNVHUTQZITP-UHFFFAOYSA-N",
+    "kingdom": {
+        "name": "Organic compounds",
+        "description": "Compounds that contain at least one carbon atom, excluding isocyanide/cyanide and their non-hydrocarbyl derivatives, thiophosgene, carbon diselenide, carbon monosulfide, carbon disulfide, carbon subsulfide, carbon monoxide, carbon dioxide, Carbon suboxide, and dicarbon monoxide.",
+        "chemont_id": "CHEMONTID:0000000",
+        "url": "http://classyfire.wishartlab.com/tax_nodes/C0000000"
+    },
+    "superclass": {
+        "name": "Organoheterocyclic compounds",
+        "description": "Compounds containing a ring with least one carbon atom and one non-carbon atom.",
+        "chemont_id": "CHEMONTID:0000002",
+        "url": "http://classyfire.wishartlab.com/tax_nodes/C0000002"
+    },
+    "class": {
+        "name": "Benzofurans",
+        "description": "Organic compounds containing a benzene ring fused to a furan. Furan is a five-membered aromatic ring with four carbon atoms and one oxygen atom.",
+        "chemont_id": "CHEMONTID:0000301",
+        "url": "http://classyfire.wishartlab.com/tax_nodes/C0000301"
+    },
+    "subclass": {
+        "name": "Dibenzofurans",
+        "description": "Compounds containing a dibenzofuran moiety, which consists of two benzene rings fused to a central furan ring.",
+        "chemont_id": "CHEMONTID:0000015",
+        "url": "http://classyfire.wishartlab.com/tax_nodes/C0000015"
+    },
+    "intermediate_nodes": [
+        {
+            "name": "Chlorinated dibenzofurans",
+            "description": "Organic compounds containing a chlorine atom attached to a dibenzofuran moiety.",
+            "chemont_id": "CHEMONTID:0001378",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0001378"
+        }
+    ],
+    "direct_parent": {
+        "name": "Polychlorinated dibenzofurans",
+        "description": "Organic compounds containing two or more chlorine atoms attached to a dibenzofuran moiety.",
+        "chemont_id": "CHEMONTID:0003029",
+        "url": "http://classyfire.wishartlab.com/tax_nodes/C0003029"
+    },
+    "alternative_parents": [
+        {
+            "name": "Benzenoids",
+            "description": "Aromatic compounds containing one or more benzene rings.",
+            "chemont_id": "CHEMONTID:0002448",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0002448"
+        },
+        {
+            "name": "Aryl chlorides",
+            "description": "Organic compounds containing the acyl chloride functional group.",
+            "chemont_id": "CHEMONTID:0001030",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0001030"
+        },
+        {
+            "name": "Heteroaromatic compounds",
+            "description": "Compounds containing an aromatic ring where a carbon atom is linked to an hetero atom.",
+            "chemont_id": "CHEMONTID:0004144",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0004144"
+        },
+        {
+            "name": "Furans",
+            "description": "Compounds containing a furan ring, which is a five-member aromatic ring with one oxygen atom, four carbon atoms.",
+            "chemont_id": "CHEMONTID:0000076",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0000076"
+        },
+        {
+            "name": "Oxacyclic compounds",
+            "description": "Organic compounds containing an heterocycle with at least one oxygen atom linked to a ring carbon.",
+            "chemont_id": "CHEMONTID:0004140",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0004140"
+        },
+        {
+            "name": "Organooxygen compounds",
+            "description": "Organic compounds containing a bond between a carbon atom and an oxygen atom.",
+            "chemont_id": "CHEMONTID:0000323",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0000323"
+        },
+        {
+            "name": "Organochlorides",
+            "description": "Compounds containing a chemical bond between a carbon atom and a chlorine atom.",
+            "chemont_id": "CHEMONTID:0001516",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0001516"
+        },
+        {
+            "name": "Hydrocarbon derivatives",
+            "description": "Derivatives of hydrocarbons obtained by substituting one or more carbon atoms by an heteroatom. They contain at least one carbon atom and heteroatom.",
+            "chemont_id": "CHEMONTID:0004150",
+            "url": "http://classyfire.wishartlab.com/tax_nodes/C0004150"
+        }
+    ],
+    "molecular_framework": "Aromatic heteropolycyclic compounds",
+    "substituents": [
+        "Polychlorinated dibenzofuran",
+        "Benzenoid",
+        "Aryl halide",
+        "Aryl chloride",
+        "Heteroaromatic compound",
+        "Furan",
+        "Oxacycle",
+        "Organic oxygen compound",
+        "Hydrocarbon derivative",
+        "Organooxygen compound",
+        "Organochloride",
+        "Organohalogen compound",
+        "Aromatic heteropolycyclic compound"
+    ],
+    "description": "This compound belongs to the class of organic compounds known as polychlorinated dibenzofurans. These are organic compounds containing two or more chlorine atoms attached to a dibenzofuran moiety.",
+    "external_descriptors": [
+        {
+            "source": "CHEBI",
+            "source_id": "CHEBI:81506",
+            "annotations": [
+                "chlorins"
+            ]
+        },
+        {
+            "source": "KEGG",
+            "source_id": "C18104",
+            "annotations": [
+                "PCDFs"
+            ]
+        }
+    ],
+    "ancestors": [
+        "Aryl chlorides",
+        "Aryl halides",
+        "Benzenoids",
+        "Benzofurans",
+        "Chemical entities",
+        "Chlorinated dibenzofurans",
+        "Dibenzofurans",
+        "Furans",
+        "Heteroaromatic compounds",
+        "Hydrocarbon derivatives",
+        "Organic compounds",
+        "Organic oxygen compounds",
+        "Organochlorides",
+        "Organohalogen compounds",
+        "Organoheterocyclic compounds",
+        "Organooxygen compounds",
+        "Oxacyclic compounds",
+        "Polychlorinated dibenzofurans"
+    ],
+    "predicted_chebi_terms": [
+        "benzenoid aromatic compound (CHEBI:33836)",
+        "organochlorine compound (CHEBI:36683)",
+        "organic aromatic compound (CHEBI:33659)",
+        "furans (CHEBI:24129)",
+        "oxacycle (CHEBI:38104)",
+        "organooxygen compound (CHEBI:36963)",
+        "organic molecule (CHEBI:72695)",
+        "dibenzofurans (CHEBI:38922)",
+        "chemical entity (CHEBI:24431)",
+        "organohalogen compound (CHEBI:36684)",
+        "haloarene (CHEBI:50887)",
+        "organic heterocyclic compound (CHEBI:24532)",
+        "oxygen molecular entity (CHEBI:25806)",
+        "organic molecular entity (CHEBI:50860)",
+        "benzofurans (CHEBI:35259)"
+    ],
+    "predicted_lipidmaps_terms": [
+        "Benzofuranoids (PK1310)"
+    ],
+    "classification_version": "2.1"
+}
