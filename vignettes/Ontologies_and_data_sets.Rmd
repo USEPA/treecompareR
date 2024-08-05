@@ -26,6 +26,28 @@ devtools::load_all()
 #library(treecompareR)
 ```
 
+```{r setup-print, echo = FALSE}
+# Redefining the knit_print method to truncate character values to 25 characters
+# in each column and to truncate the columns in the print call to prevent 
+# wrapping tables with several columns.
+#library(ctxR)
+knit_print.data.table = function(x, ...) {
+  y <- data.table::copy(x)
+  y <- y[, lapply(.SD, function(t){
+    if (is.character(t)){
+      t <- strtrim(t, 25)
+    }
+    return(t)
+  })]
+  print(y, trunc.cols = TRUE)
+}
+
+registerS3method(
+  "knit_print", "data.table", knit_print.data.table,
+  envir = asNamespace("knitr")
+)
+```
+
 # Introduction
 
 In this vignette we introduce how to build an ontology with a taxonomic structure in R and how to classify entries from a data set using this ontology. The case study we will explore is the ChemOnt ontology, the underlying structure of the chemical classification tool [ClassyFire](http://classyfire.wishartlab.com/). 
@@ -101,7 +123,7 @@ In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.
 
 ```{r, examine-biosolids}
 library(data.table)
-#biosolids <- data.table(chemical_list_biosolids_2022_05_10)
+biosolids <- data.table(biosolids)
 biosolids[1:2, ]
 names(biosolids)
 ```
@@ -160,7 +182,7 @@ chemical space represented by the data.
 
 For instance, we can show the subtree of the ChemOnt tree representing the classifications of the data set. We often refer to this subtree as induced by the data set.
 
-```{r, fig.align='center', fig.dim=c(6,4)}
+```{r, biosolids_subtree, fig.align='center', fig.dim=c(8,8), out.width="80%", out.height="80%"}
 display_subtree(data_1 = biosolids_classified, name_1 = 'Biosolids')
 ```
 
@@ -218,7 +240,7 @@ Now that we have a classified data.table with a terminal_label column attached, 
 
 The first will involve the label_bars function. We create a named list and feed this into the function as demonstrated below. Note, it is important that the input data is in a *list* and not just a vector.
 
-```{r}
+```{r, fig.align='center', fig.dim=c(6,4)}
 data_list <- list(biosolids_classified_terminal, usgswater_classified_terminal)
 names(data_list) <- c('Biosolids', 'USGS water')
 
@@ -229,22 +251,33 @@ The first diagram gives a sense of how the labels are represented for each data 
 
 Next, we explore the subtrees represented by these data sets.
 
-```{r}
-display_subtree(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```{r, biosolids_subtree_alone, fig.align='center', fig.dim=c(8,8), out.width="80%", out.height="80%"}
+display_subtree(data_1 = biosolids_classified_terminal, 
+                data_2 = usgswater_classified_terminal, 
+                name_1 = 'Biosolids', name_2 = 'USGS water')
 ```
 
 Observe that this figure displays both subtrees and their intersection, coloring branches accordingly. We examine this overlap a little more closely.
 
-```{r}
-data_set_subtrees(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```{r, fig.align='center', fig.dim=c(12,7.5), out.width="75%", out.height="75%"}
+data_set_subtrees(data_1 = biosolids_classified_terminal, 
+                  data_2 = usgswater_classified_terminal, 
+                  name_1 = 'Biosolids', name_2 = 'USGS water')
 ```
 
 
 
 If we would like to gauge how this overlap in each induced subtree relates to the number of chemicals with shared classifications common to both data sets, we can display this information in the following diagram.
 
-```{r}
-leaf_fraction_subtree(data_1 = biosolids_classified_terminal, data_2 = usgswater_classified_terminal, name_1 = 'Biosolids', name_2 = 'USGS water')
+```{r, leaf_subtree_1, fig.align='center', fig.dim=c(8,8)}
+lf_subtree_1 <- leaf_fraction_subtree(data_1 = biosolids_classified_terminal, 
+                                      data_2 = usgswater_classified_terminal, 
+                                      name_1 = 'Biosolids', 
+                                      name_2 = 'USGS water')
+
+lf_subtree_1[[1]]
+
+head(lf_subtree_1[[2]])
 ```
 
 The function first returns a data.frame of terminal labels of the biosolids data set, and the percentage of  chemicals from the biosolids data set that are also in the USGS water data set, grouped by terminal label. In addition, the number of chemicals with a given label in the biosolids data set is displayed as well as the number of shared chemicals by label from the USGS water data set. The second item returned by the function is the subtree induced by the biosolids data set, with tips colored based on the terminal label percentages described in the data.frame.
@@ -252,22 +285,41 @@ The function first returns a data.frame of terminal labels of the biosolids data
 We reverse the roles of the data sets and repeat the function to finish this example.
 
 ```{r}
-leaf_fraction_subtree(data_1  = usgswater_classified_terminal, data_2 = biosolids_classified_terminal, name_1 = 'USGS water', name_2 = 'Biosolids')
+lf_subtree_2 <- leaf_fraction_subtree(data_1  = usgswater_classified_terminal, 
+                                      data_2 = biosolids_classified_terminal, 
+                                      name_1 = 'USGS water', name_2 = 'Biosolids')
+```
+```{r, fig.align='center', fig.dim=c(8,8)}
+lf_subtree_2[[1]]
+```
+```{r}
+head(lf_subtree_2[[2]])
 ```
 
 Observe that in both data sets, the label `Cyclohexyl halides` are represented 4 times, so the corresponding tip is colored yellow. 
 
 We may also be interested in looking at a similarity values between the two data sets. One way to visualize this is through a heatmap.
 
-```{r}
-biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, matrix = chemont_jaccard, row_data = usgswater_classified_terminal, column_data = biosolids_classified_terminal, row_split = 9L, column_split = 9L, row_title = 'USGS Water', column_title = 'Biosolids', name = 'Jaccard Similarity')
+```{r, fig.align='center', fig.dim=c(6,4)}
+biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, 
+                                      matrix = chemont_jaccard, 
+                                      row_data = usgswater_classified_terminal, 
+                                      column_data = biosolids_classified_terminal,
+                                      row_split = 9L, column_split = 9L, 
+                                      row_title = 'USGS Water',
+                                      column_title = 'Biosolids', 
+                                      name = 'Jaccard Similarity')
 biosolids_usgs_ht
 ```
 
 Observe that in row cluster 2 and column cluster 2, there appears to be a lot of high similarity values. Also note that in row cluster nine, column cluster 8, there are both high similarity values and low similarity values. We analyze these clusters by visualizing the labels associated to each data set in these clusters.
 
-```{r}
-generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 2, column_cluster = 2, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+```{r, tree_cluster_2_2, fig.align='center', fig.dim=c(6,3)}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
+                      htmap = biosolids_usgs_ht, 
+                      row_cluster = 2, column_cluster = 2, 
+                      row_name = 'USGS Water', column_name = 'Biosolids', 
+                      isolate_subtree = TRUE)
 ```
 
 Observe that only the superclass 'Benzenoids' is represented. In the second diagram, we prune away all extraneous superclass branches. Notice that the labels present in the data sets are indicated by points, colored by whether they are found in one or both data sets.
@@ -275,12 +327,29 @@ Observe that only the superclass 'Benzenoids' is represented. In the second diag
 
 
 
-```{r}
-generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, htmap = biosolids_usgs_ht, row_cluster = 9, column_cluster = 8, row_name = 'USGS Water', column_name = 'Biosolids', isolate_subtree = TRUE)
+```{r, tree_cluster_9_8,  fig.dim=c(12,4.5), out.height="85%", out.width = "100%"}
+generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree, 
+                      htmap = biosolids_usgs_ht, 
+                      row_cluster = 9, column_cluster = 8, 
+                      row_name = 'USGS Water', column_name = 'Biosolids', 
+                      isolate_subtree = TRUE)
 
 ```
 
 In this pair of diagrams, we observe that there are several superclasses represented. In fact, there are labels from the USGS Water data set present in all superclasses highlighted, though the labels from the biosolids data set are only found within the "Organic nitrogen compounds" superclass. In the second diagram, we can observe this more closely. 
+
+```{r breakdown, echo = FALSE, results = 'hide'}
+# This chunk will be hidden in the final product. It serves to undo defining the
+# custom print function to prevent unexpected behavior after this module during
+# the final knitting process and restores original option values.
+
+knit_print.data.table = knitr::normal_print
+  
+registerS3method(
+  "knit_print", "data.table", knit_print.data.table,
+  envir = asNamespace("knitr")
+)
+```
 
 ```{r, include = FALSE}
 httptest::end_vignette()
