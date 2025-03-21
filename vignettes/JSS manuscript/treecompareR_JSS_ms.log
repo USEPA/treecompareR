@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  20 MAR 2025 20:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  20 MAR 2025 21:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -634,138 +634,18 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [2]
-! Missing $ inserted.
-<inserted text> 
-                $
-l.101 In this paper, we use the `chemical_
-                                          list_BIOSOLIDS_2022_05_10` and `ch...
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
+Overfull \hbox (86.4425pt too wide) in paragraph at lines 101--102
+[]\T1/lmr/m/n/10.95 In this pa-per, we use the \T1/lmtt/m/n/10.95 chemical_list_BIOSOLIDS_2022_05_10 \T1/lmr/m/n/10.95 and \T1/lmtt/m/n/10.95 chemical_list_USGSWATER_2022_05_17
+ []
 
 
-! LaTeX Error: Command $ invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+Overfull \hbox (18.6164pt too wide) in paragraph at lines 101--102
+\T1/lmr/m/n/10.95 Comp-tox Chem-i-cals Dash-board [][]$\T1/lmtt/m/n/10.95 https : / / comptox . epa . gov / dashboard / chemical-[]lists$[][]\T1/lmr/m/n/10.95 . Note,
+ []
 
 
-! LaTeX Error: Command \ttfamily invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-Please use the math alphabet \mathtt instead of the \ttfamily command. 
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Undefined control sequence.
-\Url@FormatString ...ndafter \UrlLeft \Url@String 
-                                                  \UrlRight \m@th $
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Extra }, or forgotten $.
-<recently read> }
-                 
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Extra \endgroup.
-<recently read> \endgroup 
-                          
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-Things are pretty mixed up, but I think the worst is over.
-
-! Extra \endgroup.
-\Hy@endcolorlink ->\endgroup 
-                             
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-Things are pretty mixed up, but I think the worst is over.
-
-! Extra \endgroup.
-\hyper@linkurl ...ce@end \close@pdflink \endgroup 
-                                                  
-l.101 ...comptox.epa.gov/dashboard/chemical-lists}
-                                                  . Note, the names of these...
-Things are pretty mixed up, but I think the worst is over.
-
-
-Overfull \hbox (625.21268pt too wide) in paragraph at lines 101--102
-[]\T1/lmr/m/n/10.95 In this pa-per, we use the `chemical$[]\OML/lmm/m/it/10.95 ist[]IOSOLIDS[]\OT1/lmr/m/n/10.95 022[]5[]0`\OML/lmm/m/it/10.95 and\OT1/lmr/m/n/10.95 `\OML/lmm/m/it/10.95 chemical[]ist[]SGSWATER[]\OT1/lmr/m/n/10.95 022[]5[]7`\OML/lmm/m/it/10.95 datasets; whichareavailablefordownloadfromtheUSEnvironmentalProtectionAgency[]sComptoxChemicalsDashboard[][][][]$$$[]\T1/lmr/m/n/10.95 .
+Overfull \hbox (23.78458pt too wide) in paragraph at lines 101--102
+\T1/lmr/m/n/10.95 the names of these data sets as listed on the Comp-Tox Dash-board Chem-i-cal List are \T1/lmtt/m/n/10.95 BIOSOLIDS2021
  []
 
 
@@ -780,311 +660,54 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 3
  []
 
-[3{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
-! Missing $ inserted.
-<inserted text> 
-                $
-l.141 The output of the \fct{generate_taxonomy}
-                                                function is a list of two ob...
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Extra }, or forgotten $.
-\@codex ...ont \ttfamily \hyphenchar \font =-1 #1}
-                                                  \egroup 
-l.141 The output of the \fct{generate_taxonomy}
-                                                function is a list of two ob...
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Extra }, or forgotten $.
-\@codex ...amily \hyphenchar \font =-1 #1}\egroup 
-                                                  
-l.141 The output of the \fct{generate_taxonomy}
-                                                function is a list of two ob...
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-
-! LaTeX Error: Command \ttfamily invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.141 ...s a list of two objects, the \code{phlyo}
-                                                   object representing the t...
-Please use the math alphabet \mathtt instead of the \ttfamily command. 
-
-
-! LaTeX Error: Command \ttfamily invalid in math mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.141 ...a frame used in creating the \code{phylo}
-                                                   object. Observe the struc...
-Please use the math alphabet \mathtt instead of the \ttfamily command. 
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.142 
-      
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-
-Overfull \hbox (529.8948pt too wide) in paragraph at lines 141--142
-[]\T1/lmr/m/n/10.95 The out-put of the \T1/lmtt/m/n/10.95 generate$[]\OML/lmm/m/it/10.95 axonomy\T1/lmr/m/n/10.95 ()\OML/lmm/m/it/10.95 functionisalistoftwoobjects; the[]objectrepresentingthetree; andadataframeusedincreatingthe[]object:Observethestructureoftheseinthecodechunkabove:$ 
- []
-
-
-Overfull \hbox (11.4962pt too wide) in paragraph at lines 143--144
-[]\T1/lmtt/m/n/10.95 The phylo object itself is a list, describing the edges of the tree, the number
- []
-
-
-Overfull \hbox (45.9886pt too wide) in paragraph at lines 143--144
-\T1/lmtt/m/n/10.95 of internal nodes, the tip labels and internal node labels, and a set of edge lengths
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 143--144
-\T1/lmtt/m/n/10.95 generated in the construction of the tree. One thing to note is that the edge
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 143--144
-\T1/lmtt/m/n/10.95 lengths are artificial and are only used to speed up the creation of the tree,
- []
-
-
-Overfull \hbox (34.49113pt too wide) in paragraph at lines 143--144
-\T1/lmtt/m/n/10.95 but do not represent any actual data corresponding to the tree. However, we retain
- []
-
-
-Overfull \hbox (17.24493pt too wide) in paragraph at lines 145--146
-[]\T1/lmtt/m/n/10.95 To construct a tree for other taxonomies, one can enter in a path to a JSON file
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 145--146
-\T1/lmtt/m/n/10.95 or an enter in a data frame. The JSON file must have three columns, the first
- []
-
-
-Overfull \hbox (28.7424pt too wide) in paragraph at lines 145--146
-\T1/lmtt/m/n/10.95 the name of the label Name, the second its identifier ID, and the third the parent
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 145--146
-\T1/lmtt/m/n/10.95 identifier Parent_ID. For the root, the parent ID should be NA. If the data is
- []
-
-
-Overfull \hbox (11.4962pt too wide) in paragraph at lines 145--146
-\T1/lmtt/m/n/10.95 in the form of a data frame, it must be organized in the same way the JSON file
- []
-
-
-Overfull \hbox (17.24493pt too wide) in paragraph at lines 147--148
-[]\T1/lmtt/m/n/10.95 Next, we use the ClassyFire tool to provide classifications for the chemicals in
- []
-
-
-Overfull \hbox (11.4962pt too wide) in paragraph at lines 147--148
-\T1/lmtt/m/n/10.95 our data sets. To simplify this process, \T1/lmtt/b/n/10.95 treecompareR \T1/lmtt/m/n/10.95 has a data pipeline that
- []
-
-
-Overfull \hbox (57.48607pt too wide) in paragraph at lines 147--148
-\T1/lmtt/m/n/10.95 allows for programmatic acquisition of this data. It leverages the package \T1/lmtt/b/n/10.95 classyfireR
- []
-
-
-Overfull \hbox (51.73734pt too wide) in paragraph at lines 147--148
-[][]$\T1/lmtt/m/n/10.95 https : / / github . com / aberHRML / classyfireR$[][] for accessing the ClassyFire API. For chemical
- []
-
-
-Overfull \hbox (11.4962pt too wide) in paragraph at lines 147--148
-\T1/lmtt/m/n/10.95 missing certain identifying data such as InChIKey or SMILES string data, we can
- []
-
-
-Overfull \hbox (7.07024pt too wide) in paragraph at lines 147--148
-\T1/lmtt/m/n/10.95 use functions from the \T1/lmss/m/n/10.95 R \T1/lmtt/m/n/10.95 package \T1/lmtt/b/n/10.95 ctxR \T1/lmtt/m/n/10.95 . We demonstrate how to use these below. 
- []
-
+[3]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 152.
-(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-Overfull \hbox (17.24493pt too wide) in paragraph at lines 161--162
-[]\T1/lmtt/m/n/10.95 In this example, we feed into the ctxR::chemical_equal_batch() function the list
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 161--162
-\T1/lmtt/m/n/10.95 of CASRN strings. This searches and returns chemicals that match these values
- []
-
-
-Overfull \hbox (11.4962pt too wide) in paragraph at lines 161--162
-\T1/lmtt/m/n/10.95 exactly. Next, the function ctxR::get_chemical_details_batch() uses the dtxsid
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 161--162
-\T1/lmtt/m/n/10.95 column values to retrieve the chemical details for these. Finally, we display
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 161--162
-\T1/lmtt/m/n/10.95 the dtxsid, inchikey, casrn, smiles, and preferredName columns. Note that the
- []
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 161--162
-\T1/lmtt/m/n/10.95 CASRN with value '117964-21-3' has both an inchikey and smiles value while the
- []
-
-
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 4 []
  []
 
-[4{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 180.
-LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 180.
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 205--206
+[]\T1/lmr/m/n/6 Methylthio-
+ []
 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.185 $y_i \sim
-                \mathrm{Pois}(\mu_i)$. The dependence of the conditional mean
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
 
-LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 186.
+Underfull \hbox (badness 10000) in paragraph at lines 207--208
+[]\T1/lmr/m/n/6 2-
+ []
+
+
+Overfull \hbox (2.81555pt too wide) in paragraph at lines 207--208
+\T1/lmr/m/n/6 halopyridines| 
+ []
+
+
+Overfull \hbox (172.54428pt too wide) in paragraph at lines 200--213
+ [][] 
+ []
+
+LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 233.
 (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
 File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-! Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.189 \begin{equation}
-                       \label{eq:mean}
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! You can't use `\eqno' in math mode.
-\eqno ->\@kernel@eqno 
-                      \aftergroup \ignorespaces 
-l.191 \end{equation}
-                    
-Sorry, but I'm not programmed to handle this case;
-I'll just pretend that you didn't ask for it.
-If you're in the wrong mode, you might be able to
-return to the right one by typing `I}' or `I$' or `I\par'.
 
 
-! LaTeX Error: \begin{document} ended by \end{equation}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.191 \end{equation}
-                    
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.191 \end{equation}
-                    
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.191 \end{equation}
-                    
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.191 \end{equation}
-                    
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Extra \endgroup.
-<recently read> \endgroup 
-                          
-l.191 \end{equation}
-                    
-Things are pretty mixed up, but I think the worst is over.
-
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 182--195
-[]\T1/lmtt/m/n/10.95 The basic Poisson regression model for count data is a special case of the GLM
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 5
  []
 
-
-Overfull \hbox (5.74747pt too wide) in paragraph at lines 182--195
-\T1/lmtt/m/n/10.95 framework [][]McCullagh and Nelder[][] ([][]1989[][]). It describes the dependence of a count
- []
-
-
-Overfull \hbox (22.99367pt too wide) in paragraph at lines 182--195
-\T1/lmtt/m/n/10.95 response variable $y_i$ ($i = 1, ..., n$) by assuming a Poisson distribution $y_i
- []
-
-
-Overfull \hbox (295.85704pt too wide) in paragraph at lines 182--195
-\OMS/lmsy/m/n/10.95 ^^X []\T1/lmr/m/n/10.95 (\OML/lmm/m/it/10.95 ^^V[]i\T1/lmr/m/n/10.95 )$\OML/lmm/m/it/10.95 :Thedependenceoftheconditionalmean\T1/lmr/m/n/10.95 $\OT1/lmss/m/n/10.95 E\T1/lmr/m/n/10.95 [\OML/lmm/m/it/10.95 y[]i \OMS/lmsy/m/n/10.95 j \OML/lmm/m/it/10.95 x[]i\T1/lmr/m/n/10.95 ] = \OML/lmm/m/it/10.95 ^^V[]i\T1/lmr/m/n/10.95 $\OML/lmm/m/it/10.95 ontheregressors\T1/lmr/m/n/10.95 $\OML/lmm/m/it/10.95 x[]i\T1/lmr/m/n/10.95 $\OML/lmm/m/it/10.95 isthenspecifiedviaaloglinkandalinearpredictor$$[][][][][]\T1/lmr/m/n/10.95 (\OML/lmm/m/it/10.95 ^^V[]i\T1/lmr/m/n/10.95 )  =
- []
-
-
-Underfull \hbox (badness 1342) in paragraph at lines 240--242
+[5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
+Underfull \hbox (badness 1342) in paragraph at lines 287--289
 []\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
  []
 
 
-Underfull \hbox (badness 2617) in paragraph at lines 242--248
+Underfull \hbox (badness 2617) in paragraph at lines 289--295
 []\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
  []
 
@@ -1092,52 +715,40 @@ Underfull \hbox (badness 2617) in paragraph at lines 242--248
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 5
- []
-
-[5
-pdfTeX warning (ext4): destination with the same identifier (name{equation.1}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.284 F
-       or a simple illustration of basic Poisson and NB count regression the]
-<treecompareR_JSS_ms-visualization.pdf, id=131, 505.89pt x 375.4025pt>
-File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
-<use treecompareR_JSS_ms-visualization.pdf>
-Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 315.
-(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
-
-
-
-Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 6 []
  []
 
-[6]
+[6{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
+<treecompareR_JSS_ms-visualization.pdf, id=138, 505.89pt x 375.4025pt>
+File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
+<use treecompareR_JSS_ms-visualization.pdf>
+Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 362.
+(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
+
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 7
  []
 
-[7 <./treecompareR_JSS_ms-visualization.pdf>]
+[7]
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 8 []
  []
 
-[8] (./treecompareR_JSS_ms.bbl
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
-
+[8 <./treecompareR_JSS_ms-visualization.pdf>]
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 9
  []
 
-[9])
+[9] (./treecompareR_JSS_ms.bbl
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
+)
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -1145,20 +756,20 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 476.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 523.
  (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 486.
+(Font)              using `T1/lmr/bx/n' instead on input line 533.
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 516.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 563.
 ! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
 <to be read again> 
                    relax 
-l.516 \end{document}
+l.563 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -1169,7 +780,7 @@ e.g., type `I\font<same font id>=<substitute font name>'.
 ! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
 <to be read again> 
                    \relax 
-l.516 \end{document}
+l.563 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -1235,18 +846,18 @@ Package rerunfilecheck Info: File `treecompareR_JSS_ms.out' has not changed.
 (rerunfilecheck)             Checksum: 40A5785E2A31AF8085D69DB31473BE12;884.
  ) 
 Here is how much of TeX's memory you used:
- 20873 strings out of 475171
- 401564 string characters out of 5764418
- 762303 words of memory out of 5000000
- 43432 multiletter control sequences out of 15000+600000
- 655637 words of font info for 89 fonts, out of 8000000 for 9000
+ 20872 strings out of 475171
+ 401528 string characters out of 5764418
+ 765397 words of memory out of 5000000
+ 43430 multiletter control sequences out of 15000+600000
+ 657989 words of font info for 88 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,13n,101p,1347b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtk10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on treecompareR_JSS_ms.pdf (12 pages, 453116 bytes).
+<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
+Output written on treecompareR_JSS_ms.pdf (12 pages, 444766 bytes).
 PDF statistics:
- 296 PDF objects out of 1000 (max. 8388607)
+ 295 PDF objects out of 1000 (max. 8388607)
  234 compressed objects within 3 object streams
- 40 named destinations out of 1000 (max. 500000)
+ 41 named destinations out of 1000 (max. 500000)
  71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

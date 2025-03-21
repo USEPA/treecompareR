@@ -98,9 +98,9 @@ We are interested in studying these two data sets together for a variety of reas
 
 \section{ClassyFire} \label{sec:class}
 
-In this paper, we use the `chemical_list_BIOSOLIDS_2022_05_10` and `chemical_list_USGSWATER_2022_05_17` data sets, which are available for download from the US Environmental Protection Agency's Comptox Chemicals Dashboard \url{https://comptox.epa.gov/dashboard/chemical-lists}. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are \code{BIOSOLIDS2021} and \code{USGSWATER}, respectively.
+In this paper, we use the \code{chemical\_list\_BIOSOLIDS\_2022\_05\_10} and \code{chemical\_list\_USGSWATER\_2022\_05\_17} data sets, which are available for download from the US Environmental Protection Agency's Comptox Chemicals Dashboard \url{https://comptox.epa.gov/dashboard/chemical-lists}. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are \code{BIOSOLIDS2021} and \code{USGSWATER}, respectively.
 
-These data sets include a list of chemicals, relevant identifiers such as \code{DTXSID}, \code{InChIKey}, \code{SMILES}, physico-chemical property data such as \code{MOLECULAR_FORMULA}, \code{AVERAGE_MASS}, \code{MONOISOTOPIC_MASS}, and publication and quality data such as \code{PUBCHEM_DATA_SOURCES} and \code{QC_Level}.
+These data sets include a list of chemicals, relevant identifiers such as \code{DTXSID}, \code{InChIKey}, \code{SMILES}, physico-chemical property data such as \code{MOLECULAR\_FORMULA}, \code{AVERAGE\_MASS}, \code{MONOISOTOPIC\_MASS}, and publication and quality data such as \code{PUBCHEM\_DATA\_SOURCES} and \code{QC\_Level}.
 
 Before we start comparing these data sets, we must provide each chemical in each data set classification data from ClassyFire. To do this, we use the classification pipeline in \pkg{treecompareR}, construct a tree that encodes the taxonomy used in this classification scheme, and use this tree for data analysis and to create visualizations.
 
@@ -138,7 +138,7 @@ List of 5
 \end{Schunk}
 %
 
-The output of the \fct{generate_taxonomy} function is a list of two objects, the \code{phlyo} object representing the tree, and a data frame used in creating the \code{phylo} object. Observe the structure of these in the code chunk above.
+The output of the \fct{generate\_taxonomy} function is a list of two objects, the \code{phlyo} object representing the tree, and a data frame used in creating the \code{phylo} object. Observe the structure of these in the code chunk above.
 
 The \code{phylo} object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
@@ -153,18 +153,65 @@ R> CASRN <- c('117964-21-3', '11006-76-1')
 R> chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
 R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$dtxsid)
 R> data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
-R> chemicals_class <- classify_datatable(chemical_ids)
+R> chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
+R> str(chemicals_class)
+\end{Sinput}
+\begin{Soutput}
+Classes 'data.table' and 'data.frame':	2 obs. of  17 variables:
+ $ INCHIKEY  : chr  NA "AAFUUKPTSPVXJH-UHFFFAOYSA-N"
+ $ dtxsid    : chr  "DTXSID40880080" "DTXSID9074775"
+ $ casrn     : chr  "11006-76-1" "117964-21-3"
+ $ smiles    : chr  NA "BrC1=CC(Br)=C(Br)C(Br)=C1OC1=C(Br)C(Br)=C(Br)C=C1Br"
+ $ inchikey  : chr  NA "InChIKey=AAFUUKPTSPVXJH-UHFFFAOYSA-N"
+ $ report    : chr  NA "ClassyFire returned a classification"
+ $ kingdom   : chr  NA "Organic compounds"
+ $ superclass: chr  NA "Benzenoids"
+ $ class     : chr  NA "Benzene and substituted derivatives"
+ $ subclass  : chr  NA "Diphenylethers"
+ $ level5    : chr  NA "Bromodiphenyl ethers"
+ $ level6    : chr  NA NA
+ $ level7    : chr  NA NA
+ $ level8    : chr  NA NA
+ $ level9    : chr  NA NA
+ $ level10   : chr  NA NA
+ $ level11   : chr  NA NA
+ - attr(*, ".internal.selfref")=<externalptr> 
+ - attr(*, "sorted")= chr "INCHIKEY"
+\end{Soutput}
+\end{Schunk}
+%
+
+In this example, we input into the \fct{ctxR::chemical\_equal\_batch} function the list of CASRN strings. This searches and returns chemicals that match these values exactly. Next, the function \fct{ctxR::get\_chemical\_details\_batch} uses the \code{dtxsid} column values to retrieve the chemical details for these. Finally, we input as a \code{data.table} with columns \code{INCHIKEY},  \code{dtxsid}, and \code{casrn} into the function \fct{classify\_datatable}, which hits the ClassyFire API and attaches the retrieved information to the input data, as displayed. Note that the \code{CASRN} with value '117964-21-3' has both an \code{inchikey} and \code{smiles} value while the \code{CASRN} with value '11006-76-1' has neither piece of information. The ClassyFire data is available for the first chemical, but not the second.
+
+We use the classified datasets \code{biosolids\_classified} and \code{usgswater\_classified} in several examples to follow.
+
+If we examine the \code{usgswater\_classified} data as follows, we get the contents of
+%
+\begin{Schunk}
+\begin{Sinput}
+R> usgswater_classified[1:5, c('INCHIKEY', 'kingdom', 'superclass', 'class', 'subclass', 'level5')]
 \end{Sinput}
 \end{Schunk}
 %
 
-In this example, we feed into the \fct{ctxR::chemical_equal_batch} function the list of CASRN strings. This searches and returns chemicals that match these values exactly. Next, the function \fct{ctxR::get_chemical_details_batch} uses the \code{dtxsid} column values to retrieve the chemical details for these. Finally, we display the \code{dtxsid}, \code{inchikey}, \code{casrn}, \code{smiles}, and \code{preferredName} columns. Note that the \code{CASRN} with value '117964-21-3' has both an \code{inchikey} and \code{smiles} value while the \code{CASRN} with value '11006-76-1' has neither piece of information.
+\begin{table}[t!]
+\tiny
+\centering
+\begin{tabular}{lllllp{1.4cm}}
+\hline
 
+INCHIKEY &	kingdom &	superclass & class & subclass & level5\\
+\hline
+AAEVYOVXGOFMJO-UHFFFAOYSA-N & Organic compounds	& Organoheterocyclic compounds &	Triazines	& 1,3,5-triazines	& Methylthio-s-triazines \\
+AAPVQEMYVNZIOO-UHFFFAOYSA-N &	Organic compounds &	Organic acids and derivatives &	Organic sulfuric acids and derivatives &	Sulfuric acid esters &	Sulfuric acid diesters \\
+ADWTYURAFSWNSU-UHFFFAOYSA-N	& Organic compounds &	Organoheterocyclic compounds &	Pyridines and derivatives &	Halopyridines	& 2-halopyridines\\
+AFCCDDWKHLHPDF-UHFFFAOYSA-M	& Organic compounds	& Organic salts	& Organic metal salts	& Organic alkali metal salts	& NA \\
+AFPRJLBZLPBTPZ-UHFFFAOYSA-N	& Organic compounds & Benzenoids	& Naphthalenes &	NA	& NA\\
+\hline
 
-
-
-
-
+\end{tabular}
+\caption{\label{tab:usgs-head} Overview of data contained in the \code{usgswater\_classified} classifications.}
+\end{table}
 
 %% -- Manuscript ---------------------------------------------------------------
 
