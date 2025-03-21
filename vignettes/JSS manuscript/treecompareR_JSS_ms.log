@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  20 MAR 2025 21:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  21 MAR 2025 11:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -489,7 +489,7 @@ Package hyperref Info: Link coloring ON on input line 61.
 \@outlinefile=\write5
 \openout5 = `treecompareR_JSS_ms.out'.
 
-<jsslogo.jpg, id=31, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=35, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 61.
@@ -672,29 +672,21 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 205--206
-[]\T1/lmr/m/n/6 Methylthio-
+Underfull \hbox (badness 10000) in paragraph at lines 206--207
+[]\T1/lmr/m/n/8 Sulfuric acid
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 207--208
-[]\T1/lmr/m/n/6 2-
+Underfull \hbox (badness 3690) in paragraph at lines 208--209
+[]\T1/lmr/m/n/8 Organic al-kali
  []
 
 
-Overfull \hbox (2.81555pt too wide) in paragraph at lines 207--208
-\T1/lmr/m/n/6 halopyridines| 
- []
-
-
-Overfull \hbox (172.54428pt too wide) in paragraph at lines 200--213
+Overfull \hbox (47.5917pt too wide) in paragraph at lines 200--213
  [][] 
  []
 
-LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 233.
-(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
-File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
+
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
@@ -702,13 +694,26 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-Underfull \hbox (badness 1342) in paragraph at lines 287--289
-[]\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
- []
+<label-bars_1.png, id=115, 1156.32pt x 597.73312pt>
+File: label-bars_1.png Graphic file (type png)
+<use label-bars_1.png>
+Package pdftex.def Info: label-bars_1.png  used on input line 234.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<label-bars_2.png, id=116, 1156.32pt x 597.73312pt>
+File: label-bars_2.png Graphic file (type png)
+<use label-bars_2.png>
+Package pdftex.def Info: label-bars_2.png  used on input line 240.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
-Underfull \hbox (badness 2617) in paragraph at lines 289--295
-[]\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
+LaTeX Warning: Reference `fig:label-bars_1' on page 6 undefined on input line 244.
+
+
+LaTeX Warning: Reference `fig:label-bars_2' on page 6 undefined on input line 244.
+
+
+Overfull \hbox (5.99188pt too wide) in paragraph at lines 244--245
+\T1/lmr/m/n/10.95 nomic lev-els is rel-a-tively sim-i-lar for each data set, though in gen-eral the \T1/lmtt/m/n/10.95 usgswater_classified
  []
 
 
@@ -718,12 +723,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 6 []
  []
 
-[6{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
-<treecompareR_JSS_ms-visualization.pdf, id=138, 505.89pt x 375.4025pt>
-File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
-<use treecompareR_JSS_ms-visualization.pdf>
-Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 362.
-(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
+[6 <./label-bars_1.png>]
+<chemont-tree.png, id=125, 1156.32pt x 597.73312pt>
+File: chemont-tree.png Graphic file (type png)
+<use chemont-tree.png>
+Package pdftex.def Info: chemont-tree.png  used on input line 262.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
 
@@ -731,45 +736,137 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 7
  []
 
-[7]
+[7 <./label-bars_2.png> <./chemont-tree.png>]
+<biosolids-subtree.png, id=137, 1156.32pt x 597.73312pt>
+File: biosolids-subtree.png Graphic file (type png)
+<use biosolids-subtree.png>
+Package pdftex.def Info: biosolids-subtree.png  used on input line 281.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<usgs-water-subtree.png, id=138, 1156.32pt x 597.73312pt>
+File: usgs-water-subtree.png Graphic file (type png)
+<use usgs-water-subtree.png>
+Package pdftex.def Info: usgs-water-subtree.png  used on input line 296.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<subtree-overlap.png, id=141, 1156.32pt x 597.73312pt>
+File: subtree-overlap.png Graphic file (type png)
+<use subtree-overlap.png>
+Package pdftex.def Info: subtree-overlap.png  used on input line 316.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 8 []
  []
 
-[8 <./treecompareR_JSS_ms-visualization.pdf>]
+[8 <./biosolids-subtree.png (PNG copy)>]
+Underfull \vbox (badness 1776) has occurred while \output is active []
+
+
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 9
  []
 
-[9] (./treecompareR_JSS_ms.bbl
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
-)
+[9 <./usgs-water-subtree.png (PNG copy)> <./subtree-overlap.png (PNG copy)>]
+<biosolids-prune-subtree.png, id=154, 1156.32pt x 597.73312pt>
+File: biosolids-prune-subtree.png Graphic file (type png)
+<use biosolids-prune-subtree.png>
+Package pdftex.def Info: biosolids-prune-subtree.png  used on input line 335.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<usgswater-prune-subtree.png, id=155, 1156.32pt x 597.73312pt>
+File: usgswater-prune-subtree.png Graphic file (type png)
+<use usgswater-prune-subtree.png>
+Package pdftex.def Info: usgswater-prune-subtree.png  used on input line 342.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 10 []
  []
 
-[10]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 523.
+[10 <./biosolids-prune-subtree.png> <./usgswater-prune-subtree.png>]
+LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 385.
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
+File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 11
+ []
+
+[11{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
+Underfull \hbox (badness 1342) in paragraph at lines 439--441
+[]\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
+ []
+
+
+Underfull \hbox (badness 2617) in paragraph at lines 441--447
+[]\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
+ []
+
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 12 []
+ []
+
+[12]
+<treecompareR_JSS_ms-visualization.pdf, id=196, 505.89pt x 375.4025pt>
+File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
+<use treecompareR_JSS_ms-visualization.pdf>
+Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 514.
+(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 13
+ []
+
+[13 <./treecompareR_JSS_ms-visualization.pdf>]
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 14 []
+ []
+
+[14] (./treecompareR_JSS_ms.bbl
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 15
+ []
+
+[15])
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 16 []
+ []
+
+[16]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 675.
  (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 533.
+(Font)              using `T1/lmr/bx/n' instead on input line 685.
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 563.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 715.
 ! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
 <to be read again> 
                    relax 
-l.563 \end{document}
+l.715 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -780,7 +877,7 @@ e.g., type `I\font<same font id>=<substitute font name>'.
 ! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
 <to be read again> 
                    \relax 
-l.563 \end{document}
+l.715 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -823,17 +920,17 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 11
+[] \T1/lmr/m/n/10.95 17
  []
 
-[11]
+[17]
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 12 []
+\T1/lmr/m/n/10.95 18 []
  []
 
-[12] (./treecompareR_JSS_ms.aux)
+[18] (./treecompareR_JSS_ms.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -842,22 +939,25 @@ L3 programming layer <2025-01-18>
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `treecompareR_JSS_ms.out' has not changed.
-(rerunfilecheck)             Checksum: 40A5785E2A31AF8085D69DB31473BE12;884.
+(rerunfilecheck)             Checksum: FF19B4E69031370013D219AF351799A6;1047.
  ) 
 Here is how much of TeX's memory you used:
- 20872 strings out of 475171
- 401528 string characters out of 5764418
- 765397 words of memory out of 5000000
- 43430 multiletter control sequences out of 15000+600000
- 657989 words of font info for 88 fonts, out of 8000000 for 9000
+ 20986 strings out of 475171
+ 404211 string characters out of 5764418
+ 763370 words of memory out of 5000000
+ 43529 multiletter control sequences out of 15000+600000
+ 655001 words of font info for 87 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,13n,101p,1347b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on treecompareR_JSS_ms.pdf (12 pages, 444766 bytes).
+ 99i,13n,101p,1548b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
+Output written on treecompareR_JSS_ms.pdf (18 pages, 1613582 bytes).
 PDF statistics:
- 295 PDF objects out of 1000 (max. 8388607)
- 234 compressed objects within 3 object streams
- 41 named destinations out of 1000 (max. 500000)
- 71 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 350 PDF objects out of 1000 (max. 8388607)
+ 272 compressed objects within 3 object streams
+ 57 named destinations out of 1000 (max. 500000)
+ 119 words of extra memory for PDF output out of 10000 (max. 10000000)
 

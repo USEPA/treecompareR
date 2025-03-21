@@ -149,28 +149,166 @@ We use the classified datasets \code{biosolids\_classified} and \code{usgswater\
 If we examine the \code{usgswater\_classified} data as follows, we get the contents of
 %
 <<usgs-head, eval=FALSE>>=
-usgswater_classified[1:5, c('INCHIKEY', 'kingdom', 'superclass', 'class', 'subclass', 'level5')]
+usgswater_classified[1:5, c('CASRN', 'kingdom', 'superclass', 'class', 'subclass')]
 @
 %
 
 \begin{table}[t!]
-\tiny
+\scriptsize
 \centering
-\begin{tabular}{lllllp{1.4cm}}
+\begin{tabular}{llllp{2cm}}
 \hline
 
-INCHIKEY &	kingdom &	superclass & class & subclass & level5\\
+CASRN &	kingdom &	superclass & class & subclass\\
 \hline
-AAEVYOVXGOFMJO-UHFFFAOYSA-N & Organic compounds	& Organoheterocyclic compounds &	Triazines	& 1,3,5-triazines	& Methylthio-s-triazines \\
-AAPVQEMYVNZIOO-UHFFFAOYSA-N &	Organic compounds &	Organic acids and derivatives &	Organic sulfuric acids and derivatives &	Sulfuric acid esters &	Sulfuric acid diesters \\
-ADWTYURAFSWNSU-UHFFFAOYSA-N	& Organic compounds &	Organoheterocyclic compounds &	Pyridines and derivatives &	Halopyridines	& 2-halopyridines\\
-AFCCDDWKHLHPDF-UHFFFAOYSA-M	& Organic compounds	& Organic salts	& Organic metal salts	& Organic alkali metal salts	& NA \\
-AFPRJLBZLPBTPZ-UHFFFAOYSA-N	& Organic compounds & Benzenoids	& Naphthalenes &	NA	& NA\\
+7287-19-6 & Organic compounds	& Organoheterocyclic compounds &	Triazines	& 1,3,5-triazines	 \\
+1031-07-8 &	Organic compounds &	Organic acids and derivatives &	Organic sulfuric acids and derivatives &	Sulfuric acid esters  \\
+120868-66-8	& Organic compounds &	Organoheterocyclic compounds &	Pyridines and derivatives &	Halopyridines	\\
+137-42-8	& Organic compounds	& Organic salts	& Organic metal salts	& Organic alkali metal salts	\\
+82-86-0	& Organic compounds & Benzenoids	& Naphthalenes &	NA	\\
 \hline
 
 \end{tabular}
 \caption{\label{tab:usgs-head} Overview of data contained in the \code{usgswater\_classified} classifications.}
 \end{table}
+
+
+Observe in the fifth row, the subclass label is given by NA. This means that the most specific classification label for this chemical is \code{Naphthalenes} at the \code{class} level. The chemicals in the previous rows have labels at least down to the \code{subclass} level, and potentially further, though this table is too small to illustrate the maximum classification depth for all of them (the chemical in the fourth row terminates at the \code{subclass} level while the three chemicals above it terminate at \code{level5}, the next level below).
+
+To gain an understanding of these data sets and the chemical classifications they represent, we first look at the number of labels each data set represents, broken down through taxonomic level. The function \fct{label\_bars} takes in a single \pkg{data.table} or a (possibly named) list of \pkg{data.tables} and constructs histograms of label numbers faceted by data set and by taxonomic level.
+
+%
+<<label-bars, eval = FALSE>>=
+data_list <- list(biosolids_classified,
+                  usgswater_classified)
+names(data_list) <- c('Biosolids', 'USGS Water')
+label_bars(data_list)
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{label-bars_1}
+\caption{\label{fig:lab-bars-1} This figure displays the counts of unique labels broken down by each classification level and faceted by dataset.}
+\end{figure}
+
+\begin{figure}[t!]
+\centering
+\includegraphics{label-bars_2}
+\caption{\label{fig:lab-bars-2} This figure displays the counts of unique labels broken down by dataset and faceted by each classification level.}
+\end{figure}
+
+From Figure \ref{fig:label-bars_1} and Figure \ref{fig:label-bars_2}, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the \code{usgswater\_classified} data has more labels than the \code{biosolids\_classified} data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor does it characterize the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
+
+\section{Tree visualizations} \label{sec:trees}
+
+The tree visualizations developed in \pkg{treecompareR} rely heavily on the \pkg{ggtree} package, which was designed with visualization of phylogenetic trees in mind. The \pkg{ggtree} package extends the widely used \pkg{ggplot2} package, greatly broadening the variety and scope of tree visualizations available for use.
+
+We first display the ChemOnt tree, the taxonomy structure of the ChemOnt ontology, in a circular layout format.
+
+%
+<<chemont-tree, eval=FALSE>>=
+ggtree(chemont_tree) + layout_circular()
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{chemont-tree}
+\caption{\label{fig:chemont-tree} The Chemont tree displayed in a circular layout.}
+\end{figure}
+
+The diagram \ref{fig:chemont-tree} illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data set represents. This ChemOnt tree diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this creates a dense tree visualization that requires additional attention to be of greater use.
+
+We first examine which parts of this tree are given by classifications of chemicals in each data set. To do this, we use the function \fct{display\_subtree}. This function takes in a \pkg{data.table} with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree. Branches and nodes in the tree are highlighted different colors depending on whether they are included in the set of classification labels of the \pkg{data.table}. In this example we also display the tip labels.
+
+%
+<<biosolids-tree, eval=FALSE>>=
+display_subtree(data_1 = biosolids_classified,
+                name_1 = 'Biosolids')
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{biosolids-subtree}
+\caption{\label{fig:biosolids-subtree} The Biosolids subtree displayed within the full Chemont tree, with tip labels included.}
+\end{figure}
+
+%
+<<biosolids-tree, eval=FALSE>>=
+display_subtree(data_1 = biosolids_classified,
+                name_1 = 'Biosolids')
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{usgs-water-subtree}
+\caption{\label{fig:usgs-water-tree} The USGS Water subtree displayed within the full Chemont tree, with tip labels included.}
+\end{figure}
+
+
+In the Figure \ref{fig:biosolids-subtree} and Figure \ref{fig:usgs-water-tree}, we observe that the labels and branches represented by classifications from each data set are shaded green while labels and branches not present in the classifications are shaded grey. This helps illustrate where in chemical space these classification labels are located. While it is possible to compare each diagram individually to get a sense of how each data set represents chemical space, it would be better if we could directly compare the subtrees they represent. We can do just that using the exact same function, inputting both data sets into the function \fct{display\_subtree} as the following example demonstrates.
+
+%
+<<subtree-overlap, eval=FALSE>>=
+display_subtree(data_1 = biosolids_classified,
+                data_2 = usgswater_classified,
+                name_1 = 'Biosolids',
+                name_2 = 'USGS Water')
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{subtree-overlap}
+\caption{\label{fig:subtree-overlap} The Biosolids and USGS Water subtrees displayed together within the full Chemont tree, with tip labels included. Classification labels are colored based on whether they are represented by either data set, both, or neither.}
+\end{figure}
+
+In Figure \ref{fig:subtree-overlap}, branches and labels are colored based on whether they are members of classifications of one, both, or neither data set. This gives an indication of how the chemical space represented by each data set overlaps through visualization of the induced subtrees within the full ChemOnt tree. From this visualization, it is also possible to determine the areas in chemical space unique to each data set.
+
+While this particular visual can be informative, if the taxonomy is fairly large compared to the subtree induced by a data set, the diagram generated by \fct{display\_subtree} can be cluttered and difficult to interpret. One solution for improving clarity is by pruning away extraneous branches and labels not represented by the subtree. We demonstrate this using the function \fct{prune\_and\_display\_subtree} on both data sets.
+
+%
+<<subtree-prune, eval=FALSE>>=
+prune_and_display_subtree(prune_to = biosolids_classified)
+prune_and_display_subtree(prune_to = usgswater_classified)
+@
+%
+
+\begin{figure}[t!]
+\centering
+\includegraphics{biosolids-prune-subtree}
+\caption{\label{fig:prune-biosolids} The biosolids subtree pruned from the Chemont tree.}
+\end{figure}
+
+
+\begin{figure}[t!]
+\centering
+\includegraphics{usgswater-prune-subtree}
+\caption{\label{fig:prune-usgswater} The usgswater subtree pruned from the Chemont tree.}
+\end{figure}
+
+In Figure \ref{fig:prune-biosolids} and Figure \ref{fig:prune-usgswater}, the extraneous branches and tips not included in the set of classification labels of the data set are pruned and the remaining subtree is displayed. While there is still a lot of information displayed through the tip labels, this visualization provides a much closer look at the subtree induced by the data set than the previous visual that displayed the subtree within the whole taxonomy. Also observe that the shape of the subtree, while similar to the shape of the subtree displayed within the full ChemOnt tree, may change based on the set of extraneous branches and nodes that are pruned away.
+
+We note a few things about this diagram and the \fct{prune\_and\_display\_subtree} function. First, the output of the function is a diagram of the subtree (or just the \code{phylo} object if the function parameter \code{no\_plot = TRUE} is used). Second, while many chemical classifications terminate with a tip label as the most specific label in the classification, there are some classifications that terminate with an internal node. If we were just to delete the internal nodes and tips not represented by classifications for a data set using \fct{ape::drop.tip}, the internal nodes that were terminal labels (and now are tips of the subtree) for classifications would appear in the diagram somewhere between the outer layer of tips and the root. The \fct{prune\_and\_display\_subtree} function adjusts the branch lengths to accommodate the new structure of the subtree and extends these newly created tip labels of the subtree to match the pre-existing tip labels. This is recorded in the \code{edge.length} list of the output \code{phylo} object. A visual comparison between the branches in the subtree and the subtree within the entire taxonomy may show slight differences as a result of this branch adjustment. Third, with the omission of the extraneous branches and labels, there is the possibility that branches of the pruned subtree have rotate relative to their orientation within the ChemOnt tree. The structure of the subtree is the same, but the visual representation may differ.
+
+In a manner similar to the output of \fct{display\_subtree} when comparing two data sets, we may wish to look at the induced subtrees of two different data sets and compare membership of labels in one subtree with the other subtree. To achieve this, we use the function \fct{data\_set\_subtrees} as we illustrate in the following example.
+
+%
+<<data-set-subtree, eval=FALSE>>=
+data_set_subtrees(data_1 = biosolids_classified,
+                  data_2 = usgswater_classified,
+                  name_1 = 'Biosolids',
+                  name_2 = 'USGS water')
+@
+%
+
+
+
+
+
 
 %% -- Manuscript ---------------------------------------------------------------
 
