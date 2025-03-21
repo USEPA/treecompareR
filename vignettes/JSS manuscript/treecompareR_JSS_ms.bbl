@@ -1,4 +1,4 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{15}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
@@ -7,11 +7,6 @@
   \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
   \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi
 \providecommand{\eprint}[2][]{\url{#2}}
-
-\bibitem[{Chambers and Hastie(1992)}]{Chambers+Hastie:1992}
-Chambers JM, Hastie TJ (eds.) (1992).
-\newblock \emph{Statistical Models in \proglang{S}}.
-\newblock Chapman \& Hall, London.
 
 \bibitem[{Djoumbou~Feunang \emph{et~al.}(2016)Djoumbou~Feunang, Eisner, Knox, Chepelev, Hastings, Owen, Fahy, Steinbeck, Subramanian, Bolton \emph{et~al.}}]{djoumbou2016classyfire}
 Djoumbou~Feunang Y, Eisner R, Knox C, Chepelev L, Hastings J, Owen G, Fahy E, Steinbeck C, Subramanian S, Bolton E, \emph{et~al.} (2016).
@@ -24,17 +19,31 @@ Gu Z, Eils R, Schlesner M (2016).
 \newblock \emph{Bioinformatics}.
 \newblock \doi{10.1093/bioinformatics/btw313}.
 
-\bibitem[{McCullagh and Nelder(1989)}]{McCullagh+Nelder:1989}
-McCullagh P, Nelder JA (1989).
-\newblock \emph{Generalized Linear Models}.
-\newblock 2nd edition. Chapman \& Hall, London.
-\newblock \doi{10.1007/978-1-4899-3242-6}.
+\bibitem[{Jiang and Conrath(1997)}]{jiang1997semantic}
+Jiang JJ, Conrath DW (1997).
+\newblock \enquote{Semantic similarity based on corpus statistics and lexical taxonomy.}
+\newblock \emph{arXiv preprint cmp-lg/9709008}.
+
+\bibitem[{Lin \emph{et~al.}(1998)}]{lin1998information}
+Lin D, \emph{et~al.} (1998).
+\newblock \enquote{An information-theoretic definition of similarity.}
+\newblock In \emph{Icml}, volume~98, pp. 296--304.
 
 \bibitem[{Paradis and Schliep(2019)}]{ape2019paradis}
 Paradis E, Schliep K (2019).
 \newblock \enquote{ape 5.0: an environment for modern phylogenetics and evolutionary analyses in {R}.}
 \newblock \emph{Bioinformatics}, \textbf{35}, 526--528.
 \newblock \doi{10.1093/bioinformatics/bty633}.
+
+\bibitem[{Pekar and Staab(2002)}]{pekar2002taxonomy}
+Pekar V, Staab S (2002).
+\newblock \enquote{Taxonomy learning-factoring the structure of a taxonomy into a semantic classification decision.}
+\newblock In \emph{COLING 2002: The 19th International Conference on Computational Linguistics}.
+
+\bibitem[{Resnik(1995)}]{resnik1995using}
+Resnik P (1995).
+\newblock \enquote{Using information content to evaluate semantic similarity in a taxonomy.}
+\newblock \emph{arXiv preprint cmp-lg/9511007}.
 
 \bibitem[{Revell(2024)}]{phytools2024revell}
 Revell LJ (2024).
@@ -52,6 +61,11 @@ Schliep K (2011).
 Schliep K, Potts AJ, Morrison DA, Grimm GW (2017).
 \newblock \enquote{Intertwining phylogenetic trees and networks.}
 \newblock \emph{Methods in Ecology and Evolution}, \textbf{8}(10), 1212--1220.
+
+\bibitem[{Seco \emph{et~al.}(2004)Seco, Veale, and Hayes}]{seco2004intrinsic}
+Seco N, Veale T, Hayes J (2004).
+\newblock \enquote{An intrinsic information content metric for semantic similarity in WordNet.}
+\newblock In \emph{Ecai}, volume~16, p. 1089.
 
 \bibitem[{Wang \emph{et~al.}(2020)Wang, Lam, Xu, Dai, Zhou, Feng, Guo, Dunn, Jones, Bradley, Zhu, Guan, Jiang, and Yu}]{treeio2020Wang}
 Wang LG, Lam TTY, Xu S, Dai Z, Zhou L, Feng T, Guo P, Dunn CW, Jones BR, Bradley T, Zhu H, Guan Y, Jiang Y, Yu G (2020).

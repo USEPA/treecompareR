@@ -4,44 +4,46 @@ The top-level auxiliary file: treecompareR_JSS_ms.aux
 The style file: jss.bst
 Database file #1: refs.bib
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-You've used 12 entries,
+Warning--can't use both volume and number fields in lin1998information
+You've used 15 entries,
             3215 wiz_defined-function locations,
-            716 strings with 7717 characters,
-and the built_in function-call counts, 15670 in all, are:
-= -- 1538
-> -- 488
-< -- 6
-+ -- 185
-- -- 172
-* -- 1194
-:= -- 1862
-add.period$ -- 54
-call.type$ -- 12
-change.case$ -- 106
-chr.to.int$ -- 13
-cite$ -- 12
-duplicate$ -- 1611
-empty$ -- 1186
-format.name$ -- 207
-if$ -- 3161
+            731 strings with 8208 characters,
+and the built_in function-call counts, 18138 in all, are:
+= -- 1752
+> -- 542
+< -- 12
++ -- 210
+- -- 190
+* -- 1345
+:= -- 2165
+add.period$ -- 66
+call.type$ -- 15
+change.case$ -- 129
+chr.to.int$ -- 16
+cite$ -- 16
+duplicate$ -- 1871
+empty$ -- 1393
+format.name$ -- 233
+if$ -- 3670
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 158
-newline$ -- 79
-num.names$ -- 49
-pop$ -- 808
+missing$ -- 193
+newline$ -- 93
+num.names$ -- 60
+pop$ -- 939
 preamble$ -- 1
-purify$ -- 105
+purify$ -- 123
 quote$ -- 0
-skip$ -- 241
+skip$ -- 328
 stack$ -- 0
-substring$ -- 1687
-swap$ -- 349
-text.length$ -- 0
+substring$ -- 1857
+swap$ -- 439
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 99
-warning$ -- 0
-while$ -- 106
+type$ -- 132
+warning$ -- 1
+while$ -- 125
 width$ -- 0
-write$ -- 179
+write$ -- 216
+(There was 1 warning)

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  21 MAR 2025 13:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  21 MAR 2025 14:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -489,7 +489,7 @@ Package hyperref Info: Link coloring ON on input line 61.
 \@outlinefile=\write5
 \openout5 = `treecompareR_JSS_ms.out'.
 
-<jsslogo.jpg, id=51, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=39, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 61.
@@ -694,22 +694,22 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-<label-bars_1.png, id=131, 1156.32pt x 597.73312pt>
+<label-bars_1.png, id=119, 1156.32pt x 597.73312pt>
 File: label-bars_1.png Graphic file (type png)
 <use label-bars_1.png>
 Package pdftex.def Info: label-bars_1.png  used on input line 234.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<label-bars_2.png, id=132, 1156.32pt x 597.73312pt>
+<label-bars_2.png, id=120, 1156.32pt x 597.73312pt>
 File: label-bars_2.png Graphic file (type png)
 <use label-bars_2.png>
 Package pdftex.def Info: label-bars_2.png  used on input line 240.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
-LaTeX Warning: Reference `fig:label-bars_1' on page 6 undefined on input line 244.
+LaTeX Warning: Reference `fig:label-bars-1' on page 6 undefined on input line 244.
 
 
-LaTeX Warning: Reference `fig:label-bars_2' on page 6 undefined on input line 244.
+LaTeX Warning: Reference `fig:label-bars-2' on page 6 undefined on input line 244.
 
 
 Overfull \hbox (5.99188pt too wide) in paragraph at lines 244--245
@@ -724,7 +724,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [6 <./label-bars_1.png>]
-<chemont-tree.png, id=141, 1156.32pt x 597.73312pt>
+<chemont-tree.png, id=129, 1156.32pt x 597.73312pt>
 File: chemont-tree.png Graphic file (type png)
 <use chemont-tree.png>
 Package pdftex.def Info: chemont-tree.png  used on input line 262.
@@ -737,17 +737,17 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [7 <./label-bars_2.png> <./chemont-tree.png>]
-<biosolids-subtree.png, id=153, 1156.32pt x 597.73312pt>
+<biosolids-subtree.png, id=141, 1156.32pt x 597.73312pt>
 File: biosolids-subtree.png Graphic file (type png)
 <use biosolids-subtree.png>
 Package pdftex.def Info: biosolids-subtree.png  used on input line 281.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<usgs-water-subtree.png, id=154, 1156.32pt x 597.73312pt>
+<usgs-water-subtree.png, id=142, 1156.32pt x 597.73312pt>
 File: usgs-water-subtree.png Graphic file (type png)
 <use usgs-water-subtree.png>
 Package pdftex.def Info: usgs-water-subtree.png  used on input line 296.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<subtree-overlap.png, id=157, 1156.32pt x 597.73312pt>
+<subtree-overlap.png, id=145, 1156.32pt x 597.73312pt>
 File: subtree-overlap.png Graphic file (type png)
 <use subtree-overlap.png>
 Package pdftex.def Info: subtree-overlap.png  used on input line 316.
@@ -770,12 +770,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [9 <./usgs-water-subtree.png (PNG copy)> <./subtree-overlap.png (PNG copy)>]
-<biosolids-prune-subtree.png, id=171, 1156.32pt x 597.73312pt>
+<biosolids-prune-subtree.png, id=158, 1156.32pt x 597.73312pt>
 File: biosolids-prune-subtree.png Graphic file (type png)
 <use biosolids-prune-subtree.png>
 Package pdftex.def Info: biosolids-prune-subtree.png  used on input line 335.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<usgswater-prune-subtree.png, id=172, 1156.32pt x 597.73312pt>
+<usgswater-prune-subtree.png, id=159, 1156.32pt x 597.73312pt>
 File: usgswater-prune-subtree.png Graphic file (type png)
 <use usgswater-prune-subtree.png>
 Package pdftex.def Info: usgswater-prune-subtree.png  used on input line 342.
@@ -788,12 +788,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10 <./biosolids-prune-subtree.png> <./usgswater-prune-subtree.png>]
-<biosolids-usgs-shaded-subtree.png, id=183, 1156.32pt x 597.73312pt>
+<biosolids-usgs-shaded-subtree.png, id=171, 1156.32pt x 597.73312pt>
 File: biosolids-usgs-shaded-subtree.png Graphic file (type png)
 <use biosolids-usgs-shaded-subtree.png>
 Package pdftex.def Info: biosolids-usgs-shaded-subtree.png  used on input line 365.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<usgs-biosolids-shaded-subtree.png, id=184, 1156.32pt x 597.73312pt>
+<usgs-biosolids-shaded-subtree.png, id=172, 1156.32pt x 597.73312pt>
 File: usgs-biosolids-shaded-subtree.png Graphic file (type png)
 <use usgs-biosolids-shaded-subtree.png>
 Package pdftex.def Info: usgs-biosolids-shaded-subtree.png  used on input line 372.
@@ -806,7 +806,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [11 <./biosolids-usgs-shaded-subtree.png (PNG copy)>]
-<biosolids-leaf-fraction.png, id=193, 1156.32pt x 597.73312pt>
+<biosolids-leaf-fraction.png, id=181, 1156.32pt x 597.73312pt>
 File: biosolids-leaf-fraction.png Graphic file (type png)
 <use biosolids-leaf-fraction.png>
 Package pdftex.def Info: biosolids-leaf-fraction.png  used on input line 393.
@@ -819,7 +819,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [12 <./usgs-biosolids-shaded-subtree.png (PNG copy)>]
-<biosolids-circ-boxplot.png, id=198, 1156.32pt x 597.73312pt>
+<biosolids-circ-boxplot.png, id=186, 1156.32pt x 597.73312pt>
 File: biosolids-circ-boxplot.png Graphic file (type png)
 <use biosolids-circ-boxplot.png>
 Package pdftex.def Info: biosolids-circ-boxplot.png  used on input line 418.
@@ -850,21 +850,38 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.432 ...s calculated using the function `general_
-                                                  Jaccard_similarity()`, whi...
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
+! Undefined control sequence.
+<argument> l(\text 
+                   {mrca}(v_1, v_2))
+l.432 ...v_1) + l(v_2) - l(\text{mrca}(v_1, v_2))}
+                                                  $$ where $l(v_i)$ denotes ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
-! Missing $ inserted.
-<inserted text> 
-                $
-l.432 ...of the nodes being compared. Note, if $v_
-                                                  i = v_j$, then $\text{sim}...
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
+! Undefined control sequence.
+<argument> l(v_1) + l(v_2) - l(\text 
+                                     {mrca}(v_1, v_2))
+l.432 ...v_1) + l(v_2) - l(\text{mrca}(v_1, v_2))}
+                                                  $$ where $l(v_i)$ denotes ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<recently read> \text 
+                      
+l.432 ...ot-to-node path for node $v_i$ and $\text
+                                                  {mrca}(v_i, v_j)$ denotes ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
 
 ! Undefined control sequence.
 <recently read> \text 
@@ -885,11 +902,6 @@ of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
-
-
-Overfull \hbox (774.90846pt too wide) in paragraph at lines 432--433
-\T1/lmr/m/n/10.95 sim-i-lar-ity is cal-cu-lated us-ing the func-tion `general$[]\OML/lmm/m/it/10.95 accard[]imilarity\OT1/lmr/m/n/10.95 ()`\OML/lmm/m/it/10.95 ; whichtakesasparametersatreeandtwolabelsandreturnstheJaccardsimilarityofthetwolabelswithinthetree:Weexcludethecasewhentherootisoneofthenodesbeingcompared:Note; if$\T1/lmr/m/n/10.95 v$[] \OT1/lmr/m/n/10.95 =
- []
 
 
 
@@ -1013,13 +1025,30 @@ and I'll forget about whatever was undefined.
 
 ! Undefined control sequence.
 l.442 ...\text{sim}_{\text{res}}(v_1, v_2) = \text
-                                                  {IC}(mrca(v_i, v_j)).$$ Ob...
+                                                  {IC}(\text{mrca}(v_i, v_j)...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
 misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
+! Undefined control sequence.
+l.442 ..._{\text{res}}(v_1, v_2) = \text{IC}(\text
+                                                  {mrca}(v_i, v_j)).$$ Obser...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 15
+ []
+
+[15]
 ! Undefined control sequence.
 l.446 ...mselves. In particular, we define $$\text
                                                   {sim}_{\text{lin}}(v_i, v_...
@@ -1082,14 +1111,6 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 15
- []
-
-[15]
 ! Undefined control sequence.
 l.446 ...ity, if $v_i = v_j$, then $2 \times \text
                                                   {sim}_{\text{res}}(v_i, v_...
@@ -1421,6 +1442,14 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 16 []
+ []
+
+[16]
 ! Undefined control sequence.
 l.454 We also observe that $$\text
                                   {sim}_{\text{JiangConrath}}(v_i, v_j) \geq...
@@ -1493,14 +1522,6 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 16 []
- []
-
-[16]
 ! Undefined control sequence.
 l.454 ...}}(v_i, v_j) = 1.$$ Otherwise, if $$\text
                                                   {sim}_{\text{res}}(v_i, v_...
@@ -2060,7 +2081,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [17]
-<heatmap-biosolids-usgs.png, id=232, 1156.32pt x 597.73312pt>
+<heatmap-biosolids-usgs.png, id=243, 1156.32pt x 597.73312pt>
 File: heatmap-biosolids-usgs.png Graphic file (type png)
 <use heatmap-biosolids-usgs.png>
 Package pdftex.def Info: heatmap-biosolids-usgs.png  used on input line 487.
@@ -2077,12 +2098,12 @@ Overfull \hbox (8.39426pt too wide) in paragraph at lines 493--494
 []\T1/lmr/m/n/10.95 To vi-su-al-ize the clus-ters through tree di-a-grams, we use the func-tion \T1/lmtt/m/n/10.95 generate_tree_cluster()\T1/lmr/m/n/10.95 ,
  []
 
-<row2-col2-full.png, id=238, 1156.32pt x 597.73312pt>
+<row2-col2-full.png, id=249, 1156.32pt x 597.73312pt>
 File: row2-col2-full.png Graphic file (type png)
 <use row2-col2-full.png>
 Package pdftex.def Info: row2-col2-full.png  used on input line 508.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<row2-col2-prune.png, id=239, 1156.32pt x 597.73312pt>
+<row2-col2-prune.png, id=250, 1156.32pt x 597.73312pt>
 File: row2-col2-prune.png Graphic file (type png)
 <use row2-col2-prune.png>
 Package pdftex.def Info: row2-col2-prune.png  used on input line 514.
@@ -2095,12 +2116,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [19 <./heatmap-biosolids-usgs.png>]
-<row9-col8-full.png, id=251, 1156.32pt x 597.73312pt>
+<row9-col8-full.png, id=262, 1156.32pt x 597.73312pt>
 File: row9-col8-full.png Graphic file (type png)
 <use row9-col8-full.png>
 Package pdftex.def Info: row9-col8-full.png  used on input line 535.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<row9-col8-prune.png, id=252, 1156.32pt x 597.73312pt>
+<row9-col8-prune.png, id=263, 1156.32pt x 597.73312pt>
 File: row9-col8-prune.png Graphic file (type png)
 <use row9-col8-prune.png>
 Package pdftex.def Info: row9-col8-prune.png  used on input line 541.
@@ -2121,7 +2142,10 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [21 <./row9-col8-full.png> <./row9-col8-prune.png>]
 
-LaTeX Warning: Reference `fig:label-bars_2' on page 22 undefined on input line 553.
+LaTeX Warning: Reference `fig:label-bars-2' on page 22 undefined on input line 553.
+
+
+LaTeX Warning: Reference `fig:biosolids-usgs-heatmap' on page 22 undefined on input line 559.
 
 
 
@@ -2130,28 +2154,14 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 22 []
  []
 
-[22]
-LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 581.
- (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
-File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
+[22] (./treecompareR_JSS_ms.bbl
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 23
  []
 
-[23]
-Underfull \hbox (badness 1342) in paragraph at lines 635--637
-[]\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
- []
-
-
-Underfull \hbox (badness 2617) in paragraph at lines 637--643
-[]\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
- []
-
-
+[23])
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -2159,57 +2169,20 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [24]
-<treecompareR_JSS_ms-visualization.pdf, id=306, 505.89pt x 375.4025pt>
-File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
-<use treecompareR_JSS_ms-visualization.pdf>
-Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 710.
-(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
-
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 25
- []
-
-[25 <./treecompareR_JSS_ms-visualization.pdf>]
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 26 []
- []
-
-[26] (./treecompareR_JSS_ms.bbl
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
-
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 27
- []
-
-[27])
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 28 []
- []
-
-[28]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 871.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 637.
  (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 881.
+(Font)              using `T1/lmr/bx/n' instead on input line 647.
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 911.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 677.
 ! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
 <to be read again> 
                    relax 
-l.911 \end{document}
+l.677 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -2220,7 +2193,7 @@ e.g., type `I\font<same font id>=<substitute font name>'.
 ! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
 <to be read again> 
                    \relax 
-l.911 \end{document}
+l.677 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -2263,17 +2236,17 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 29
+[] \T1/lmr/m/n/10.95 25
  []
 
-[29]
+[25]
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 30 []
+\T1/lmr/m/n/10.95 26 []
  []
 
-[30] (./treecompareR_JSS_ms.aux)
+[26] (./treecompareR_JSS_ms.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -2286,21 +2259,21 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `treecompareR_JSS_ms.out' has not changed.
-(rerunfilecheck)             Checksum: 73AC31A5D3806CD11B5BF15E2ECE6DC5;1855.
+(rerunfilecheck)             Checksum: E1D6CD4541AC69D5D83DBD68E00440F5;1379.
  ) 
 Here is how much of TeX's memory you used:
- 21131 strings out of 475171
- 408006 string characters out of 5764418
- 765257 words of memory out of 5000000
- 43645 multiletter control sequences out of 15000+600000
- 655001 words of font info for 87 fonts, out of 8000000 for 9000
+ 21079 strings out of 475171
+ 406752 string characters out of 5764418
+ 764899 words of memory out of 5000000
+ 43609 multiletter control sequences out of 15000+600000
+ 644036 words of font info for 83 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  99i,13n,101p,1849b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on treecompareR_JSS_ms.pdf (30 pages, 2270482 bytes).
+<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
+Output written on treecompareR_JSS_ms.pdf (26 pages, 2236416 bytes).
 PDF statistics:
- 473 PDF objects out of 1000 (max. 8388607)
- 364 compressed objects within 4 object streams
- 86 named destinations out of 1000 (max. 500000)
- 196 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 435 PDF objects out of 1000 (max. 8388607)
+ 335 compressed objects within 4 object streams
+ 76 named destinations out of 1000 (max. 500000)
+ 167 words of extra memory for PDF output out of 10000 (max. 10000000)
 
