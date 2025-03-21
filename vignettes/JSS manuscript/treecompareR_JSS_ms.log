@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  21 MAR 2025 11:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  21 MAR 2025 13:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -489,7 +489,7 @@ Package hyperref Info: Link coloring ON on input line 61.
 \@outlinefile=\write5
 \openout5 = `treecompareR_JSS_ms.out'.
 
-<jsslogo.jpg, id=35, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=51, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 61.
@@ -694,12 +694,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-<label-bars_1.png, id=115, 1156.32pt x 597.73312pt>
+<label-bars_1.png, id=131, 1156.32pt x 597.73312pt>
 File: label-bars_1.png Graphic file (type png)
 <use label-bars_1.png>
 Package pdftex.def Info: label-bars_1.png  used on input line 234.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<label-bars_2.png, id=116, 1156.32pt x 597.73312pt>
+<label-bars_2.png, id=132, 1156.32pt x 597.73312pt>
 File: label-bars_2.png Graphic file (type png)
 <use label-bars_2.png>
 Package pdftex.def Info: label-bars_2.png  used on input line 240.
@@ -724,7 +724,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [6 <./label-bars_1.png>]
-<chemont-tree.png, id=125, 1156.32pt x 597.73312pt>
+<chemont-tree.png, id=141, 1156.32pt x 597.73312pt>
 File: chemont-tree.png Graphic file (type png)
 <use chemont-tree.png>
 Package pdftex.def Info: chemont-tree.png  used on input line 262.
@@ -737,17 +737,17 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [7 <./label-bars_2.png> <./chemont-tree.png>]
-<biosolids-subtree.png, id=137, 1156.32pt x 597.73312pt>
+<biosolids-subtree.png, id=153, 1156.32pt x 597.73312pt>
 File: biosolids-subtree.png Graphic file (type png)
 <use biosolids-subtree.png>
 Package pdftex.def Info: biosolids-subtree.png  used on input line 281.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<usgs-water-subtree.png, id=138, 1156.32pt x 597.73312pt>
+<usgs-water-subtree.png, id=154, 1156.32pt x 597.73312pt>
 File: usgs-water-subtree.png Graphic file (type png)
 <use usgs-water-subtree.png>
 Package pdftex.def Info: usgs-water-subtree.png  used on input line 296.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<subtree-overlap.png, id=141, 1156.32pt x 597.73312pt>
+<subtree-overlap.png, id=157, 1156.32pt x 597.73312pt>
 File: subtree-overlap.png Graphic file (type png)
 <use subtree-overlap.png>
 Package pdftex.def Info: subtree-overlap.png  used on input line 316.
@@ -770,12 +770,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [9 <./usgs-water-subtree.png (PNG copy)> <./subtree-overlap.png (PNG copy)>]
-<biosolids-prune-subtree.png, id=154, 1156.32pt x 597.73312pt>
+<biosolids-prune-subtree.png, id=171, 1156.32pt x 597.73312pt>
 File: biosolids-prune-subtree.png Graphic file (type png)
 <use biosolids-prune-subtree.png>
 Package pdftex.def Info: biosolids-prune-subtree.png  used on input line 335.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
-<usgswater-prune-subtree.png, id=155, 1156.32pt x 597.73312pt>
+<usgswater-prune-subtree.png, id=172, 1156.32pt x 597.73312pt>
 File: usgswater-prune-subtree.png Graphic file (type png)
 <use usgswater-prune-subtree.png>
 Package pdftex.def Info: usgswater-prune-subtree.png  used on input line 342.
@@ -788,26 +788,29 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10 <./biosolids-prune-subtree.png> <./usgswater-prune-subtree.png>]
-LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 385.
- (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
-File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
+<biosolids-usgs-shaded-subtree.png, id=183, 1156.32pt x 597.73312pt>
+File: biosolids-usgs-shaded-subtree.png Graphic file (type png)
+<use biosolids-usgs-shaded-subtree.png>
+Package pdftex.def Info: biosolids-usgs-shaded-subtree.png  used on input line 365.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<usgs-biosolids-shaded-subtree.png, id=184, 1156.32pt x 597.73312pt>
+File: usgs-biosolids-shaded-subtree.png Graphic file (type png)
+<use usgs-biosolids-shaded-subtree.png>
+Package pdftex.def Info: usgs-biosolids-shaded-subtree.png  used on input line 372.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 11
  []
 
-[11{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
-Underfull \hbox (badness 1342) in paragraph at lines 439--441
-[]\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
- []
-
-
-Underfull \hbox (badness 2617) in paragraph at lines 441--447
-[]\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
- []
-
+[11 <./biosolids-usgs-shaded-subtree.png (PNG copy)>]
+<biosolids-leaf-fraction.png, id=193, 1156.32pt x 597.73312pt>
+File: biosolids-leaf-fraction.png Graphic file (type png)
+<use biosolids-leaf-fraction.png>
+Package pdftex.def Info: biosolids-leaf-fraction.png  used on input line 393.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
 
@@ -815,12 +818,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 12 []
  []
 
-[12]
-<treecompareR_JSS_ms-visualization.pdf, id=196, 505.89pt x 375.4025pt>
-File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
-<use treecompareR_JSS_ms-visualization.pdf>
-Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 514.
-(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
+[12 <./usgs-biosolids-shaded-subtree.png (PNG copy)>]
+<biosolids-circ-boxplot.png, id=198, 1156.32pt x 597.73312pt>
+File: biosolids-circ-boxplot.png Graphic file (type png)
+<use biosolids-circ-boxplot.png>
+Package pdftex.def Info: biosolids-circ-boxplot.png  used on input line 418.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
 
@@ -828,16 +831,257 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 13
  []
 
-[13 <./treecompareR_JSS_ms-visualization.pdf>]
+[13 <./biosolids-leaf-fraction.png>]
+! Undefined control sequence.
+l.432 ...these in the following expression $$\text
+                                                  {sim}_{\text{Jac}}(v_1, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.432 ... following expression $$\text{sim}_{\text
+                                                  {Jac}}(v_1, v_2) = \frac{l...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.432 ...s calculated using the function `general_
+                                                  Jaccard_similarity()`, whi...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.432 ...of the nodes being compared. Note, if $v_
+                                                  i = v_j$, then $\text{sim}...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Undefined control sequence.
+<recently read> \text 
+                      
+l.432 ...mpared. Note, if $v_i = v_j$, then $\text
+                                                  {sim}_{\text{Jac}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.432 ..., if $v_i = v_j$, then $\text{sim}_{\text
+                                                  {Jac}}(v_i, v_j) = 1$.
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (774.90846pt too wide) in paragraph at lines 432--433
+\T1/lmr/m/n/10.95 sim-i-lar-ity is cal-cu-lated us-ing the func-tion `general$[]\OML/lmm/m/it/10.95 accard[]imilarity\OT1/lmr/m/n/10.95 ()`\OML/lmm/m/it/10.95 ; whichtakesasparametersatreeandtwolabelsandreturnstheJaccardsimilarityofthetwolabelswithinthetree:Weexcludethecasewhentherootisoneofthenodesbeingcompared:Note; if$\T1/lmr/m/n/10.95 v$[] \OT1/lmr/m/n/10.95 =
+ []
+
+
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 14 []
  []
 
-[14] (./treecompareR_JSS_ms.bbl
-LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
+[14{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./biosolids-circ-boxplot.png (PNG copy)>]
+! Undefined control sequence.
+l.434 ...articular, for node $v_i$, define $$\text
+                                                  {IC}(v_i) = 1 - \frac{\log...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \log (1 + |\text 
+                            {V}_{v_i}|)
+l.434 ...ac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}
+                                                  $$ where $V_{v_i}$ denotes...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<recently read> \text 
+                      
+l.434 ...is a tip, it has no descendants so $\text
+                                                  {IC}(v_i) = 1 - \frac{\log...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.434 ... = 1$. If $v_i$ is the root, then $$\text
+                                                  {IC}(v_i) = 1 - \frac{\log...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \log (1 + |\text 
+                            {V}_{v_i}|)
+l.434 ...ac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}
+                                                   = 1 - \frac{\log(|V|)}{\l...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.434 ..._i$ is an ancestor of $v_j$, then $|\text
+                                                  {V}_{v_i}| > |\text{V}_{v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.434 ...of $v_j$, then $|\text{V}_{v_i}| > |\text
+                                                  {V}_{v_j}|$ and since the ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<recently read> \text 
+                      
+l.434 ...asing for $x > 0$, it follows that $\text
+                                                  {IC}(v_i) < \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.434 ..., it follows that $\text{IC}(v_i) < \text
+                                                  {IC}(v_j)$. Hence, the fun...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (47.54027pt too wide) in paragraph at lines 438--439
+[]\T1/lmr/m/n/10.95 To gen-er-ate the in-for-ma-tion con-tent for a tree, we can use the func-tion \T1/lmtt/m/n/10.95 attach_information_content()
+ []
+
+! Undefined control sequence.
+l.442 ... for two nodes $v_i$ and $v_j$ as $$\text
+                                                  {sim}_{\text{res}}(v_1, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.442 ...es $v_i$ and $v_j$ as $$\text{sim}_{\text
+                                                  {res}}(v_1, v_2) = \text{I...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.442 ...\text{sim}_{\text{res}}(v_1, v_2) = \text
+                                                  {IC}(mrca(v_i, v_j)).$$ Ob...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...mselves. In particular, we define $$\text
+                                                  {sim}_{\text{lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...particular, we define $$\text{sim}_{\text
+                                                  {lin}}(v_i, v_j) = \frac{2...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 \times \text 
+                          {sim}_{\text {res}}(v_i, v_j)
+l.446 ...i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  .$$ Since the numerator is...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 \times \text {sim}_{\text 
+                                       {res}}(v_i, v_j)
+l.446 ...i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  .$$ Since the numerator is...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {IC}(v_i) + \text {IC}(v_j)
+l.446 ...i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  .$$ Since the numerator is...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {IC}(v_i) + \text 
+                                   {IC}(v_j)
+l.446 ...i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  .$$ Since the numerator is...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
 
 
 
@@ -845,7 +1089,411 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 15
  []
 
-[15])
+[15]
+! Undefined control sequence.
+l.446 ...ity, if $v_i = v_j$, then $2 \times \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ... = v_j$, then $2 \times \text{sim}_{\text
+                                                  {res}}(v_i, v_i) = 2 \time...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...}_{\text{res}}(v_i, v_i) = 2 \times \text
+                                                  {IC}(v_i)$, so the self-si...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...st one not equal to the root, $$0 < \text
+                                                  {IC}(v_i) + \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...to the root, $$0 < \text{IC}(v_i) + \text
+                                                  {IC}(v_j) \leq 2$$ so $$1 ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {IC}(v_i) + \text {IC}(v_j)
+l.446 ...\frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  $$ from which it follows t...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {IC}(v_i) + \text 
+                                   {IC}(v_j)
+l.446 ...\frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}
+                                                  $$ from which it follows t...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ..._j)}$$ from which it follows that $$\text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...which it follows that $$\text{sim}_{\text
+                                                  {res}}(v_i, v_j) \leq \tex...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...xt{sim}_{\text{res}}(v_i, v_j) \leq \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.446 ...xt{res}}(v_i, v_j) \leq \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...antage of the inequality $$2 \times \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...e inequality $$2 \times \text{sim}_{\text
+                                                  {res}}(v_i, v_j) \leq \tex...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...xt{sim}_{\text{res}}(v_i, v_j) \leq \text
+                                                  {IC}(v_i) + \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...s}}(v_i, v_j) \leq \text{IC}(v_i) + \text
+                                                  {IC}(v_j).$$ Taking the di...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...s the following inequality $$0 \leq \text
+                                                  {IC}(v_i) + \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...nequality $$0 \leq \text{IC}(v_i) + \text
+                                                  {IC}(v_j) - 2 \times \text...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...C}(v_i) + \text{IC}(v_j) - 2 \times \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...ext{IC}(v_j) - 2 \times \text{sim}_{\text
+                                                  {res}}(v_i, v_j) \leq 2.$$...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ...f 1 and this expression, yielding $$\text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.450 ... expression, yielding $$\text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {IC}(v_i) + \text {IC}(v_j) - 2 \times \text {sim}_{\text {...
+l.450 ...mes \text{sim}_{\text{res}}(v_i, v_j)}{2}
+                                                  .$$ This was developed by ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {IC}(v_i) + \text 
+                                   {IC}(v_j) - 2 \times \text {sim}_{\text {...
+l.450 ...mes \text{sim}_{\text{res}}(v_i, v_j)}{2}
+                                                  .$$ This was developed by ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> ... + \text {IC}(v_j) - 2 \times \text 
+                                                  {sim}_{\text {res}}(v_i, v_j)
+l.450 ...mes \text{sim}_{\text{res}}(v_i, v_j)}{2}
+                                                  .$$ This was developed by ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> ...(v_j) - 2 \times \text {sim}_{\text 
+                                                  {res}}(v_i, v_j)
+l.450 ...mes \text{sim}_{\text{res}}(v_i, v_j)}{2}
+                                                  .$$ This was developed by ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...arity, we see that it is equal to $$\text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...e that it is equal to $$\text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...}_{\text{JiangConrath}}(v_i, v_j) = \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...ngConrath}}(v_i, v_j) = \text{sim}_{\text
+                                                  {res}}(v_i, v_j) + \frac{2...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 - (\text 
+                      {IC}(v_i) + \text {IC}(v_j))
+l.452 ...2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2}
+                                                   \geq \text{sim}_{\text{re...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> 2 - (\text {IC}(v_i) + \text 
+                                        {IC}(v_j))
+l.452 ...2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2}
+                                                   \geq \text{sim}_{\text{re...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...IC}(v_i) + \text{IC}(v_j))}{2} \geq \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...text{IC}(v_j))}{2} \geq \text{sim}_{\text
+                                                  {res}}(v_i, v_j)$$ since $...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ...m}_{\text{res}}(v_i, v_j)$$ since $$\text
+                                                  {IC}(v_i) + \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.452 ..._i, v_j)$$ since $$\text{IC}(v_i) + \text
+                                                  {IC}(v_j) \leq 2.$$ One th...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 We also observe that $$\text
+                                  {sim}_{\text{JiangConrath}}(v_i, v_j) \geq...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 We also observe that $$\text{sim}_{\text
+                                              {JiangConrath}}(v_i, v_j) \geq...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{JiangConrath}}(v_i, v_j) \geq \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...onrath}}(v_i, v_j) \geq \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$ This f...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...ent. If $v_i = v_j$ are the root, $$\text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ... = v_j$ are the root, $$\text{sim}_{\text
+                                                  {Lin}}(v_i, v_j) = \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{sim}_{\text{Lin}}(v_i, v_j) = \text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{Lin}}(v_i, v_j) = \text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -853,20 +1501,715 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [16]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 675.
+! Undefined control sequence.
+l.454 ...}}(v_i, v_j) = 1.$$ Otherwise, if $$\text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ... = 1.$$ Otherwise, if $$\text{sim}_{\text
+                                                  {res}}(v_i, v_j) = 0,$$ $$...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...im}_{\text{res}}(v_i, v_j) = 0,$$ $$\text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...es}}(v_i, v_j) = 0,$$ $$\text{sim}_{\text
+                                                  {Lin}}(v_i, v_j) = 0 \leq ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...im}_{\text{Lin}}(v_i, v_j) = 0 \leq \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...in}}(v_i, v_j) = 0 \leq \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$ If $$0...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ..._{\text{Lin}}(v_i, v_j).$$ If $$0 < \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...}(v_i, v_j).$$ If $$0 < \text{sim}_{\text
+                                                  {res}}(v_i, v_j) = \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{sim}_{\text{res}}(v_i, v_j) = \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{res}}(v_i, v_j) = \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j),$$ then $...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...m}_{\text{Lin}}(v_i, v_j),$$ then $$\text
+                                                  {IC}(v_i) + \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ..._i, v_j),$$ then $$\text{IC}(v_i) + \text
+                                                  {IC}(v_j) = 2,$$ $$\text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...{IC}(v_i) + \text{IC}(v_j) = 2,$$ $$\text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{IC}(v_j) = 2,$$ $$\text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...}_{\text{JiangConrath}}(v_i, v_j) = \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...ngConrath}}(v_i, v_j) = \text{sim}_{\text
+                                                  {res}}(v_i, v_j) = \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{sim}_{\text{res}}(v_i, v_j) = \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{res}}(v_i, v_j) = \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$ If $$0...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ..._{\text{Lin}}(v_i, v_j).$$ If $$0 < \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...}(v_i, v_j).$$ If $$0 < \text{sim}_{\text
+                                                  {res}}(v_i, v_j) < \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{sim}_{\text{res}}(v_i, v_j) < \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{res}}(v_i, v_j) < \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j),$$ since ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...t{Lin}}(v_i, v_j),$$ since $$1 \geq \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ... v_j),$$ since $$1 \geq \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j),$$ it fol...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {sim}_{\text {Lin}}(v_i, v_j)
+l.454 ...rac{1}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > 1$$ and $$\frac{\text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {sim}_{\text 
+                              {Lin}}(v_i, v_j)
+l.454 ...rac{1}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > 1$$ and $$\frac{\text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {sim}_{\text {Lin}}(v_i, v_j) - \text {sim}_{\text {res}}(v...
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {sim}_{\text 
+                              {Lin}}(v_i, v_j) - \text {sim}_{\text {res}}(v...
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> ...im}_{\text {Lin}}(v_i, v_j) - \text 
+                                                  {sim}_{\text {res}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> ...in}}(v_i, v_j) - \text {sim}_{\text 
+                                                  {res}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {sim}_{\text {Lin}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {sim}_{\text 
+                              {Lin}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...text{sim}_{\text{Lin}}(v_i, v_j)} > \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...text{Lin}}(v_i, v_j)} > \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j) - \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{sim}_{\text{Lin}}(v_i, v_j) - \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{Lin}}(v_i, v_j) - \text{sim}_{\text
+                                                  {res}}(v_i, v_j)$$ from wh...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...v_j)$$ from which it follows that $$\text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...which it follows that $$\text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...}_{\text{JiangConrath}}(v_i, v_j) = \text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...ngConrath}}(v_i, v_j) = \text{sim}_{\text
+                                                  {res}}(v_i, v_j) + 1 - \fr...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {sim}_{\text {res}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {sim}_{\text 
+                              {res}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text 
+                 {sim}_{\text {Lin}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<argument> \text {sim}_{\text 
+                              {Lin}}(v_i, v_j)
+l.454 ... v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)}
+                                                   > \text{sim}_{\text{Lin}}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...text{sim}_{\text{Lin}}(v_i, v_j)} > \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...text{Lin}}(v_i, v_j)} > \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$ Hence,...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...(v_i, v_j).$$ Hence, in all cases $$\text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...$ Hence, in all cases $$\text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j) ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...\text{JiangConrath}}(v_i, v_j) \geq \text
+                                                  {sim}_{\text{Lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.454 ...onrath}}(v_i, v_j) \geq \text{sim}_{\text
+                                                  {Lin}}(v_i, v_j).$$
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ..._i$ and $v_j$, observe that since $$\text
+                                                  {IC}(v_i) = \text{IC}(v_j)...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...serve that since $$\text{IC}(v_i) = \text
+                                                  {IC}(v_j) = 1,$$ $$\text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text
+                                                  {sim}_{\text{res}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...\text{IC}(v_j) = 1,$$ $$\text{sim}_{\text
+                                                  {res}}(v_i, v_j) = \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...\text{sim}_{\text{res}}(v_i, v_j) = \text
+                                                  {sim}_{\text{lin}}(v_i, v_...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...\text{res}}(v_i, v_j) = \text{sim}_{\text
+                                                  {lin}}(v_i, v_j) = \text{s...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...\text{sim}_{\text{lin}}(v_i, v_j) = \text
+                                                  {sim}_{\text{JiangConrath}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.456 ...\text{lin}}(v_i, v_j) = \text{sim}_{\text
+                                                  {JiangConrath}}(v_i, v_j)....
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (8.85028pt too wide) in paragraph at lines 458--459
+\T1/lmr/m/n/10.95 put tree, and the func-tions \T1/lmtt/m/n/10.95 general_Jaccard_similarity()\T1/lmr/m/n/10.95 , \T1/lmtt/m/n/10.95 general_Resnik_similarity()\T1/lmr/m/n/10.95 ,
+ []
+
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 17
+ []
+
+[17]
+<heatmap-biosolids-usgs.png, id=232, 1156.32pt x 597.73312pt>
+File: heatmap-biosolids-usgs.png Graphic file (type png)
+<use heatmap-biosolids-usgs.png>
+Package pdftex.def Info: heatmap-biosolids-usgs.png  used on input line 487.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 18 []
+ []
+
+[18]
+Overfull \hbox (8.39426pt too wide) in paragraph at lines 493--494
+[]\T1/lmr/m/n/10.95 To vi-su-al-ize the clus-ters through tree di-a-grams, we use the func-tion \T1/lmtt/m/n/10.95 generate_tree_cluster()\T1/lmr/m/n/10.95 ,
+ []
+
+<row2-col2-full.png, id=238, 1156.32pt x 597.73312pt>
+File: row2-col2-full.png Graphic file (type png)
+<use row2-col2-full.png>
+Package pdftex.def Info: row2-col2-full.png  used on input line 508.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<row2-col2-prune.png, id=239, 1156.32pt x 597.73312pt>
+File: row2-col2-prune.png Graphic file (type png)
+<use row2-col2-prune.png>
+Package pdftex.def Info: row2-col2-prune.png  used on input line 514.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 19
+ []
+
+[19 <./heatmap-biosolids-usgs.png>]
+<row9-col8-full.png, id=251, 1156.32pt x 597.73312pt>
+File: row9-col8-full.png Graphic file (type png)
+<use row9-col8-full.png>
+Package pdftex.def Info: row9-col8-full.png  used on input line 535.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+<row9-col8-prune.png, id=252, 1156.32pt x 597.73312pt>
+File: row9-col8-prune.png Graphic file (type png)
+<use row9-col8-prune.png>
+Package pdftex.def Info: row9-col8-prune.png  used on input line 541.
+(pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 20 []
+ []
+
+[20 <./row2-col2-full.png> <./row2-col2-prune.png>]
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 21
+ []
+
+[21 <./row9-col8-full.png> <./row9-col8-prune.png>]
+
+LaTeX Warning: Reference `fig:label-bars_2' on page 22 undefined on input line 553.
+
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 22 []
+ []
+
+[22]
+LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 581.
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmss.fd
+File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 23
+ []
+
+[23]
+Underfull \hbox (badness 1342) in paragraph at lines 635--637
+[]\T1/lmr/m/n/10.95 Poisson re-gres-sion: clas-si-cal GLM, es-ti-
+ []
+
+
+Underfull \hbox (badness 2617) in paragraph at lines 637--643
+[]\T1/lmr/m/n/10.95 ``Quasi-Poisson re-gres-sion'': same mean
+ []
+
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 24 []
+ []
+
+[24]
+<treecompareR_JSS_ms-visualization.pdf, id=306, 505.89pt x 375.4025pt>
+File: treecompareR_JSS_ms-visualization.pdf Graphic file (type pdf)
+<use treecompareR_JSS_ms-visualization.pdf>
+Package pdftex.def Info: treecompareR_JSS_ms-visualization.pdf  used on input line 710.
+(pdftex.def)             Requested size: 354.12434pt x 262.78568pt.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 25
+ []
+
+[25 <./treecompareR_JSS_ms-visualization.pdf>]
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 26 []
+ []
+
+[26] (./treecompareR_JSS_ms.bbl
+LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10.95> not available
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 13.
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 27
+ []
+
+[27])
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 28 []
+ []
+
+[28]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 871.
  (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 685.
+(Font)              using `T1/lmr/bx/n' instead on input line 881.
 
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 715.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 911.
 ! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
 <to be read again> 
                    relax 
-l.715 \end{document}
+l.911 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -877,7 +2220,7 @@ e.g., type `I\font<same font id>=<substitute font name>'.
 ! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
 <to be read again> 
                    \relax 
-l.715 \end{document}
+l.911 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -920,17 +2263,17 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 17
+[] \T1/lmr/m/n/10.95 29
  []
 
-[17]
+[29]
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 18 []
+\T1/lmr/m/n/10.95 30 []
  []
 
-[18] (./treecompareR_JSS_ms.aux)
+[30] (./treecompareR_JSS_ms.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -943,21 +2286,21 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `treecompareR_JSS_ms.out' has not changed.
-(rerunfilecheck)             Checksum: FF19B4E69031370013D219AF351799A6;1047.
+(rerunfilecheck)             Checksum: 73AC31A5D3806CD11B5BF15E2ECE6DC5;1855.
  ) 
 Here is how much of TeX's memory you used:
- 20986 strings out of 475171
- 404211 string characters out of 5764418
- 763370 words of memory out of 5000000
- 43529 multiletter control sequences out of 15000+600000
+ 21131 strings out of 475171
+ 408006 string characters out of 5764418
+ 765257 words of memory out of 5000000
+ 43645 multiletter control sequences out of 15000+600000
  655001 words of font info for 87 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,13n,101p,1548b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on treecompareR_JSS_ms.pdf (18 pages, 1613582 bytes).
+ 99i,13n,101p,1849b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsso10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
+Output written on treecompareR_JSS_ms.pdf (30 pages, 2270482 bytes).
 PDF statistics:
- 350 PDF objects out of 1000 (max. 8388607)
- 272 compressed objects within 3 object streams
- 57 named destinations out of 1000 (max. 500000)
- 119 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 473 PDF objects out of 1000 (max. 8388607)
+ 364 compressed objects within 4 object streams
+ 86 named destinations out of 1000 (max. 500000)
+ 196 words of extra memory for PDF output out of 10000 (max. 10000000)
 
