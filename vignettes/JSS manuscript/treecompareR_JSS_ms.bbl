@@ -1,0 +1,79 @@
+\begin{thebibliography}{12}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Chambers and Hastie(1992)}]{Chambers+Hastie:1992}
+Chambers JM, Hastie TJ (eds.) (1992).
+\newblock \emph{Statistical Models in \proglang{S}}.
+\newblock Chapman \& Hall, London.
+
+\bibitem[{Djoumbou~Feunang \emph{et~al.}(2016)Djoumbou~Feunang, Eisner, Knox, Chepelev, Hastings, Owen, Fahy, Steinbeck, Subramanian, Bolton \emph{et~al.}}]{djoumbou2016classyfire}
+Djoumbou~Feunang Y, Eisner R, Knox C, Chepelev L, Hastings J, Owen G, Fahy E, Steinbeck C, Subramanian S, Bolton E, \emph{et~al.} (2016).
+\newblock \enquote{ClassyFire: automated chemical classification with a comprehensive, computable taxonomy.}
+\newblock \emph{Journal of cheminformatics}, \textbf{8}, 1--20.
+
+\bibitem[{Gu \emph{et~al.}(2016)Gu, Eils, and Schlesner}]{complexheatmap2016gu}
+Gu Z, Eils R, Schlesner M (2016).
+\newblock \enquote{Complex heatmaps reveal patterns and correlations in multidimensional genomic data.}
+\newblock \emph{Bioinformatics}.
+\newblock \doi{10.1093/bioinformatics/btw313}.
+
+\bibitem[{McCullagh and Nelder(1989)}]{McCullagh+Nelder:1989}
+McCullagh P, Nelder JA (1989).
+\newblock \emph{Generalized Linear Models}.
+\newblock 2nd edition. Chapman \& Hall, London.
+\newblock \doi{10.1007/978-1-4899-3242-6}.
+
+\bibitem[{Paradis and Schliep(2019)}]{ape2019paradis}
+Paradis E, Schliep K (2019).
+\newblock \enquote{ape 5.0: an environment for modern phylogenetics and evolutionary analyses in {R}.}
+\newblock \emph{Bioinformatics}, \textbf{35}, 526--528.
+\newblock \doi{10.1093/bioinformatics/bty633}.
+
+\bibitem[{Revell(2024)}]{phytools2024revell}
+Revell LJ (2024).
+\newblock \enquote{{p}hytools 2.0: an updated {R} ecosystem for phylogenetic comparative methods (and other things).}
+\newblock \emph{PeerJ}, \textbf{12}, e16505.
+\newblock \doi{10.7717/peerj.16505}.
+
+\bibitem[{Schliep(2011)}]{phangorn2011schliep}
+Schliep K (2011).
+\newblock \enquote{phangorn: phylogenetic analysis in R.}
+\newblock \emph{Bioinformatics}, \textbf{27}(4), 592--593.
+\newblock \doi{10.1093/bioinformatics/btq706}.
+
+\bibitem[{Schliep \emph{et~al.}(2017)Schliep, Potts, Morrison, and Grimm}]{phangorn2017schliep}
+Schliep K, Potts AJ, Morrison DA, Grimm GW (2017).
+\newblock \enquote{Intertwining phylogenetic trees and networks.}
+\newblock \emph{Methods in Ecology and Evolution}, \textbf{8}(10), 1212--1220.
+
+\bibitem[{Wang \emph{et~al.}(2020)Wang, Lam, Xu, Dai, Zhou, Feng, Guo, Dunn, Jones, Bradley, Zhu, Guan, Jiang, and Yu}]{treeio2020Wang}
+Wang LG, Lam TTY, Xu S, Dai Z, Zhou L, Feng T, Guo P, Dunn CW, Jones BR, Bradley T, Zhu H, Guan Y, Jiang Y, Yu G (2020).
+\newblock \enquote{treeio: an R package for phylogenetic tree input and output with richly annotated and associated data.}
+\newblock \emph{Molecular Biology and Evolution}, \textbf{37}, 599--603.
+\newblock \doi{10.1093/molbev/msz240}.
+
+\bibitem[{Wickham(2016)}]{ggplot22016}
+Wickham H (2016).
+\newblock \emph{ggplot2: Elegant Graphics for Data Analysis}.
+\newblock Springer-Verlag New York.
+\newblock ISBN 978-3-319-24277-4.
+\newblock \urlprefix\url{https://ggplot2.tidyverse.org}.
+
+\bibitem[{Williams \emph{et~al.}(2017)Williams, Grulke, Edwards, McEachran, Mansouri, Baker, Patlewicz, Shah, Wambaugh, Judson \emph{et~al.}}]{williams2017comptox}
+Williams AJ, Grulke CM, Edwards J, McEachran AD, Mansouri K, Baker NC, Patlewicz G, Shah I, Wambaugh JF, Judson RS, \emph{et~al.} (2017).
+\newblock \enquote{The CompTox Chemistry Dashboard: a community data resource for environmental chemistry.}
+\newblock \emph{Journal of cheminformatics}, \textbf{9}, 1--27.
+
+\bibitem[{Yu \emph{et~al.}(2017)Yu, Smith, Zhu, Guan, and Lam}]{yu2017ggtree}
+Yu G, Smith DK, Zhu H, Guan Y, Lam TTY (2017).
+\newblock \enquote{ggtree: an R package for visualization and annotation of phylogenetic trees with their covariates and other associated data.}
+\newblock \emph{Methods in Ecology and Evolution}, \textbf{8}(1), 28--36.
+
+\end{thebibliography}
