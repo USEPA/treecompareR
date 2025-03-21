@@ -133,7 +133,7 @@ usgswater_classified <- classify_by_smiles(usgswater_classified)
 ```
 
 ```{r, echo = FALSE, message = FALSE}
-usgswater_classified <- readRDS("../data/usgswater_classified.rds")
+usgswater_classified <- readRDS("../data/usgs_class.rds")
 ```
 
 Now, let us examine these two data sets. Notice that there are 11 columns of ChemOnt data, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
