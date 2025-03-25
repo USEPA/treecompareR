@@ -66,6 +66,7 @@ library('ctxR')
 }
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 
 %% -- Introduction -------------------------------------------------------------
