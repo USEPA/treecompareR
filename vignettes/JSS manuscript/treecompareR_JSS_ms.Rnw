@@ -66,6 +66,7 @@ library('ctxR')
 }
 
 \begin{document}
+\SweaveOpts{concordance=FALSE}
 
 
 %% -- Introduction -------------------------------------------------------------
@@ -134,7 +135,11 @@ Next, we use the ClassyFire tool to provide classifications for the chemicals in
 %
 <<ctxR-identifiers>>=
 CASRN <- c('117964-21-3', '11006-76-1')
+<<<<<<< HEAD
 chemical_search <- ctxR::chemical_equal_batch(word_list = c('117964-21-3', '11006-76-1'))
+=======
+chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
+>>>>>>> f05dcd2839fb53f2bb89cf92303c540792567835
 chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$valid$dtxsid)
 data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
 chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
