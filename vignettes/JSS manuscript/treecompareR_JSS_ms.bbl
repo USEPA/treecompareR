@@ -1,4 +1,4 @@
-\begin{thebibliography}{15}
+\begin{thebibliography}{16}
 \newcommand{\enquote}[1]{``#1''}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
@@ -23,6 +23,11 @@ Gu Z, Eils R, Schlesner M (2016).
 Jiang JJ, Conrath DW (1997).
 \newblock \enquote{Semantic similarity based on corpus statistics and lexical taxonomy.}
 \newblock \emph{arXiv preprint cmp-lg/9709008}.
+
+\bibitem[{Kruse \emph{et~al.}(2024)Kruse, Ring, Feshuk, Brown, and Thunes}]{ctxR2024kru}
+Kruse P, Ring C, Feshuk M, Brown J, Thunes C (2024).
+\newblock \emph{ctxR: Utilities for Interacting with the 'CTX' APIs}.
+\newblock R package version 1.0.0, \urlprefix\url{https://CRAN.R-project.org/package=ctxR}.
 
 \bibitem[{Lin \emph{et~al.}(1998)}]{lin1998information}
 Lin D, \emph{et~al.} (1998).

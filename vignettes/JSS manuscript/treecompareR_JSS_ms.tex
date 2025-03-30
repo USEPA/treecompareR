@@ -42,8 +42,8 @@
 %% - \Keywords{} with LaTeX markup, at least one required
 %% - \Plainkeywords{} without LaTeX markup (if necessary)
 %% - Should be comma-separated and in sentence case.
-\Keywords{JSS, style guide, comma-separated, not capitalized, \proglang{R}}
-\Plainkeywords{JSS, style guide, comma-separated, not capitalized, R}
+\Keywords{tree visualizations, semantic similarity, classyFire, \proglang{R}, domain of applicability}
+\Plainkeywords{tree visualizations, semantic similarity, classyFire, R, domain of applicability}
 
 %% - \Address{} of at least one author
 %% - May contain multiple affiliations for each author
@@ -51,7 +51,7 @@
 %% - May contain multiple authors for the same affiliation
 %%   (in the same first line, separated by comma).
 \Address{
-  Paul Kruse\\
+  Paul Kruse, Caroline Ring\\
   Center for Computational Toxicology and Exposure\\
   United States Environmental Protection Agency\\
   109 TW Alexander Dr, Durham, NC 27709, United States of America\\
@@ -74,7 +74,7 @@
 %%   of Statistical Software" above) they should be in sentence case (like
 %%   "generalized linear models" below).
 
-\section[Introduction} \label{sec:intro}
+\section{Introduction} \label{sec:intro}
 
 Classification of objects has been a source of much development of organizational structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess.
 
@@ -94,13 +94,13 @@ However, such visualizations are limited in terms of what is currently available
 
 We present the package \pkg{treecompareR} as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space. We introduce the package through a case study analyzing two specific data sets. We characterize two data sets, named \code{BIOSOLIDS} and \code{USGSWATER}, that were collected from the CompTox Chemical Dashboard \cite{williams2017comptox}. The \code{BIOSOLIDS} data describe chemicals detected in biosolids, as reported by three national sewage sludge surveys and eight biennial reviews, while the \code{USGSWATER} data describe chemicals found in water by the USGS.
 
-We are interested in studying these two data sets together for a variety of reasons. The presence of chemicals detected in water is important information to consider when determining risk assessment for human and ecological health. Not only does this indicate what chemicals human activity contributes to water, but also what to expect to be present in water that is used in commercial, industrial, and residential settings. Chemicals detected in biosolids indicate both the chemicals that are already present in water in before being used, and the chemicals that human activity contributes to water and persists through the treatment process of waste water. By examining these two sets, we can get a better idea of which chemicals are introduced directly through human activity and use, and which chemicals are already in the background water as well as those that may be successfully removed from the water and captured within the biosolid.
+We are interested in studying these two data sets together for a variety of reasons. The presence of chemicals detected in water is important information to consider when determining risk assessment for human and ecological health. Not only does this indicate what chemicals human activity contributes to water, but also what to expect to be present in water that is used in commercial, industrial, and residential settings. Chemicals detected in biosolids indicate both the chemicals that are already present in water in before being used, and the chemicals that human activity contributes to water and persists through the treatment process of waste water. By examining these two sets, we can get a better idea of which chemicals are introduced directly through human activity and use, and which chemicals are already in the background water as well as those that may be successfully removed from the water and captured within the biosolids.
 
 \section{ClassyFire} \label{sec:class}
 
-In this paper, we use the \code{chemical\_list\_BIOSOLIDS\_2022\_05\_10} and \code{chemical\_list\_USGSWATER\_2022\_05\_17} data sets, which are available for download from the US Environmental Protection Agency's Comptox Chemicals Dashboard \url{https://comptox.epa.gov/dashboard/chemical-lists}. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are \code{BIOSOLIDS2021} and \code{USGSWATER}, respectively.
+In this paper, we use the \code{BIOSOLIDS2021} and \code{USGSWATER} data sets, which are available for download from the US Environmental Protection Agency's Comptox Chemicals Dashboard \url{https://comptox.epa.gov/dashboard/chemical-lists}. Note, the names of these data sets as listed on the CompTox Dashboard Chemical List are \code{BIOSOLIDS2021} and \code{USGSWATER}, respectively.
 
-These data sets include a list of chemicals, relevant identifiers such as \code{DTXSID}, \code{InChIKey}, \code{SMILES}, physico-chemical property data such as \code{MOLECULAR\_FORMULA}, \code{AVERAGE\_MASS}, \code{MONOISOTOPIC\_MASS}, and publication and quality data such as \code{PUBCHEM\_DATA\_SOURCES} and \code{QC\_Level}.
+These data sets include a list of chemicals, relevant identifiers such as \code{DTXSID}, \code{InChIKey}, \code{SMILES}, physico-chemical property data such as \code{MOLECULAR\_FORMULA}, \code{AVERAGE\_MASS}, and  \code{MONOISOTOPIC\_MASS}, and publication and quality data such as \code{PUBCHEM\_DATA\_SOURCES} and \code{QC\_Level}.
 
 Before we start comparing these data sets, we must provide each chemical in each data set classification data from ClassyFire. To do this, we use the classification pipeline in \pkg{treecompareR}, construct a tree that encodes the taxonomy used in this classification scheme, and use this tree for data analysis and to create visualizations.
 
@@ -111,19 +111,19 @@ To achieve these aims, we use the ClassyFire tool found at \url{http://classyfir
 \begin{Schunk}
 \begin{Sinput}
 R> chemont_taxonomy <- generate_taxonomy_tree(tax_nodes = chemont_df)
-R> str(chemont_taxonomy[[1]], width = 60)
+R> str(chemont_taxonomy[[1]])
 \end{Sinput}
 \begin{Soutput}
  num [1:4824, 1:2] 3613 3614 3615 3615 3615 ...
 \end{Soutput}
 \begin{Sinput}
-R> str(chemont_taxonomy[[2]], width = 60)
+R> str(chemont_taxonomy[[2]])
 \end{Sinput}
 \begin{Soutput}
  int 1213
 \end{Soutput}
 \begin{Sinput}
-R> str(chemont_taxonomy, width = 60)
+R> str(chemont_taxonomy)
 \end{Sinput}
 \begin{Soutput}
 List of 5
@@ -144,14 +144,14 @@ The \code{phylo} object itself is a list, describing the edges of the tree, the 
 
 To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data frame. The JSON file must have three columns, the first the name of the label \code{Name}, the second its identifier \code{ID}, and the third the parent identifier \code{Parent\_ID}. For the root, the parent ID should be \code{NA}. If the data is in the form of a data frame, it must be organized in the same way the JSON file is, with column names given by the same column names in the same order.
 
-Next, we use the ClassyFire tool to provide classifications for the chemicals in our data sets. To simplify this process, \pkg{treecompareR} has a data pipeline that allows for programmatic acquisition of this data. It leverages the package \pkg{classyfireR} \url{https://github.com/aberHRML/classyfireR} for accessing the ClassyFire API. For chemical missing certain identifying data such as InChIKey or SMILES string data, we can use functions from the \proglang{R} package \pkg{ctxR} . We demonstrate how to use these below.
+Next, we use the ClassyFire tool to provide classifications for the chemicals in our data sets. To simplify this process, \pkg{treecompareR} has a data pipeline that allows for programmatic acquisition of this data. It leverages the package \pkg{classyfireR} \url{https://github.com/aberHRML/classyfireR} for accessing the ClassyFire API. For chemical missing certain identifying data such as InChIKey or SMILES string data, we can use functions from the \proglang{R} package \pkg{ctxR}  \cite{ctxR2024kru}. We demonstrate how to use these below.
 
 %
 \begin{Schunk}
 \begin{Sinput}
 R> CASRN <- c('117964-21-3', '11006-76-1')
-R> chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
-R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$dtxsid)
+R> chemical_search <- ctxR::chemical_equal_batch(word_list = c('117964-21-3', '11006-76-1'))
+R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$valid$dtxsid)
 R> data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
 R> chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
 R> str(chemicals_class)
@@ -189,7 +189,8 @@ If we examine the \code{usgswater\_classified} data as follows, we get the conte
 %
 \begin{Schunk}
 \begin{Sinput}
-R> usgswater_classified[1:5, c('CASRN', 'kingdom', 'superclass', 'class', 'subclass')]
+R> usgswater_classified[1:5, c('CASRN', 'kingdom', 'superclass',
++                              'class', 'subclass')]
 \end{Sinput}
 \end{Schunk}
 %
@@ -197,7 +198,7 @@ R> usgswater_classified[1:5, c('CASRN', 'kingdom', 'superclass', 'class', 'subcl
 \begin{table}[t!]
 \scriptsize
 \centering
-\begin{tabular}{llllp{2cm}}
+\begin{tabular}{llllp{1.8cm}}
 \hline
 
 CASRN &	kingdom &	superclass & class & subclass\\
@@ -232,13 +233,13 @@ R> label_bars(data_list)
 \begin{figure}[t!]
 \centering
 \includegraphics{label-bars_1}
-\caption{\label{fig:lab-bars-1} This figure displays the counts of unique labels broken down by each classification level and faceted by dataset.}
+\caption{\label{fig:label-bars-1} This figure displays the counts of unique labels broken down by each classification level and faceted by dataset.}
 \end{figure}
 
 \begin{figure}[t!]
 \centering
 \includegraphics{label-bars_2}
-\caption{\label{fig:lab-bars-2} This figure displays the counts of unique labels broken down by dataset and faceted by each classification level.}
+\caption{\label{fig:label-bars-2} This figure displays the counts of unique labels broken down by dataset and faceted by each classification level.}
 \end{figure}
 
 From Figure \ref{fig:label-bars-1} and Figure \ref{fig:label-bars-2}, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the \code{usgswater\_classified} data has more labels than the \code{biosolids\_classified} data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor does it characterize the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
@@ -263,7 +264,7 @@ R> ggtree(chemont_tree) + layout_circular()
 \caption{\label{fig:chemont-tree} The Chemont tree displayed in a circular layout.}
 \end{figure}
 
-The diagram \ref{fig:chemont-tree} illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data set represents. This ChemOnt tree diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this creates a dense tree visualization that requires additional attention to be of greater use.
+Figure \ref{fig:chemont-tree} illustrates the scope of the taxonomy structure of the ChemOnt ontology. From this diagram we create visualizations that highlight the areas of chemical space each data set represents. This ChemOnt tree diagram displays a tree with 3612 tips and 1213 internal nodes (including the root of the tree). As one can easily observe, this creates a dense tree visualization that requires additional attention to be of greater use.
 
 We first examine which parts of this tree are given by classifications of chemicals in each data set. To do this, we use the function \fct{display\_subtree}. This function takes in a \pkg{data.table} with classification data and returns a tree diagram highlighting membership for each node and tip of the full ChemOnt tree. Branches and nodes in the tree are highlighted different colors depending on whether they are included in the set of classification labels of the \pkg{data.table}. In this example we also display the tip labels.
 
@@ -380,10 +381,10 @@ To quantify the level of overlap, we need to use a separate tree visualization d
 %
 \begin{Schunk}
 \begin{Sinput}
-R> biosolids_leaf_fraction <- leaf_fraction_subtree(data_1 = biosolids_classified,
-+                                                  data_2 = usgswater_classified,
-+                                                  name_1 = 'Biosolids',
-+                                                  name_2 = 'USGS water')
+R> bio_leaf_frac <- leaf_fraction_subtree(data_1 = biosolids_classified,
++                                         data_2 = usgswater_classified,
++                                         name_1 = 'Biosolids',
++                                         name_2 = 'USGS water')
 \end{Sinput}
 \end{Schunk}
 %
@@ -429,31 +430,31 @@ The tree visualization functions we have demonstrated thus far have focused on a
 
 The notion of similarity within ontologies and taxonomies has been an area of interest across a variety of disciplines. These aim to compare pairs of nodes in a tree with each other to gain insight on how these nodes relate to each other. Some methods involve examining just the pair of paths from the root of the tree to each of the nodes, while others may examine information more intrinsic to each node. While there is a lot to discuss and explore in the area of similarity measures, we will postpone that to the future and focus on how to use these similarity measures. We will highlight the main points of similarity measures relevant to the uses in this paper and then demonstrate visualizations that leverage them.
 
-Jaccard similarity examines the path from the root to each node in a given pair of nodes, and relates these individual paths to the shared portion of the path (which may possibly be just the root) \cite{pekar2002taxonomy}. We can relate these in the following expression $$\text{sim}_{\text{Jac}}(v_1, v_2) = \frac{l(\text{mrca}(v_1, v_2))}{l(v_1) + l(v_2) - l(\text{mrca}(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $\text{mrca}(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-node paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). Note, the above definition differes slightly in presentation from that in \cite{pekar2002taxonomy}, however they are equivalent. This notion of similarity is calculated using the function \fct{general\_Jaccard\_similarity}, which takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\text{sim}_{\text{Jac}}(v_i, v_j) = 1$.
+Jaccard similarity examines the path from the root to each node in a given pair of nodes, and relates these individual paths to the shared portion of the path (which may possibly be just the root) \cite{pekar2002taxonomy}. We can relate these in the following expression $$\textrm{sim}_{\textrm{Jac}}(v_1, v_2) = \frac{l(\textrm{mrca}(v_1, v_2))}{l(v_1) + l(v_2) - l(\textrm{mrca}(v_1, v_2))}$$ where $l(v_i)$ denotes the length of the root-to-node path for node $v_i$ and $\textrm{mrca}(v_i, v_j)$ denotes most recent common ancestor for nodes $v_i$ and $v_j$, the shared node in the root-to-node paths for nodes $v_i$ and $v_j$ furthest from the root (and in some cases possibly the root). Note, the above definition differes slightly in presentation from that in \cite{pekar2002taxonomy}, however they are equivalent. This notion of similarity is calculated using the function \fct{general\_Jaccard\_similarity}, which takes as parameters a tree and two labels and returns the Jaccard similarity of the two labels within the tree. We exclude the case when the root is one of the nodes being compared. Note, if $v_i = v_j$, then $\textrm{sim}_{\textrm{Jac}}(v_i, v_j) = 1$.
 
-Some trees may come with a probability distribution, associating to each node a probability such that the sum over all nodes of the probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In one such method, we look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for each node to have a higher value than any of its ancestors, with the root having the minimum value over all nodes. One way to achieve this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes of the entire tree, evaluating a monotonically decreasing function on these values at each node, and examining their ratio. In particular, for node $v_i$, define $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree, following the treatment by \cite{seco2004intrinsic}. In the case that $v_i$ is a tip, it has no descendants so $\text{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\text{IC}(v_i) = 1 - \frac{\log(1 + |\text{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\text{V}_{v_i}| > |\text{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\text{IC}(v_i) < \text{IC}(v_j)$. Hence, the function above fits the desired properties.
+Some trees may come with a probability distribution, associating to each node a probability such that the sum over all nodes of the probabilities is 1. In the case that a tree does not have such a distribution, we can still derive a node-specific value for each node in the tree. In one such method, we look at the number of descendants a node has and compare this with the total number of nodes in the tree. We would also like for each node to have a higher value than any of its ancestors, with the root having the minimum value over all nodes. One way to achieve this is by comparing the number of nodes in a given subtree with a specified node as the root of the subtree with the total number of nodes of the entire tree, evaluating a monotonically decreasing function on these values at each node, and examining their ratio. In particular, for node $v_i$, define $$\textrm{IC}(v_i) = 1 - \frac{\log(1 + |\textrm{V}_{v_i}|)}{\log(|V|)}$$ where $V_{v_i}$ denotes the descendants of node $v_i$ and $|V|$ is the total number of nodes in the tree, following the treatment by \cite{seco2004intrinsic}. In the case that $v_i$ is a tip, it has no descendants so $\textrm{IC}(v_i) = 1 - \frac{\log(1)}{\log(|V|)} = 1$. If $v_i$ is the root, then $$\textrm{IC}(v_i) = 1 - \frac{\log(1 + |\textrm{V}_{v_i}|)}{\log(|V|)} = 1 - \frac{\log(|V|)}{\log(|V|)} = 0.$$ Also note that if $v_i$ is an ancestor of $v_j$, then $|\textrm{V}_{v_i}| > |\textrm{V}_{v_j}|$ and since the function $f(x) = 1 - \frac{\log(1 + x)}{N}$ (for $N > 0$) is monotonically decreasing for $x > 0$, it follows that $\textrm{IC}(v_i) < \textrm{IC}(v_j)$. Hence, the function above fits the desired properties.
 
 One way to frame the concept of information content is the idea that the less likely a node appears in a generic path starting from the root and ending at an arbitrary node, the more information it tells when we know the node is on a path given to us. So for instance, the only path a tip can exist on is the unique path connecting it with the root. However, for an ancestor of a tip, there are more paths that include this node, so knowing the ancestor is on a path gives less information about what the whole path might be. Since every path starting at the root includes the root, knowing the root is on the path yields no information.
 
-To generate the information content for a tree, we can use the function \fct{attach\_information\_content} which takes in a tree as the only required parameter. This function then adds a data frame to the tree, with each row corresponding to a node of the tree and a column with the information content of each node. The data frame also includes the number of descendants, children, and the level for each node. Note that all of the tips in a tree have 0 descendants and an information content of 1, given by the \code{log\_descendants} column. The root has an information content of 0. Any other nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
+To generate the information content for a tree, we can use the  \fct{attach\_information\_content} function which takes in a tree as the only required parameter. This function then adds a data frame to the tree, with each row corresponding to a node of the tree and a column with the information content of each node. The data frame also includes the number of descendants, children, and the level for each node. Note that all of the tips in a tree have 0 descendants and an information content of 1, given by the \code{log\_descendants} column. The root has an information content of 0. Any other nodes have the desired inequality in the values of their information content as it relates to the number of descendants.
 
 Once an information content value is established for each node, we can then use similarity measures that rely on information content to compare nodes.
 
-The first such method is called Resnik similarity, introduced in \cite{resnik1995using}. We use the definition given in \cite{seco2004intrinsic}. Resnik similarity is defined for two nodes $v_i$ and $v_j$ as $$\text{sim}_{\text{res}}(v_1, v_2) = \text{IC}(\text{mrca}(v_i, v_j)).$$ Observe that this is symmetric and when $v_i = v_j$ the similarity measure just returns the information content of the node itself. Note that for nodes that are not tips, their self-similarity is not equal to 1 but instead its associated information content. This implicitly encodes the fact that such a node tells less information than a more specific node does (nodes with fewer descendants). Also, since the information content of the root is zero, any pair of nodes containing the root will return a similarity value of zero.
+The first such method is called Resnik similarity, introduced in \cite{resnik1995using}. We use the definition given in \cite{seco2004intrinsic}. Resnik similarity is defined for two nodes $v_i$ and $v_j$ as $$\textrm{sim}_{\textrm{res}}(v_1, v_2) = \textrm{IC}(\textrm{mrca}(v_i, v_j)).$$ Observe that this is symmetric and when $v_i = v_j$ the similarity measure just returns the information content of the node itself. Note that for nodes that are not tips, their self-similarity is not equal to 1 but instead its associated information content. This implicitly encodes the fact that such a node tells less information than a more specific node does (nodes with fewer descendants). Also, since the information content of the root is zero, any pair of nodes containing the root will return a similarity value of zero.
 
 There are additional similarity measures that build off of Resnik similarity. These will in fact return a value of 1 for self-similarity of nodes unlike in the case of Resnik similarity.
 
-The next method is Lin similarity, introduced in \cite{lin1998information} and again use the information content defined in \cite{seco2004intrinsic}. This resembles Jaccard similarity in that it is the ratio of a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\text{sim}_{\text{lin}}(v_i, v_j) = \frac{2 \times \text{sim}_{\text{res}}(v_i, v_j)}{\text{IC}(v_i) + \text{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike Resnik similarity, if $v_i = v_j$, then $2 \times \text{sim}_{\text{res}}(v_i, v_i) = 2 \times \text{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \text{IC}(v_i) + \text{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\text{IC}(v_i) + \text{IC}(v_j)}$$ from which it follows that $$\text{sim}_{\text{res}}(v_i, v_j) \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$
+The next method is Lin similarity, introduced in \cite{lin1998information} and again use the information content defined in \cite{seco2004intrinsic}. This resembles Jaccard similarity in that it is the ratio of a value derived from the most recent common ancestor of a pair of nodes with values derived from the nodes themselves. In particular, we define $$\textrm{sim}_{\textrm{lin}}(v_i, v_j) = \frac{2 \times \textrm{sim}_{\textrm{res}}(v_i, v_j)}{\textrm{IC}(v_i) + \textrm{IC}(v_j)}.$$ Since the numerator is a scaled form of Resnik similarity, a pair of nodes with the root as their most recent common ancestor will have a value of zero for their Lin similarity. However, unlike Resnik similarity, if $v_i = v_j$, then $2 \times \textrm{sim}_{\textrm{res}}(v_i, v_i) = 2 \times \textrm{IC}(v_i)$, so the self-similarity value is equal to 1. Another thing to note is that for a pair of nodes with at least one not equal to the root, $$0 < \textrm{IC}(v_i) + \textrm{IC}(v_j) \leq 2$$ so $$1 \leq \frac{2}{\textrm{IC}(v_i) + \textrm{IC}(v_j)}$$ from which it follows that $$\textrm{sim}_{\textrm{res}}(v_i, v_j) \leq \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$
 
 We define the self-similarity of the root to be 1 to reflect the fact that in Lin similarity, self-similarity is equal to 1. This keeps intact the relation above between Resnik similarity and Lin similarity.
 
-An alternative approach to normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq \text{IC}(v_i) + \text{IC}(v_j).$$ Taking the difference yields the following inequality $$0 \leq \text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1 - \frac{\text{IC}(v_i) + \text{IC}(v_j) - 2 \times \text{sim}_{\text{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath  in \cite{jiang1997semantic} and is thus named. As with Lin and with Resnik similarities, we use the treatment by \cite{seco2004intrinsic} for consistency.
+An alternative approach to normalizing the similarity value for a pair of nodes takes advantage of the inequality $$2 \times \textrm{sim}_{\textrm{res}}(v_i, v_j) \leq \textrm{IC}(v_i) + \textrm{IC}(v_j).$$ Taking the difference yields the following inequality $$0 \leq \textrm{IC}(v_i) + \textrm{IC}(v_j) - 2 \times \textrm{sim}_{\textrm{res}}(v_i, v_j) \leq 2.$$ Dividing this inequality by 2 restricts the values the middle expression can take to the interval $[0,1]$. However, we want the similarity to be equal to 1 if $v_i = v_j$ and the expression above returns a value of 0 instead. The solution is to take the difference of 1 and this expression, yielding $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) = 1 - \frac{\textrm{IC}(v_i) + \textrm{IC}(v_j) - 2 \times \textrm{sim}_{\textrm{res}}(v_i, v_j)}{2}.$$ This was developed by Jiang and Conrath  in \cite{jiang1997semantic} and is thus named. As with Lin and with Resnik similarities, we use the treatment by \cite{seco2004intrinsic} for consistency.
 
-Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this similarity measure does not necessarily return a value of zero. In fact, rewriting the expression for Jiang and Conrath similarity, we see that it is equal to $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + \frac{2 - (\text{IC}(v_i) + \text{IC}(v_j))}{2} \geq \text{sim}_{\text{res}}(v_i, v_j)$$ since $$\text{IC}(v_i) + \text{IC}(v_j) \leq 2.$$ One thing this reflects is that if a pair of such nodes represents a large portion of the tree based on their descendants, they are more likely to be closer to the root and thus more related to each other.
+Things to note are that when the most recent common ancestor for a pair of nodes $v_i$ and $v_j$ is the root, this similarity measure does not necessarily return a value of zero. In fact, rewriting the expression for Jiang and Conrath similarity, we see that it is equal to $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) = \textrm{sim}_{\textrm{res}}(v_i, v_j) + \frac{2 - (\textrm{IC}(v_i) + \textrm{IC}(v_j))}{2} \geq \textrm{sim}_{\textrm{res}}(v_i, v_j)$$ since $$\textrm{IC}(v_i) + \textrm{IC}(v_j) \leq 2.$$ One thing this reflects is that if a pair of such nodes represents a large portion of the tree based on their descendants, they are more likely to be closer to the root and thus more related to each other.
 
-We also observe that $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) \geq \text{sim}_{\text{Lin}}(v_i, v_j).$$ This follows from the following argument. If $v_i = v_j$ are the root, $$\text{sim}_{\text{Lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j) = 1.$$ Otherwise, if $$\text{sim}_{\text{res}}(v_i, v_j) = 0,$$ $$\text{sim}_{\text{Lin}}(v_i, v_j) = 0 \leq \text{sim}_{\text{Lin}}(v_i, v_j).$$ If $$0 < \text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{Lin}}(v_i, v_j),$$ then $$\text{IC}(v_i) + \text{IC}(v_j) = 2,$$ $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{Lin}}(v_i, v_j).$$ If $$0 < \text{sim}_{\text{res}}(v_i, v_j) < \text{sim}_{\text{Lin}}(v_i, v_j),$$ since $$1 \geq \text{sim}_{\text{Lin}}(v_i, v_j),$$ it follows that $$\frac{1}{\text{sim}_{\text{Lin}}(v_i, v_j)} > 1$$ and $$\frac{\text{sim}_{\text{Lin}}(v_i, v_j) - \text{sim}_{\text{res}}(v_i, v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)} > \text{sim}_{\text{Lin}}(v_i, v_j) - \text{sim}_{\text{res}}(v_i, v_j)$$ from which it follows that $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) = \text{sim}_{\text{res}}(v_i, v_j) + 1 - \frac{\text{sim}_{\text{res}}(v_i, v_j)}{\text{sim}_{\text{Lin}}(v_i, v_j)} > \text{sim}_{\text{Lin}}(v_i, v_j).$$ Hence, in all cases $$\text{sim}_{\text{JiangConrath}}(v_i, v_j) \geq \text{sim}_{\text{Lin}}(v_i, v_j).$$
+We also observe that $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) \geq \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$ This follows from the following argument. If $v_i = v_j$ are the root, $$\textrm{sim}_{\textrm{Lin}}(v_i, v_j) = \textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) = 1.$$ Otherwise, if $$\textrm{sim}_{\textrm{res}}(v_i, v_j) = 0,$$ $$\textrm{sim}_{\textrm{Lin}}(v_i, v_j) = 0 \leq \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$ If $$0 < \textrm{sim}_{\textrm{res}}(v_i, v_j) = \textrm{sim}_{\textrm{Lin}}(v_i, v_j),$$ then $$\textrm{IC}(v_i) + \textrm{IC}(v_j) = 2,$$ $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) = \textrm{sim}_{\textrm{res}}(v_i, v_j) = \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$ If $$0 < \textrm{sim}_{\textrm{res}}(v_i, v_j) < \textrm{sim}_{\textrm{Lin}}(v_i, v_j),$$ since $$1 \geq \textrm{sim}_{\textrm{Lin}}(v_i, v_j),$$ it follows that $$\frac{1}{\textrm{sim}_{\textrm{Lin}}(v_i, v_j)} > 1$$ and $$\frac{\textrm{sim}_{\textrm{Lin}}(v_i, v_j) - \textrm{sim}_{\textrm{res}}(v_i, v_j)}{\textrm{sim}_{\textrm{Lin}}(v_i, v_j)} > \textrm{sim}_{\textrm{Lin}}(v_i, v_j) - \textrm{sim}_{\textrm{res}}(v_i, v_j)$$ from which it follows that $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) = \textrm{sim}_{\textrm{res}}(v_i, v_j) + 1 - \frac{\textrm{sim}_{\textrm{res}}(v_i, v_j)}{\textrm{sim}_{\textrm{Lin}}(v_i, v_j)} > \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$ Hence, in all cases $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) \geq \textrm{sim}_{\textrm{Lin}}(v_i, v_j).$$
 
-When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, observe that since $$\text{IC}(v_i) = \text{IC}(v_j) = 1,$$ $$\text{sim}_{\text{res}}(v_i, v_j) = \text{sim}_{\text{lin}}(v_i, v_j) = \text{sim}_{\text{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but generally diverge in value otherwise.
+When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, observe that since $$\textrm{IC}(v_i) = \textrm{IC}(v_j) = 1,$$ $$\textrm{sim}_{\textrm{res}}(v_i, v_j) = \textrm{sim}_{\textrm{lin}}(v_i, v_j) = \textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but generally diverge in value otherwise.
 
 Now, the function \fct{attach\_information\_content} generates information content for an input tree, and the functions \fct{general\_Jaccard\_similarity}, \fct{general\_Resnik\_similarity}, \fct{general\_Lin\_similarity}, \fct{general\_JiangConrath\_similarity} all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function \fct{generate\_similarity\_matrix} will do so for a given tree and similarity measure function. The computation is lengthy for the ChemOnt tree and so these matrices have been previously computed and stored. They are accessible as \code{chemont\_jaccard}, \code{chemont\_resnik\_IC\_SVH}, \code{chemont\_lin\_IC\_SVH}, and \code{chemont\_jiangconrath\_IC\_SVH}.
 
@@ -544,22 +545,23 @@ R> generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree,
 
 In the pair of trees in Figure \ref{fig:row9-col8-full} and Figure \ref{fig:row9-col8-prune}, corresponding to row cluster nine and column cluster eight, we observe that there are several superclasses represented, seven corresponding to just USGS classifications (highlighted in light green) and one shared by both Biosolids and USGS (highlighted in light purple). Consequently, there are labels from the USGS Water data set present in all of the superclass clades that are highlighted, though the labels from the biosolids data set are only found within the Organic nitrogen compounds superclass.
 
-In the Figure~ref{fig:row9-col8-prune}, we can observe this more closely. Within the shared clade given by the Organic nitrogen compounds clade, there are very few labels that are just given by the biosolids classifications, while most labels are solely from the USGS Water classifications and some are shared by both data sets.
+In the Figure \ref{fig:row9-col8-prune}, we can observe this more closely. Within the shared clade given by the Organic nitrogen compounds clade, there are very few labels that are just given by the biosolids classifications, while most labels are solely from the USGS Water classifications and some are shared by both data sets.
 
 \section{Summary and discussion} \label{sec:sumdisc}
 
-The visualization tools provided by treecompareR allow for an analysis of chemical space not previously available. This can benefit researchers analyzing data sets in a variety of ways. While there are already 'chemical fingerprints' in use for characterizing chemical structure, these fingerprints can be hard to interpret especially within a large data set or for those without specialized knowledge of those chemical structures. The ClassyFire framework implicitly encodes some of this information into the taxonomic structure of the ontology and provides a classification scheme more accessible to a broader group of users. However, visual interpretation of this data is an important aspect of the data analysis in addition to quantitative interpretations, and \pkg{treecompareR} provides tools to address both of these needs. This allows users an increased ability to answer questions that naturally arise concerning domain of applicability of models, to identify data gaps that require additional data gathering efforts,
+The visualization tools provided by \pkg{treecompareR} allow for an analysis of chemical space not previously available. This can benefit researchers analyzing data sets in a variety of ways. While there are already 'chemical fingerprints' in use for characterizing chemical structure, these fingerprints can be hard to interpret especially within a large data set or for those without specialized knowledge of those chemical structures. The ClassyFire framework implicitly encodes some of this information into the taxonomic structure of the ontology and provides a classification scheme more accessible to a broader group of users. However, visual interpretation of this data is an important aspect of the data analysis in addition to quantitative interpretations, and \pkg{treecompareR} provides tools to address both of these needs. This allows users an increased ability to answer questions that naturally arise concerning domain of applicability of models, to identify data gaps that require additional data gathering efforts,
 
 First, using the function \fct{label\_bars}, one can make a preliminary analysis on the broad coverage of labels within chemical space that one or several data sets produce. The number of labels per taxonomic level can tell the user whether a data set is confined to a few labels at a specific taxonomic level or spreads through a greater portion of the labels in the given level. For instance, in Figure \ref{fig:label-bars-2}, we observe that USGS Water covers more labels than Biosolids, but that the difference is relatively small.
 
-Next, we turn to the tree diagrams to gain a visual understanding of how the data sets overlap within chemical space. By plotting two subtrees induced from data sets together, we can observe whether the data correspond to the same areas of chemical space or are in distant areas. For example, in Figure \ref{fig:subtree-overlap}, we observe that there is indeed a decent amount of overlap. These data, while indeed representing some areas of chemical space specific to one data set or the other, have a non-trivial amount of overlap. This lends some evidence to suggest that at least in the areas of overlap, models trained on one data set would have a reasonable likelihood of being applicable for use with the other data set.
+Next, we turn to the tree diagrams to gain a visual understanding of how the data sets overlap within chemical space. By plotting two subtrees induced from data sets together, we can observe whether the data correspond to the same areas of chemical space or are in distant areas. For example, in Figure \ref{fig:subtree-overlap}, we observe that there is indeed a decent amount of overlap. These data, while representing some areas of chemical space specific to one data set or the other, have a non-trivial amount of overlap. This gives some evidence to suggest that at least in the areas of overlap, models trained on one data set would have a reasonable likelihood of being applicable for use with the other data set.
 
-To study the overlap further, one can use either the function \fct{data\_set\_subtrees} or the function \fct{leaf\_fraction\_subtree} for a more in-depth study of how the data sets relate. These allow for a simple visual examination of the overlap in each induced subtree as well as a quantitative examination of the degree of the overlap. In Figure \ref{fig:biosolids-usgs-shaded} and Figure \ref{fig:usgs-biosolids-shaded}, we can get a clear idea of what classifications are shared by each data set and areas specific to one or the other. To quantify this overlap, an examination of the tree diagram in Figure \ref{fig:biosolids-leaf-fraction} and of the associated data.frame. There are 80 taxonomic labels shared between the two subtrees induced by the biosolids and usgswater data sets. This accounts for 40.2\% of the Biosolids subtree (80/199) and 34.63\% of the USGS Water subtree (80/231). Moreover, there are 44 classification labels associated with 65 chemicals shared between the data sets. These 44 classification labels are the most specific labels in the classifications of the associated chemicals, the 'terminal labels' in the classification data of each classified chemical. For the 65 chemicals that are shared between the data sets, it would be useful to explore further the concentrations of there occurrence in both water and biosolids. If chemicals expected to partition to solids are still found at high concentrations within water, this would suggest that there is a high background concentration of these chemicals. On the other hand, if the concentration within water were relatively low, it might suggest that these chemicals are removed effectively by wastewater treatment processes and not persisting at great levels within the environment after water treatment.
+To study the overlap further, one can use either the function \fct{data\_set\_subtrees} or the function \fct{leaf\_fraction\_subtree} for a more in-depth examination of how the data sets relate. These allow for a simple visual examination of the overlap in each induced subtree as well as a quantitative examination of the degree of the overlap. In Figure \ref{fig:biosolids-usgs-shaded} and Figure \ref{fig:usgs-biosolids-shaded}, we can get a clear idea of what classifications are shared by each data set and areas specific to one or the other. To quantify this overlap, we perform an examination of the tree diagram in Figure \ref{fig:biosolids-leaf-fraction} and of the associated data.frame. There are 80 taxonomic labels shared between the two subtrees induced by the biosolids and usgswater data sets. This accounts for 40.4\% of the Biosolids subtree (80/198) and 34.63\% of the USGS Water subtree (80/231). Moreover, there are 44 classification labels associated with 65 chemicals shared between the data sets. These 44 classification labels are the most specific labels in the classifications of the associated chemicals, the 'terminal labels' in the classification data of each classified chemical. For the 65 chemicals that are shared between the data sets, it would be useful to explore further the concentrations of there occurrence in both water and biosolids. If chemicals expected to partition to solids are still found at high concentrations within water, this would suggest that there is a high background concentration of these chemicals. On the other hand, if the concentration within water were relatively low, it might suggest that these chemicals are removed effectively by wastewater treatment processes and do not persist at great levels within the environment after water treatment.
 
-For a more quantitative approach to identifying overlaps of chemical space coverage from each data set, we turn to similarity measures. By examining the heatmap in Figure \ref{fig:biosolids-usgs-heatmap}, we can identify clusters of high similarity and clusters of low similarity. For the purposes of training a model and studying the associated domain of applicability, it is reasonable to expect that chemicals with classifications grouped within clusters of high similarity values between the training set and target set may have a greater likelihood of falling within the model domain of applicability. For example, an examination on row cluster two and column cluster two, featured in Figure \ref{fig:row2-col2-full} and Figure \ref{fig:row2-col2-prune}, leads one to conclude that chemicals with a superclass label of 'Benzenoids' may have more reliable model predictions when using the \code{biosolids_classified} data to train a model. Likewise, chemicals with a superclass label of 'Organic nitrogen compounds' would also have a more reliable model prediction due to the overlap featured in row cluster nine and column cluster eight, and displayed in Figure \ref{fig:row9-col8-full} and Figure \ref{fig:row9-col8-prune}. In fact, since most rows in Figure~ref{fig:biosolids-usgs-heatmap} have a corresponding row cluster of higher similarity, it is reasonable to expect that many of chemicals contained in the \code{usgswater\_classified} data set would have reliable model predictions produced from a model that was trained on the \code{biosolids\_classified} data set; the \code{usgswater\_classified} data set is likely well covered by the applicability domain of a model trained using the \code{biosolids\_classified} data.
+For a more quantitative approach to identifying overlaps of chemical space coverage from each data set, we turn to similarity measures. By examining the heatmap in Figure \ref{fig:heatmap-biosolids-usgs}, we can identify clusters of high similarity and clusters of low similarity. For the purposes of training a model and studying the associated domain of applicability, it is reasonable to expect that chemicals with classifications grouped within clusters of high similarity values between the training set and target set may have a greater likelihood of falling within the model domain of applicability. For example, an examination on row cluster two and column cluster two, featured in Figure \ref{fig:row2-col2-full} and Figure \ref{fig:row2-col2-prune}, leads one to conclude that chemicals with a superclass label of 'Benzenoids' may have more reliable model predictions when using the \code{biosolids_classified} data to train a model. Likewise, chemicals with a superclass label of 'Organic nitrogen compounds' would also have a more reliable model prediction due to the overlap featured in row cluster nine and column cluster eight, and displayed in Figure \ref{fig:row9-col8-full} and Figure \ref{fig:row9-col8-prune}. In fact, since most rows in Figure \ref{fig:heatmap-biosolids-usgs} have a corresponding row cluster of higher similarity, it is reasonable to expect that many of chemicals contained in the \code{usgswater\_classified} data set would have reliable model predictions produced from a model that was trained on the \code{biosolids\_classified} data set; the \code{usgswater\_classified} data set is likely well covered by the applicability domain of a model trained using the \code{biosolids\_classified} data.
 
-What does this mean in terms of chemicals/classifications in overlaps, where should we gather more data, where can we trust predictions? Make general statement on making predictions in biosolids based on presence in water. Here is how you can use this package to explore domain of applicability.
+\section{Conclusion} \label{sec:conc}
 
+The \proglran{R} package \pkg{treecompareR} provides a suite of tools for visualizing hierarchical chemical classification data associated to ClassyFire and for determining the similarity of subtrees of the ChemOnt tree induced by chemical data sets. The visualization functions provide tools for a qualitative analysis of data set similarity and overlap, while the similarity functions provide a more quantitative approach. With both of these sets of tools, researchers can explore questions concerning the overlap of distinct data sets and how that might inform the training and testing of models that use chemical data. Specifically, these can elucidate potential data gaps in the domain of applicability of a model or suggest when a data set might be suitable for use with a trained model. We demonstrate these ideas of visual and quantitative exploration of two real data sets available from the CompTox Chemicals Dashboard. While this showcases many opportunities to explore these data sets, the functionality provided by \pkg{treecompareR} is not meant as a replacement of existing techniques, but rather to augment the approaches researchers might take to characterize their data.
 
 
 
@@ -580,22 +582,16 @@ What does this mean in terms of chemicals/classifications in overlaps, where sho
 
 
 The results in this paper were obtained using
-\proglang{R}~.4 with the
-\pkg{MASS}~7.3.61 package. \proglang{R} itself
+\proglang{R}~4.4.0 with the
+\pkg{treecompareR}~0.0.0.9000 package. \proglang{R} itself
 and all packages used are available from the Comprehensive
 \proglang{R} Archive Network (CRAN) at
-\url{https://CRAN.R-project.org/}.
+\url{https://CRAN.R-project.org/}, BioConductor at \url{https://www.bioconductor.org/} or from GitHub.
 
 
 \section*{Acknowledgments}
 
-\begin{leftbar}
-All acknowledgments (note the AE spelling) should be collected in this
-unnumbered section before the references. It may contain the usual information
-about funding and feedback from colleagues/reviewers/etc. Furthermore,
-information such as relative contributions of the authors may be added here
-(if any).
-\end{leftbar}
+The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure.
 
 \section*{Disclaimer}
 
@@ -623,51 +619,6 @@ The views expressed in this publication are those of the authors and do not nece
 
 \begin{appendix}
 
-\section{More technical details} \label{app:technical}
-
-\begin{leftbar}
-Appendices can be included after the bibliography (with a page break). Each
-section within the appendix should have a proper section title (rather than
-just \emph{Appendix}).
-
-For more technical style details, please check out JSS's style FAQ at
-\url{https://www.jstatsoft.org/pages/view/style#frequently-asked-questions}
-which includes the following topics:
-\begin{itemize}
-  \item Title vs.\ sentence case.
-  \item Graphics formatting.
-  \item Naming conventions.
-  \item Turning JSS manuscripts into \proglang{R} package vignettes.
-  \item Trouble shooting.
-  \item Many other potentially helpful details\dots
-\end{itemize}
-\end{leftbar}
-
-
-\section[Using BibTeX]{Using \textsc{Bib}{\TeX}} \label{app:bibtex}
-
-\begin{leftbar}
-References need to be provided in a \textsc{Bib}{\TeX} file (\code{.bib}). All
-references should be made with \verb|\cite|, \verb|\citet|, \verb|\citep|,
-\verb|\citealp| etc.\ (and never hard-coded). This commands yield different
-formats of author-year citations and allow to include additional details (e.g.,
-pages, chapters, \dots) in brackets. In case you are not familiar with these
-commands see the JSS style FAQ for details.
-
-Cleaning up \textsc{Bib}{\TeX} files is a somewhat tedious task -- especially
-when acquiring the entries automatically from mixed online sources. However,
-it is important that informations are complete and presented in a consistent
-style to avoid confusions. JSS requires the following format.
-\begin{itemize}
-  \item JSS-specific markup (\verb|\proglang|, \verb|\pkg|, \verb|\code|) should
-    be used in the references.
-  \item Titles should be in title case.
-  \item Journal titles should not be abbreviated and in title case.
-  \item DOIs should be included where available.
-  \item Software should be properly cited as well. For \proglang{R} packages
-    \code{citation("pkgname")} typically provides a good starting point.
-\end{itemize}
-\end{leftbar}
 
 \end{appendix}
 

@@ -5,45 +5,45 @@ The style file: jss.bst
 Database file #1: refs.bib
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Warning--can't use both volume and number fields in lin1998information
-You've used 15 entries,
+You've used 16 entries,
             3215 wiz_defined-function locations,
-            731 strings with 8208 characters,
-and the built_in function-call counts, 18138 in all, are:
-= -- 1752
-> -- 542
+            737 strings with 8424 characters,
+and the built_in function-call counts, 19334 in all, are:
+= -- 1870
+> -- 585
 < -- 12
-+ -- 210
-- -- 190
-* -- 1345
-:= -- 2165
-add.period$ -- 66
-call.type$ -- 15
-change.case$ -- 129
-chr.to.int$ -- 16
-cite$ -- 16
-duplicate$ -- 1871
-empty$ -- 1393
-format.name$ -- 233
-if$ -- 3670
++ -- 226
+- -- 205
+* -- 1437
+:= -- 2309
+add.period$ -- 69
+call.type$ -- 16
+change.case$ -- 139
+chr.to.int$ -- 17
+cite$ -- 17
+duplicate$ -- 1994
+empty$ -- 1477
+format.name$ -- 251
+if$ -- 3908
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 193
-newline$ -- 93
-num.names$ -- 60
-pop$ -- 939
+missing$ -- 204
+newline$ -- 98
+num.names$ -- 64
+pop$ -- 1003
 preamble$ -- 1
-purify$ -- 123
+purify$ -- 132
 quote$ -- 0
-skip$ -- 328
+skip$ -- 348
 stack$ -- 0
-substring$ -- 1857
-swap$ -- 439
+substring$ -- 1978
+swap$ -- 464
 text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 132
+type$ -- 141
 warning$ -- 1
-while$ -- 125
+while$ -- 133
 width$ -- 0
-write$ -- 216
+write$ -- 229
 (There was 1 warning)
