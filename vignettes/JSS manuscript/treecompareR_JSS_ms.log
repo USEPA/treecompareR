@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  30 MAR 2025 12:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  30 MAR 2025 12:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -619,7 +619,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [4]
-LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 152.
+LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 153.
  (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -630,44 +630,44 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-Underfull \hbox (badness 10000) in paragraph at lines 206--207
+Underfull \hbox (badness 10000) in paragraph at lines 207--208
 []\T1/lmr/m/n/8 1,3,5-
  []
 
 
-Underfull \hbox (badness 3623) in paragraph at lines 207--208
+Underfull \hbox (badness 3623) in paragraph at lines 208--209
 []\T1/lmr/m/n/8 Sulfuric acid
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 209--210
+Underfull \hbox (badness 10000) in paragraph at lines 210--211
 []\T1/lmr/m/n/8 Organic al-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 209--210
+Underfull \hbox (badness 10000) in paragraph at lines 210--211
 \T1/lmr/m/n/8 kali metal
  []
 
 
-Overfull \hbox (41.90125pt too wide) in paragraph at lines 201--214
+Overfull \hbox (41.90125pt too wide) in paragraph at lines 202--215
  [][] 
  []
 
 <label-bars_1.png, id=123, 1156.32pt x 597.73312pt>
 File: label-bars_1.png Graphic file (type png)
 <use label-bars_1.png>
-Package pdftex.def Info: label-bars_1.png  used on input line 235.
+Package pdftex.def Info: label-bars_1.png  used on input line 236.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <label-bars_2.png, id=124, 1156.32pt x 597.73312pt>
 File: label-bars_2.png Graphic file (type png)
 <use label-bars_2.png>
-Package pdftex.def Info: label-bars_2.png  used on input line 241.
+Package pdftex.def Info: label-bars_2.png  used on input line 242.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <chemont-tree.png, id=127, 1156.32pt x 597.73312pt>
 File: chemont-tree.png Graphic file (type png)
 <use chemont-tree.png>
-Package pdftex.def Info: chemont-tree.png  used on input line 263.
+Package pdftex.def Info: chemont-tree.png  used on input line 264.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -687,12 +687,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <biosolids-subtree.png, id=146, 1156.32pt x 597.73312pt>
 File: biosolids-subtree.png Graphic file (type png)
 <use biosolids-subtree.png>
-Package pdftex.def Info: biosolids-subtree.png  used on input line 282.
+Package pdftex.def Info: biosolids-subtree.png  used on input line 283.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <usgs-water-subtree.png, id=147, 1156.32pt x 597.73312pt>
 File: usgs-water-subtree.png Graphic file (type png)
 <use usgs-water-subtree.png>
-Package pdftex.def Info: usgs-water-subtree.png  used on input line 297.
+Package pdftex.def Info: usgs-water-subtree.png  used on input line 298.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -705,7 +705,7 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <subtree-overlap.png, id=157, 1156.32pt x 597.73312pt>
 File: subtree-overlap.png Graphic file (type png)
 <use subtree-overlap.png>
-Package pdftex.def Info: subtree-overlap.png  used on input line 317.
+Package pdftex.def Info: subtree-overlap.png  used on input line 318.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -718,12 +718,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 <biosolids-prune-subtree.png, id=165, 1156.32pt x 597.73312pt>
 File: biosolids-prune-subtree.png Graphic file (type png)
 <use biosolids-prune-subtree.png>
-Package pdftex.def Info: biosolids-prune-subtree.png  used on input line 336.
+Package pdftex.def Info: biosolids-prune-subtree.png  used on input line 337.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <usgswater-prune-subtree.png, id=166, 1156.32pt x 597.73312pt>
 File: usgswater-prune-subtree.png Graphic file (type png)
 <use usgswater-prune-subtree.png>
-Package pdftex.def Info: usgswater-prune-subtree.png  used on input line 343.
+Package pdftex.def Info: usgswater-prune-subtree.png  used on input line 344.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -736,12 +736,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 <biosolids-usgs-shaded-subtree.png, id=177, 1156.32pt x 597.73312pt>
 File: biosolids-usgs-shaded-subtree.png Graphic file (type png)
 <use biosolids-usgs-shaded-subtree.png>
-Package pdftex.def Info: biosolids-usgs-shaded-subtree.png  used on input line 366.
+Package pdftex.def Info: biosolids-usgs-shaded-subtree.png  used on input line 367.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <usgs-biosolids-shaded-subtree.png, id=178, 1156.32pt x 597.73312pt>
 File: usgs-biosolids-shaded-subtree.png Graphic file (type png)
 <use usgs-biosolids-shaded-subtree.png>
-Package pdftex.def Info: usgs-biosolids-shaded-subtree.png  used on input line 373.
+Package pdftex.def Info: usgs-biosolids-shaded-subtree.png  used on input line 374.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -754,7 +754,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 <biosolids-leaf-fraction.png, id=187, 1156.32pt x 597.73312pt>
 File: biosolids-leaf-fraction.png Graphic file (type png)
 <use biosolids-leaf-fraction.png>
-Package pdftex.def Info: biosolids-leaf-fraction.png  used on input line 394.
+Package pdftex.def Info: biosolids-leaf-fraction.png  used on input line 395.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -767,7 +767,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 <biosolids-circ-boxplot.png, id=192, 1156.32pt x 597.73312pt>
 File: biosolids-circ-boxplot.png Graphic file (type png)
 <use biosolids-circ-boxplot.png>
-Package pdftex.def Info: biosolids-circ-boxplot.png  used on input line 419.
+Package pdftex.def Info: biosolids-circ-boxplot.png  used on input line 420.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -784,7 +784,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [14{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./biosolids-circ-boxplot.png (PNG copy)>]
-Overfull \hbox (5.8696pt too wide) in paragraph at lines 439--440
+Overfull \hbox (5.8696pt too wide) in paragraph at lines 440--441
 []\T1/lmr/m/n/10.95 To gen-er-ate the in-for-ma-tion con-tent for a tree, we can use the \T1/lmtt/m/n/10.95 attach_information_content()
  []
 
@@ -810,7 +810,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [17]
-Overfull \hbox (8.85028pt too wide) in paragraph at lines 459--460
+Overfull \hbox (8.85028pt too wide) in paragraph at lines 460--461
 \T1/lmr/m/n/10.95 put tree, and the func-tions \T1/lmtt/m/n/10.95 general_Jaccard_similarity()\T1/lmr/m/n/10.95 , \T1/lmtt/m/n/10.95 general_Resnik_similarity()\T1/lmr/m/n/10.95 ,
  []
 
@@ -825,22 +825,22 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 <heatmap-biosolids-usgs.png, id=254, 1156.32pt x 597.73312pt>
 File: heatmap-biosolids-usgs.png Graphic file (type png)
 <use heatmap-biosolids-usgs.png>
-Package pdftex.def Info: heatmap-biosolids-usgs.png  used on input line 488.
+Package pdftex.def Info: heatmap-biosolids-usgs.png  used on input line 489.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
-Overfull \hbox (8.39426pt too wide) in paragraph at lines 494--495
+Overfull \hbox (8.39426pt too wide) in paragraph at lines 495--496
 []\T1/lmr/m/n/10.95 To vi-su-al-ize the clus-ters through tree di-a-grams, we use the func-tion \T1/lmtt/m/n/10.95 generate_tree_cluster()\T1/lmr/m/n/10.95 ,
  []
 
 <row2-col2-full.png, id=255, 1156.32pt x 597.73312pt>
 File: row2-col2-full.png Graphic file (type png)
 <use row2-col2-full.png>
-Package pdftex.def Info: row2-col2-full.png  used on input line 509.
+Package pdftex.def Info: row2-col2-full.png  used on input line 510.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <row2-col2-prune.png, id=256, 1156.32pt x 597.73312pt>
 File: row2-col2-prune.png Graphic file (type png)
 <use row2-col2-prune.png>
-Package pdftex.def Info: row2-col2-prune.png  used on input line 515.
+Package pdftex.def Info: row2-col2-prune.png  used on input line 516.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -863,12 +863,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 <row9-col8-full.png, id=274, 1156.32pt x 597.73312pt>
 File: row9-col8-full.png Graphic file (type png)
 <use row9-col8-full.png>
-Package pdftex.def Info: row9-col8-full.png  used on input line 536.
+Package pdftex.def Info: row9-col8-full.png  used on input line 537.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 <row9-col8-prune.png, id=275, 1156.32pt x 597.73312pt>
 File: row9-col8-prune.png Graphic file (type png)
 <use row9-col8-prune.png>
-Package pdftex.def Info: row9-col8-prune.png  used on input line 542.
+Package pdftex.def Info: row9-col8-prune.png  used on input line 543.
 (pdftex.def)             Requested size: 354.12434pt x 183.05167pt.
 
 
@@ -886,7 +886,7 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [22]
 ! Undefined control sequence.
-l.564 The \proglran
+l.565 The \proglran
                    {R} package \pkg{treecompareR} provides a suite of tools ...
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -920,12 +920,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [25]
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
-(Font)              Font shape `T1/pzc/m/it' tried instead on input line 628.
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 629.
 
 ! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
 <to be read again> 
                    relax 
-l.628 \end{document}
+l.629 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -936,7 +936,7 @@ e.g., type `I\font<same font id>=<substitute font name>'.
 ! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
 <to be read again> 
                    \relax 
-l.628 \end{document}
+l.629 \end{document}
                     
 I wasn't able to read the size data for this font,
 so I will ignore the font specification.
@@ -996,7 +996,7 @@ Here is how much of TeX's memory you used:
  14 hyphenation exceptions out of 8191
  99i,13n,101p,1866b,858s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
-Output written on treecompareR_JSS_ms.pdf (26 pages, 2208962 bytes).
+Output written on treecompareR_JSS_ms.pdf (26 pages, 2208958 bytes).
 PDF statistics:
  437 PDF objects out of 1000 (max. 8388607)
  340 compressed objects within 4 object streams

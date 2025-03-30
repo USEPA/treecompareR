@@ -61,6 +61,7 @@
 \begin{document}
 
 
+
 %% -- Introduction -------------------------------------------------------------
 
 %% - In principle "as usual".
@@ -150,7 +151,7 @@ Next, we use the ClassyFire tool to provide classifications for the chemicals in
 \begin{Schunk}
 \begin{Sinput}
 R> CASRN <- c('117964-21-3', '11006-76-1')
-R> chemical_search <- ctxR::chemical_equal_batch(word_list = c('117964-21-3', '11006-76-1'))
+R> chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
 R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$valid$dtxsid)
 R> data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
 R> chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
