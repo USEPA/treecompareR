@@ -190,13 +190,13 @@ label_bars(data_list)
 
 \begin{figure}[t!]
 \centering
-\includegraphics{label-bars_1}
+\includegraphics{label-bars_fig1.pdf}
 \caption{\label{fig:label-bars-1} This figure displays the counts of unique labels broken down by each classification level and faceted by dataset.}
 \end{figure}
 
 \begin{figure}[t!]
 \centering
-\includegraphics{label-bars_2}
+\includegraphics{label-bars_fig2.pdf}
 \caption{\label{fig:label-bars-2} This figure displays the counts of unique labels broken down by dataset and faceted by each classification level.}
 \end{figure}
 
@@ -216,7 +216,7 @@ ggtree(chemont_tree) + layout_circular()
 
 \begin{figure}[t!]
 \centering
-\includegraphics{chemont-tree}
+\includegraphics{chemont-tree_fig3.pdf}
 \caption{\label{fig:chemont-tree} The Chemont tree displayed in a circular layout.}
 \end{figure}
 
@@ -233,7 +233,7 @@ display_subtree(data_1 = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{biosolids-subtree}
+\includegraphics{biosolids-subtree_fig4.pdf}
 \caption{\label{fig:biosolids-subtree} The Biosolids subtree displayed within the full Chemont tree, with tip labels included.}
 \end{figure}
 
@@ -246,7 +246,7 @@ display_subtree(data_1 = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{usgs-water-subtree}
+\includegraphics{usgs-water-subtree_fig5.pdf}
 \caption{\label{fig:usgs-water-tree} The USGS Water subtree displayed within the full Chemont tree, with tip labels included.}
 \end{figure}
 
@@ -264,7 +264,7 @@ display_subtree(data_1 = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{subtree-overlap}
+\includegraphics{subtree-overlap_fig6.pdf}
 \caption{\label{fig:subtree-overlap} The Biosolids and USGS Water subtrees displayed together within the full Chemont tree, with tip labels included. Classification labels are colored based on whether they are represented by either data set, both, or neither.}
 \end{figure}
 
@@ -281,14 +281,14 @@ prune_and_display_subtree(prune_to = usgswater_classified)
 
 \begin{figure}[t!]
 \centering
-\includegraphics{biosolids-prune-subtree}
+\includegraphics{biosolids-prune-subtree_fig7.pdf}
 \caption{\label{fig:prune-biosolids} The biosolids subtree pruned from the Chemont tree.}
 \end{figure}
 
 
 \begin{figure}[t!]
 \centering
-\includegraphics{usgswater-prune-subtree}
+\includegraphics{usgswater-prune-subtree_fig8.pdf}
 \caption{\label{fig:prune-usgswater} The usgswater subtree pruned from the Chemont tree.}
 \end{figure}
 
@@ -309,14 +309,14 @@ data_set_subtrees(data_1 = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{biosolids-usgs-shaded-subtree}
+\includegraphics{biosolids-usgs-shaded-subtree_fig9.pdf}
 \caption{\label{fig:biosolids-usgs-shaded} The biosolids subtree pruned from the Chemont tree, with labels colored based on their inclusion in the usgs classification label set.}
 \end{figure}
 
 
 \begin{figure}[t!]
 \centering
-\includegraphics{usgs-biosolids-shaded-subtree}
+\includegraphics{usgs-biosolids-shaded-subtree_fig10.pdf}
 \caption{\label{fig:usgs-biosolids-shaded} The usgs water subtree pruned from the Chemont tree, with labels colored based on their inclusion in the biosolids classification label set.}
 \end{figure}
 
@@ -335,7 +335,7 @@ bio_leaf_frac <- leaf_fraction_subtree(data_1 = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{biosolids-leaf-fraction}
+\includegraphics{biosolids-leaf-fraction_fig11.pdf}
 \caption{\label{fig:biosolids-leaf-fraction} The biosolids subtree with terminal labels colored based on the degree of overlap of chemicals, groups by terminal label.}
 \end{figure}
 
@@ -358,7 +358,7 @@ circ_tree_boxplot(data = biosolids_classified,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{biosolids-circ-boxplot}
+\includegraphics{biosolids-circ-boxplot_fig12.pdf}
 \caption{\label{fig:biosolids-circ-boxplot} The biosolids subtree with terminal labels colored to match boxplots in outer circular layers. The inner layer displays the distribution of average mass across chemicals, grouped by terminal label. The outer layers specify the \code{Superclass} and \code{Kingdom} associated to each terminal label in the classification branches.}
 \end{figure}
 
@@ -425,7 +425,7 @@ biosolids_usgs_ht
 
 \begin{figure}[t!]
 \centering
-\includegraphics{heatmap-biosolids-usgs}
+\includegraphics{heatmap-biosolids-usgs_fig13.pdf}
 \caption{\label{fig:heatmap-biosolids-usgs} The \code{ComplexHeatmap} constructed rows corresponding to tip labels from the \code{USGS water} classification labels and columns corresponding to tip labels from the \code{Biosolids} classification labels. Clustering is determined based on the corresponding Jaccard similarity measure matrix, appropriately subsetted by rows and columns.}
 \end{figure}
 
@@ -444,13 +444,13 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{row2-col2-full}
+\includegraphics{row2-col2-full_fig14.pdf}
 \caption{\label{fig:row2-col2-full} The Superclass represented by row cluster 2 and column cluster 2 within the full ChemOnt tree.}
 \end{figure}
 
 \begin{figure}[t!]
 \centering
-\includegraphics{row2-col2-prune}
+\includegraphics{row2-col2-prune_fig15.pdf}
 \caption{\label{fig:row2-col2-prune} The pruned subtree corresponding to labels in row cluster 2 and column cluster 2. Note the data sets to which each label is associated are noted in the tip label.}
 \end{figure}
 
@@ -469,13 +469,13 @@ generate_tree_cluster(tree = chemont_tree, tree_object = chemont_tree,
 
 \begin{figure}[t!]
 \centering
-\includegraphics{row9-col8-full}
+\includegraphics{row9-col8-full_fig16.pdf}
 \caption{\label{fig:row9-col8-full} The Superclasses represented by row cluster 9 and column cluster 8 within the full ChemOnt tree.}
 \end{figure}
 
 \begin{figure}[t!]
 \centering
-\includegraphics{row9-col8-prune}
+\includegraphics{row9-col8-prune_fig17.pdf}
 \caption{\label{fig:row9-col8-prune} The pruned subtree corresponding to labels in row cluster 9 and column cluster 8. Note the data sets to which each label is associated are noted in the tip label.}
 \end{figure}
 
@@ -498,18 +498,6 @@ For a more quantitative approach to identifying overlaps of chemical space cover
 \section{Conclusion} \label{sec:conc}
 
 The \proglran{R} package \pkg{treecompareR} provides a suite of tools for visualizing hierarchical chemical classification data associated to ClassyFire and for determining the similarity of subtrees of the ChemOnt tree induced by chemical data sets. The visualization functions provide tools for a qualitative analysis of data set similarity and overlap, while the similarity functions provide a more quantitative approach. With both of these sets of tools, researchers can explore questions concerning the overlap of distinct data sets and how that might inform the training and testing of models that use chemical data. Specifically, these can elucidate potential data gaps in the domain of applicability of a model or suggest when a data set might be suitable for use with a trained model. We demonstrate these ideas of visual and quantitative exploration of two real data sets available from the CompTox Chemicals Dashboard. While this showcases many opportunities to explore these data sets, the functionality provided by \pkg{treecompareR} is not meant as a replacement of existing techniques, but rather to augment the approaches researchers might take to characterize their data.
-
-
-
-
-
-
-
-
-
-
-
-
 
 %% -- Optional special unnumbered sections -------------------------------------
 
