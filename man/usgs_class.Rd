@@ -24,9 +24,9 @@ Articles}
 sources}
 \item{CPDAT.COUNT}{An integer giving the number of occurrences within CPDAT}
 \item{QC.Level}{An integer giving the quality control level}
-\item{Num.ToxCast.Active}{???}
-\item{Pct.ToxCast.Active}{???}
-\item{Total.Assays}{???}
+\item{Num.ToxCast.Active}{An integer: Number of ToxCast assays that showed bioactivity}
+\item{Pct.ToxCast.Active}{A numeric: Percent of ToxCast assays that showed bioactivity}
+\item{Total.Assays}{An integer: Total number of ToxCast assays in which the chemical was tested}
 \item{kingdom}{A character string giving the ClassyFire kingdom label}
 \item{superclass}{A character string giving the ClassyFire superclass label}
 \item{class}{A character string giving the ClassyFire class label}
