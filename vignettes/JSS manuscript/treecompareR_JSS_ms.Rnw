@@ -3,7 +3,7 @@
 %% -- LaTeX packages and custom commands ---------------------------------------
 
 %% recommended packages
-\usepackage{orcidlink,thumbpdf,lmodern}
+\usepackage{orcidlink,thumbpdf,lmodern,amsmath}
 
 %% another package (only for this demo article)
 \usepackage{framed}

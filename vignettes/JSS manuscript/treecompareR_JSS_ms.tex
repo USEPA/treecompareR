@@ -3,7 +3,7 @@
 %% -- LaTeX packages and custom commands ---------------------------------------
 
 %% recommended packages
-\usepackage{orcidlink,thumbpdf,lmodern}
+\usepackage{orcidlink,thumbpdf,lmodern,amsmath}
 
 %% another package (only for this demo article)
 \usepackage{framed}
@@ -61,6 +61,7 @@
 \begin{document}
 
 
+
 %% -- Introduction -------------------------------------------------------------
 
 %% - In principle "as usual".
@@ -74,7 +75,7 @@
 %%   of Statistical Software" above) they should be in sentence case (like
 %%   "generalized linear models" below).
 
-\section[Introduction} \label{sec:intro}
+\section{Introduction} \label{sec:intro}
 
 Classification of objects has been a source of much development of organizational structures across various fields of science. Organizing objects into a coherent structure helps one to understand how these objects relate to each other and can lead to the discovery of connections between various sets of objects. How one organizes the objects may depend on underlying attributes that the objects possess.
 
@@ -151,7 +152,7 @@ Next, we use the ClassyFire tool to provide classifications for the chemicals in
 \begin{Sinput}
 R> CASRN <- c('117964-21-3', '11006-76-1')
 R> chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
-R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$dtxsid)
+R> chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$valid$dtxsid)
 R> data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
 R> chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
 R> str(chemicals_class)
