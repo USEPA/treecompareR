@@ -1727,7 +1727,8 @@ leaf_fraction_subtree <- function(data_1, data_2,
   percentages <- NULL
   terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
 
-  #print(terminal_labels)
+  print('terminal labels')
+  print(terminal_labels)
 
   # For each terminal_label value, determine the chemicals from data_2 that are
   # also in data_1. This checks using the INCHIKEY of each chemical.
@@ -1750,9 +1751,10 @@ leaf_fraction_subtree <- function(data_1, data_2,
                            ))
   )
 
-  # print(names(label_data))
-  # print(name_1)
-  # print(name_2)
+   print(names(label_data))
+   head(label_data)
+   print(name_1)
+   print(name_2)
 
   names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
 
