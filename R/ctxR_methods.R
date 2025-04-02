@@ -47,7 +47,7 @@ chemical_identifiers <- function(input_list,
     start_index <- 1 + (i-1)*200
     end_index <- min(n, 200 + (i-1)*200)
 
-    temp_chemicals <- ctxR::chemical_equal_batch(word_list = input_list[start_index:end_index])
+    temp_chemicals <- ctxR::chemical_equal_batch(word_list = input_list[start_index:end_index])$valid
     temp_chemicals <- data.table::data.table(temp_chemicals)
     temp_chemicals[, INPUT := searchValue]
     temp_chemicals[, DTXSID := dtxsid]
