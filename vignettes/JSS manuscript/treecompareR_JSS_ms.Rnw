@@ -30,7 +30,7 @@ library('ctxR')
 %% - \Plainauthor{} without affiliations
 %% - Separate authors by \And or \AND (in \author) or by comma (in \Plainauthor).
 %% - \AND starts a new line, \And does not.
-\author{Paul Kruse~\orcidlink{0000-0003-0918-3766}\\US Environmental Protection Agency
+\author{Paul Kruse~\orcidlink{0000-0003-0918-3766}\\US Environmental Protection Agency\\ Oak Ridge Institute for Science and Education\\
    \And Caroline Ring~\orcidlink{0000-0002-0463-1251}\\US Environmental Protection Agency}
 \Plainauthor{Paul Kruse, Caroline Ring}
 
@@ -58,11 +58,11 @@ library('ctxR')
 %% - May contain multiple authors for the same affiliation
 %%   (in the same first line, separated by comma).
 \Address{
-  Paul Kruse, Caroline Ring\\
+  Caroline Ring\\
   Center for Computational Toxicology and Exposure\\
   United States Environmental Protection Agency\\
   109 TW Alexander Dr, Durham, NC 27709, United States of America\\
-  E-mail: \email{kruse.paul@epa.gov}
+  E-mail: \email{ring.caroline@epa.gov}
 }
 
 \begin{document}
@@ -515,7 +515,7 @@ and all packages used are available from the Comprehensive
 
 \section*{Acknowledgments}
 
-The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure.
+The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure. In addition, this project was supported in part by an appointment to the Research Participation Program at Office of Research and Development, Center for Computational Toxicology and Exposure, U. S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an interagency agreement between the U.S. Department of Energy and EPA.
 
 \section*{Disclaimer}
 
