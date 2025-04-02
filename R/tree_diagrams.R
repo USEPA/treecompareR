@@ -1751,10 +1751,10 @@ leaf_fraction_subtree <- function(data_1, data_2,
                            ))
   )
 
-   print(names(label_data))
-   head(label_data)
-   print(name_1)
-   print(name_2)
+   #print(names(label_data))
+   #head(label_data)
+   #print(name_1)
+   #print(name_2)
 
   names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
 
