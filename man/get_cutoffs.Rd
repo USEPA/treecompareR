@@ -45,8 +45,10 @@ data set that is represented by the induced subtree of the data set for
 various values of a fixed similarity measure.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 \donttest{
 
 dt <- data.table::data.table(BIOSOLIDS2021_class)
 }
+\dontshow{\}) # examplesIf}
 }

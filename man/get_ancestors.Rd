@@ -20,9 +20,11 @@ A list of nodes back to the root of ancestors for the given node.
 Generates a list of ancestors for a given node in a tree.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
 get_ancestors(tree = tree, label = 't2')
 get_ancestors(tree = tree, label = 'n1')
+\dontshow{\}) # examplesIf}
 }

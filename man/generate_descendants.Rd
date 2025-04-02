@@ -18,9 +18,10 @@ This function generates a data.frame of the number of descendants for each
 node of the input tree.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
 generate_descendants(tree = tree)
-
+\dontshow{\}) # examplesIf}
 }

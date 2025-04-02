@@ -23,8 +23,9 @@ This function generates a partition with optional constraints placed on it.
 If no such partition can be generated, the function stops and reports this.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 4)
 generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 2)
-
+\dontshow{\}) # examplesIf}
 }

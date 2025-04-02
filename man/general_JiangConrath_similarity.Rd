@@ -35,8 +35,10 @@ given tree. This uses the formulation as described in
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+\dontshow{\}) # examplesIf}
 }
 \references{
 \insertRef{seco2004intrinsic}{treecompareR}

@@ -23,7 +23,8 @@ matrix is symmetric, with rows and columns given by the tip and internal node
 labels in the ordering given by the tree.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-
+\dontshow{\}) # examplesIf}
 }

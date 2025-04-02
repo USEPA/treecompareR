@@ -69,8 +69,10 @@ allows for comparison of the similarity of the input data sets (or subtrees)
 with similarity of random subtrees of specified sizes.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 \donttest{
 dt1 <- data.table::data.table(BIOSOLIDS2021_class[1:20,])
 dt2 <- data.table::data.table(USGSWATER_class[1:20, ])
 }
+\dontshow{\}) # examplesIf}
 }
