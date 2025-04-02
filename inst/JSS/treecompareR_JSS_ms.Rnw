@@ -118,9 +118,10 @@ To achieve these aims, we use the ClassyFire tool found at \url{http://classyfir
 %
 <<chemont-tree, width=60>>=
 chemont_taxonomy <- generate_taxonomy_tree(tax_nodes = chemont_df)
-str(chemont_taxonomy[[1]])
-str(chemont_taxonomy[[2]])
-str(chemont_taxonomy)
+sapply(chemont_taxonomy,
+       function(x) head(x),
+       simplify = FALSE,
+       USE.NAMES = TRUE)
 @
 %
 
@@ -136,9 +137,15 @@ Next, we use the ClassyFire tool to provide classifications for the chemicals in
 <<ctxR-identifiers>>=
 CASRN <- c('117964-21-3', '11006-76-1')
 chemical_search <- ctxR::chemical_equal_batch(word_list = CASRN)
-chemical_ids <- ctxR::get_chemical_details_batch(DTXSID = chemical_search$valid$dtxsid)
-data.table::setnames(x = chemical_ids, old = 'inchikey', new = 'INCHIKEY')
-chemicals_class <- classify_datatable(chemical_ids[, .(INCHIKEY, dtxsid, casrn)])
+chemical_ids <- ctxR::get_chemical_details_batch(
+  DTXSID = chemical_search$valid$dtxsid
+  )
+data.table::setnames(x = chemical_ids,
+                     old = 'inchikey',
+                     new = 'INCHIKEY')
+chemicals_class <- classify_datatable(
+  chemical_ids[, .(INCHIKEY, dtxsid, casrn)]
+  )
 str(chemicals_class)
 @
 %
