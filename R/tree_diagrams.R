@@ -1533,6 +1533,7 @@ circ_tree_boxplot <- function(data,
   tip_node_data$Label <- factor(tip_node_data$Label)
   #print(tip_node_data)
 
+
   circ_plot <- ggtree(new_data_tree,
                       layout = 'circular')
   if (tippoint_boxplot) {
@@ -1643,7 +1644,7 @@ circ_tree_boxplot <- function(data,
         #print(which(is.na(names(tree_nodes))))
       }
       level_number <- length(unique(names(tree_nodes)))
-      level_labels <- unique(names(tree_nodes))
+      level_labels <- levels(factor(names(tree_nodes)))
       names(tree_nodes)[which(is.na(names(tree_nodes)))] <- paste0('_', level_names[[i]])
 
       fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
@@ -1653,7 +1654,6 @@ circ_tree_boxplot <- function(data,
 
       colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(n = 9, name = palettes[[i]]))
       current_palette <- colors(level_number)
-
       circ_plot <- circ_plot + geom_fruit(data = fruit_data,
                                           geom = geom_tile,
                                           mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
