@@ -18,19 +18,18 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(httptest)
-httptest::start_vignette("1")
+httptest::start_vignette("OD")
 ```
 
 ```{r setup}
 devtools::load_all()
-#library(treecompareR)
 ```
 
 ```{r setup-print, echo = FALSE}
 # Redefining the knit_print method to truncate character values to 25 characters
 # in each column and to truncate the columns in the print call to prevent 
 # wrapping tables with several columns.
-#library(ctxR)
+library(ctxR)
 knit_print.data.table = function(x, ...) {
   y <- data.table::copy(x)
   y <- y[, lapply(.SD, function(t){
@@ -70,7 +69,8 @@ str(tax_nodes)
 Observe that there are 4825 entries in `tax_nodes` and each entry is a list of length three, with entries `name`, `chemont_id`, and `parent_chemont_id`. We need to collect this information and organize it. To do so, we now build a data.frame from this list. The column names will be `Name`, `ID`, and `Parent_ID`.
 
 ```{r, format-tax-nodes}
-setnames(tax_nodes, old = c('name', 'chemont_id', 'parent_chemont_id'), new = c('Name', 'ID', 'Parent_ID'))
+colnames(tax_nodes) <- c('Name', 'ID', 'Parent_ID')
+#setnames(tax_nodes, old = c('name', 'chemont_id', 'parent_chemont_id'), new = c('Name', 'ID', 'Parent_ID'))
 chemont_taxnodes <- tax_nodes
 # tax_nodes_1[[1]]$parent_chemont_id <- NA
 # chemont_taxnodes <- data.frame('Name' = sapply(tax_nodes_1, function(t) {t[[1]]}),
@@ -102,7 +102,7 @@ We now isolate the tree structure and produce a simple visualization.
 
 ```{r, plot-chemont-tree, fig.align='center', fig.dim=c(6,4)}
 chemont_tree <- chemont_taxonomy
-ggtree(chemont_tree) + layout_circular()
+ggtree::ggtree(chemont_tree) + ggtree::layout_circular()
 ```
 
 This is a very dense diagram, as there are 4825 nodes including the root which is centered. We now turn our attention to classifying data sets of chemical entries and using those classifications to produce visualizations within the above tree.
@@ -123,7 +123,7 @@ In the `data` folder, we read in a rda file `chemical_list_BIOSOLIDS_2022_05_10.
 
 ```{r, examine-biosolids}
 library(data.table)
-biosolids <- data.table(biosolids)
+biosolids <- data.table::data.table(biosolids)
 biosolids[1:2, ]
 names(biosolids)
 ```
@@ -161,8 +161,8 @@ biosolids_2_classified <- classify_datatable(biosolids_2)
 To save time from running the API requests, we load in the data previously classified.
 
 ```{r}
-load('../data/BIOSOLIDS2021_class.rda')
-biosolids_classified <- BIOSOLIDS2021_class
+#load('../data/BIOSOLIDS2021_class.rda')
+biosolids_classified <- biosolids_class#BIOSOLIDS2021_class
 ```
 
 Observe that there is considerable agreement with the classified chemicals using both approaches.
@@ -216,7 +216,7 @@ To illustrate these visualizations and their functionality more effectively, we 
 In the `data` folder, we read in a rda file `chemical_list_USGSWATER_2022_05_17.rda` which contains a set of 707 chemicals from the CompTox dashboard and store this as a data.table. This data comes from [usgswater](https://comptox.epa.gov/dashboard/chemical-lists/USGSWATER) and was downloaded as a xlsx file on May 17, 2022.
 
 ```{r}
-usgswater <- data.table(usgs)
+usgswater <- data.table::data.table(usgs)
 usgswater[1:2,]
 names(usgswater)
 ```
@@ -229,7 +229,7 @@ usgswater_classified <- classify_datatable(usgswater)
 ```
 
 ```{r, results = 'hide'}
-usgswater_classified <- data.table(USGSWATER_class)
+usgswater_classified <- data.table::data.table(usgs_class)#data.table(USGSWATER_class)
 ```
 
 ```{r}
