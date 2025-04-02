@@ -1,16 +1,16 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.4.1)  1 APR 2025 13:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.18)  2 APR 2025 14:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**"C:/Users/cring/treecomparer/vignettes/JSS manuscript/treecompareR_JSS_ms.tex"
-(c:/Users/cring/treecomparer/vignettes/JSS manuscript/treecompareR_JSS_ms.tex
+**treecompareR_JSS_ms.tex
+(./treecompareR_JSS_ms.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (./jss.cls
 Document Class: jss 2021/05/23 3.3 jss class by Achim Zeileis
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
+(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size11.clo
+(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size11.clo
 File: size11.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
 )
 \c@part=\count196
@@ -24,31 +24,31 @@ File: size11.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
 \bibindent=\dimen141
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 106.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
 File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen142
 \Gin@req@width=\dimen143
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
 Package xcolor Info: Model `RGB' extended on input line 1365.
@@ -58,11 +58,11 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ae/ae.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ae/ae.sty
 Package: ae 2001/02/12 1.3 Almost European Computer Modern
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
 Package: fancyvrb 2024/01/20 4.5c verbatim text (tvz,hv)
 \FV@CodeLineNo=\count270
 \FV@InFile=\read2
@@ -70,12 +70,16 @@ Package: fancyvrb 2024/01/20 4.5c verbatim text (tvz,hv)
 \c@FancyVerbLine=\count271
 \FV@StepNumber=\count272
 \FV@OutFile=\write3
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
 LaTeX Font Info:    Trying to load font information for T1+aer on input line 116.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ae/t1aer.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/ae/t1aer.fd
 File: t1aer.fd 1997/11/16 Font definitions for T1/aer.
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/lmodern.sty
+)) (c:/Program Files/R/R-4.4.0/share/texmf/tex/latex/upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbatim
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
@@ -109,7 +113,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/natbib/natbib.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip51
 \bibsep=\skip52
@@ -117,56 +121,56 @@ LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count273
 )
 \footerskip=\skip53
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2024-11-05 v7.01l Hypertext links for LaTeX
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
 Package: iftex 2024/12/12 v1.0g TeX engine tests
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
 Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
 \c@section@level=\count274
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2025/02/11 v2.5l e-TeX tools for LaTeX (JAW)
 \etb@tempcnta=\count275
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty
 Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
 )
 \@linkdim=\dimen144
 \Hy@linkcounter=\count276
 \Hy@pagecounter=\count277
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2024-11-05 v7.01l Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
 \Hy@SavedSpaceFactor=\count278
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2024-11-05 v7.01l Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
@@ -179,15 +183,15 @@ Package hyperref Info: Backreferencing OFF on input line 4177.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4424.
 \c@Hy@tempcnt=\count279
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/url/url.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4763.
 \XeTeXLinkMargin=\dimen145
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
 \Fld@menulength=\count280
@@ -200,7 +204,7 @@ Package hyperref Info: backreferencing OFF on input line 6057.
 Package hyperref Info: Link coloring OFF on input line 6062.
 Package hyperref Info: Link coloring with OCG OFF on input line 6067.
 Package hyperref Info: PDF/A mode OFF on input line 6072.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/atbegshi-ltx.sty
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
@@ -209,17 +213,17 @@ package with kernel methods
 \c@Hfootnote=\count283
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
 File: hpdftex.def 2024-11-05 v7.01l Hyperref driver for pdfTeX
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/atveryend-ltx.sty
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
 with kernel methods
 )
 \Fld@listcount=\count284
 \c@bookmark@seq@number=\count285
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
@@ -233,30 +237,31 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 28
 \postMskip=\skip59
 \postSskip=\skip60
 
+
 Package hyperref Warning: Option `hyperindex' has already been used,
 (hyperref)                setting the option has no effect on input line 447.
 
 Package hyperref Info: Option `colorlinks' set `true' on input line 447.
 Package hyperref Info: Option `linktocpage' set `true' on input line 447.
 Package hyperref Info: Option `plainpages' set `false' on input line 447.
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/orcidlink/orcidlink.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/orcidlink/orcidlink.sty
 Package: orcidlink 2024/06/26 v1.1.0 Support ORCID's three different ID formats.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
 \pgfutil@everybye=\toks18
 \pgfutil@tempdima=\dimen148
 \pgfutil@tempdimb=\dimen149
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
 \pgfutil@abb=\box53
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/pgf.revision.tex)
 Package: pgfrcs 2023-01-15 v3.1.10 (3.1.10)
 ))
 Package: pgf 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
 Package: pgfsys 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
 \pgfkeys@pathtoks=\toks19
 \pgfkeys@temptoks=\toks20
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
 \pgfkeys@tmptoks=\toks21
 ))
 \pgf@x=\dimen150
@@ -279,32 +284,32 @@ Package: pgfsys 2023-01-15 v3.1.10 (3.1.10)
 \t@pgf@tokb=\toks23
 \t@pgf@tokc=\toks24
 \pgf@sys@id@count=\count290
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2023-01-15 v3.1.10 (3.1.10)
 )
 Driver file for pgf: pgfsys-pdftex.def
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
 File: pgfsys-pdftex.def 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
 File: pgfsys-common-pdf.def 2023-01-15 v3.1.10 (3.1.10)
-))) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+))) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
 File: pgfsyssoftpath.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfsyssoftpath@smallbuffer@items=\count291
 \pgfsyssoftpath@bigbuffer@items=\count292
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
 File: pgfsysprotocol.code.tex 2023-01-15 v3.1.10 (3.1.10)
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
 Package: pgfcore 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen160
 \pgfmath@count=\count293
 \pgfmath@box=\box54
 \pgfmath@toks=\toks25
 \pgfmath@stack@operand=\toks26
 \pgfmath@stack@operation=\toks27
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
 \c@pgfmathroundto@lastzeros=\count294
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 File: pgfcorepoints.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@picminx=\dimen161
 \pgf@picmaxx=\dimen162
@@ -320,75 +325,75 @@ File: pgfcorepoints.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@yy=\dimen172
 \pgf@zx=\dimen173
 \pgf@zy=\dimen174
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
 File: pgfcorepathconstruct.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@path@lastx=\dimen175
 \pgf@path@lasty=\dimen176
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
 File: pgfcorepathusage.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@shorten@end@additional=\dimen177
 \pgf@shorten@start@additional=\dimen178
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
 File: pgfcorescopes.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfpic=\box55
 \pgf@hbox=\box56
 \pgf@layerbox@main=\box57
 \pgf@picture@serial@count=\count295
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgflinewidth=\dimen179
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
 File: pgfcoretransformations.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@pt@x=\dimen180
 \pgf@pt@y=\dimen181
 \pgf@pt@temp=\dimen182
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
 File: pgfcorequick.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
 File: pgfcoreobjects.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
 File: pgfcorepathprocessing.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
 File: pgfcorearrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfarrowsep=\dimen183
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
 File: pgfcoreshade.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@max=\dimen184
 \pgf@sys@shading@range@num=\count296
 \pgf@shadingcount=\count297
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
 File: pgfcoreimage.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
 File: pgfcoreexternal.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfexternal@startupbox=\box58
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
 File: pgfcorelayers.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
 File: pgfcoretransparency.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
 File: pgfcorepatterns.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
 File: pgfcorerdf.code.tex 2023-01-15 v3.1.10 (3.1.10)
-))) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+))) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
 File: pgfmoduleshapes.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfnodeparttextbox=\box59
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
 File: pgfmoduleplot.code.tex 2023-01-15 v3.1.10 (3.1.10)
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
 Package: pgfcomp-version-0-65 2023-01-15 v3.1.10 (3.1.10)
 \pgf@nodesepstart=\dimen185
 \pgf@nodesepend=\dimen186
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
 Package: pgfcomp-version-1-18 2023-01-15 v3.1.10 (3.1.10)
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/math/pgfmath.sty (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/pgf/math/pgfmath.sty (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
 Package: pgffor 2023-01-15 v3.1.10 (3.1.10)
 \pgffor@iter=\dimen187
 \pgffor@skip=\dimen188
 \pgffor@stack=\toks28
 \pgffor@toks=\toks29
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
 Package: tikz 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@plot@mark@count=\count298
 \pgfplotmarksize=\dimen189
@@ -409,20 +414,20 @@ File: pgflibraryplothandlers.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \tikznumberofchildren=\count300
 \tikznumberofcurrentchild=\count301
 \tikz@fig@count=\count302
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
 File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfmatrixcurrentrow=\count303
 \pgfmatrixcurrentcolumn=\count304
 \pgf@matrix@numberofcolumns=\count305
 )
 \tikz@expandcount=\count306
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
-))) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarysvg.path.code.tex
+))) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarysvg.path.code.tex
 File: tikzlibrarysvg.path.code.tex 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibrarysvg.path.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibrarysvg.path.code.tex
 File: pgflibrarysvg.path.code.tex 2023-01-15 v3.1.10 (3.1.10)
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleparser.code.tex
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleparser.code.tex
 File: pgfmoduleparser.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgfparserdef@arg@count=\count307
 )
@@ -434,23 +439,24 @@ File: pgfmoduleparser.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \pgf@lib@svg@max@num=\count309
 ))
 \@curXheight=\skip61
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/thumbpdf/thumbpdf.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/generic/thumbpdf/thumbpdf.sty
 Package: thumbpdf 2018/09/07 v3.17 Inclusion of thumbnails (HO)
 THUMBPDF: Compressed PDF objects of PDF 1.5 are not supported
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2024/11/05 v2.17t AMS math features
 \@mathmargin=\skip62
+
 For additional information on amsmath, use the `?' option.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
+(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
 Package: amstext 2021/08/26 v2.01 AMS text
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks30
 \ex@=\dimen258
-)) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
+)) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen259
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
 \inf@bad=\count310
@@ -500,7 +506,7 @@ LaTeX Info: Redefining \Relbar on input line 970.
 \mathdisplay@stack=\toks34
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/framed/framed.sty
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/framed/framed.sty
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \OuterFrameSep=\skip65
 \fb@frw=\dimen267
@@ -509,9 +515,9 @@ Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \FrameSep=\dimen270
 )
 LaTeX Font Info:    Trying to load font information for T1+lmr on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmr.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) (c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+) (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count322
 \l__pdf_internal_box=\box66
@@ -536,42 +542,93 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 61.
 LaTeX Font Info:    ... okay on input line 61.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 61.
 LaTeX Font Info:    ... okay on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
 Package hyperref Info: Link coloring ON on input line 61.
-(./treecompareR_JSS_ms.out) (./treecompareR_JSS_ms.out)
+ (./treecompareR_JSS_ms.out) (./treecompareR_JSS_ms.out)
 \@outlinefile=\write5
 \openout5 = `treecompareR_JSS_ms.out'.
 
-<jsslogo.jpg, id=35, 540.0175pt x 393.47pt>
+<jsslogo.jpg, id=39, 540.0175pt x 393.47pt>
 File: jsslogo.jpg Graphic file (type jpg)
 <use jsslogo.jpg>
 Package pdftex.def Info: jsslogo.jpg  used on input line 61.
 (pdftex.def)             Requested size: 89.80768pt x 65.43607pt.
 LaTeX Font Info:    Trying to load font information for T1+pzc on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/t1pzc.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/psnfss/t1pzc.fd
 File: t1pzc.fd 2020/03/25 font definitions for T1/pzc.
 )
 LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <28> not available
 (Font)              Font shape `T1/pzc/m/it' tried instead on input line 61.
+
+! Font T1/pzc/m/n/28=pzcmi8t at 28.0pt not loadable: Metric (TFM) file not found.
+<to be read again> 
+                   relax 
+l.61 \begin{document}
+                     
+I wasn't able to read the size data for this font,
+so I will ignore the font specification.
+[Wizards can fix TFM files using TFtoPL/PLtoTF.]
+You might try inserting a different font spec;
+e.g., type `I\font<same font id>=<substitute font name>'.
+
+! Font \T1/pzc/m/it/28=nullfont not loadable: Metric (TFM) file not found.
+<to be read again> 
+                   \relax 
+l.61 \begin{document}
+                     
+I wasn't able to read the size data for this font,
+so I will ignore the font specification.
+[Wizards can fix TFM files using TFtoPL/PLtoTF.]
+You might try inserting a different font spec;
+e.g., type `I\font<same font id>=<substitute font name>'.
+
+Missing character: There is no J in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no u in font nullfont!
+Missing character: There is no r in font nullfont!
+Missing character: There is no n in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no f in font nullfont!
+Missing character: There is no S in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no S in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no f in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no w in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no r in font nullfont!
+Missing character: There is no e in font nullfont!
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
+(c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -581,11 +638,11 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 61.
 LaTeX Font Info:    Trying to load font information for T1+lmss on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmss.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 61.
-(c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
@@ -595,41 +652,13 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 61.
 
-Underfull \vbox (badness 1147) has occurred while \output is active []
+Underfull \vbox (badness 4569) has occurred while \output is active []
 
 
 
 [1
 
-{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/base/8r.enc} <./jsslogo.jpg>]
-
-Package natbib Warning: Citation `djoumbou2016classyfire' on page 2 undefined on input line 86.
-
-
-Package natbib Warning: Citation `ggplot22016' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `yu2017ggtree' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `phytools2024revell' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `phangorn2011schliep' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `phangorn2017schliep' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `ape2019paradis' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `treeio2020Wang' on page 2 undefined on input line 94.
-
-
-Package natbib Warning: Citation `complexheatmap2016gu' on page 2 undefined on input line 94.
-
-
+{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc} <./jsslogo.jpg>]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -641,10 +670,6 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [2]
 
-Package natbib Warning: Citation `williams2017comptox' on page 3 undefined on input line 96.
-
-
-
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 3
@@ -652,16 +677,23 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 
 [3]
 
-Package natbib Warning: Citation `ctxR2024kru' on page 4 undefined on input line 148.
-
-
-
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 4 []
  []
 
 [4]
+LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 153.
+ (c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
+File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 5
+ []
+
+[5{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
 Underfull \hbox (badness 10000) in paragraph at lines 207--208
 []\T1/lmr/m/n/8 1,3,5-
  []
@@ -686,33 +718,17 @@ Overfull \hbox (41.90125pt too wide) in paragraph at lines 202--215
  [][] 
  []
 
-
-
-
-Overfull \hbox (5.47499pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 5
- []
-
-[5]
-<label-bars_fig1.pdf, id=80, 1156.32pt x 597.23125pt>
+<label-bars_fig1.pdf, id=123, 1156.32pt x 597.23125pt>
 File: label-bars_fig1.pdf Graphic file (type pdf)
 <use label-bars_fig1.pdf>
 Package pdftex.def Info: label-bars_fig1.pdf  used on input line 236.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<label-bars_fig2.pdf, id=81, 1156.32pt x 597.23125pt>
+<label-bars_fig2.pdf, id=124, 1156.32pt x 597.23125pt>
 File: label-bars_fig2.pdf Graphic file (type pdf)
 <use label-bars_fig2.pdf>
 Package pdftex.def Info: label-bars_fig2.pdf  used on input line 242.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-
-
-
-Overfull \hbox (5.47499pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 6 []
- []
-
-[6 <./label-bars_fig1.pdf>]
-<chemont-tree_fig3.pdf, id=97, 1156.32pt x 597.23125pt>
+<chemont-tree_fig3.pdf, id=127, 1156.32pt x 597.23125pt>
 File: chemont-tree_fig3.pdf Graphic file (type pdf)
 <use chemont-tree_fig3.pdf>
 Package pdftex.def Info: chemont-tree_fig3.pdf  used on input line 264.
@@ -721,24 +737,26 @@ Package pdftex.def Info: chemont-tree_fig3.pdf  used on input line 264.
 
 
 Overfull \hbox (5.47499pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 6 []
+ []
+
+[6]
+
+
+Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 7
  []
 
-[7 <./label-bars_fig2.pdf> <./chemont-tree_fig3.pdf>]
-<biosolids-subtree_fig4.pdf, id=114, 1156.32pt x 597.23125pt>
+[7 <./label-bars_fig1.pdf> <./label-bars_fig2.pdf>]
+<biosolids-subtree_fig4.pdf, id=154, 1156.32pt x 597.23125pt>
 File: biosolids-subtree_fig4.pdf Graphic file (type pdf)
 <use biosolids-subtree_fig4.pdf>
 Package pdftex.def Info: biosolids-subtree_fig4.pdf  used on input line 283.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<usgs-water-subtree_fig5.pdf, id=115, 1156.32pt x 597.23125pt>
+<usgs-water-subtree_fig5.pdf, id=155, 1156.32pt x 597.23125pt>
 File: usgs-water-subtree_fig5.pdf Graphic file (type pdf)
 <use usgs-water-subtree_fig5.pdf>
 Package pdftex.def Info: usgs-water-subtree_fig5.pdf  used on input line 298.
-(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<subtree-overlap_fig6.pdf, id=118, 1156.32pt x 597.23125pt>
-File: subtree-overlap_fig6.pdf Graphic file (type pdf)
-<use subtree-overlap_fig6.pdf>
-Package pdftex.def Info: subtree-overlap_fig6.pdf  used on input line 318.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
 
 
@@ -747,9 +765,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 8 []
  []
 
-[8 <./biosolids-subtree_fig4.pdf>]
-Underfull \vbox (badness 1917) has occurred while \output is active []
-
+[8 <./chemont-tree_fig3.pdf> <./biosolids-subtree_fig4.pdf>]
+<subtree-overlap_fig6.pdf, id=174, 1156.32pt x 597.23125pt>
+File: subtree-overlap_fig6.pdf Graphic file (type pdf)
+<use subtree-overlap_fig6.pdf>
+Package pdftex.def Info: subtree-overlap_fig6.pdf  used on input line 318.
+(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
 
 
 
@@ -758,12 +779,12 @@ Overfull \hbox (5.47499pt too wide) has occurred while \output is active
  []
 
 [9 <./usgs-water-subtree_fig5.pdf> <./subtree-overlap_fig6.pdf>]
-<biosolids-prune-subtree_fig7.pdf, id=149, 1156.32pt x 597.23125pt>
+<biosolids-prune-subtree_fig7.pdf, id=193, 1156.32pt x 597.23125pt>
 File: biosolids-prune-subtree_fig7.pdf Graphic file (type pdf)
 <use biosolids-prune-subtree_fig7.pdf>
 Package pdftex.def Info: biosolids-prune-subtree_fig7.pdf  used on input line 337.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<usgswater-prune-subtree_fig8.pdf, id=150, 1156.32pt x 597.23125pt>
+<usgswater-prune-subtree_fig8.pdf, id=194, 1156.32pt x 597.23125pt>
 File: usgswater-prune-subtree_fig8.pdf Graphic file (type pdf)
 <use usgswater-prune-subtree_fig8.pdf>
 Package pdftex.def Info: usgswater-prune-subtree_fig8.pdf  used on input line 344.
@@ -776,12 +797,12 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [10 <./biosolids-prune-subtree_fig7.pdf> <./usgswater-prune-subtree_fig8.pdf>]
-<biosolids-usgs-shaded-subtree_fig9.pdf, id=170, 1156.32pt x 597.23125pt>
+<biosolids-usgs-shaded-subtree_fig9.pdf, id=213, 1156.32pt x 597.23125pt>
 File: biosolids-usgs-shaded-subtree_fig9.pdf Graphic file (type pdf)
 <use biosolids-usgs-shaded-subtree_fig9.pdf>
 Package pdftex.def Info: biosolids-usgs-shaded-subtree_fig9.pdf  used on input line 367.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<usgs-biosolids-shaded-subtree_fig10.pdf, id=171, 1156.32pt x 597.23125pt>
+<usgs-biosolids-shaded-subtree_fig10.pdf, id=214, 1156.32pt x 597.23125pt>
 File: usgs-biosolids-shaded-subtree_fig10.pdf Graphic file (type pdf)
 <use usgs-biosolids-shaded-subtree_fig10.pdf>
 Package pdftex.def Info: usgs-biosolids-shaded-subtree_fig10.pdf  used on input line 374.
@@ -793,8 +814,8 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 [] \T1/lmr/m/n/10.95 11
  []
 
-[11 <./biosolids-usgs-shaded-subtree_fig9.pdf>]
-<biosolids-leaf-fraction_fig11.pdf, id=186, 1156.32pt x 597.23125pt>
+[11]
+<biosolids-leaf-fraction_fig11.pdf, id=223, 1156.32pt x 597.23125pt>
 File: biosolids-leaf-fraction_fig11.pdf Graphic file (type pdf)
 <use biosolids-leaf-fraction_fig11.pdf>
 Package pdftex.def Info: biosolids-leaf-fraction_fig11.pdf  used on input line 395.
@@ -806,8 +827,8 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 12 []
  []
 
-[12 <./usgs-biosolids-shaded-subtree_fig10.pdf>]
-<biosolids-circ-boxplot_fig12.pdf, id=197, 1156.32pt x 597.23125pt>
+[12 <./biosolids-usgs-shaded-subtree_fig9.pdf> <./usgs-biosolids-shaded-subtree_fig10.pdf>]
+<biosolids-circ-boxplot_fig12.pdf, id=240, 1156.32pt x 597.23125pt>
 File: biosolids-circ-boxplot_fig12.pdf Graphic file (type pdf)
 <use biosolids-circ-boxplot_fig12.pdf>
 Package pdftex.def Info: biosolids-circ-boxplot_fig12.pdf  used on input line 420.
@@ -821,32 +842,15 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [13 <./biosolids-leaf-fraction_fig11.pdf>]
 
-Package natbib Warning: Citation `pekar2002taxonomy' on page 14 undefined on input line 434.
-
-
-Package natbib Warning: Citation `pekar2002taxonomy' on page 14 undefined on input line 434.
-
-
-
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 14 []
  []
 
-[14{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/cring/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./biosolids-circ-boxplot_fig12.pdf>]
-
-Package natbib Warning: Citation `seco2004intrinsic' on page 15 undefined on input line 436.
-
-
+[14{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./biosolids-circ-boxplot_fig12.pdf>]
 Overfull \hbox (5.8696pt too wide) in paragraph at lines 440--441
 []\T1/lmr/m/n/10.95 To gen-er-ate the in-for-ma-tion con-tent for a tree, we can use the \T1/lmtt/m/n/10.95 attach_information_content()
  []
-
-
-Package natbib Warning: Citation `resnik1995using' on page 15 undefined on input line 444.
-
-
-Package natbib Warning: Citation `seco2004intrinsic' on page 15 undefined on input line 444.
 
 
 
@@ -857,25 +861,19 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 
 [15]
 
-Package natbib Warning: Citation `lin1998information' on page 16 undefined on input line 448.
-
-
-Package natbib Warning: Citation `seco2004intrinsic' on page 16 undefined on input line 448.
-
-
-Package natbib Warning: Citation `jiang1997semantic' on page 16 undefined on input line 452.
-
-
-Package natbib Warning: Citation `seco2004intrinsic' on page 16 undefined on input line 452.
-
-
-
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
 \T1/lmr/m/n/10.95 16 []
  []
 
 [16]
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 17
+ []
+
+[17]
 Overfull \hbox (8.85028pt too wide) in paragraph at lines 460--461
 \T1/lmr/m/n/10.95 put tree, and the func-tions \T1/lmtt/m/n/10.95 general_Jaccard_similarity()\T1/lmr/m/n/10.95 , \T1/lmtt/m/n/10.95 general_Resnik_similarity()\T1/lmr/m/n/10.95 ,
  []
@@ -884,33 +882,26 @@ Overfull \hbox (8.85028pt too wide) in paragraph at lines 460--461
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-[] \T1/lmr/m/n/10.95 17
+\T1/lmr/m/n/10.95 18 []
  []
 
-[17]
-<heatmap-biosolids-usgs_fig13.pdf, id=241, 1156.32pt x 597.23125pt>
+[18]
+<heatmap-biosolids-usgs_fig13.pdf, id=313, 1156.32pt x 597.23125pt>
 File: heatmap-biosolids-usgs_fig13.pdf Graphic file (type pdf)
 <use heatmap-biosolids-usgs_fig13.pdf>
 Package pdftex.def Info: heatmap-biosolids-usgs_fig13.pdf  used on input line 489.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
 
-
-
-Overfull \hbox (10.94998pt too wide) has occurred while \output is active
-\T1/lmr/m/n/10.95 18 []
- []
-
-[18]
 Overfull \hbox (8.39426pt too wide) in paragraph at lines 495--496
 []\T1/lmr/m/n/10.95 To vi-su-al-ize the clus-ters through tree di-a-grams, we use the func-tion \T1/lmtt/m/n/10.95 generate_tree_cluster()\T1/lmr/m/n/10.95 ,
  []
 
-<row2-col2-full_fig14.pdf, id=247, 1156.32pt x 597.23125pt>
+<row2-col2-full_fig14.pdf, id=314, 1156.32pt x 597.23125pt>
 File: row2-col2-full_fig14.pdf Graphic file (type pdf)
 <use row2-col2-full_fig14.pdf>
 Package pdftex.def Info: row2-col2-full_fig14.pdf  used on input line 510.
 (pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<row2-col2-prune_fig15.pdf, id=248, 1156.32pt x 597.23125pt>
+<row2-col2-prune_fig15.pdf, id=315, 1156.32pt x 597.23125pt>
 File: row2-col2-prune_fig15.pdf Graphic file (type pdf)
 <use row2-col2-prune_fig15.pdf>
 Package pdftex.def Info: row2-col2-prune_fig15.pdf  used on input line 516.
@@ -923,16 +914,8 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [19 <./heatmap-biosolids-usgs_fig13.pdf>]
-<row9-col8-full_fig16.pdf, id=265, 1156.32pt x 597.23125pt>
-File: row9-col8-full_fig16.pdf Graphic file (type pdf)
-<use row9-col8-full_fig16.pdf>
-Package pdftex.def Info: row9-col8-full_fig16.pdf  used on input line 537.
-(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
-<row9-col8-prune_fig17.pdf, id=266, 1156.32pt x 597.23125pt>
-File: row9-col8-prune_fig17.pdf Graphic file (type pdf)
-<use row9-col8-prune_fig17.pdf>
-Package pdftex.def Info: row9-col8-prune_fig17.pdf  used on input line 543.
-(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
+Underfull \vbox (badness 1917) has occurred while \output is active []
+
 
 
 
@@ -941,6 +924,17 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [20 <./row2-col2-full_fig14.pdf> <./row2-col2-prune_fig15.pdf>]
+<row9-col8-full_fig16.pdf, id=354, 1156.32pt x 597.23125pt>
+File: row9-col8-full_fig16.pdf Graphic file (type pdf)
+<use row9-col8-full_fig16.pdf>
+Package pdftex.def Info: row9-col8-full_fig16.pdf  used on input line 537.
+(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
+<row9-col8-prune_fig17.pdf, id=355, 1156.32pt x 597.23125pt>
+File: row9-col8-prune_fig17.pdf Graphic file (type pdf)
+<use row9-col8-prune_fig17.pdf>
+Package pdftex.def Info: row9-col8-prune_fig17.pdf  used on input line 543.
+(pdftex.def)             Requested size: 354.12434pt x 182.89796pt.
+
 
 
 Overfull \hbox (10.94998pt too wide) has occurred while \output is active
@@ -955,22 +949,108 @@ Overfull \hbox (10.94998pt too wide) has occurred while \output is active
  []
 
 [22]
-! Undefined control sequence.
-l.565 The \proglran
-                   {R} package \pkg{treecompareR} provides a suite of tools ...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
 
- 
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 23
+ []
+
+[23] (./treecompareR_JSS_ms.bbl
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 24 []
+ []
+
+[24])
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+[] \T1/lmr/m/n/10.95 25
+ []
+
+[25]
+LaTeX Font Info:    Font shape `T1/pzc/m/n' in size <13> not available
+(Font)              Font shape `T1/pzc/m/it' tried instead on input line 617.
+
+! Font T1/pzc/m/n/13=pzcmi8t at 13.0pt not loadable: Metric (TFM) file not found.
+<to be read again> 
+                   relax 
+l.617 \end{document}
+                    
+I wasn't able to read the size data for this font,
+so I will ignore the font specification.
+[Wizards can fix TFM files using TFtoPL/PLtoTF.]
+You might try inserting a different font spec;
+e.g., type `I\font<same font id>=<substitute font name>'.
+
+! Font \T1/pzc/m/it/13=nullfont not loadable: Metric (TFM) file not found.
+<to be read again> 
+                   \relax 
+l.617 \end{document}
+                    
+I wasn't able to read the size data for this font,
+so I will ignore the font specification.
+[Wizards can fix TFM files using TFtoPL/PLtoTF.]
+You might try inserting a different font spec;
+e.g., type `I\font<same font id>=<substitute font name>'.
+
+Missing character: There is no J in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no u in font nullfont!
+Missing character: There is no r in font nullfont!
+Missing character: There is no n in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no f in font nullfont!
+Missing character: There is no S in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no s in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no i in font nullfont!
+Missing character: There is no c in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no l in font nullfont!
+Missing character: There is no S in font nullfont!
+Missing character: There is no o in font nullfont!
+Missing character: There is no f in font nullfont!
+Missing character: There is no t in font nullfont!
+Missing character: There is no w in font nullfont!
+Missing character: There is no a in font nullfont!
+Missing character: There is no r in font nullfont!
+Missing character: There is no e in font nullfont!
+
+
+
+Overfull \hbox (10.94998pt too wide) has occurred while \output is active
+\T1/lmr/m/n/10.95 26 []
+ []
+
+[26] (./treecompareR_JSS_ms.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+ ***********
+Package rerunfilecheck Info: File `treecompareR_JSS_ms.out' has not changed.
+(rerunfilecheck)             Checksum: 942D506ECCABDEA9A29750B2371776F3;1299.
+ ) 
 Here is how much of TeX's memory you used:
- 21458 strings out of 475171
- 409486 string characters out of 5764511
- 775298 words of memory out of 5000000
- 44011 multiletter control sequences out of 15000+600000
- 645358 words of font info for 82 fonts, out of 8000000 for 9000
+ 21656 strings out of 475171
+ 413971 string characters out of 5764418
+ 776628 words of memory out of 5000000
+ 44173 multiletter control sequences out of 15000+600000
+ 643864 words of font info for 82 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 99i,13n,101p,1921b,859s stack positions out of 10000i,1000n,20000p,200000b,200000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 99i,13n,101p,1866b,859s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmb10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbo10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/pkruse/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtto10.pfb>
+Output written on treecompareR_JSS_ms.pdf (26 pages, 3294481 bytes).
+PDF statistics:
+ 533 PDF objects out of 1000 (max. 8388607)
+ 428 compressed objects within 5 object streams
+ 77 named destinations out of 1000 (max. 500000)
+ 167 words of extra memory for PDF output out of 10000 (max. 10000000)
+

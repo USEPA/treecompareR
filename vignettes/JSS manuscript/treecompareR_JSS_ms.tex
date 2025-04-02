@@ -23,7 +23,7 @@
 %% - \Plainauthor{} without affiliations
 %% - Separate authors by \And or \AND (in \author) or by comma (in \Plainauthor).
 %% - \AND starts a new line, \And does not.
-\author{Paul Kruse~\orcidlink{0000-0003-0918-3766}\\US Environmental Protection Agency
+\author{Paul Kruse~\orcidlink{0000-0003-0918-3766}\\US Environmental Protection Agency\\ Oak Ridge Institute for Science and Education\\
    \And Caroline Ring~\orcidlink{0000-0002-0463-1251}\\US Environmental Protection Agency}
 \Plainauthor{Paul Kruse, Caroline Ring}
 
@@ -51,11 +51,11 @@
 %% - May contain multiple authors for the same affiliation
 %%   (in the same first line, separated by comma).
 \Address{
-  Paul Kruse, Caroline Ring\\
+  Caroline Ring\\
   Center for Computational Toxicology and Exposure\\
   United States Environmental Protection Agency\\
   109 TW Alexander Dr, Durham, NC 27709, United States of America\\
-  E-mail: \email{kruse.paul@epa.gov}
+  E-mail: \email{ring.caroline@epa.gov}
 }
 
 \begin{document}
@@ -95,7 +95,7 @@ However, such visualizations are limited in terms of what is currently available
 
 We present the package \pkg{treecompareR} as a solution to the specific needs of creating a pipeline to classify chemicals in a data set, visualize the chemical space they represent, and compare the data sets from the point of view of chemical space. We introduce the package through a case study analyzing two specific data sets. We characterize two data sets, named \code{BIOSOLIDS} and \code{USGSWATER}, that were collected from the CompTox Chemical Dashboard \cite{williams2017comptox}. The \code{BIOSOLIDS} data describe chemicals detected in biosolids, as reported by three national sewage sludge surveys and eight biennial reviews, while the \code{USGSWATER} data describe chemicals found in water by the USGS.
 
-We are interested in studying these two data sets together for a variety of reasons. The presence of chemicals detected in water is important information to consider when determining risk assessment for human and ecological health. Not only does this indicate what chemicals human activity contributes to water, but also what to expect to be present in water that is used in commercial, industrial, and residential settings. Chemicals detected in biosolids indicate both the chemicals that are already present in water in before being used, and the chemicals that human activity contributes to water and persists through the treatment process of waste water. By examining these two sets, we can get a better idea of which chemicals are introduced directly through human activity and use, and which chemicals are already in the background water as well as those that may be successfully removed from the water and captured within the biosolids.
+We are interested in studying these two data sets together for a variety of reasons. The presence of chemicals detected in water is important information to consider when determining risk assessment for human and ecological health. Not only does this indicate what chemicals human activity contributes to water, but also what to expect to be present in water that is used in commercial, industrial, and residential settings. Chemicals detected in biosolids indicate both the chemicals that are already present in water before being used, and the chemicals that human activity contributes to water and persists through the treatment process of waste water. By examining these two sets, we can get a better idea of which chemicals are introduced directly through human activity and use, and which chemicals are already in the background water as well as those that may be successfully removed from the water and captured within the biosolids.
 
 \section{ClassyFire} \label{sec:class}
 
@@ -562,7 +562,7 @@ For a more quantitative approach to identifying overlaps of chemical space cover
 
 \section{Conclusion} \label{sec:conc}
 
-The \proglran{R} package \pkg{treecompareR} provides a suite of tools for visualizing hierarchical chemical classification data associated to ClassyFire and for determining the similarity of subtrees of the ChemOnt tree induced by chemical data sets. The visualization functions provide tools for a qualitative analysis of data set similarity and overlap, while the similarity functions provide a more quantitative approach. With both of these sets of tools, researchers can explore questions concerning the overlap of distinct data sets and how that might inform the training and testing of models that use chemical data. Specifically, these can elucidate potential data gaps in the domain of applicability of a model or suggest when a data set might be suitable for use with a trained model. We demonstrate these ideas of visual and quantitative exploration of two real data sets available from the CompTox Chemicals Dashboard. While this showcases many opportunities to explore these data sets, the functionality provided by \pkg{treecompareR} is not meant as a replacement of existing techniques, but rather to augment the approaches researchers might take to characterize their data.
+The \proglang{R} package \pkg{treecompareR} provides a suite of tools for visualizing hierarchical chemical classification data associated to ClassyFire and for determining the similarity of subtrees of the ChemOnt tree induced by chemical data sets. The visualization functions provide tools for a qualitative analysis of data set similarity and overlap, while the similarity functions provide a more quantitative approach. With both of these sets of tools, researchers can explore questions concerning the overlap of distinct data sets and how that might inform the training and testing of models that use chemical data. Specifically, these can elucidate potential data gaps in the domain of applicability of a model or suggest when a data set might be suitable for use with a trained model. We demonstrate these ideas of visual and quantitative exploration of two real data sets available from the CompTox Chemicals Dashboard. While this showcases many opportunities to explore these data sets, the functionality provided by \pkg{treecompareR} is not meant as a replacement of existing techniques, but rather to augment the approaches researchers might take to characterize their data.
 
 %% -- Optional special unnumbered sections -------------------------------------
 
@@ -571,7 +571,7 @@ The \proglran{R} package \pkg{treecompareR} provides a suite of tools for visual
 
 
 The results in this paper were obtained using
-\proglang{R}~4.4.1 with the
+\proglang{R}~4.4.0 with the
 \pkg{treecompareR}~0.0.0.9000 package. \proglang{R} itself
 and all packages used are available from the Comprehensive
 \proglang{R} Archive Network (CRAN) at
@@ -580,7 +580,7 @@ and all packages used are available from the Comprehensive
 
 \section*{Acknowledgments}
 
-The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure.
+The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure. In addition, this project was supported in part by an appointment to the Research Participation Program at Office of Research and Development, Center for Computational Toxicology and Exposure, U. S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an interagency agreement between the U.S. Department of Energy and EPA.
 
 \section*{Disclaimer}
 

@@ -16,7 +16,7 @@
 #'   and level.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -67,7 +67,7 @@ generate_descendants <- function(tree){
 #' @export
 #' @importFrom ape is.rooted
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -136,7 +136,7 @@ get_tree_df <- function(tree){
 #'
 #' @references \insertRef{seco2004intrinsic}{treecompareR}
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -182,7 +182,7 @@ generate_information_content <- function(tree){
 #' @references
 #' \insertRef{seco2004intrinsic}{treecompareR}
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -223,7 +223,7 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #' @return A list of nodes back to the root of ancestors for the given node.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -262,7 +262,7 @@ get_ancestors <- function(tree, label, node_number = NULL){
 #' @return The level of the node from the root of the tree.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -289,7 +289,7 @@ get_tip_level <- function(tree, label, node_number = NULL){
 #'
 #' \insertRef{pesquita2009semantic}{treecompareR}
 #'
-# @examples
+# @examplesIf FALSE
 #
 # tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #
@@ -350,7 +350,7 @@ return(outmat)
 #'
 #' \insertRef{resnik1995using}{treecompareR}
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
@@ -407,7 +407,7 @@ general_Resnik_similarity <- function(tree,
 #' @references
 #' \insertRef{lin1998information}{treecompareR}
 #'
-# @examples
+# @examplesIf FALSE
 #
 # tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #
@@ -467,7 +467,7 @@ calc_Lin_similarity <- function(tree,
 #'
 #' \insertRef{jiang1997semantic}{treecompareR}
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #
@@ -514,7 +514,7 @@ general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL
 #'   \eqn{[0,1]}.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #
@@ -953,7 +953,7 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 #' @importFrom data.table is.data.table
 #' @importFrom phangorn Ancestors
 #'
-#' @examples
+#' @examplesIf FALSE
 #' \donttest{
 # dt1 <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 # dt1 <- classify_by_smiles(dt1)
@@ -1194,7 +1194,7 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 #'   of data represented by allowing similarity values equal to the names.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #' \donttest{
 # dt <- classify_datatable(data.table::data.table(chemical_list_biosolids_2022_05_10)[1:10,])
 # dt <- classify_by_smiles(dt)

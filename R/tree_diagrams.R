@@ -1727,7 +1727,8 @@ leaf_fraction_subtree <- function(data_1, data_2,
   percentages <- NULL
   terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
 
-  #print(terminal_labels)
+  print('terminal labels')
+  print(terminal_labels)
 
   # For each terminal_label value, determine the chemicals from data_2 that are
   # also in data_1. This checks using the INCHIKEY of each chemical.
@@ -1750,9 +1751,10 @@ leaf_fraction_subtree <- function(data_1, data_2,
                            ))
   )
 
-  # print(names(label_data))
-  # print(name_1)
-  # print(name_2)
+   #print(names(label_data))
+   #head(label_data)
+   #print(name_1)
+   #print(name_2)
 
   names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
 
@@ -1772,18 +1774,18 @@ leaf_fraction_subtree <- function(data_1, data_2,
 
   #tree <- full_join(data_1_tree, label_data, by = 'label')
 
-  tree_plot <- ggtree(data_1_tree, layout = 'circular') %<+% label_data
-  tree_plot <- tree_plot + ggtitle(paste0(name_1, ' subtree')) +
+  tree_plot <- ggtree::ggtree(data_1_tree, layout = 'circular') %<+% label_data
+  tree_plot <- tree_plot + ggplot2::ggtitle(paste0(name_1, ' subtree')) +
     theme(plot.title = element_text(hjust = 0.5))
 
-  tree_plot <- tree_plot + geom_tippoint(aes(color = percentages),
+  tree_plot <- tree_plot + ggtree::geom_tippoint(aes(color = percentages),
                                          size = tip_size)
   tree_plot <- tree_plot +
     scale_color_viridis_c(name = paste0('Percentage of ',name_1, ' chemicals that are ', name_2, ' chemicals'),
                           option = 'plasma')
 
   if (show_labels){
-    tree_plot <- tree_plot + geom_tiplab(aes(color = percentages), size = 1)
+    tree_plot <- tree_plot + ggtree::geom_tiplab(aes(color = percentages), size = 1)
   } else {
     tree_plot <- tree_plot + ggtreeExtra::geom_fruit(geom = geom_tile,
                                                      mapping = aes(color = percentages),

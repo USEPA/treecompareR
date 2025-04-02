@@ -99,7 +99,7 @@ biosolids_classified <- classify_by_smiles(biosolids_classified)
 ```
 
 ```{r, echo = FALSE, message = FALSE}
-biosolids_classified <- readRDS('../data/biosolids_class.rds')# load("C:/Users/pkruse/treecompareR/treecomparer/data/biosolids_class.rda")
+biosolids_classified <- biosolids_class#readRDS('../data/biosolids_class.rds')# load("C:/Users/pkruse/treecompareR/treecomparer/data/biosolids_class.rda")
 ```
 
 
@@ -133,14 +133,14 @@ usgswater_classified <- classify_by_smiles(usgswater_classified)
 ```
 
 ```{r, echo = FALSE, message = FALSE}
-usgswater_classified <- readRDS("../data/usgs_class.rds")
+usgswater_classified <- usgs_class#readRDS("../data/usgs_class.rds")
 ```
 
 Now, let us examine these two data sets. Notice that there are 11 columns of ChemOnt data, starting with `kingdom`, `superclass`, and continuing through to `level11`, denoting the taxonomic levels of the ChemOnt ontology. For a given row, not all of these columns will be filled with labels, and the last non-empty column denotes the most specific classification label associated with the chemical represented by the row. While there are many columns in this table, we will only display a subset of these, namely `PREFERRED_NAME`, `INCHIKEY`, `AVERAGE_MASS`, `kingdom`, `superclass`, `class`, `subclass`, `level5`, to illustrate some of the important features in the data set.
 
 ```{r display_classifications}
-kableExtra::kbl(biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY', 
-                                         'AVERAGE_MASS', 'kingdom',
+kableExtra::kbl(biosolids_classified[1:5, c('PREFERRED.NAME', 'INCHIKEY', 
+                                         'AVERAGE.MASS', 'kingdom',
                                          'superclass', 'class', 
                                          'subclass', 'level5')]) %>%
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = 'striped', font_size = 9)
@@ -148,8 +148,8 @@ kableExtra::kbl(biosolids_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY',
 #  kable_styling(bootstrap_options = c("striped", "hover")) %>%
 #  kable_classic()
 
-kableExtra::kbl(usgswater_classified[1:5, c('PREFERRED_NAME', 'INCHIKEY',
-                                         'AVERAGE_MASS', 'kingdom',
+kableExtra::kbl(usgswater_classified[1:5, c('PREFERRED.NAME', 'INCHIKEY',
+                                         'AVERAGE.MASS', 'kingdom',
                                          'superclass', 'class',
                                          'subclass', 'level5')])  %>%
   kableExtra::kable_styling(full_width = FALSE, bootstrap_options = 'striped', font_size = 9)
@@ -362,14 +362,14 @@ Up to now, the tree visualizations have focused primarily on demonstrating repre
 
 ```{r circ-tree-biosolids-mass-tip-color, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 circ_tree_boxplot(biosolids_classified, 
-                  col = 'AVERAGE_MASS', 
+                  col = 'AVERAGE.MASS', 
                   title = 'Biosolids', 
                   tippoint_boxplot = TRUE, 
                   layers = c('kingdom', 'superclass'))
 ```
 ```{r, include=FALSE, eval=FALSE}
 fig_12 <- circ_tree_boxplot(biosolids_classified, 
-                  col = 'AVERAGE_MASS', 
+                  col = 'AVERAGE.MASS', 
                   title = 'Biosolids', 
                   tippoint_boxplot = TRUE, 
                   layers = c('kingdom', 'superclass'))
@@ -384,7 +384,7 @@ If we want to suppress the tippoint and boxplot colors, we can easily do so.
 
 ```{r circ-tree-biosolids-mass-no-tip-color, fig.align='center', fig.dim=c(12,8), out.height=400, out.width=600}
 circ_tree_boxplot(biosolids_classified, 
-                  col = 'AVERAGE_MASS', 
+                  col = 'AVERAGE.MASS', 
                   title = 'Biosolids', 
                   layers = c('kingdom', 'superclass'))
 ```
@@ -438,8 +438,8 @@ The function `generate_heatmap()` will take in a pair of data sets and compare t
 ```{r heatmap-biosolids-usgs, fig.align='center', fig.dim=c(6,4)}
 biosolids_usgs_ht <- generate_heatmap(tree_object = chemont_tree, 
                                       matrix = chemont_jaccard, 
-                                      row_data = USGSWATER_class, 
-                                      column_data = BIOSOLIDS2021_class, 
+                                      row_data = usgswater_classified, 
+                                      column_data = biosolids_classified, 
                                       row_split = 9L, column_split = 9L, 
                                       row_title = 'USGS Water', 
                                       column_title = 'Biosolids', 

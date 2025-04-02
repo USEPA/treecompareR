@@ -22,11 +22,12 @@ data.frame also includes the depth of each tip and internal node, the number
 of descendants of each node, and the number of children for each node.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
 generate_information_content(tree = tree)
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 \insertRef{seco2004intrinsic}{treecompareR}

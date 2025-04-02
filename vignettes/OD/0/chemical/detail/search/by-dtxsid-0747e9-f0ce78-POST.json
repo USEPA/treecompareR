@@ -1,0 +1,1602 @@
+[
+    {
+        "dtxcid": null,
+        "casrn": "1079184-43-2",
+        "preferredName": "Ethanaminium, 2-hydroxy-N-(2-hydroxyethyl)-N,N-dimethyl-, esters with C16-18 and C18-unsatd. fatty acids, chlorides",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID00108550"
+    },
+    {
+        "dtxcid": "DTXCID10114844",
+        "casrn": "39108-34-4",
+        "preferredName": "8:2 Fluorotelomer sulfonic acid",
+        "iupacName": "3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,10-Heptadecafluorodecane-1-sulfonic acid",
+        "inchikey": "ALVYVCQIFHTIRD-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID00192353"
+    },
+    {
+        "dtxcid": "DTXCID80311",
+        "casrn": "150-68-5",
+        "preferredName": "Monuron",
+        "iupacName": "N'-(4-Chlorophenyl)-N,N-dimethylurea",
+        "inchikey": "BMLIZLVNXIYGCK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0020311"
+    },
+    {
+        "dtxcid": "DTXCID20652",
+        "casrn": "25812-30-0",
+        "preferredName": "Gemfibrozil",
+        "iupacName": "5-(2,5-Dimethylphenoxy)-2,2-dimethylpentanoic acid",
+        "inchikey": "HEMJJKBWTPKOJG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0020652"
+    },
+    {
+        "dtxcid": "DTXCID40737",
+        "casrn": "120-72-9",
+        "preferredName": "Indole",
+        "iupacName": "1H-Indole",
+        "inchikey": "SIKJAQJRHWYJAI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0020737"
+    },
+    {
+        "dtxcid": "DTXCID80809755",
+        "casrn": "599-79-1",
+        "preferredName": "Sulfasalazine",
+        "iupacName": "2-Hydroxy-5-({4-[(pyridin-2-yl)sulfamoyl]phenyl}diazenyl)benzoic acid",
+        "inchikey": "NCEXYHBECQHGNR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0021256"
+    },
+    {
+        "dtxcid": "DTXCID701389",
+        "casrn": "52-68-6",
+        "preferredName": "Trichlorfon",
+        "iupacName": "Dimethyl (2,2,2-trichloro-1-hydroxyethyl)phosphonate",
+        "inchikey": "NFACJZMKEDPNKN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0021389"
+    },
+    {
+        "dtxcid": "DTXCID701541",
+        "casrn": "74-87-3",
+        "preferredName": "Chloromethane",
+        "iupacName": "Chloromethane",
+        "inchikey": "NEHMKBQYUWJMIP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0021541"
+    },
+    {
+        "dtxcid": "DTXCID702432",
+        "casrn": "218-01-9",
+        "preferredName": "Chrysene",
+        "iupacName": "Chrysene",
+        "inchikey": "WDECIBYCCFPHNR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0022432"
+    },
+    {
+        "dtxcid": "DTXCID702513",
+        "casrn": "2437-79-8",
+        "preferredName": "2,2',4,4'-Tetrachlorobiphenyl",
+        "iupacName": "2,2',4,4'-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "QORAVNMWUNPXAO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0022513"
+    },
+    {
+        "dtxcid": "DTXCID903907",
+        "casrn": "205-99-2",
+        "preferredName": "Benzo(b)fluoranthene",
+        "iupacName": "Benzo[e]acephenanthrylene",
+        "inchikey": "FTOVXSOBNPWTSH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0023907"
+    },
+    {
+        "dtxcid": "DTXCID0027725",
+        "casrn": "132-65-0",
+        "preferredName": "Dibenzothiophene",
+        "iupacName": "Dibenzo[b,d]thiophene",
+        "inchikey": "IYYZUPMFVPLQIF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0047741"
+    },
+    {
+        "dtxcid": "DTXCID5030038",
+        "casrn": "7440-21-3",
+        "preferredName": "Silicon",
+        "iupacName": "Silicon",
+        "inchikey": "XUIMIQQOPSSXEZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0051441"
+    },
+    {
+        "dtxcid": "DTXCID9044110",
+        "casrn": "638-68-6",
+        "preferredName": "Triacontane",
+        "iupacName": "Triacontane",
+        "inchikey": "JXTPJDDICSTXJX-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0060935"
+    },
+    {
+        "dtxcid": "DTXCID4042468",
+        "casrn": "5875-45-6",
+        "preferredName": "2,5-Bis(1,1-dimethylethyl)phenol",
+        "iupacName": "2,5-Di-tert-butylphenol",
+        "inchikey": "KDBZVULQVCUNNA-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0064046"
+    },
+    {
+        "dtxcid": "DTXCID2035142",
+        "casrn": "15968-05-5",
+        "preferredName": "2,2',6,6'-Tetrachlorobiphenyl",
+        "iupacName": "2,2',6,6'-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "PXAGFNRKXSYIHU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0065983"
+    },
+    {
+        "dtxcid": "DTXCID4033186",
+        "casrn": "110999-45-6",
+        "preferredName": "1,2,3,6,7,8-Hexabromodibenzo-p-dioxin",
+        "iupacName": "1,2,3,6,7,8-Hexabromooxanthrene",
+        "inchikey": "QHJJFBHAYBGEDA-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0073794"
+    },
+    {
+        "dtxcid": "DTXCID4039077",
+        "casrn": "35694-06-5",
+        "preferredName": "2,2',3,4,4',5-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,4,4',5-Hexachloro-1,1'-biphenyl",
+        "inchikey": "CKLLRBPBZLTGDJ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0074138"
+    },
+    {
+        "dtxcid": "DTXCID8041955",
+        "casrn": "55720-44-0",
+        "preferredName": "2,3,5-Trichlorobiphenyl",
+        "iupacName": "2,3,5-Trichloro-1,1'-biphenyl",
+        "inchikey": "GBUCDGDROYMOAN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0074182"
+    },
+    {
+        "dtxcid": "DTXCID4042090",
+        "casrn": "56558-16-8",
+        "preferredName": "2,2',4,6,6'-Pentachlorobiphenyl",
+        "iupacName": "2,2',4,6,6'-Pentachloro-1,1'-biphenyl",
+        "inchikey": "MTCPZNVSDFCBBE-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0074184"
+    },
+    {
+        "dtxcid": "DTXCID2047565",
+        "casrn": "73575-57-2",
+        "preferredName": "2,2',3,4,6'-Pentachlorobiphenyl",
+        "iupacName": "2,2',3,4,6'-Pentachloro-1,1'-biphenyl",
+        "inchikey": "GLOOIONSKMZYQZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID0074219"
+    },
+    {
+        "dtxcid": "DTXCID80814268",
+        "casrn": "38444-90-5",
+        "preferredName": "3,4,4'-Trichlorobiphenyl",
+        "iupacName": "3,4,4'-Trichloro-1,1'-biphenyl",
+        "inchikey": "YZANRISAORXTHU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID00865914"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "NOCAS_872426",
+        "preferredName": "Mercury & Mercury Compounds",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID00872426"
+    },
+    {
+        "dtxcid": "DTXCID501012009",
+        "casrn": "7518-17-4",
+        "preferredName": "4-Epianhydrotetracycline",
+        "iupacName": "(4R,4aS,12aS)-4-(Dimethylamino)-3,10,11,12a-tetrahydroxy-6-methyl-1,12-dioxo-1,4,4a,5,12,12a-hexahydrotetracene-2-carboxamide",
+        "inchikey": "CXCVEERYMJZMMM-WPINSWFRSA-N",
+        "dtxsid": "DTXSID00873791"
+    },
+    {
+        "dtxcid": "DTXCID90302",
+        "casrn": "75-00-3",
+        "preferredName": "Chloroethane",
+        "iupacName": "Chloroethane",
+        "inchikey": "HRYZWHHZPQKTII-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1020302"
+    },
+    {
+        "dtxcid": "DTXCID70439",
+        "casrn": "120-83-2",
+        "preferredName": "2,4-Dichlorophenol",
+        "iupacName": "2,4-Dichlorophenol",
+        "inchikey": "HFZWRUODUSTPEG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1020439"
+    },
+    {
+        "dtxcid": "DTXCID50778",
+        "casrn": "5989-27-5",
+        "preferredName": "D-Limonene",
+        "iupacName": "(4R)-1-Methyl-4-(prop-1-en-2-yl)cyclohex-1-ene",
+        "inchikey": "XMGQYMWWDOXHJM-JTQLQIEISA-N",
+        "dtxsid": "DTXSID1020778"
+    },
+    {
+        "dtxcid": "DTXCID101089",
+        "casrn": "14698-29-4",
+        "preferredName": "Oxolinic acid",
+        "iupacName": "5-Ethyl-8-oxo-5,8-dihydro-2H-[1,3]dioxolo[4,5-g]quinoline-7-carboxylic acid",
+        "inchikey": "KYGZCKSPAKDVKC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1021089"
+    },
+    {
+        "dtxcid": "DTXCID201952",
+        "casrn": "115-86-6",
+        "preferredName": "Triphenyl phosphate",
+        "iupacName": "Triphenyl phosphate",
+        "inchikey": "XZZNDPSIHUTMOC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1021952"
+    },
+    {
+        "dtxcid": "DTXCID801956",
+        "casrn": "117-84-0",
+        "preferredName": "Di-n-octyl phthalate",
+        "iupacName": "Dioctyl benzene-1,2-dicarboxylate",
+        "inchikey": "MQIUGAXCHLFZKX-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1021956"
+    },
+    {
+        "dtxcid": "DTXCID404209",
+        "casrn": "300-76-5",
+        "preferredName": "Naled",
+        "iupacName": "1,2-Dibromo-2,2-dichloroethyl dimethyl phosphate",
+        "inchikey": "BUYMVQAILCEWRR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1024209"
+    },
+    {
+        "dtxcid": "DTXCID407134",
+        "casrn": "298-07-7",
+        "preferredName": "Bis(2-ethylhexyl) phosphate",
+        "iupacName": "Bis(2-ethylhexyl) hydrogen phosphate",
+        "inchikey": "SEGLCEQVOFDUPX-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1027134"
+    },
+    {
+        "dtxcid": "DTXCID9020661",
+        "casrn": "882-09-7",
+        "preferredName": "Clofibric acid",
+        "iupacName": "2-(4-Chlorophenoxy)-2-methylpropanoic acid",
+        "inchikey": "TXCGAZHTZHNUAI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1040661"
+    },
+    {
+        "dtxcid": "DTXCID9024699",
+        "casrn": "598-02-7",
+        "preferredName": "Diethyl hydrogen phosphate",
+        "iupacName": "Diethyl hydrogen phosphate",
+        "inchikey": "UCQFCFPECQILOL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1044699"
+    },
+    {
+        "dtxcid": "DTXCID9025619",
+        "casrn": "93106-60-6",
+        "preferredName": "Enrofloxacin",
+        "iupacName": "1-Cyclopropyl-7-(4-ethylpiperazin-1-yl)-6-fluoro-4-oxo-1,4-dihydroquinoline-3-carboxylic acid",
+        "inchikey": "SPFYMRJSYKOXGV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1045619"
+    },
+    {
+        "dtxcid": "DTXCID40655553",
+        "casrn": "446255-30-7",
+        "preferredName": "2,3,3',4,4',5',6-Heptabromodiphenyl ether",
+        "iupacName": "1,2,3,5-Tetrabromo-4-(3,4,5-tribromophenoxy)benzene",
+        "inchikey": "BNBFKFHSIPERIM-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID10704805"
+    },
+    {
+        "dtxcid": "DTXCID0039483",
+        "casrn": "38380-01-7",
+        "preferredName": "2,2',4,4',5-Pentachlorobiphenyl",
+        "iupacName": "2,2',4,4',5-Pentachloro-1,1'-biphenyl",
+        "inchikey": "LMQJBFRGXHMNOX-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1073496"
+    },
+    {
+        "dtxcid": "DTXCID0045670",
+        "casrn": "68194-05-8",
+        "preferredName": "2,2',3,4',6-Pentachlorobiphenyl",
+        "iupacName": "2,2',3,4',6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "CXKIGWXPPVZSQK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1073608"
+    },
+    {
+        "dtxcid": "DTXCID0045676",
+        "casrn": "68194-13-8",
+        "preferredName": "2,2',3,4',5,6-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,4',5,6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "AQONCPKMJSBHQT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1074200"
+    },
+    {
+        "dtxcid": "DTXCID2046674",
+        "casrn": "70362-49-1",
+        "preferredName": "3,3',4,5-Tetrachlorobiphenyl",
+        "iupacName": "3,3',4,5-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "SXFLURRQRFKBNN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID1074208"
+    },
+    {
+        "dtxcid": "DTXCID90811743",
+        "casrn": "2974-90-5",
+        "preferredName": "3,4'-Dichlorobiphenyl",
+        "iupacName": "3,4'-Dichloro-1,1'-biphenyl",
+        "inchikey": "CJDNEKOMKXLSBN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID10863067"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "NOCAS_872417",
+        "preferredName": "Cadmium & Cadmium Compounds",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID10872417"
+    },
+    {
+        "dtxcid": "DTXCID101515168",
+        "casrn": "25429-29-2",
+        "preferredName": "Pentachlorobiphenyls",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID10873621"
+    },
+    {
+        "dtxcid": "DTXCID701474308",
+        "casrn": "1665-56-1",
+        "preferredName": "Anhydrotetracycline",
+        "iupacName": "(4S,4aS,12aS)-4-(Dimethylamino)-3,10,11,12a-tetrahydroxy-6-methyl-1,12-dioxo-1,4,4a,5,12,12a-hexahydrotetracene-2-carboxamide",
+        "inchikey": "CXCVEERYMJZMMM-DOCRCCHOSA-N",
+        "dtxsid": "DTXSID201016171"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "25766-59-0",
+        "preferredName": "Polycarbonates",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID201027532"
+    },
+    {
+        "dtxcid": "DTXCID20216",
+        "casrn": "128-37-0",
+        "preferredName": "Butylated hydroxytoluene",
+        "iupacName": "2,6-Di-tert-butyl-4-methylphenol",
+        "inchikey": "NLZUEZXRPGMBCV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2020216"
+    },
+    {
+        "dtxcid": "DTXCID40341",
+        "casrn": "76-57-3",
+        "preferredName": "Codeine",
+        "iupacName": "3-Methoxy-17-methyl-5alpha-7,8-didehydro-4,5-epoxymorphinan-6alpha-ol",
+        "inchikey": "OROGSEYTTFOCAN-DNJOTXNNSA-N",
+        "dtxsid": "DTXSID2020341"
+    },
+    {
+        "dtxcid": "DTXCID101026",
+        "casrn": "924-16-3",
+        "preferredName": "N-Nitrosodibutylamine",
+        "iupacName": "N,N-Dibutylnitrous amide",
+        "inchikey": "YGJHZCLPZAZIHH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2021026"
+    },
+    {
+        "dtxcid": "DTXCID901028",
+        "casrn": "55-18-5",
+        "preferredName": "N-Nitrosodiethylamine",
+        "iupacName": "N,N-Diethylnitrous amide",
+        "inchikey": "WBNQDOYYEUMPFS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2021028"
+    },
+    {
+        "dtxcid": "DTXCID001315",
+        "casrn": "1746-01-6",
+        "preferredName": "2,3,7,8-Tetrachlorodibenzo-1,4-dioxin",
+        "iupacName": "2,3,7,8-Tetrachlorooxanthrene",
+        "inchikey": "HGUFODBRKLSHSI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2021315"
+    },
+    {
+        "dtxcid": "DTXCID601319",
+        "casrn": "127-18-4",
+        "preferredName": "Tetrachloroethylene",
+        "iupacName": "Tetrachloroethene",
+        "inchikey": "CYTYCFOTNPOANT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2021319"
+    },
+    {
+        "dtxcid": "DTXCID301781",
+        "casrn": "84-74-2",
+        "preferredName": "Dibutyl 1,2-benzenedicarboxylate",
+        "iupacName": "Dibutyl benzene-1,2-dicarboxylate",
+        "inchikey": "DOIRQSBPFJWKBE-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2021781"
+    },
+    {
+        "dtxcid": "DTXCID102836",
+        "casrn": "18323-44-9",
+        "preferredName": "Clindamycin",
+        "iupacName": "Methyl 7-chloro-6,7,8-trideoxy-6-{[(4R)-1-methyl-4-propyl-L-prolyl]amino}-1-thio-L-threo-alpha-D-galacto-octopyranoside",
+        "inchikey": "KDLRVYVGXIQJDK-AWPVFWJPSA-N",
+        "dtxsid": "DTXSID2022836"
+    },
+    {
+        "dtxcid": "DTXCID803270",
+        "casrn": "657-24-9",
+        "preferredName": "Metformin",
+        "iupacName": "N,N-Dimethyltriimidodicarbonic diamide",
+        "inchikey": "XZWYZXLIPXDOLR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2023270"
+    },
+    {
+        "dtxcid": "DTXCID503985",
+        "casrn": "7440-50-8",
+        "preferredName": "Copper",
+        "iupacName": "Copper",
+        "inchikey": "RYGMFSIKBFXOCR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2023985"
+    },
+    {
+        "dtxcid": "DTXCID606602",
+        "casrn": "96-76-4",
+        "preferredName": "2,4-Di-tert-butylphenol",
+        "iupacName": "2,4-Di-tert-butylphenol",
+        "inchikey": "ICKWICRCANNIBI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2026602"
+    },
+    {
+        "dtxcid": "DTXCID0012180",
+        "casrn": "35065-27-1",
+        "preferredName": "2,2',4,4',5,5'-Hexachlorobiphenyl",
+        "iupacName": "2,2',4,4',5,5'-Hexachloro-1,1'-biphenyl",
+        "inchikey": "MVWHGTYKUMDIHL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2032180"
+    },
+    {
+        "dtxcid": "DTXCID4041236",
+        "casrn": "52663-63-5",
+        "preferredName": "2,2',3,5,5',6-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,5,5',6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "UHCLFIWDCYOTOL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2074160"
+    },
+    {
+        "dtxcid": "DTXCID3041247",
+        "casrn": "52663-75-9",
+        "preferredName": "2,2',3,3',4,5,5',6'-Octachlorobiphenyl",
+        "iupacName": "2,2',3,3',4,5,5',6'-Octachloro-1,1'-biphenyl",
+        "inchikey": "HJBYDWKNARZTMJ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2074168"
+    },
+    {
+        "dtxcid": "DTXCID2047692",
+        "casrn": "74472-53-0",
+        "preferredName": "2,3,3',4,4',5,5',6-Octachlorobiphenyl",
+        "iupacName": "2,3,3',4,4',5,5',6-Octachloro-1,1'-biphenyl",
+        "inchikey": "VXXBCDUYUQKWCK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2074241"
+    },
+    {
+        "dtxcid": "DTXCID4033188",
+        "casrn": "110999-47-8",
+        "preferredName": "1,2,3,4,6,7,8-Heptabromodibenzo-p-dioxin",
+        "iupacName": "1,2,3,4,6,7,8-Heptabromooxanthrene",
+        "inchikey": "FPCROEVBHPWKPI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID2074245"
+    },
+    {
+        "dtxcid": "DTXCID80814384",
+        "casrn": "41411-62-5",
+        "preferredName": "2,3,3',4,5,6-Hexachlorobiphenyl",
+        "iupacName": "2,3,3',4,5,6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "JHJMZCXLJXRCHK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID20866044"
+    },
+    {
+        "dtxcid": "DTXCID001012016",
+        "casrn": "514-53-4",
+        "preferredName": "Isochlortetracycline",
+        "iupacName": "(4S,4aS,6S,8aS)-6-[(1S)-7-Chloro-4-hydroxy-1-methyl-3-oxo-1,3-dihydro-2-benzofuran-1-yl]-4-(dimethylamino)-3,8a-dihydroxy-1,8-dioxo-1,4,4a,5,6,7,8,8a-octahydronaphthalene-2-carboxamide",
+        "inchikey": "GFSLIMZISCAANG-AXVXPIMKSA-N",
+        "dtxsid": "DTXSID20873798"
+    },
+    {
+        "dtxcid": "DTXCID90209",
+        "casrn": "94-26-8",
+        "preferredName": "Butylparaben",
+        "iupacName": "Butyl 4-hydroxybenzoate",
+        "inchikey": "QFOHBWFCKVYLES-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3020209"
+    },
+    {
+        "dtxcid": "DTXCID801516",
+        "casrn": "78-93-3",
+        "preferredName": "Methyl ethyl ketone",
+        "iupacName": "Butan-2-one",
+        "inchikey": "ZWEHNKRNPOVVGH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3021516"
+    },
+    {
+        "dtxcid": "DTXCID501807",
+        "casrn": "95-47-6",
+        "preferredName": "o-Xylene",
+        "iupacName": "1,2-Xylene",
+        "inchikey": "CTQNGGLPUBDAKN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3021807"
+    },
+    {
+        "dtxcid": "DTXCID40820062",
+        "casrn": "81103-11-9",
+        "preferredName": "Clarithromycin",
+        "iupacName": "(3R,4S,5S,6R,7R,9R,11R,12R,13S,14R)-6-{[(2S,3R,4S,6R)-4-(Dimethylamino)-3-hydroxy-6-methyloxan-2-yl]oxy}-14-ethyl-12,13-dihydroxy-4-{[(2R,4R,5S,6S)-5-hydroxy-4-methoxy-4,6-dimethyloxan-2-yl]oxy}-7-methoxy-3,5,7,9,11,13-hexamethyl-1-oxacyclotetradecane-2,10-dione",
+        "inchikey": "AGOYDEPGAOXOCK-KCBOHYOISA-N",
+        "dtxsid": "DTXSID3022829"
+    },
+    {
+        "dtxcid": "DTXCID503922",
+        "casrn": "7440-42-8",
+        "preferredName": "Boron",
+        "iupacName": "Boron",
+        "inchikey": "ZOXJGFHDIHLPTG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3023922"
+    },
+    {
+        "dtxcid": "DTXCID50875720",
+        "casrn": "7440-24-6",
+        "preferredName": "Strontium",
+        "iupacName": "Strontium",
+        "inchikey": "KJNGJIPPQOFCSK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3024312"
+    },
+    {
+        "dtxcid": "DTXCID909869",
+        "casrn": "41859-67-0",
+        "preferredName": "Bezafibrate",
+        "iupacName": "2-{4-[2-(4-Chlorobenzamido)ethyl]phenoxy}-2-methylpropanoic acid",
+        "inchikey": "IIBYAHWJQTYFKB-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3029869"
+    },
+    {
+        "dtxcid": "DTXCID1010056",
+        "casrn": "5436-43-1",
+        "preferredName": "2,2',4,4'-Tetrabromodiphenyl ether",
+        "iupacName": "1,1'-Oxybis(2,4-dibromobenzene)",
+        "inchikey": "XYBSIYMGXVUVGY-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3030056"
+    },
+    {
+        "dtxcid": "DTXCID1011022",
+        "casrn": "7440-47-3",
+        "preferredName": "Chromium",
+        "iupacName": "Chromium",
+        "inchikey": "VYZAMTAEIAYCRO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3031022"
+    },
+    {
+        "dtxcid": "DTXCID1011864",
+        "casrn": "1763-23-1",
+        "preferredName": "Perfluorooctanesulfonic acid",
+        "iupacName": "Heptadecafluorooctane-1-sulfonic acid",
+        "inchikey": "YFSUTJLHUFNCNZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3031864"
+    },
+    {
+        "dtxcid": "DTXCID9012143",
+        "casrn": "57465-28-8",
+        "preferredName": "3,3',4,4',5-Pentachlorobiphenyl",
+        "iupacName": "3,3',4,4',5-Pentachloro-1,1'-biphenyl",
+        "inchikey": "REHONNLQRWTIFF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3032179"
+    },
+    {
+        "dtxcid": "DTXCID1014957",
+        "casrn": "107-49-3",
+        "preferredName": "Tetraethyl pyrophosphate",
+        "iupacName": "Tetraethyl diphosphate",
+        "inchikey": "IDCBOTIENDVCBQ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3034957"
+    },
+    {
+        "dtxcid": "DTXCID1017044",
+        "casrn": "26787-78-0",
+        "preferredName": "Amoxicillin",
+        "iupacName": "(2S,5R,6R)-6-{[(2R)-2-Amino-2-(4-hydroxyphenyl)acetyl]amino}-3,3-dimethyl-7-oxo-4-thia-1-azabicyclo[3.2.0]heptane-2-carboxylic acid",
+        "inchikey": "LSQZJLSUYDQPKJ-NJBDSQKTSA-N",
+        "dtxsid": "DTXSID3037044"
+    },
+    {
+        "dtxcid": "DTXCID1018307",
+        "casrn": "38380-03-9",
+        "preferredName": "2,3,3',4',6-Pentachlorobiphenyl",
+        "iupacName": "2,3,3',4',6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "ARXHIJMGSIYYRZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3038307"
+    },
+    {
+        "dtxcid": "DTXCID50875760",
+        "casrn": "7429-90-5",
+        "preferredName": "Aluminum",
+        "iupacName": "Aluminium",
+        "inchikey": "XAGFODPZIPBFFR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3040273"
+    },
+    {
+        "dtxcid": "DTXCID001473373",
+        "casrn": "1401-69-0",
+        "preferredName": "Tylosin",
+        "iupacName": "[(2R,3R,4E,6E,9R,11R,12S,13S,14R)-12-{[3,6-Dideoxy-4-O-(2,6-dideoxy-3-C-methyl-alpha-L-ribo-hexopyranosyl)-3-(dimethylamino)-beta-D-glucopyranosyl]oxy}-2-ethyl-14-hydroxy-5,9,13-trimethyl-8,16-dioxo-11-(2-oxoethyl)-1-oxacyclohexadeca-4,6-dien-3-yl]methyl 6-deoxy-2,3-di-O-methyl-beta-D-allopyranoside",
+        "inchikey": "WBPYTXDJUQJLPQ-VMXQISHHSA-N",
+        "dtxsid": "DTXSID3043996"
+    },
+    {
+        "dtxcid": "DTXCID709866",
+        "casrn": "78-33-1",
+        "preferredName": "Tris(4-tert-butylphenyl) phosphate",
+        "iupacName": "Tris(4-tert-butylphenyl) phosphate",
+        "inchikey": "LORSVOJSXMHDHF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3051466"
+    },
+    {
+        "dtxcid": "DTXCID4030629",
+        "casrn": "39001-02-0",
+        "preferredName": "Octachlorodibenzofuran",
+        "iupacName": "1,2,3,4,6,7,8,9-Octachlorodibenzo[b,d]furan",
+        "inchikey": "RHIROFAGUQOFLU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3052062"
+    },
+    {
+        "dtxcid": "DTXCID1039505",
+        "casrn": "38444-78-9",
+        "preferredName": "2,2',3-Trichlorobiphenyl",
+        "iupacName": "2,2',3-Trichloro-1,1'-biphenyl",
+        "inchikey": "XVIZMMSINIOIQP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3073501"
+    },
+    {
+        "dtxcid": "DTXCID8039908",
+        "casrn": "41411-64-7",
+        "preferredName": "2,3,3',4,4',5,6-Heptachlorobiphenyl",
+        "iupacName": "2,3,3',4,4',5,6-Heptachloro-1,1'-biphenyl",
+        "inchikey": "TYEDCFVCFDKSBK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3074151"
+    },
+    {
+        "dtxcid": "DTXCID7040150",
+        "casrn": "42740-50-1",
+        "preferredName": "2,2',3,3',4,4',5,6'-Octachlorobiphenyl",
+        "iupacName": "2,2',3,3',4,4',5,6'-Octachloro-1,1'-biphenyl",
+        "inchikey": "BQFCCUSDZLKBJG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3074157"
+    },
+    {
+        "dtxcid": "DTXCID4041232",
+        "casrn": "52663-58-8",
+        "preferredName": "2,3,4',6-Tetrachlorobiphenyl",
+        "iupacName": "2,3,4',6-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "FXRXQYZZALWWGA-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3074159"
+    },
+    {
+        "dtxcid": "DTXCID8047682",
+        "casrn": "74472-43-8",
+        "preferredName": "2,3,3',4,5',6-Hexachlorobiphenyl",
+        "iupacName": "2,3,3',4,5',6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "UNPTZXSJGZTGJJ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID3074232"
+    },
+    {
+        "dtxcid": "DTXCID20815996",
+        "casrn": "69782-91-8",
+        "preferredName": "2,3,3',4',5,5',6-Heptachlorobiphenyl",
+        "iupacName": "2,3,3',4',5,5',6-Heptachloro-1,1'-biphenyl",
+        "inchikey": "SSTJUBQGYXNFFP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID30867845"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "NOCAS_872414",
+        "preferredName": "Antimony & Antimony Compounds",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID30872414"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "NOCAS_872419",
+        "preferredName": "Cobalt & Cobalt Compounds",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID30872419"
+    },
+    {
+        "dtxcid": "DTXCID904233",
+        "casrn": "63387-28-0",
+        "preferredName": "2,2′,3,3′,4,4′,5,5′,6-Nonabromodiphenyl ether",
+        "iupacName": "1,2,3,4,5-Pentabromo-6-(2,3,4,5-tetrabromophenoxy)benzene",
+        "inchikey": "CYRHBNRLQMLULE-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID30881107"
+    },
+    {
+        "dtxcid": "DTXCID101365210",
+        "casrn": "161880-49-5",
+        "preferredName": "1,2,3,7,8,9-Hexabromodibenzo[b,d]furan",
+        "iupacName": "1,2,3,7,8,9-Hexabromodibenzo[b,d]furan",
+        "inchikey": "BWGBHHLGDVHQEM-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID30936606"
+    },
+    {
+        "dtxcid": "DTXCID701420032",
+        "casrn": "72236-72-7",
+        "preferredName": "Bis(1,3-dichloro-2-propyl) phosphate",
+        "iupacName": "Bis(1,3-dichloropropan-2-yl) hydrogen phosphate",
+        "inchikey": "NNKRUBFJSSBFSS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID30992969"
+    },
+    {
+        "dtxcid": "DTXCID60161",
+        "casrn": "92-52-4",
+        "preferredName": "Biphenyl",
+        "iupacName": "1,1'-Biphenyl",
+        "inchikey": "ZUOUZKKEUPVFJK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4020161"
+    },
+    {
+        "dtxcid": "DTXCID40298",
+        "casrn": "108-90-7",
+        "preferredName": "Chlorobenzene",
+        "iupacName": "Chlorobenzene",
+        "inchikey": "MVPPADPHJFYWMZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4020298"
+    },
+    {
+        "dtxcid": "DTXCID40329",
+        "casrn": "51481-61-9",
+        "preferredName": "Cimetidine",
+        "iupacName": "N''-Cyano-N-methyl-N'-(2-{[(5-methyl-1H-imidazol-4-yl)methyl]sulfanyl}ethyl)guanidine",
+        "inchikey": "AQIXAKUUQRKLND-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4020329"
+    },
+    {
+        "dtxcid": "DTXCID80458",
+        "casrn": "2921-88-2",
+        "preferredName": "Chlorpyrifos",
+        "iupacName": "O,O-Diethyl O-(3,5,6-trichloropyridin-2-yl) phosphorothioate",
+        "inchikey": "SBPBAQFWLVIOKP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4020458"
+    },
+    {
+        "dtxcid": "DTXCID00533",
+        "casrn": "123-91-1",
+        "preferredName": "1,4-Dioxane",
+        "iupacName": "1,4-Dioxane",
+        "inchikey": "RYHBNJHYFVUHQT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4020533"
+    },
+    {
+        "dtxcid": "DTXCID301341",
+        "casrn": "96-69-5",
+        "preferredName": "4,4'-Thiobis(6-tert-butyl-m-cresol)",
+        "iupacName": "4,4'-Sulfanediylbis(2-tert-butyl-5-methylphenol)",
+        "inchikey": "HXIQYSLFEXIOAV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4021341"
+    },
+    {
+        "dtxcid": "DTXCID001975",
+        "casrn": "122-39-4",
+        "preferredName": "Diphenylamine",
+        "iupacName": "N-Phenylaniline",
+        "inchikey": "DMBHHRLKUKUOEG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4021975"
+    },
+    {
+        "dtxcid": "DTXCID402529",
+        "casrn": "99-76-3",
+        "preferredName": "Methylparaben",
+        "iupacName": "Methyl 4-hydroxybenzoate",
+        "inchikey": "LXCFILQKKLGQFO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4022529"
+    },
+    {
+        "dtxcid": "DTXCID90875623",
+        "casrn": "7440-41-7",
+        "preferredName": "Beryllium",
+        "iupacName": "Beryllium",
+        "inchikey": "RWASOQSEFLDYLC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4023913"
+    },
+    {
+        "dtxcid": "DTXCID601326819",
+        "casrn": "25322-68-3",
+        "preferredName": "Polyethylene glycol",
+        "iupacName": null,
+        "inchikey": "LYCAIKOWRPUZTN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4027862"
+    },
+    {
+        "dtxcid": "DTXCID2023937",
+        "casrn": "67-71-0",
+        "preferredName": "Dimethyl sulfone",
+        "iupacName": "(Methanesulfonyl)methane",
+        "inchikey": "HHVIBTZHLRERCL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4043937"
+    },
+    {
+        "dtxcid": "DTXCID2024533",
+        "casrn": "13029-08-8",
+        "preferredName": "2,2'-Dichlorobiphenyl",
+        "iupacName": "2,2'-Dichloro-1,1'-biphenyl",
+        "inchikey": "JAYCNKDKIKZTAF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4044533"
+    },
+    {
+        "dtxcid": "DTXCID8031283",
+        "casrn": "182346-21-0",
+        "preferredName": "2,2',3,4,4'-Pentabromodiphenyl ether",
+        "iupacName": "1,2,3-Tribromo-4-(2,4-dibromophenoxy)benzene",
+        "inchikey": "DMLQSUZPTTUUDP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4052685"
+    },
+    {
+        "dtxcid": "DTXCID9031305",
+        "casrn": "513-08-6",
+        "preferredName": "Tripropyl phosphate",
+        "iupacName": "Tripropyl phosphate",
+        "inchikey": "RXPQRKFMDQNODS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4052712"
+    },
+    {
+        "dtxcid": "DTXCID6047650",
+        "casrn": "7440-17-7",
+        "preferredName": "Rubidium",
+        "iupacName": "Rubidium",
+        "inchikey": "UCYFRLNGKNNHBD-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4064686"
+    },
+    {
+        "dtxcid": "DTXCID8047921",
+        "casrn": "7683-64-9",
+        "preferredName": "Squalene",
+        "iupacName": "2,6,10,15,19,23-Hexamethyltetracosa-2,6,10,14,18,22-hexaene",
+        "inchikey": "YYGNTYWPHWGJRM-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4064767"
+    },
+    {
+        "dtxcid": "DTXCID3041243",
+        "casrn": "52663-71-5",
+        "preferredName": "2,2',3,3',4,4',6-Heptachlorobiphenyl",
+        "iupacName": "2,2',3,3',4,4',6-Heptachloro-1,1'-biphenyl",
+        "inchikey": "TZMHVHLTPWKZCI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4073540"
+    },
+    {
+        "dtxcid": "DTXCID8039661",
+        "casrn": "39635-31-9",
+        "preferredName": "2,3,3',4,4',5,5'-Heptachlorobiphenyl",
+        "iupacName": "2,3,3',4,4',5,5'-Heptachloro-1,1'-biphenyl",
+        "inchikey": "XUAWBXBYHDRROL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4074144"
+    },
+    {
+        "dtxcid": "DTXCID5045673",
+        "casrn": "68194-10-5",
+        "preferredName": "2,3,3',5',6-Pentachlorobiphenyl",
+        "iupacName": "2,3,3',5',6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "YDGFMDPEJCJZEV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4074198"
+    },
+    {
+        "dtxcid": "DTXCID3047633",
+        "casrn": "74338-24-2",
+        "preferredName": "2,3,3',4-Tetrachlorobiphenyl",
+        "iupacName": "2,3,3',4-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "ZKGSEEWIVLAUNH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4074221"
+    },
+    {
+        "dtxcid": "DTXCID9047679",
+        "casrn": "74472-40-5",
+        "preferredName": "2,2',3,4,6,6'-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,4,6,6'-Hexachloro-1,1'-biphenyl",
+        "inchikey": "JZFZCLFEPXCRCA-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID4074229"
+    },
+    {
+        "dtxcid": "DTXCID60820347",
+        "casrn": "147217-75-2",
+        "preferredName": "2,2',4-Tribromodiphenyl ether",
+        "iupacName": "2,4-Dibromo-1-(2-bromophenoxy)benzene",
+        "inchikey": "VYBFILXLBMWOLI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID40872703"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "11006-76-1",
+        "preferredName": "Virginiamycin",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID40880080"
+    },
+    {
+        "dtxcid": "DTXCID30528",
+        "casrn": "606-20-2",
+        "preferredName": "2,6-Dinitrotoluene",
+        "iupacName": "2-Methyl-1,3-dinitrobenzene",
+        "inchikey": "XTRDKALNCIHHNI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5020528"
+    },
+    {
+        "dtxcid": "DTXCID90732",
+        "casrn": "15687-27-1",
+        "preferredName": "Ibuprofen",
+        "iupacName": "2-[4-(2-Methylpropyl)phenyl]propanoic acid",
+        "inchikey": "HEFNNWSXXWATRW-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5020732"
+    },
+    {
+        "dtxcid": "DTXCID501124",
+        "casrn": "108-95-2",
+        "preferredName": "Phenol",
+        "iupacName": "Phenol",
+        "inchikey": "ISWSIDIOOBJBQZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5021124"
+    },
+    {
+        "dtxcid": "DTXCID601411",
+        "casrn": "115-96-8",
+        "preferredName": "Tris(2-chloroethyl) phosphate",
+        "iupacName": "Tris(2-chloroethyl) phosphate",
+        "inchikey": "HQUQLFOMPYWACS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5021411"
+    },
+    {
+        "dtxcid": "DTXCID201758",
+        "casrn": "78-51-3",
+        "preferredName": "Tris(2-butoxyethyl) phosphate",
+        "iupacName": "Tris(2-butoxyethyl) phosphate",
+        "inchikey": "WTLBZVNBAKMVDP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5021758"
+    },
+    {
+        "dtxcid": "DTXCID701889",
+        "casrn": "108-10-1",
+        "preferredName": "4-Methyl-2-pentanone",
+        "iupacName": "4-Methylpentan-2-one",
+        "inchikey": "NTIZESTWPVYFNL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5021889"
+    },
+    {
+        "dtxcid": "DTXCID804506",
+        "casrn": "89-57-6",
+        "preferredName": "5-Aminosalicylic acid",
+        "iupacName": "5-Amino-2-hydroxybenzoic acid",
+        "inchikey": "KBOPZPXVLCULAV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5024506"
+    },
+    {
+        "dtxcid": "DTXCID8034031",
+        "casrn": "131166-92-2",
+        "preferredName": "2,3,4,7,8-Pentabromodibenzofuran",
+        "iupacName": "2,3,4,7,8-Pentabromodibenzo[b,d]furan",
+        "inchikey": "KHQDJFUIVSESDP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5073870"
+    },
+    {
+        "dtxcid": "DTXCID6038538",
+        "casrn": "32598-12-2",
+        "preferredName": "2,4,4',6-Tetrachlorobiphenyl",
+        "iupacName": "2,4,4',6-Tetrachloro-1,1'-biphenyl",
+        "inchikey": "RZFZBHKDGHISSH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5074133"
+    },
+    {
+        "dtxcid": "DTXCID5038919",
+        "casrn": "34883-41-5",
+        "preferredName": "3,5-Dichlorobiphenyl",
+        "iupacName": "3,5-Dichloro-1,1'-biphenyl",
+        "inchikey": "QHZSDTDMQZPUKC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5074137"
+    },
+    {
+        "dtxcid": "DTXCID9042091",
+        "casrn": "56558-17-9",
+        "preferredName": "2,3',4,4',6-Pentachlorobiphenyl",
+        "iupacName": "2,3',4,4',6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "OAEQTHQGPZKTQP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5074185"
+    },
+    {
+        "dtxcid": "DTXCID8042765",
+        "casrn": "60145-21-3",
+        "preferredName": "2,2',4,5',6-Pentachlorobiphenyl",
+        "iupacName": "2,2',4,5',6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "PQHZWWBJPCNNGI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5074189"
+    },
+    {
+        "dtxcid": "DTXCID7047564",
+        "casrn": "73575-56-1",
+        "preferredName": "2,2',3,5,6-Pentachlorobiphenyl",
+        "iupacName": "2,2',3,5,6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "BMXRLHMJGHJGLR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID5074218"
+    },
+    {
+        "dtxcid": "DTXCID503883",
+        "casrn": "38444-87-0",
+        "preferredName": "3,3',5-Trichlorobiphenyl",
+        "iupacName": "3,3',5-Trichloro-1,1'-biphenyl",
+        "inchikey": "RIBGNAJQTOXRDK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID50858937"
+    },
+    {
+        "dtxcid": "DTXCID10814312",
+        "casrn": "39635-32-0",
+        "preferredName": "2,3,3',5,5'-Pentachlorobiphenyl",
+        "iupacName": "2,3,3',5,5'-Pentachloro-1,1'-biphenyl",
+        "inchikey": "QMUDLTGWHILKHH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID50865964"
+    },
+    {
+        "dtxcid": "DTXCID40817598",
+        "casrn": "120067-83-6",
+        "preferredName": "Fipronil sulfide",
+        "iupacName": "5-Amino-1-[2,6-dichloro-4-(trifluoromethyl)phenyl]-4-[(trifluoromethyl)sulfanyl]-1H-pyrazole-3-carbonitrile",
+        "inchikey": "FQXWEKADCSXYOC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID50869644"
+    },
+    {
+        "dtxcid": "DTXCID40802",
+        "casrn": "108-78-1",
+        "preferredName": "Melamine",
+        "iupacName": "1,3,5-Triazine-2,4,6-triamine",
+        "inchikey": "JDSHMPZPIAZGSV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6020802"
+    },
+    {
+        "dtxcid": "DTXCID001030",
+        "casrn": "86-30-6",
+        "preferredName": "N-Nitrosodiphenylamine",
+        "iupacName": "N,N-Diphenylnitrous amide",
+        "inchikey": "UBUCNCOMADRQHX-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6021030"
+    },
+    {
+        "dtxcid": "DTXCID001373",
+        "casrn": "396-01-0",
+        "preferredName": "Triamterene",
+        "iupacName": "6-Phenylpteridine-2,4,7-triamine",
+        "inchikey": "FNYLWPVRPXGIIP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6021373"
+    },
+    {
+        "dtxcid": "DTXCID501828",
+        "casrn": "98-86-2",
+        "preferredName": "Acetophenone",
+        "iupacName": "1-Phenylethan-1-one",
+        "inchikey": "KWOLFJPFCHCOCG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6021828"
+    },
+    {
+        "dtxcid": "DTXCID203577",
+        "casrn": "79617-96-2",
+        "preferredName": "Sertraline",
+        "iupacName": "(1S,4S)-4-(3,4-Dichlorophenyl)-N-methyl-1,2,3,4-tetrahydronaphthalen-1-amine",
+        "inchikey": "VGKDLMBJGBXTGI-SJCJKPOMSA-N",
+        "dtxsid": "DTXSID6023577"
+    },
+    {
+        "dtxcid": "DTXCID10677",
+        "casrn": "19408-74-3",
+        "preferredName": "1,2,3,7,8,9-Hexachlorodibenzo-p-dioxin",
+        "iupacName": "1,2,3,7,8,9-Hexachlorooxanthrene",
+        "inchikey": "LGIRBUBHIWTVCK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6023781"
+    },
+    {
+        "dtxcid": "DTXCID103947",
+        "casrn": "75-15-0",
+        "preferredName": "Carbon disulfide",
+        "iupacName": "Methanedithione",
+        "inchikey": "QGJOPFRUJISHPQ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6023947"
+    },
+    {
+        "dtxcid": "DTXCID301323292",
+        "casrn": "56803-37-3",
+        "preferredName": "tert-Butylphenyl diphenyl phosphate",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID6024701"
+    },
+    {
+        "dtxcid": "DTXCID704913",
+        "casrn": "124-18-5",
+        "preferredName": "Decane",
+        "iupacName": "Decane",
+        "inchikey": "DIOQZVSQGTUSAI-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6024913"
+    },
+    {
+        "dtxcid": "DTXCID4017514",
+        "casrn": "7700-17-6",
+        "preferredName": "Crotoxyphos",
+        "iupacName": "1-Phenylethyl (2E)-3-[(dimethoxyphosphoryl)oxy]but-2-enoate",
+        "inchikey": "XXXSILNSXNPGKG-ZHACJKMWSA-N",
+        "dtxsid": "DTXSID6037514"
+    },
+    {
+        "dtxcid": "DTXCID9033139",
+        "casrn": "109333-34-8",
+        "preferredName": "1,2,3,7,8-Pentabromodibenzo-p-dioxin",
+        "iupacName": "1,2,3,7,8-Pentabromooxanthrene",
+        "inchikey": "ZIFMQFDZODRVTG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6073784"
+    },
+    {
+        "dtxcid": "DTXCID3041249",
+        "casrn": "52663-77-1",
+        "preferredName": "2,2',3,3',4,5,5',6,6'-Nonachlorobiphenyl",
+        "iupacName": "2,2',3,3',4,5,5',6,6'-Nonachloro-1,1'-biphenyl",
+        "inchikey": "XIFFTDRFWYFAPO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID6074170"
+    },
+    {
+        "dtxcid": "DTXCID901011710",
+        "casrn": "205650-69-7",
+        "preferredName": "Fipronil amide",
+        "iupacName": "5-Amino-1-[2,6-dichloro-4-(trifluoromethyl)phenyl]-4-(trifluoromethanesulfinyl)-1H-pyrazole-3-carboxamide",
+        "inchikey": "OPPWTDFHAFPGOT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID60873419"
+    },
+    {
+        "dtxcid": "DTXCID001515096",
+        "casrn": "26914-33-0",
+        "preferredName": "Tetrachlorobiphenyls",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID701026565"
+    },
+    {
+        "dtxcid": "DTXCID30182",
+        "casrn": "80-05-7",
+        "preferredName": "Bisphenol A",
+        "iupacName": "4,4'-(Propane-2,2-diyl)diphenol",
+        "inchikey": "IISBACLAFKSPIT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7020182"
+    },
+    {
+        "dtxcid": "DTXCID20196535",
+        "casrn": "319-85-7",
+        "preferredName": "beta-Hexachlorocyclohexane",
+        "iupacName": "(1r,2r,3r,4r,5r,6r)-1,2,3,4,5,6-Hexachlorocyclohexane",
+        "inchikey": "JLYXXMFPNIAWKQ-CDRYSYESNA-N",
+        "dtxsid": "DTXSID7020685"
+    },
+    {
+        "dtxcid": "DTXCID30970",
+        "casrn": "1836-75-5",
+        "preferredName": "Nitrofen",
+        "iupacName": "2,4-Dichloro-1-(4-nitrophenoxy)benzene",
+        "inchikey": "XITQUSLLOSKDTB-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7020970"
+    },
+    {
+        "dtxcid": "DTXCID501360",
+        "casrn": "108-88-3",
+        "preferredName": "Toluene",
+        "iupacName": "Toluene",
+        "inchikey": "YXFVVABEGXRONW-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7021360"
+    },
+    {
+        "dtxcid": "DTXCID101607",
+        "casrn": "142-62-1",
+        "preferredName": "Hexanoic acid",
+        "iupacName": "Hexanoic acid",
+        "inchikey": "FUZZWVXGSFPDMH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7021607"
+    },
+    {
+        "dtxcid": "DTXCID903067",
+        "casrn": "54910-89-3",
+        "preferredName": "Fluoxetine",
+        "iupacName": "N-Methyl-3-phenyl-3-[4-(trifluoromethyl)phenoxy]propan-1-amine",
+        "inchikey": "RTHCYVBBDHJXIQ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7023067"
+    },
+    {
+        "dtxcid": "DTXCID803518",
+        "casrn": "60-87-7",
+        "preferredName": "Promethazine",
+        "iupacName": "N,N-Dimethyl-1-(10H-phenothiazin-10-yl)propan-2-amine",
+        "inchikey": "PWWVAXIEGOYWEE-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7023518"
+    },
+    {
+        "dtxcid": "DTXCID206368",
+        "casrn": "69-72-7",
+        "preferredName": "Salicylic acid",
+        "iupacName": "2-Hydroxybenzoic acid",
+        "inchikey": "YGSDEFSMJLZEOE-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7026368"
+    },
+    {
+        "dtxcid": "DTXCID5010066",
+        "casrn": "57117-31-4",
+        "preferredName": "2,3,4,7,8-Pentachlorodibenzofuran",
+        "iupacName": "2,3,4,7,8-Pentachlorodibenzo[b,d]furan",
+        "inchikey": "OGBQILNBLMPPDP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7030066"
+    },
+    {
+        "dtxcid": "DTXCID004384",
+        "casrn": "7440-66-6",
+        "preferredName": "Zinc",
+        "iupacName": "Zinc",
+        "inchikey": "HCHKCACWOHOZIP-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7035012"
+    },
+    {
+        "dtxcid": "DTXCID5027433",
+        "casrn": "474-86-2",
+        "preferredName": "Equilin",
+        "iupacName": "3-Hydroxyestra-1,3,5(10),7-tetraen-17-one",
+        "inchikey": "WKRLQDKEXYKHJB-HFTRVMKXSA-N",
+        "dtxsid": "DTXSID7047433"
+    },
+    {
+        "dtxcid": "DTXCID2030645",
+        "casrn": "40321-76-4",
+        "preferredName": "1,2,3,7,8-Pentachlorodibenzo-p-dioxin",
+        "iupacName": "1,2,3,7,8-Pentachlorooxanthrene",
+        "inchikey": "FSPZPQQWDODWAU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7052078"
+    },
+    {
+        "dtxcid": "DTXCID1033084",
+        "casrn": "107555-95-3",
+        "preferredName": "1,2,3,4,6,7,8-Heptabromodibenzofuran",
+        "iupacName": "1,2,3,4,6,7,8-Heptabromodibenzo[b,d]furan",
+        "inchikey": "JISOUFWSRUCDMJ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7073779"
+    },
+    {
+        "dtxcid": "DTXCID3041241",
+        "casrn": "52663-69-1",
+        "preferredName": "2,2',3,4,4',5',6-Heptachlorobiphenyl",
+        "iupacName": "2,2',3,4,4',5',6-Heptachloro-1,1'-biphenyl",
+        "inchikey": "KQBFUDNJKCZEDQ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID7074163"
+    },
+    {
+        "dtxcid": "DTXCID601173",
+        "casrn": "59080-40-9",
+        "preferredName": "2,2',4,4',5,5'-Hexabromobiphenyl",
+        "iupacName": "2,2',4,4',5,5'-Hexabromo-1,1'-biphenyl",
+        "inchikey": "HMBBJSKXDBUNNT-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID70858838"
+    },
+    {
+        "dtxcid": "DTXCID20250",
+        "casrn": "56-23-5",
+        "preferredName": "Carbon tetrachloride",
+        "iupacName": "Tetrachloromethane",
+        "inchikey": "VZGDMQKNWNREIO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8020250"
+    },
+    {
+        "dtxcid": "DTXCID00620",
+        "casrn": "55-38-9",
+        "preferredName": "Fenthion",
+        "iupacName": "O,O-Dimethyl O-[3-methyl-4-(methylsulfanyl)phenyl] phosphorothioate",
+        "inchikey": "PNVJTZOFSHSLTO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8020620"
+    },
+    {
+        "dtxcid": "DTXCID00913",
+        "casrn": "91-20-3",
+        "preferredName": "Naphthalene",
+        "iupacName": "Naphthalene",
+        "inchikey": "UFWIBTONFRDIAS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8020913"
+    },
+    {
+        "dtxcid": "DTXCID203056",
+        "casrn": "5250-39-5",
+        "preferredName": "Floxacillin",
+        "iupacName": "(2S,5R,6R)-6-{[3-(2-Chloro-6-fluorophenyl)-5-methyl-1,2-oxazole-4-carbonyl]amino}-3,3-dimethyl-7-oxo-4-thia-1-azabicyclo[3.2.0]heptane-2-carboxylic acid",
+        "inchikey": "UIOFUWFRIANQPC-JKIFEVAISA-N",
+        "dtxsid": "DTXSID8023056"
+    },
+    {
+        "dtxcid": "DTXCID80875617",
+        "casrn": "7440-39-3",
+        "preferredName": "Barium",
+        "iupacName": "Barium",
+        "inchikey": "MUBOSUMMMUSVEO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8023894"
+    },
+    {
+        "dtxcid": "DTXCID603971",
+        "casrn": "91-58-7",
+        "preferredName": "2-Chloronaphthalene",
+        "iupacName": "2-Chloronaphthalene",
+        "inchikey": "CGYGETOMCSJHJU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8023971"
+    },
+    {
+        "dtxcid": "DTXCID6010760",
+        "casrn": "83905-01-5",
+        "preferredName": "Azithromycin",
+        "iupacName": "(2R,3S,4R,5R,8R,10R,11R,12S,13S,14R)-2-Ethyl-3,4,10-trihydroxy-3,5,6,8,10,12,14-heptamethyl-15-oxo-11-{[3,4,6-trideoxy-3-(dimethylamino)-beta-D-xylo-hexopyranosyl]oxy}-1-oxa-6-azacyclopentadecan-13-yl 2,6-dideoxy-3-C-methyl-3-O-methyl-alpha-L-ribo-hexopyranoside",
+        "inchikey": "MQTOSJVFKKJCRP-BICOPXKESA-N",
+        "dtxsid": "DTXSID8030760"
+    },
+    {
+        "dtxcid": "DTXCID6011865",
+        "casrn": "335-67-1",
+        "preferredName": "Perfluorooctanoic acid",
+        "iupacName": "Pentadecafluorooctanoic acid",
+        "inchikey": "SNGREZUHAYWORS-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8031865"
+    },
+    {
+        "dtxcid": "DTXCID6018300",
+        "casrn": "35065-28-2",
+        "preferredName": "2,2',3,4,4',5'-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,4,4',5'-Hexachloro-1,1'-biphenyl",
+        "inchikey": "RPUMZMSNLZHIGZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8038300"
+    },
+    {
+        "dtxcid": "DTXCID6018306",
+        "casrn": "32598-14-4",
+        "preferredName": "2,3,3',4,4'-Pentachlorobiphenyl",
+        "iupacName": "2,3,3',4,4'-Pentachloro-1,1'-biphenyl",
+        "inchikey": "WIDHRBRBACOVOY-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8038306"
+    },
+    {
+        "dtxcid": "DTXCID6020301",
+        "casrn": "33284-50-3",
+        "preferredName": "2,4-Dichlorobiphenyl",
+        "iupacName": "2,4-Dichloro-1,1'-biphenyl",
+        "inchikey": "WEJZHZJJXPXXMU-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8040301"
+    },
+    {
+        "dtxcid": "DTXCID00820068",
+        "casrn": "66357-35-5",
+        "preferredName": "Ranitidine",
+        "iupacName": "N~1~-{2-[({5-[(Dimethylamino)methyl]furan-2-yl}methyl)sulfanyl]ethyl}-N'~1~-methyl-2-nitroethene-1,1-diamine",
+        "inchikey": "VMXUWOKSQNHOCA-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8045191"
+    },
+    {
+        "dtxcid": "DTXCID6027553",
+        "casrn": "2058-94-8",
+        "preferredName": "Perfluoroundecanoic acid",
+        "iupacName": "Henicosafluoroundecanoic acid",
+        "inchikey": "SIDINRCMMRKXGQ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8047553"
+    },
+    {
+        "dtxcid": "DTXCID8030922",
+        "casrn": "67562-39-4",
+        "preferredName": "1,2,3,4,6,7,8-Heptachlorodibenzo[b,d]furan",
+        "iupacName": "1,2,3,4,6,7,8-Heptachlorodibenzo[b,d]furan",
+        "inchikey": "WDMKCPIVJOGHBF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8052350"
+    },
+    {
+        "dtxcid": "DTXCID2031291",
+        "casrn": "207122-16-5",
+        "preferredName": "2,2',3,4,4',5',6-Heptabromodiphenyl ether",
+        "iupacName": "1,2,3,5-Tetrabromo-4-(2,4,5-tribromophenoxy)benzene",
+        "inchikey": "ILPSCQCLBHQUEM-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8052693"
+    },
+    {
+        "dtxcid": "DTXCID6031332",
+        "casrn": "5945-33-5",
+        "preferredName": "2,2-Bis[4-[bis(phenoxy)phosphoryloxy]phenyl]propane",
+        "iupacName": "Tetraphenyl (propane-2,2-diyl)di(4,1-phenylene) bis(phosphate)",
+        "inchikey": "BQPNUOYXSVUVMY-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8052720"
+    },
+    {
+        "dtxcid": "DTXCID7044346",
+        "casrn": "646-31-1",
+        "preferredName": "n-Tetracosane",
+        "iupacName": "Tetracosane",
+        "inchikey": "POOSGDOYLQNASK-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8060955"
+    },
+    {
+        "dtxcid": "DTXCID3039907",
+        "casrn": "41411-63-6",
+        "preferredName": "2,3,4,4',5,6-Hexachlorobiphenyl",
+        "iupacName": "2,3,4,4',5,6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "BTOCFTAWZMMTNB-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8074150"
+    },
+    {
+        "dtxcid": "DTXCID4041101",
+        "casrn": "51908-16-8",
+        "preferredName": "2,2',3,4',5,5'-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,4',5,5'-Hexachloro-1,1'-biphenyl",
+        "inchikey": "BQHCQAQLTCQFJZ-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8074158"
+    },
+    {
+        "dtxcid": "DTXCID3047681",
+        "casrn": "74472-42-7",
+        "preferredName": "2,3,3',4,4',6-Hexachlorobiphenyl",
+        "iupacName": "2,3,3',4,4',6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "ZQUPQXINXTWCQR-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8074231"
+    },
+    {
+        "dtxcid": "DTXCID3047683",
+        "casrn": "74472-44-9",
+        "preferredName": "2,3,3',4',5,6-Hexachlorobiphenyl",
+        "iupacName": "2,3,3',4',5,6-Hexachloro-1,1'-biphenyl",
+        "inchikey": "ZAGRQXMWMRUYRB-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID8074233"
+    },
+    {
+        "dtxcid": null,
+        "casrn": "NOCAS_872505",
+        "preferredName": "Iron and Compounds",
+        "iupacName": null,
+        "inchikey": null,
+        "dtxsid": "DTXSID80872505"
+    },
+    {
+        "dtxcid": "DTXCID801023245",
+        "casrn": "1804-93-9",
+        "preferredName": "Phosphoric acid, dipropyl ester",
+        "iupacName": "Dipropyl hydrogen phosphate",
+        "inchikey": "QVKQJEWZVQFGIY-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID80883752"
+    },
+    {
+        "dtxcid": "DTXCID90374",
+        "casrn": "72-55-9",
+        "preferredName": "p,p'-DDE",
+        "iupacName": "1,1'-(2,2-Dichloroethene-1,1-diyl)bis(4-chlorobenzene)",
+        "inchikey": "UCNVFOCBFJOQAL-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9020374"
+    },
+    {
+        "dtxcid": "DTXCID50407",
+        "casrn": "333-41-5",
+        "preferredName": "Diazinon",
+        "iupacName": "O,O-Diethyl O-[6-methyl-2-(propan-2-yl)pyrimidin-4-yl] phosphorothioate",
+        "inchikey": "FHIVAFMUCKRCQO-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9020407"
+    },
+    {
+        "dtxcid": "DTXCID10140542",
+        "casrn": "678-41-1",
+        "preferredName": "Bis(2-(perfluorooctyl)ethyl) hydrogen phosphate",
+        "iupacName": "Bis(3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,10-heptadecafluorodecyl) hydrogen phosphate",
+        "inchikey": "AFWOYEYXUDHGHF-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID90218051"
+    },
+    {
+        "dtxcid": "DTXCID701847",
+        "casrn": "101-84-8",
+        "preferredName": "Diphenyl oxide",
+        "iupacName": "1,1'-Oxydibenzene",
+        "inchikey": "USIUVYZYUHIAEV-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9021847"
+    },
+    {
+        "dtxcid": "DTXCID602360",
+        "casrn": "140-66-9",
+        "preferredName": "4-(1,1,3,3-Tetramethylbutyl)phenol",
+        "iupacName": "4-(2,4,4-Trimethylpentan-2-yl)phenol",
+        "inchikey": "ISAVYTVYFVQUDY-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9022360"
+    },
+    {
+        "dtxcid": "DTXCID502659",
+        "casrn": "86-13-5",
+        "preferredName": "Benztropine",
+        "iupacName": "(1R,3r,5S)-3-(Diphenylmethoxy)-8-methyl-8-azabicyclo[3.2.1]octane",
+        "inchikey": "GIJXKZJWITVLHI-PMOLBWCYSA-N",
+        "dtxsid": "DTXSID9022659"
+    },
+    {
+        "dtxcid": "DTXCID303380",
+        "casrn": "68-22-4",
+        "preferredName": "Norethindrone",
+        "iupacName": "17-Hydroxy-17alpha-19-norpregn-4-en-20-yn-3-one",
+        "inchikey": "VIKNJXKGJWUCNN-XGXHKTLJSA-N",
+        "dtxsid": "DTXSID9023380"
+    },
+    {
+        "dtxcid": "DTXCID701781319",
+        "casrn": "789440-10-4",
+        "preferredName": "Bis(1-Chloropropan-2-yl) hydrogen phosphate",
+        "iupacName": "Bis(1-chloropropan-2-yl) hydrogen phosphate",
+        "inchikey": "ORAAZVDXWSKZHK-UHFFFAOYSA-M",
+        "dtxsid": "DTXSID90274172"
+    },
+    {
+        "dtxcid": "DTXCID601783831",
+        "casrn": "959-98-8",
+        "preferredName": "Endosulfan I",
+        "iupacName": "(5aR,6S,9R,9aS)-6,7,8,9,10,10-Hexachloro-1,5,5a,6,9,9a-hexahydro-3H-6,9-methano-3lambda~4~-2,4,3lambda~4~-benzodioxathiepin-3-one",
+        "inchikey": "RDYMFSUJUZBWLH-BEJSPLBDNA-N",
+        "dtxsid": "DTXSID9037539"
+    },
+    {
+        "dtxcid": "DTXCID7025265",
+        "casrn": "80-32-0",
+        "preferredName": "Sulfachloropyridazine",
+        "iupacName": "4-Amino-N-(6-chloropyridazin-3-yl)benzene-1-sulfonamide",
+        "inchikey": "XOXHILFPRYWFOD-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9045265"
+    },
+    {
+        "dtxcid": "DTXCID7027172",
+        "casrn": "593-45-3",
+        "preferredName": "Octadecane",
+        "iupacName": "Octadecane",
+        "inchikey": "RZJRJXONCZWCBN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9047172"
+    },
+    {
+        "dtxcid": "DTXCID40876145",
+        "casrn": "7440-70-2",
+        "preferredName": "Calcium",
+        "iupacName": "Calcium",
+        "inchikey": "FAQLAUHZSGTTLN-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9050484"
+    },
+    {
+        "dtxcid": "DTXCID3031286",
+        "casrn": "189084-61-5",
+        "preferredName": "2,3',4,4'-Tetrabromodiphenyl ether",
+        "iupacName": "1,2-Dibromo-4-(2,4-dibromophenoxy)benzene",
+        "inchikey": "DHUMTYRHKMCVAG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9052688"
+    },
+    {
+        "dtxcid": "DTXCID4041286",
+        "casrn": "52744-13-5",
+        "preferredName": "2,2',3,3',5,6'-Hexachlorobiphenyl",
+        "iupacName": "2,2',3,3',5,6'-Hexachloro-1,1'-biphenyl",
+        "inchikey": "UUTNFLRSJBQQJM-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9073541"
+    },
+    {
+        "dtxcid": "DTXCID8044620",
+        "casrn": "65510-45-4",
+        "preferredName": "2,2',3,4,4'-Pentachlorobiphenyl",
+        "iupacName": "2,2',3,4,4'-Pentachloro-1,1'-biphenyl",
+        "inchikey": "LACXVZHAJMVESG-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9073599"
+    },
+    {
+        "dtxcid": "DTXCID0045674",
+        "casrn": "68194-11-6",
+        "preferredName": "2,3,4',5,6-Pentachlorobiphenyl",
+        "iupacName": "2,3,4',5,6-Pentachloro-1,1'-biphenyl",
+        "inchikey": "ZDDZPDTVCZLFFC-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID9074199"
+    },
+    {
+        "dtxcid": "DTXCID801365211",
+        "casrn": "161880-50-8",
+        "preferredName": "2,3,4,6,7,8-Hexabromodibenzo[b,d]furan",
+        "iupacName": "2,3,4,6,7,8-Hexabromodibenzo[b,d]furan",
+        "inchikey": "GKJPDCOZDNSVRH-UHFFFAOYSA-N",
+        "dtxsid": "DTXSID90936607"
+    }
+]

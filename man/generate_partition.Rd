@@ -20,8 +20,9 @@ constituent of the partition has value at least 2.
 2.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 generate_partition(n = 4, seed = 42)
 generate_partition(n = 4, seed = 24)
-
+\dontshow{\}) # examplesIf}
 }

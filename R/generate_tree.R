@@ -248,7 +248,7 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
 #' @return A vector of integers each at least 2 and with sum equal to the input.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' generate_partition(n = 4, seed = 42)
 #' generate_partition(n = 4, seed = 24)
@@ -308,7 +308,7 @@ generate_partition <- function(n, seed = NA){
 #' @return Vector of generated partition.
 #' @export
 #'
-#' @examples
+#' @examplesIf FALSE
 #'
 #' generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 4)
 #' generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 2)

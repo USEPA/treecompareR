@@ -20,9 +20,11 @@ The level of the node from the root of the tree.
 This function returns the tree level of the given node in a rooted tree.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
 get_tip_level(tree = tree, label = 't2')
 get_tip_level(tree = tree, label = 'n1')
+\dontshow{\}) # examplesIf}
 }

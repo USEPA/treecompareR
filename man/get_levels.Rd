@@ -18,9 +18,10 @@ The data.frame has a row corresponding to each tip and internal node. It
 records the depth from the root of each node.
 }
 \examples{
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
 get_levels(tree = tree)
-
+\dontshow{\}) # examplesIf}
 }
