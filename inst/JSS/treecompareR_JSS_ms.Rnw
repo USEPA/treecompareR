@@ -43,7 +43,7 @@ library('treecompareR')
 
 %% - \Abstract{} almost as usual
 \Abstract{
-  This paper presents the \pkg{treecompareR} package for \proglang{R}, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from \pkg{ggplot2} and \pkg{ggtree} to provide visualizations tailored for use with taxonomic classification data. It also provides a pipeline for gathering chemical classification data using \pkg{classyfireR}. Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using ClassyFire(\url{http://classyfire.wishartlab.com/}), \pkg{treecompareR} provides tools for use with more general taxonomies.
+  This paper presents the \pkg{treecompareR} package for \proglang{R}, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from \pkg{ggplot2} and \pkg{ggtree} to provide visualizations tailored for use with taxonomic classification data. Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using ClassyFire(\url{http://classyfire.wishartlab.com/}), \pkg{treecompareR} also provides tools for use with more general taxonomies. \pkg{treecompareR} is available from GitHub at \url{https://github.com/USEPA/treecompareR}.
 }
 
 %% - \Keywords{} with LaTeX markup, at least one required
