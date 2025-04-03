@@ -7,7 +7,7 @@
 classify_inchikeys(
   inchikeys,
   tax_level_labels = chemont_tax_levels,
-  wait_min = 0.5
+  wait_min = 5
 )
 }
 \arguments{
@@ -18,7 +18,8 @@ ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
  level11}.}
 
 \item{wait_min}{A parameter controlling how many seconds between qqueries sent
-to the ClassyFire API server.}
+to the ClassyFire API server. Default 5, to respect the limit of 12 requests
+per second.}
 }
 \value{
 A data.frame with the following variables: \itemize{

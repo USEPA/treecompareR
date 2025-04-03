@@ -11,7 +11,8 @@
 #'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'  level11}.
 #'@param wait_min A parameter controlling how many seconds between qqueries sent
-#'  to the ClassyFire API server.
+#'  to the ClassyFire API server. Default 5, to respect the limit of 12 requests
+#'  per second.
 #'@return A data.frame with the following variables: \itemize{
 #'  \item{identifier: The input InCHiKey that was queried. For example,
 #'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
@@ -70,7 +71,7 @@
 
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = chemont_tax_levels,
-                               wait_min = 0.5){
+                               wait_min = 5){
 
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
