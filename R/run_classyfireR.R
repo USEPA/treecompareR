@@ -180,10 +180,15 @@ classify_datatable <- function(data) {
   }
 
   # Convert from long to wide format
-  wide_classifications <- dcast(inchikeys_classified, formula = identifier + smiles + inchikey + report ~ level, value.var = 'name')
+  wide_classifications <- dcast(
+    inchikeys_classified,
+    formula = identifier + smiles + inchikey + report ~ level,
+    value.var = 'name'
+  )
 
   # Bind with default results
-  temp_table <- rbindlist(list(default_table, wide_classifications), fill = TRUE)
+  temp_table <- rbindlist(list(default_table, wide_classifications),
+                          fill = TRUE)
   setcolorder(temp_table, neworder = default_names)
 
   final_table <- data.table::merge.data.table(x = datatable,
@@ -201,21 +206,46 @@ classify_datatable <- function(data) {
 #' InChi strings) and queries the ClassyFire API to get classifications for each
 #' one.
 #'
+#' For use with \code{treecompareR} functions that expect a `data.frame` of
+#' classified entities, this `data.frame` will need to be reshaped into wider
+#' format, with one row for each structure and one column for each level of
+#'  classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
+#'  names_from = "level", values_from = "name")} (where \code{dat} is the
+#' returned `data.frame`.) However, be on the lookout for pathological cases
+#' where a structure is listed with two different labels at the same level.
+#' These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will throw
+#' a warning if this happens -- pay attention to it!
+#'
+#' Note also that the returned data.frame includes only unique, valid
+#' structures. Any duplicates, blanks, or NAs are not queried, and are not
+#' included in the output.
+#'
+#' If you have a source `data.frame` with duplicate, missing, or invalid
+#' structures, you can merge the returned `data.frame` with it (or pivot wider,
+#' then merge). For example, if your source `data.frame` is called
+#' \code{source_dat} with variable \code{"STRUCTURE"} containing the structures,
+#' and the returned `data.frame` is in variable \code{dat}, the following code
+#'  will do the merge: \code{dplyr::left_join(source_dat, dat, by = "STRUCTURE" =
+#'  "structure")}. In that case, classification columns will be filled with NA
+#' for any missing or invalid structures.
+#'
 #' @param input A character vector of structural identifiers: SMILES strings or
-#'   InChi strings. May optionally be named. If so, the names will be returned as a
-#'   column named  \code{identifier} in the output data.frame. If not named, the
-#'   vector itself will be returned as a column named  \code{identifier} in the
-#'   output data.frame
+#'   InChi strings. May optionally be named. If so, the names will be returned
+#'   as a column named  \code{identifier} in the output data.frame. If not
+#'   named, the vector itself will be returned as a column named
+#'   \code{identifier} in the output data.frame
 #' @param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
 #' @param ... Other arguments as for \code{\link{query_classyfire}}.
 #' @return A data frame with ClassyFire classifications for each input
-#'   structural identifier. Will contain columns \code{identifier},
-#'   \code{smiles}, \code{inchikey}, one column for each taxonomy level (defined
-#'   in argument \code{tax_level_labels}), and \code{report}. The final
-#'   \code{report} column explains what happened if a classification could not
-#'   be obtained.
+#'   structural identifier. Will contain columns `identifier`, `structure`,
+#'   `level` (with one row for each taxonomy level in `tax_level_labels`),
+#'   `name` (containing the classification at each level), `smiles`, and then
+#'   several columns with information about the ClassyFire query: `inchikey`,
+#'   `report`, `classification_version`, `id`, `label`, `url` and `status_code`.
+#'   If classification could not be completed for one or more structures, they
+#'   will be listed in the table with `NA_character_` in the `name` column.
 #'
 #' @export
 #' @importFrom magrittr %>%
@@ -226,12 +256,19 @@ classify_datatable <- function(data) {
                                    ...){
     identifier <- NULL
 
+    #remove any NA or blank items in input
+    input <- input[!is.na(input)]
+    input <- trimws(input)
+    input <- input[nchar(input) > 0]
+
+    #keep only unique items in input
+    input <- unique(input)
+
     #Names of input structures are their identifiers.
     #If no names, use the structures themselves as identifiers.
     if(is.null(names(input))){
       names(input) <- input
     }
-
 
     #Now, query ClassyFire with these structures.
     json_parse <- do.call(query_classyfire,
@@ -239,21 +276,22 @@ classify_datatable <- function(data) {
                                         url = NULL),
                                    ...)
     )
-
     #json_parse will be a list, one element for each page of the results.
     #or at least one element even if there were no results.
 
     #default output to return if classification failed:
-    #prepare a named list of NA columns, one for each taxonomy level
-    cols_list <- as.list(rep(NA_character_, length(tax_level_labels)))
-    names(cols_list) <- tax_level_labels
-    #put these as columns of a data.frame, along with input structures.
-    output <- do.call(data.frame,
-                      c(list("identifier" = names(input),
-                             "structure" = input),
-                        cols_list
-                        )
-                      )
+    output <- expand.grid("level" = tax_level_labels,
+                          "identifier" = names(input),
+                          stringsAsFactors = FALSE)
+
+    output$structure <- input[output$identifier]
+    output$name <- NA_character_
+
+    output <- output[, c("identifier",
+                         "structure",
+                         "level",
+                         "name")]
+
     #add columns for ClassyFire-derived smiles, inchikey, and report.
     output$smiles <- NA_character_
     output$inchikey <- NA_character_
@@ -271,22 +309,20 @@ classify_datatable <- function(data) {
                                 structure = character(0),
                                 smiles = character(0),
                                 inchikey = character(0),
-                                kingdom = character(0),
-                                superclass = character(0),
-                                class = character(0),
-                                subclass = character(0),
-                                level5 = character(0),
-                                level6 = character(0),
-                                level7 = character(0),
-                                level8 = character(0),
-                                level9 = character(0),
-                                level11 = character(0),
-                                report = character(0))
+                                report = character(0),
+                                 level = character(0),
+                                name = character(0)
+                                )
         }else{
           #Add identifier column (the names of the inputs that were invalid structures)
           invalid$identifier <- names(input)[input %in% invalid$structure]
+
+          invalid_tmp <- expand.grid("level" = tax_level_labels,
+                                "structure" = invalid$structure,
+                                stringsAsFactors = FALSE)
+
           #Add NA columns for taxonomy levels, to denote no classification
-          invalid[tax_level_labels] <- NA_character_
+          invalid$name <- NA_character_
           invalid$smiles <- NA_character_
           invalid$inchikey <- NA_character_
           invalid$report2 <- sapply(invalid$report, paste, collapse = " | ")
@@ -294,6 +330,7 @@ classify_datatable <- function(data) {
           invalid$report <- invalid$report2
           invalid$report2 <- NULL
           invalid <- as.data.frame(invalid) #in case it was a list
+          invalid <- merge(invalid, invalid_tmp, by = "structure")
         } # if(length(invalid)>0)
 
         #pull list of valid entities (i.e., those with classifications)
@@ -316,33 +353,11 @@ classify_datatable <- function(data) {
                                              cf_entities,
                                              by = c("identifier",
                                                     "structure"))
-        # debugging the code
-        print("missing entities")
-        print(missing_entities)
-        print("\n")
-        print("classified entities")
-        print(cf_entities)
-        print("\n")
-        # debugging the code
 
         #Output: bind classified, invalid, and missing entities
         output <- dplyr::bind_rows(missing_entities,
                                    cf_entities) %>%
           as.data.frame() #convert from tibble to data.frame
-
-        # debugging the code
-        print('output')
-        print(output)
-        # debugging the code
-
-        #set order the same as input
-        rownames(output) <- NULL
-        output <- output[match(names(input), output$identifier), ]
-
-        # debugging the code
-        print('output, again')
-        print(output)
-        # debugging the code
 
         #add informational columns
         output[c("id",
@@ -452,9 +467,6 @@ classify_datatable <- function(data) {
      if(is.null(names(input))){
        names(input) <- input
      }
-
-
-
 
      #create tab-separated input
      query_input <- paste(names(input),

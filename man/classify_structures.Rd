@@ -8,10 +8,10 @@ classify_structures(input = NULL, tax_level_labels = chemont_tax_levels, ...)
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
-InChi strings. May optionally be named. If so, the names will be returned as a
-column named  \code{identifier} in the output data.frame. If not named, the
-vector itself will be returned as a column named  \code{identifier} in the
-output data.frame}
+InChi strings. May optionally be named. If so, the names will be returned
+as a column named  \code{identifier} in the output data.frame. If not
+named, the vector itself will be returned as a column named
+\code{identifier} in the output data.frame}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
@@ -21,16 +21,42 @@ ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 }
 \value{
 A data frame with ClassyFire classifications for each input
-structural identifier. Will contain columns \code{identifier},
-\code{smiles}, \code{inchikey}, one column for each taxonomy level (defined
-in argument \code{tax_level_labels}), and \code{report}. The final
-\code{report} column explains what happened if a classification could not
-be obtained.
+structural identifier. Will contain columns \code{identifier}, \code{structure},
+\code{level} (with one row for each taxonomy level in \code{tax_level_labels}),
+\code{name} (containing the classification at each level), \code{smiles}, and then
+several columns with information about the ClassyFire query: \code{inchikey},
+\code{report}, \code{classification_version}, \code{id}, \code{label}, \code{url} and \code{status_code}.
+If classification could not be completed for one or more structures, they
+will be listed in the table with \code{NA_character_} in the \code{name} column.
 }
 \description{
 This function takes a vector of structural identifiers (SMILES strings or
 InChi strings) and queries the ClassyFire API to get classifications for each
 one.
+}
+\details{
+For use with \code{treecompareR} functions that expect a \code{data.frame} of
+classified entities, this \code{data.frame} will need to be reshaped into wider
+format, with one row for each structure and one column for each level of
+classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
+ names_from = "level", values_from = "name")} (where \code{dat} is the
+returned \code{data.frame}.) However, be on the lookout for pathological cases
+where a structure is listed with two different labels at the same level.
+These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will throw
+a warning if this happens -- pay attention to it!
+
+Note also that the returned data.frame includes only unique, valid
+structures. Any duplicates, blanks, or NAs are not queried, and are not
+included in the output.
+
+If you have a source \code{data.frame} with duplicate, missing, or invalid
+structures, you can merge the returned \code{data.frame} with it (or pivot wider,
+then merge). For example, if your source \code{data.frame} is called
+\code{source_dat} with variable \code{"STRUCTURE"} containing the structures,
+and the returned \code{data.frame} is in variable \code{dat}, the following code
+will do the merge: \code{dplyr::left_join(source_dat, dat, by = "STRUCTURE" =
+ "structure")}. In that case, classification columns will be filled with NA
+for any missing or invalid structures.
 }
 \seealso{
 \code{\link{classify_inchikeys}}
