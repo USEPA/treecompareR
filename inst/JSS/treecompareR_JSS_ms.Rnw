@@ -19,8 +19,8 @@
 options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
 library("MASS")
 library("devtools")
-devtools::load_all()
 library('ctxR')
+library('treecompareR')
 @
 
 
@@ -152,9 +152,9 @@ str(chemicals_class)
 
 In this example, we input into the \fct{ctxR::chemical\_equal\_batch} function the list of CASRN strings. This searches and returns chemicals that match these values exactly. Next, the function \fct{ctxR::get\_chemical\_details\_batch} uses the \code{dtxsid} column values to retrieve the chemical details for these. Finally, we input as a \code{data.table} with columns \code{INCHIKEY},  \code{dtxsid}, and \code{casrn} into the function \fct{classify\_datatable}, which hits the ClassyFire API and attaches the retrieved information to the input data, as displayed. Note that the \code{CASRN} with value '117964-21-3' has both an \code{inchikey} and \code{smiles} value while the \code{CASRN} with value '11006-76-1' has neither piece of information. The ClassyFire data is available for the first chemical, but not the second.
 
-We use the classified datasets \code{biosolids\_classified} and \code{usgswater\_classified} in several examples to follow.
+We use the classified datasets \code{biosolids\_class} and \code{usgswater\_class} in several examples to follow.
 
-If we examine the \code{usgswater\_classified} data as follows, we get the contents of
+If we examine the \code{usgswater\_class} data as follows, we get the contents of
 %
 <<usgs-head, eval=FALSE>>=
 usgs_class[1:5, c('CASRN', 'kingdom', 'superclass',
@@ -178,7 +178,7 @@ CASRN &	kingdom &	superclass & class & subclass\\
 \hline
 
 \end{tabular}
-\caption{\label{tab:usgs-head} Overview of data contained in the \code{usgswater\_classified} classifications.}
+\caption{\label{tab:usgs-head} Overview of data contained in the \code{usgswater\_class} classifications.}
 \end{table}
 
 
@@ -207,7 +207,7 @@ label_bars(data_list)
 \caption{\label{fig:label-bars-2} This figure displays the counts of unique labels broken down by dataset and faceted by each classification level.}
 \end{figure}
 
-From Figure \ref{fig:label-bars-1} and Figure \ref{fig:label-bars-2}, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the \code{usgswater\_classified} data has more labels than the \code{biosolids\_classified} data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor does it characterize the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
+From Figure \ref{fig:label-bars-1} and Figure \ref{fig:label-bars-2}, we see that the distribution of numbers of labels across taxonomic levels is relatively similar for each data set, though in general the \code{usgswater\_class} data has more labels than the \code{biosolids\_class} data at each level. However, this does not give us a sense of how these labels spread through chemical space as defined by ChemOnt nor does it characterize the overlap between the classifications of these data sets. To investigate these aspects of chemical space coverage further, we use tree-based visualizations.
 
 \section{Tree visualizations} \label{sec:trees}
 
@@ -350,7 +350,7 @@ The output of \fct{leaf\_fraction\_subtree} consists of a \code{data.frame} and 
 
 The tree visualization features the subtree induced by the first data set. The visualization displays the overlap data contained in the data frame by coloring the terminal label tips based on the degree of overlap. The legend shows the percentage of shared chemicals per terminal classification label using a color gradient that corresponds to the tip and layered colors.
 
-Up to now, the tree visualizations have focused primarily on demonstrating representation within chemical space of classifications of data sets and comparisons between data sets. However, if a data set contains more than just chemical classification data, there may be utility in exploring this additional data. In fact, we can plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the \code{biosolids\_classified} data set, there is a column \code{AVERAGE\.MASS} which gives the average molecular mass for each chemical in the data set. One might be interested in grouping these by their most specific classification label and examining the boxplots of each set of grouped data. We can achieve this by using the function \fct{circ\_tree\_boxplot}. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers.
+Up to now, the tree visualizations have focused primarily on demonstrating representation within chemical space of classifications of data sets and comparisons between data sets. However, if a data set contains more than just chemical classification data, there may be utility in exploring this additional data. In fact, we can plot additional numeric data from a given data set in layers around the subtree induced by the data set. For instance, in the \code{biosolids\_class} data set, there is a column \code{AVERAGE\.MASS} which gives the average molecular mass for each chemical in the data set. One might be interested in grouping these by their most specific classification label and examining the boxplots of each set of grouped data. We can achieve this by using the function \fct{circ\_tree\_boxplot}. Moreover, we can also include taxonomic levels for which labels will be generated in concentric layers.
 
 
 %
@@ -413,7 +413,7 @@ Now, we move to using these similarity measures in visualizations. We apply tree
 
 First, we construct the heatmap, which requires us to specify a given similarity measure matrix and supply two data sets with classification data. Then we explore clusters more closely using tree diagrams to visualize where the clusters correspond to in chemical space. We can remove extraneous information in this process to get a more precise look at the coverage of both sets within each cluster.
 
-The function \fct{generate\_heatmap} will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from \code{usgswater\_classified} and columns representing classifications from \code{biosolids\_classified}. In this diagram, we have specified for there to be nine row and nine column clusters within the hierarchical clustering of the heatmap.
+The function \fct{generate\_heatmap} will take in a pair of data sets and compare the induced subtrees using similarity measures. In the example below, we use the Jaccard similarity values of the ChemOnt tree, with rows representing classifications from \code{usgswater\_class} and columns representing classifications from \code{biosolids\_class}. In this diagram, we have specified for there to be nine row and nine column clusters within the hierarchical clustering of the heatmap.
 
 
 %
@@ -500,7 +500,7 @@ Next, we turn to the tree diagrams to gain a visual understanding of how the dat
 
 To study the overlap further, one can use either the function \fct{data\_set\_subtrees} or the function \fct{leaf\_fraction\_subtree} for a more in-depth examination of how the data sets relate. These allow for a simple visual examination of the overlap in each induced subtree as well as a quantitative examination of the degree of the overlap. In Figure \ref{fig:biosolids-usgs-shaded} and Figure \ref{fig:usgs-biosolids-shaded}, we can get a clear idea of what classifications are shared by each data set and areas specific to one or the other. To quantify this overlap, we perform an examination of the tree diagram in Figure \ref{fig:biosolids-leaf-fraction} and of the associated data.frame. There are 80 taxonomic labels shared between the two subtrees induced by the biosolids and usgswater data sets. This accounts for 40.4\% of the Biosolids subtree (80/198) and 34.63\% of the USGS Water subtree (80/231). Moreover, there are 44 classification labels associated with 65 chemicals shared between the data sets. These 44 classification labels are the most specific labels in the classifications of the associated chemicals, the 'terminal labels' in the classification data of each classified chemical. For the 65 chemicals that are shared between the data sets, it would be useful to explore further the concentrations of there occurrence in both water and biosolids. If chemicals expected to partition to solids are still found at high concentrations within water, this would suggest that there is a high background concentration of these chemicals. On the other hand, if the concentration within water were relatively low, it might suggest that these chemicals are removed effectively by wastewater treatment processes and do not persist at great levels within the environment after water treatment.
 
-For a more quantitative approach to identifying overlaps of chemical space coverage from each data set, we turn to similarity measures. By examining the heatmap in Figure \ref{fig:heatmap-biosolids-usgs}, we can identify clusters of high similarity and clusters of low similarity. For the purposes of training a model and studying the associated domain of applicability, it is reasonable to expect that chemicals with classifications grouped within clusters of high similarity values between the training set and target set may have a greater likelihood of falling within the model domain of applicability. For example, an examination on row cluster two and column cluster two, featured in Figure \ref{fig:row2-col2-full} and Figure \ref{fig:row2-col2-prune}, leads one to conclude that chemicals with a superclass label of 'Benzenoids' may have more reliable model predictions when using the \code{biosolids_class} data to train a model. Likewise, chemicals with a superclass label of 'Organic nitrogen compounds' would also have a more reliable model prediction due to the overlap featured in row cluster nine and column cluster eight, and displayed in Figure \ref{fig:row9-col8-full} and Figure \ref{fig:row9-col8-prune}. In fact, since most rows in Figure \ref{fig:heatmap-biosolids-usgs} have a corresponding row cluster of higher similarity, it is reasonable to expect that many of chemicals contained in the \code{usgswater\_classified} data set would have reliable model predictions produced from a model that was trained on the \code{biosolids\_classified} data set; the \code{usgswater\_classified} data set is likely well covered by the applicability domain of a model trained using the \code{biosolids\_classified} data.
+For a more quantitative approach to identifying overlaps of chemical space coverage from each data set, we turn to similarity measures. By examining the heatmap in Figure \ref{fig:heatmap-biosolids-usgs}, we can identify clusters of high similarity and clusters of low similarity. For the purposes of training a model and studying the associated domain of applicability, it is reasonable to expect that chemicals with classifications grouped within clusters of high similarity values between the training set and target set may have a greater likelihood of falling within the model domain of applicability. For example, an examination on row cluster two and column cluster two, featured in Figure \ref{fig:row2-col2-full} and Figure \ref{fig:row2-col2-prune}, leads one to conclude that chemicals with a superclass label of 'Benzenoids' may have more reliable model predictions when using the \code{biosolids_class} data to train a model. Likewise, chemicals with a superclass label of 'Organic nitrogen compounds' would also have a more reliable model prediction due to the overlap featured in row cluster nine and column cluster eight, and displayed in Figure \ref{fig:row9-col8-full} and Figure \ref{fig:row9-col8-prune}. In fact, since most rows in Figure \ref{fig:heatmap-biosolids-usgs} have a corresponding row cluster of higher similarity, it is reasonable to expect that many of chemicals contained in the \code{usgswater\_class} data set would have reliable model predictions produced from a model that was trained on the \code{biosolids\_class} data set; the \code{usgswater\_class} data set is likely well covered by the applicability domain of a model trained using the \code{biosolids\_class} data.
 
 \section{Conclusion} \label{sec:conc}
 
