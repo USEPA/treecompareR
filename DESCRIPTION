@@ -13,7 +13,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10),
-    ggtree
+    ggtree,
+    ggplot2
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
@@ -36,7 +37,6 @@ Imports:
     data.table,
     data.tree,
     dplyr,
-    ggplot2,
     ggnewscale,
     ggtreeExtra,
     grDevices,
