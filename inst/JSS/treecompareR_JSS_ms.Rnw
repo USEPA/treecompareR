@@ -37,9 +37,9 @@ library('treecompareR')
 %% - \title{} in title case
 %% - \Plaintitle{} without LaTeX markup (if any)
 %% - \Shorttitle{} with LaTeX markup (if any), used as running title
-\title{treecompareR: }
-\Plaintitle{treecompareR: }
-\Shorttitle{\pkg{treecompareR}:}
+\title{\pkg{treecompareR}: Tree Visualizations of Chemical Space}
+\Plaintitle{treecompareR: Tree Visualizations of Chemical Space}
+\Shorttitle{treecompareR}
 
 %% - \Abstract{} almost as usual
 \Abstract{
@@ -49,8 +49,8 @@ library('treecompareR')
 %% - \Keywords{} with LaTeX markup, at least one required
 %% - \Plainkeywords{} without LaTeX markup (if necessary)
 %% - Should be comma-separated and in sentence case.
-\Keywords{tree visualizations, semantic similarity, classyFire, \proglang{R}, domain of applicability}
-\Plainkeywords{tree visualizations, semantic similarity, classyFire, R, domain of applicability}
+\Keywords{tree visualizations, semantic similarity, chemical classification, cheminformatics,  \proglang{R}, domain of applicability}
+\Plainkeywords{tree visualizations, semantic similarity, chemical classification, cheminformatics, R, domain of applicability}
 
 %% - \Address{} of at least one author
 %% - May contain multiple affiliations for each author
@@ -60,9 +60,10 @@ library('treecompareR')
 \Address{
   Caroline Ring\\
   Center for Computational Toxicology and Exposure\\
+  Office of Research and Development\\
   United States Environmental Protection Agency\\
   109 TW Alexander Dr, Durham, NC 27709, United States of America\\
-  E-mail: \email{ring.caroline@epa.gov}
+  E-mail: \email{ring.caroline@epa.gov}, \email{ring.caroline.phd@gmail.com}
 }
 
 \begin{document}
@@ -125,13 +126,13 @@ sapply(chemont_taxonomy,
 @
 %
 
-The output of the \fct{generate\_taxonomy} function is a list of two objects, the \code{phlyo} object representing the tree, and a data frame used in creating the \code{phylo} object. Observe the structure of these in the code chunk above.
+The output of the \fct{generate\_taxonomy} function is a list of two objects, the \code{phylo} object representing the tree, and a data frame used in creating the \code{phylo} object. Observe the structure of these in the code chunk above.
 
 The \code{phylo} object itself is a list, describing the edges of the tree, the number of internal nodes, the tip labels and internal node labels, and a set of edge lengths generated in the construction of the tree. One thing to note is that the edge lengths are artificial and are only used to speed up the creation of the tree, but do not represent any actual data corresponding to the tree. However, we retain the edge lengths as they are useful in creating visualizations.
 
 To construct a tree for other taxonomies, one can enter in a path to a JSON file or an enter in a data frame. The JSON file must have three columns, the first the name of the label \code{Name}, the second its identifier \code{ID}, and the third the parent identifier \code{Parent\_ID}. For the root, the parent ID should be \code{NA}. If the data is in the form of a data frame, it must be organized in the same way the JSON file is, with column names given by the same column names in the same order.
 
-Next, we use the ClassyFire tool to provide classifications for the chemicals in our data sets. To simplify this process, \pkg{treecompareR} has a data pipeline that allows for programmatic acquisition of this data. It leverages the package \pkg{classyfireR} \url{https://github.com/aberHRML/classyfireR} for accessing the ClassyFire API. For chemical missing certain identifying data such as InChIKey or SMILES string data, we can use functions from the \proglang{R} package \pkg{ctxR}  \cite{ctxR2024kru}. We demonstrate how to use these below.
+Next, we use the ClassyFire tool to provide classifications for the chemicals in our data sets. To simplify this process, \pkg{treecompareR} has a data pipeline that allows for programmatic acquisition of this data using the ClassyFire API. For chemicals missing certain identifying data such as InChIKey or SMILES string data, we can use functions from the \proglang{R} package \pkg{ctxR}  \cite{ctxR2024kru}. We demonstrate how to use these below.
 
 %
 <<ctxR-identifiers>>=
@@ -405,7 +406,7 @@ We also observe that $$\textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j) \geq \text
 
 When comparing a pair of nodes that are tips, say $v_i$ and $v_j$, observe that since $$\textrm{IC}(v_i) = \textrm{IC}(v_j) = 1,$$ $$\textrm{sim}_{\textrm{res}}(v_i, v_j) = \textrm{sim}_{\textrm{lin}}(v_i, v_j) = \textrm{sim}_{\textrm{JiangConrath}}(v_i, v_j).$$ Thus, the three similarity measures all agree on pairs of tips but generally diverge in value otherwise.
 
-Now, the function \fct{attach\_information\_content} generates information content for an input tree, and the functions \fct{general\_Jaccard\_similarity}, \fct{general\_Resnik\_similarity}, \fct{general\_Lin\_similarity}, \fct{general\_JiangConrath\_similarity} all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs, the function \fct{generate\_similarity\_matrix} will do so for a given tree and similarity measure function. The computation is lengthy for the ChemOnt tree and so these matrices have been previously computed and stored. They are accessible as \code{chemont\_jaccard}, \code{chemont\_resnik\_IC\_SVH}, \code{chemont\_lin\_IC\_SVH}, and \code{chemont\_jiangconrath\_IC\_SVH}.
+Now, the function \fct{attach\_information\_content} generates information content for an input tree, and the functions \fct{jaccard\_similarity}, \fct{resnik\_similarity}, \fct{lin\_similarity}, \fct{jiang\_conrath\_similarity} all can be used to compare a pair of nodes on a given tree. Moreover, if one wants to compute the similarity for all pairs of nodes in a tree, the function \fct{similarity\_matrix} will do so for a given tree and similarity measure function. The computation is lengthy for the ChemOnt tree, and so these matrices have been pre-computed. They are accessible as \code{chemont\_jaccard}, \code{chemont\_resnik\_IC\_SVH}, \code{chemont\_lin\_IC\_SVH}, and \code{chemont\_jiangconrath\_IC\_SVH}.
 
 \subsection{Visualizing similarity} \label{sec:vissim}
 
@@ -514,15 +515,15 @@ The \proglang{R} package \pkg{treecompareR} provides a suite of tools for visual
 
 The results in this paper were obtained using
 \proglang{R}~\Sexpr{paste(R.Version()[7:8], collapse = ".")} with the
-\pkg{treecompareR}~\Sexpr{packageVersion("treecompareR")} package. \proglang{R} itself
-and all packages used are available from the Comprehensive
+\pkg{treecompareR}~\Sexpr{packageVersion("treecompareR")} package, available on GitHub at \url{https://github.com/USEPA/treecompareR}. \proglang{R} itself
+and all other packages used are available from the Comprehensive
 \proglang{R} Archive Network (CRAN) at
 \url{https://CRAN.R-project.org/}, BioConductor at \url{https://www.bioconductor.org/} or from GitHub.
 
 
 \section*{Acknowledgments}
 
-The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure. In addition, this project was supported in part by an appointment to the Research Participation Program at Office of Research and Development, Center for Computational Toxicology and Exposure, U. S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an interagency agreement between the U.S. Department of Energy and EPA.
+The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure. In addition, this project was supported in part by an appointment to the Research Participation Program at the Center for Computational Toxicology and Exposure, Office of Research and Development, U.S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an interagency agreement between the U.S. Department of Energy and EPA.
 
 \section*{Disclaimer}
 
