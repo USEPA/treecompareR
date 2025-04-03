@@ -1,5 +1,6 @@
 library(jsonlite)
 
+#download chemont taxonomy as JSON
 chemont_df <- jsonlite::fromJSON("http://classyfire.wishartlab.com/tax_nodes.json")
 names(chemont_df) <- c("Name", "ID", "Parent_ID")
 #Correct one error in parentage that we found through trial and error:
