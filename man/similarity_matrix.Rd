@@ -5,36 +5,42 @@
 \title{Similarity matrix}
 \usage{
 similarity_matrix(
-  labels_1 = NULL,
-  labels_2 = NULL,
-  nodes_1 = NULL,
-  nodes_2 = NULL,
   tree = NULL,
-  sim_metric = NA_integer_,
-  upper_tri = TRUE,
-  all = FALSE
+  labels1 = NULL,
+  labels2 = NULL,
+  nodes1 = NULL,
+  nodes2 = NULL,
+  metric = "jaccard",
+  upper_tri = TRUE
 )
 }
 \arguments{
-\item{labels_1}{Set of node labels for rows.}
+\item{tree}{The underlying tree being examined, as a \code{phylo} object.}
 
-\item{labels_2}{Set of node labels for columns.}
+\item{labels1}{Character vector: Set of node labels for rows of the
+similarity matrix. Default \code{NULL}.}
 
-\item{nodes_1}{Alternate parameter for set of node numbers for rows.}
+\item{labels2}{Character vector: Set of node labels for columns of the
+similarity matrix. Default \code{NULL}.}
 
-\item{nodes_2}{Alternate parameter for set of node numbers for columns.}
+\item{nodes1}{Integer vector: set of node numbers for rows  of the similarity
+matrix. Default \code{NULL}. If \code{labels1} is provided, it will override
+\code{nodes1}. If both \code{labels1} and \code{nodes1} are \code{NULL}, \code{nodes1} will be set
+to all nodes in \code{tree}.}
 
-\item{tree}{The underlying tree being examined.}
+\item{nodes2}{Integer vector: set of node numbers for columns of the
+similarity matrix. Default \code{NULL}. If \code{labels2} is provided, it will
+override \code{nodes2}. If both \code{labels} and \code{nodes} are \code{NULL}, \code{nodes2} will
+be set to all nodes in \code{tree}.}
 
-\item{sim_metric}{The similarity measure. 1 for Jaccard, 2 for Resnik, 3 for
-Lin, 4 for Jiang and Conrath.}
+\item{metric}{A string naming the similarity metric to use. Options are
+"jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
+need be entered (e.g., "ja" for "jaccard", "re" for "resnik", "li" for
+"lin", and "ji" for "jiang_conrath"). Case-insensitive.}
 
-\item{upper_tri}{A boolean determining whether the whole matrix or upper
-triangle is computed.}
-
-\item{all}{A boolean determining whether to construct the matrix for all
-pairs of nodes and tips. This only occurs if both \code{labels_1} and
-\code{labels_2}, and \code{nodes_1} and \code{nodes_2} are missing.}
+\item{upper_tri}{Logical: If TRUE (default), only the upper triangular part
+of the similarity matrix is constructed and returned. If FALSE, the full
+matrix is constructed and returned.}
 }
 \value{
 A similarity matrix. The dimension names for the rows and columns
@@ -47,6 +53,10 @@ the calculated similarity values for each pair. Note that the default is to
 compute the similarity values only for pairs along and above the diagonal, so
 when the set of nodes for rows and columns differ, one must turn off this
 feature.
+}
+\details{
+To calculate the similarity matrix for all pairs of nodes in a tree, provide \code{tree} and leave \code{labels1}, \code{labels2}, \code{nodes1}, and \code{nodes2} all \code{NULL}.
+#'
 }
 \seealso{
 \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},

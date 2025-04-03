@@ -269,287 +269,6 @@ get_tip_level <- function(tree, label, node_number = NULL){
   return(length(get_ancestors(tree = tree, label = label, node_number = node_number)))
 }
 
-#' Calculate similarity measures
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param labels_A The first (set of) label(s).
-#' @param labels_B The second (set of) label(s).
-#' @param metric A string naming the similarity metric to use. Options are
-#'   "jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
-#'   need be entered (e.g., "ja" for "jaccard", "re" for "resnik", "li" for
-#'   "lin", and "ji" for "jiang_conrath"). Case-insensitive.
-#' @return Matrix of similarity values for pairs of labels from `label_A` and
-#'   `label_B`.
-#' @export
-#'
-#' @references \insertRef{pekar2002taxonomy}{treecompareR}
-#'
-#' \insertRef{pesquita2009semantic}{treecompareR}
-#'
-# @examplesIf FALSE
-#
-# tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#
-# calc_similarity(tree = tree, labels_A = 't2', labels_B = 't4')
-# calc_similarity(tree = tree, labels_A = 'n3', labels_B = 't8')
-#
-
-calc_similarity <- function(tree,
-                            labels_A,
-                            labels_B,
-                            metric = "jaccard"){
-
-
-  #convert metric to integer indicator (to pass to C++)
-  metric <- substr(tolower(metric), 1, 2)
-  metric_list <- c("ja",
-                   "re",
-                   "li",
-                   "ji")
-  metric_int <- match(metric, metric_list)
-
-  #convert labels A to node ID numbers
-  node_A <- get_node_from_label(label = labels_A,
-                                tree = tree)
-  #convert labels B to node numbers
-  node_B <- get_node_from_label(label = labels_B,
-                                tree = tree)
-
-root_node <- setdiff(tree$edge[,1], tree$edge[,2])
-  #Call C++ function
-  outmat <- get_similarity(nodes1 = node_A,
-                           nodes2 = node_B,
-                           tree_nodes = as.integer(c(tree$edge[,2], root_node)),
-                           tree_parents = as.integer(c(tree$edge[,1], 0)),
-                           sim_metric = metric_int)
-return(outmat)
-
-}
-
-#' Resnik similarity
-#'
-#' This determines the Resnik similarity for two input nodes in a given tree.
-#' This uses the formulation as described in
-#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
-#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
-#'
-#' @param tree A phylo object representing a rooted tree, with an information
-#'   content attribute IC.
-#' @param label_A The first node label.
-#' @param label_B The second node label.
-#' @param node_A Alternate parameter, the first node number.
-#' @param node_B Alternate parameter, the second node number.
-#' @return The Resnik similarity in the given tree of the pair of nodes.
-#' @export
-#'
-#' @references
-#' \insertRef{lin1998information}{treecompareR}
-#'
-#' \insertRef{resnik1995using}{treecompareR}
-#'
-#' @examplesIf FALSE
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#'
-# general_Resnik_similarity(tree = tree, label_A = 't2', label_B = 't4')
-# general_Resnik_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#
-general_Resnik_similarity <- function(tree,
-                                      label_A = NULL,
-                                      label_B = NULL,
-                                      node_A = NULL,
-                                      node_B = NULL) {
-  if (is.null(label_A) | is.null(label_B)){
-    if (is.null(node_A) | is.null(node_B)){
-      stop('Please input a pair of labels or a pair of node numbers')
-    }else{
-      #ensure they are integers
-      node_A <- as.integer(node_A)
-      node_B <- as.integer(node_B)
-    }
-  } else {
-    #convert labels A to node ID numbers
-    node_A <- get_node_from_label(label = label_A,
-                                  tree = tree)
-    #convert labels B to node numbers
-    node_B <- get_node_from_label(label = label_B,
-                                  tree = tree)
-  }
-
-  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
-  #Call C++ function
-  resSim <- get_resnik(node1 = node_A,
-                    node2 = node_B,
-                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
-                    tree_parents = as.integer(c(tree$edge[,1], 0)))
-}
-
-
-#' Lin similarity
-#'
-#' This determines the Lin similarity for two input nodes in a given tree. This
-#' uses the formulation as described in
-#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
-#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
-#'
-#' @param tree A phylo object representing a rooted tree, with an information
-#'   content attribute IC.
-#' @param label_A The first node label.
-#' @param label_B The second node label.
-#' @param node_A Alternate parameter, the first node number.
-#' @param node_B Alternate parameter, the second node number.
-#' @return The Lin similarity in the given tree of the pair of nodes.
-# @export
-#'
-#' @references
-#' \insertRef{lin1998information}{treecompareR}
-#'
-# @examplesIf FALSE
-#
-# tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#
-# calc_Lin_similarity(tree = tree, label_A = 't2', label_B = 't4')
-# calc_Lin_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#
-calc_Lin_similarity <- function(tree,
-                                label_A = NULL,
-                                label_B = NULL,
-                                node_A = NULL,
-                                node_B = NULL){
-  if (is.null(label_A) | is.null(label_B)){
-    if (is.null(node_A) | is.null(node_B)){
-      stop('Please input a pair of labels or a pair of node numbers')
-    }else{
-      #ensure they are integers
-      node_A <- as.integer(node_A)
-      node_B <- as.integer(node_B)
-    }
-  } else {
-    #convert labels A to node ID numbers
-    node_A <- get_node_from_label(label = label_A,
-                                  tree = tree)
-    #convert labels B to node numbers
-    node_B <- get_node_from_label(label = label_B,
-                                  tree = tree)
-  }
-
-  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
-  #Call C++ function
-  linSim <- get_lin(node1 = node_A,
-                       node2 = node_B,
-                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
-                    tree_parents = as.integer(c(tree$edge[,1], 0)))
-  return(linSim)
-}
-
-#' Jiang and Conrath similarity
-#'
-#' This determines the Jiang and Conrath similarity for two input nodes in a
-#' given tree. This uses the formulation as described in
-#' \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
-#' Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
-#'
-#' @param tree A phylo object representing a rooted tree, with an information
-#'   content attribute IC.
-#' @param label_A The first node label.
-#' @param label_B The second node label.
-#' @param node_A Alternate parameter, the first node number.
-#' @param node_B Alternate parameter, the second node number.
-#' @return The Jiang and Conrath similarity in the given tree of the pair of
-#'   nodes.
-#' @export
-#'
-#' @references
-#' \insertRef{seco2004intrinsic}{treecompareR}
-#'
-#' \insertRef{jiang1997semantic}{treecompareR}
-#'
-#' @examplesIf FALSE
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#
-# general_JiangConrath_similarity(tree = tree, label_A = 't2', label_B = 't4')
-# general_JiangConrath_similarity(tree = tree, label_A = 'n3', label_B = 't8')
-#
-general_JiangConrath_similarity <- function(tree, label_A = NULL, label_B = NULL, node_A = NULL, node_B = NULL){
-  if (is.null(label_A) | is.null(label_B)){
-    if (is.null(node_A) | is.null(node_B)){
-      stop('Please input a pair of labels or a pair of node numbers')
-    }else{
-      #ensure they are integers
-      node_A <- as.integer(node_A)
-      node_B <- as.integer(node_B)
-    }
-  } else {
-    #convert labels A to node ID numbers
-    node_A <- get_node_from_label(label = label_A,
-                                  tree = tree)
-    #convert labels B to node numbers
-    node_B <- get_node_from_label(label = label_B,
-                                  tree = tree)
-  }
-
-  root_node <- setdiff(tree$edge[,1], tree$edge[,2])
-  #Call C++ function
-  jcSim <- get_jiang_conrath(node1 = node_A,
-                    node2 = node_B,
-                    tree_nodes = as.integer(c(tree$edge[,2], root_node)),
-                    tree_parents = as.integer(c(tree$edge[,1], 0)))
-}
-
-#' Similarity matrix generator
-#'
-#' This function takes in a tree and a similarity measure function, and
-#' generates a similarity matrix for the given tree and similarity measure. The
-#' matrix is symmetric, with rows and columns given by the tip and internal node
-#' labels in the ordering given by the tree.
-#'
-#' @param tree A phylo object representing a rooted tree.
-#' @param similarity A similarity measure function that requires as inputs a
-#'   tree, label_A, and label_B
-#' @return A similarity matrix, which is a symmetric, with values in
-#'   \eqn{[0,1]}.
-#' @export
-#'
-#' @examplesIf FALSE
-#'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
-#
-# generate_similarity_matrix(tree = tree, similarity = general_Jaccard_similarity)
-# generate_similarity_matrix(tree = tree, similarity = general_Resnik_similarity)
-#'
-generate_similarity_matrix <- function(tree, similarity = NULL){
-  ifelse(is.null(tree$IC), tree_copy <- attach_information_content(tree), tree_copy <- tree)
-  Nnode = length(tree$node.label)
-  if (Nnode == 1){
-    tree_labels <- tree$tip.label
-  } else {
-    tree_labels <- c(tree$tip.label, tree$node.label[2:Nnode])
-  }
-
-
-  N <- length(tree_labels)
-
-  sim_matrix <- matrix(nrow = N, ncol = N)
-  rownames(sim_matrix) <- tree_labels
-  colnames(sim_matrix) <- tree_labels
-
-  #similarity matrix is symmetric so we can save time
-  #fill in upper triangular part only
-  for (i in 1:N){ #iterate over all rows
-    for (j in i:N){ #but only iterate over columns equal to rownum or above
-      sim_matrix[i,j] <- similarity(tree = tree_copy,
-                                    label_A = tree_labels[i],
-                                    label_B = tree_labels[j])
-      #assign the symmetric part
-      sim_matrix[j,i] <- sim_matrix[i,j]
-    }
-  }
-
-  return(sim_matrix)
-
-}
-
 #' Check similarity inputs
 #'
 #' This is a helper function for checking user input values within the
@@ -565,7 +284,11 @@ generate_similarity_matrix <- function(tree, similarity = NULL){
 #'
 #' @return A pair of node numbers corresponding to the input parameters
 #'   specifying the first and second nodes.
-check_similarity_inputs <- function(tree = NULL, label_1 = NULL, label_2 = NULL, node_1 = NULL, node_2 = NULL){
+check_similarity_inputs <- function(tree = NULL,
+                                    label_1 = NULL,
+                                    label_2 = NULL,
+                                    node_1 = NULL,
+                                    node_2 = NULL){
   if (is.null(tree) | !('phylo' %in% class(tree))){
     stop('Please input a `phylo` object for the tree parameter!')
   }
@@ -639,11 +362,17 @@ check_similarity_inputs <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #' @seealso \code{\link{resnik_similarity}}, \code{\link{lin_similarity}},
 #' \code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
 
-jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
-                              node_1 = NULL, node_2 = NULL){
+jaccard_similarity <- function(tree = NULL,
+                               label_1 = NULL,
+                               label_2 = NULL,
+                              node_1 = NULL,
+                              node_2 = NULL){
 
-  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
-                                   node_1 = node_1, node_2 = node_2)
+  nodes <- check_similarity_inputs(tree = tree,
+                                   label_1 = label_1,
+                                   label_2 = label_2,
+                                   node_1 = node_1,
+                                   node_2 = node_2)
   node1 <- nodes[[1]]
   node2 <- nodes[[2]]
 
@@ -695,11 +424,17 @@ jaccard_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #'   \insertRef{resnik1995using}{treecompareR}
 #'
 
-resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
-                              node_1 = NULL, node_2 = NULL){
+resnik_similarity <- function(tree = NULL,
+                              label_1 = NULL,
+                              label_2 = NULL,
+                              node_1 = NULL,
+                              node_2 = NULL){
 
-  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
-                                   node_1 = node_1, node_2 = node_2)
+  nodes <- check_similarity_inputs(tree = tree,
+                                   label_1 = label_1,
+                                   label_2 = label_2,
+                                   node_1 = node_1,
+                                   node_2 = node_2)
   node1 <- nodes[[1]]
   node2 <- nodes[[2]]
 
@@ -712,8 +447,11 @@ resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
   information_content$IC <- generate_information_content(tree)
   information_content <- as.matrix(information_content)
 
-  resnik <- get_resnik(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
-                       tree_parents = tree_parents, information_content = information_content)
+  resnik <- get_resnik(node1 = node1,
+                       node2 = node2,
+                       tree_nodes = tree_nodes,
+                       tree_parents = tree_parents,
+                       information_content = information_content)
   return(resnik)
 
 }
@@ -747,8 +485,11 @@ resnik_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
                               node_1 = NULL, node_2 = NULL){
 
-  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
-                                   node_1 = node_1, node_2 = node_2)
+  nodes <- check_similarity_inputs(tree = tree,
+                                   label_1 = label_1,
+                                   label_2 = label_2,
+                                   node_1 = node_1,
+                                   node_2 = node_2)
   node1 <- nodes[[1]]
   node2 <- nodes[[2]]
 
@@ -766,8 +507,11 @@ lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
   information_content$IC <- generate_information_content(tree)
   information_content <- as.matrix(information_content)
 
-  lin <- get_lin(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
-                       tree_parents = tree_parents, information_content = information_content)
+  lin <- get_lin(node1 = node1,
+                 node2 = node2,
+                 tree_nodes = tree_nodes,
+                       tree_parents = tree_parents,
+                 information_content = information_content)
   return(lin)
 
 }
@@ -800,11 +544,17 @@ lin_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
 #'
 #' \insertRef{jiang1997semantic}{treecompareR}
 
-jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL,
-                              node_1 = NULL, node_2 = NULL){
+jiang_conrath_similarity <- function(tree = NULL,
+                                     label_1 = NULL,
+                                     label_2 = NULL,
+                              node_1 = NULL,
+                              node_2 = NULL){
 
-  nodes <- check_similarity_inputs(tree = tree, label_1 = label_1, label_2 = label_2,
-                                   node_1 = node_1, node_2 = node_2)
+  nodes <- check_similarity_inputs(tree = tree,
+                                   label_1 = label_1,
+                                   label_2 = label_2,
+                                   node_1 = node_1,
+                                   node_2 = node_2)
   node1 <- nodes[[1]]
   node2 <- nodes[[2]]
 
@@ -818,8 +568,11 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
   information_content$IC <- generate_information_content(tree)
   information_content <- as.matrix(information_content)
 
-  jiang_conrath <- get_jiang_conrath(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
-                       tree_parents = tree_parents, information_content = information_content)
+  jiang_conrath <- get_jiang_conrath(node1 = node1,
+                                     node2 = node2,
+                                     tree_nodes = tree_nodes,
+                       tree_parents = tree_parents,
+                       information_content = information_content)
   return(jiang_conrath)
 
 }
@@ -833,56 +586,75 @@ jiang_conrath_similarity <- function(tree = NULL, label_1 = NULL, label_2 = NULL
 #' when the set of nodes for rows and columns differ, one must turn off this
 #' feature.
 #'
-#' @param labels_1 Set of node labels for rows.
-#' @param labels_2 Set of node labels for columns.
-#' @param nodes_1 Alternate parameter for set of node numbers for rows.
-#' @param nodes_2 Alternate parameter for set of node numbers for columns.
-#' @param tree The underlying tree being examined.
-#' @param sim_metric The similarity measure. 1 for Jaccard, 2 for Resnik, 3 for
-#'   Lin, 4 for Jiang and Conrath.
-#' @param upper_tri A boolean determining whether the whole matrix or upper
-#'   triangle is computed.
-#' @param all A boolean determining whether to construct the matrix for all
-#'   pairs of nodes and tips. This only occurs if both `labels_1` and
-#'   `labels_2`, and `nodes_1` and `nodes_2` are missing.
+#' To calculate the similarity matrix for all pairs of nodes in a tree, provide `tree` and leave `labels1`, `labels2`, `nodes1`, and `nodes2` all `NULL`.
+#' #'
+#' @param tree The underlying tree being examined, as a `phylo` object.
+#' @param labels1 Character vector: Set of node labels for rows of the
+#'   similarity matrix. Default `NULL`.
+#' @param labels2 Character vector: Set of node labels for columns of the
+#'   similarity matrix. Default `NULL`.
+#' @param nodes1 Integer vector: set of node numbers for rows  of the similarity
+#'   matrix. Default `NULL`. If `labels1` is provided, it will override
+#'   `nodes1`. If both `labels1` and `nodes1` are `NULL`, `nodes1` will be set
+#'   to all nodes in `tree`.
+#' @param nodes2 Integer vector: set of node numbers for columns of the
+#'   similarity matrix. Default `NULL`. If `labels2` is provided, it will
+#'   override `nodes2`. If both `labels` and `nodes` are `NULL`, `nodes2` will
+#'   be set to all nodes in `tree`.
+#' @param metric A string naming the similarity metric to use. Options are
+#'   "jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
+#'   need be entered (e.g., "ja" for "jaccard", "re" for "resnik", "li" for
+#'   "lin", and "ji" for "jiang_conrath"). Case-insensitive.
+#' @param upper_tri Logical: If TRUE (default), only the upper triangular part
+#'   of the similarity matrix is constructed and returned. If FALSE, the full
+#'   matrix is constructed and returned.
 #' @return A similarity matrix. The dimension names for the rows and columns
 #'   correspond to the associated node labels of the tree.
 #' @export
 #'
 #' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
 #'   \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}}
-similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
-                              nodes_2 = NULL, tree = NULL, sim_metric = NA_integer_,
-                              upper_tri = TRUE, all = FALSE){
+similarity_matrix <- function(tree = NULL,
+                               labels1 = NULL,
+                              labels2 = NULL,
+                              nodes1 = NULL,
+                              nodes2 = NULL,
+                              metric = "jaccard",
+                              upper_tri = TRUE){
   if (is.null(tree) | !('phylo' %in% class(tree))){
     stop('Please input a `phylo` object for the tree parameter!')
   }
 
   tree_labels <- c(tree$tip.label, tree$node.label)
 
-  if (!is.null(labels_1) & !is.null(labels_2)){
-    labels_1 <- labels_1[!is.na(labels_1)]
-    labels_2 <- labels_2[!is.na(labels_2)]
-
-    nodes1 <- which(tree_labels %in% labels_1)
-    nodes2 <- which(tree_labels %in% labels_2)
-
-
-  } else if (!is.null(nodes_1) & !is.null(nodes_2)){
-    nodes_1 <- nodes_1[!is.na(nodes_1)]
-    nodes_2 <- nodes_2[!is.na(nodes_2)]
-
-    nodes1 <- nodes_1[((nodes_1 >= 1) & (nodes_1 <= length(tree_labels)))]
-    nodes2 <- nodes_2[((nodes_2 >= 1) & (nodes_2 <= length(tree_labels)))]
-
-    nodes1 <- as.integer(nodes1)
-    nodes2 <- as.integer(nodes2)
-  } else if (all){
-    nodes1 <- 1:(length(tree_labels))
-    nodes2 <- 1:(length(tree_labels))
-  } else {
-    stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
+  #use labels1 if provided
+  if(!is.null(labels1)){
+    labels1 <- labels1[!is.na(labels1)]
+    nodes1 <- get_node_from_label(labels1, tree)
   }
+
+  #use labels2 if provided
+  if(!is.null(labels2)){
+    labels2 <- labels2[!is.na(labels2)]
+    nodes2 <- get_node_from_label(labels2, tree)
+  }
+
+  if(is.null(nodes1)){
+    nodes1 <- get_node_from_label(tree_labels, tree)
+  }
+
+  if(is.null(nodes2)){
+    nodes2 <- get_node_from_label(tree_labels, tree)
+  }
+
+  #convert metric to integer indicator (to pass to C++)
+  metric <- substr(tolower(metric), 1, 2)
+  metric_list <- c("ja",
+                   "re",
+                   "li",
+                   "ji")
+  sim_metric <- match(metric, metric_list)
+
 
   if (is.na(sim_metric) | !(sim_metric %in% 1:4)){
     stop('Please input a valid value for sim_metric parameter!')
@@ -893,8 +665,36 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
   nodes1 <- nodes1[nodes1 != root]
   nodes2 <- nodes2[nodes2 != root]
 
-  if (any(c(length(nodes1), length(nodes2)) == 0)){
-    stop('Please input valid lists for labels_1 and labels_2 or for nodes_1 and nodes_2!')
+  if(length(nodes1) %in% 0){
+    stop('nodes1 length 0 after removing root')
+  }
+
+  if(length(nodes2) %in% 0){
+    stop('nodes2 length 0 after removing root')
+  }
+
+  if(any(!is.finite(nodes1))){
+    stop('One or more of nodes1 invalid (non-finite)')
+  }
+
+  if(any(!is.finite(nodes2))){
+    stop('One or more of nodes2 invalid (non-finite)')
+  }
+
+  if(any(nodes1<1)){
+    stop('One or more of nodes1 less than 1')
+  }
+
+  if(any(nodes2<1)){
+    stop('One or more of nodes2 less than 1')
+  }
+
+  if(any(nodes1 > length(tree_labels))){
+    stop('One or more of nodes1 greater than total nodes + tips in tree')
+  }
+
+  if(any(nodes2 > length(tree_labels))){
+    stop('One or more of nodes2 greater than total nodes + tips in tree')
   }
 
   tree_nodes <- c(tree$edge[, 2], root)
@@ -904,8 +704,10 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
   information_content$IC <- generate_information_content(tree)
   information_content <- as.matrix(information_content)
 
-  similarity <- get_similarity(nodes1 = nodes1, nodes2 = nodes2,
-                               tree_nodes = tree_nodes, tree_parents = tree_parents,
+  similarity <- get_similarity(nodes1 = nodes1,
+                               nodes2 = nodes2,
+                               tree_nodes = tree_nodes,
+                               tree_parents = tree_parents,
                                sim_metric = sim_metric,
                                information_content = information_content,
                                upper_tri = upper_tri)
@@ -974,10 +776,20 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 #                       Lin = chemont_lin_IC_SVH,
 #                       JiangConrath = chemont_jiangconrath_IC_SVH)
 #'}
-MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_indices = NULL, data_2_indices = NULL,
-                                  name_1 = 'data_set_1', name_2 =  'data_set_2', label_number = 100,
-                                  repetition = 10, seed = NA_real_, only_tips = FALSE, Jaccard = NULL,
-                                  Resnik = NULL, Lin = NULL, JiangConrath = NULL){
+MonteCarlo_similarity <- function(tree,
+                                  data_1 = NULL,
+                                  data_2 = NULL,
+                                  data_1_indices = NULL,
+                                  data_2_indices = NULL,
+                                  name_1 = 'data_set_1',
+                                  name_2 =  'data_set_2', label_number = 100,
+                                  repetition = 10,
+                                  seed = NA_real_,
+                                  only_tips = FALSE,
+                                  Jaccard = NULL,
+                                  Resnik = NULL,
+                                  Lin = NULL,
+                                  JiangConrath = NULL){
   if (!is.na(seed) & is.integer(seed)){
     set.seed(seed)
   }
@@ -1018,7 +830,10 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
     dataset_2_indices <- which(dimnames %in% dataset_2_labels)
   }
 
-  if (is.null(Jaccard) & is.null(Resnik) & is.null(Lin) & is.null(JiangConrath)){
+  if (is.null(Jaccard) &
+      is.null(Resnik) &
+      is.null(Lin) &
+      is.null(JiangConrath)){
     stop('Please input a similarity matrix for at least one of Jaccard, Resnik, Lin, and JiangConrath parameters!')
   }
 
@@ -1492,52 +1307,58 @@ compare_similarity_measures <- function(n){
   star_IC <- attach_information_content(star)
   balanced_IC <- attach_information_content(balanced)
 
-  #cat_Jaccard <- generate_similarity_matrix(caterpillar, similarity = general_Jaccard_similarity)
-  #star_Jaccard <- generate_similarity_matrix(star, similarity = general_Jaccard_similarity)
-  #balanced_Jaccard <- generate_similarity_matrix(balanced, similarity = general_Jaccard_similarity)
-  cat_Jaccard <- similarity_matrix(labels_1 = cat_labels,
-                                   labels_2 = cat_labels,
-                                   tree = caterpillar, sim_metric = 1)
-  star_Jaccard <- similarity_matrix(labels_1 = star_labels,
-                                    labels_2 = star_labels,
-                                    tree = star, sim_metric = 1)
-  balanced_Jaccard <- similarity_matrix(labels_1 = balanced_labels,
-                                        labels_2 = balanced_labels,
-                                        tree = balanced, sim_metric = 1)
+  cat_Jaccard <- similarity_matrix(tree = caterpillar,
+                                   labels1 = cat_labels,
+                                   labels2 = cat_labels,
+                                   metric = "jaccard")
+  star_Jaccard <- similarity_matrix(tree = star,
+                                    labels1 = star_labels,
+                                    labels2 = star_labels,
+                                    metric = "jaccard")
+  balanced_Jaccard <- similarity_matrix(tree = balanced,
+                                        labels1 = balanced_labels,
+                                        labels2 = balanced_labels,
+                                        tree = balanced,
+                                        metric = "jaccard")
 
-  cat_Resnik <- similarity_matrix(labels_1 = cat_labels,
-                                   labels_2 = cat_labels,
-                                   tree = caterpillar, sim_metric = 2)
-  star_Resnik <- similarity_matrix(labels_1 = star_labels,
-                                    labels_2 = star_labels,
-                                    tree = star, sim_metric = 2)
-  balanced_Resnik <- similarity_matrix(labels_1 = balanced_labels,
-                                        labels_2 = balanced_labels,
-                                        tree = balanced, sim_metric = 2)
+  cat_Resnik <- similarity_matrix(labels1 = cat_labels,
+                                   labels2 = cat_labels,
+                                   tree = caterpillar,
+                                  metric = "resnik")
+  star_Resnik <- similarity_matrix(labels1 = star_labels,
+                                    labels2 = star_labels,
+                                    tree = star,
+                                   metric = "resnik")
+  balanced_Resnik <- similarity_matrix(labels1 = balanced_labels,
+                                        labels2 = balanced_labels,
+                                        tree = balanced,
+                                       metric = "resnik")
 
-  #cat_Lin <- generate_similarity_matrix(cat_IC, similarity = general_Lin_similarity)
-  #star_Lin <- generate_similarity_matrix(star_IC, similarity = general_Lin_similarity)
-  #balanced_Lin <- generate_similarity_matrix(balanced_IC, similarity = general_Lin_similarity)
+  cat_Lin <- similarity_matrix(labels1 = cat_labels,
+                                   labels2 = cat_labels,
+                                   tree = caterpillar,
+                              metric = "lin")
+  star_Lin <- similarity_matrix(labels1 = star_labels,
+                                    labels2 = star_labels,
+                                    tree = star,
+                                metric = "lin")
+  balanced_Lin <- similarity_matrix(labels1 = balanced_labels,
+                                        labels2 = balanced_labels,
+                                        tree = balanced,
+                                    metric = "lin")
 
-  cat_Lin <- similarity_matrix(labels_1 = cat_labels,
-                                   labels_2 = cat_labels,
-                                   tree = caterpillar, sim_metric = 3)
-  star_Lin <- similarity_matrix(labels_1 = star_labels,
-                                    labels_2 = star_labels,
-                                    tree = star, sim_metric = 3)
-  balanced_Lin <- similarity_matrix(labels_1 = balanced_labels,
-                                        labels_2 = balanced_labels,
-                                        tree = balanced, sim_metric = 3)
-
-  cat_JiangConrath <- similarity_matrix(labels_1 = cat_labels,
-                                   labels_2 = cat_labels,
-                                   tree = caterpillar, sim_metric = 4)
-  star_JiangConrath <- similarity_matrix(labels_1 = star_labels,
-                                    labels_2 = star_labels,
-                                    tree = star, sim_metric = 4)
-  balanced_JiangConrath <- similarity_matrix(labels_1 = balanced_labels,
-                                        labels_2 = balanced_labels,
-                                        tree = balanced, sim_metric = 4)
+  cat_JiangConrath <- similarity_matrix(labels1 = cat_labels,
+                                   labels2 = cat_labels,
+                                   tree = caterpillar,
+                                   metric = "jiang")
+  star_JiangConrath <- similarity_matrix(labels1 = star_labels,
+                                    labels2 = star_labels,
+                                    tree = star,
+                                    metric = "jiang")
+  balanced_JiangConrath <- similarity_matrix(labels1 = balanced_labels,
+                                        labels2 = balanced_labels,
+                                        tree = balanced,
+                                        metric = "jiang")
 
 
 
@@ -1941,19 +1762,6 @@ calc_similarity_data <- function(data_1,
                             tax_level_labels = chemont_tax_levels,
                             similarity = "jaccard"){
 
-  if(similarity %in% "jaccard"){
-    #similarity_fun <- "general_Jaccard_similarity"
-    sim_metric <- 1
-  } else if (similarity %in% "resnik"){
-    sim_metric <- 2
-  } else if (similarity %in% "lin"){
-    sim_metric <- 3
-  } else if (similarity %in% "jiang_conrath"){
-    sim_metric <- 4
-  } else {
-    warning('Defaulting to Jaccard similarity!')
-    sim_metric <- 1
-  }
   #calculate pairwise similarity of ancestry of terminal labels in two data sets
 
   #check for terminal_label
@@ -1982,8 +1790,11 @@ calc_similarity_data <- function(data_1,
   mrowlabs <- mlabs[mlabs %in% data_1[[terminal_label]]]
   mcollabs <- mlabs[mlabs %in% data_2[[terminal_label]]]
 
-  m <- similarity_matrix(labels_1 = mrowlabs, labels_2 = mcollabs, tree = tree,
-                         sim_metric = sim_metric, upper_tri = FALSE)
+  m <- similarity_matrix(labels1 = mrowlabs,
+                         labels2 = mcollabs,
+                         tree = tree,
+                         metric = similarity,
+                         upper_tri = FALSE)
 
   #m <- matrix(nrow = length(mrowlabs),
   #            ncol = length(mcollabs))
