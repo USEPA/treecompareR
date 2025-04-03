@@ -53,6 +53,9 @@ devtools::load_all()
 #Biosolids classifications
 #First lookup inchikeys
 biosolids_inchi <- classify_inchikeys(inchikeys = unique(biosolids$INCHIKEY))
+biosolids_inchi <- tidyr::pivot_wider(biosolids_inchi,
+                    names_from = "level",
+                   values_from = "name")
 biosolids_class <- merge(biosolids,
                          biosolids_inchi,
                          by = "INCHIKEY")
@@ -63,9 +66,10 @@ biosolids_smiles <- biosolids_class[is.na(biosolids_class$kingdom) &
                   !is.na(biosolids_class$SMILES), ]
 valid_smiles <- sapply(biosolids_smiles$SMILES,
                          webchem::is.smiles)
-biosolids_smiles_class <- classify_structures(input = biosolids_smiles[valid_smiles, "SMILES"],
-                                              queued_wait = 10,
-                                              processing_wait_per_input = 3)
+biosolids_smiles_class <- classify_structures(input = biosolids_smiles[valid_smiles, "SMILES"])
+biosolids_smiles_class <- tidyr::pivot_wider(biosolids_inchi,
+                                      names_from = "level",
+                                      values_from = "name")
 
 biosolids_smiles_class2 <- dplyr::left_join(x = biosolids_smiles,
 y = biosolids_smiles_class[, c("structure",
