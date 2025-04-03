@@ -1358,18 +1358,6 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
   all_left_tree <- union(unlist(left_ancestors), left_labels)
   all_right_tree <- union(unlist(right_ancestors), right_labels)
 
-  #print(all_left_tree)
-  #print(all_right_tree)
-
-  # Adjust the tip label size depending on the number of tips of the tree
-  #if (length(union_tree$tip.label) <= 200){
-  #  tip_size = 3
-  #} else if (length(tree_1$tip.label) <= 500){
-  #  tip_size = 1.5
-  #} else {
-  #  tip_size = .5
-  #}
-
   tip_size <- 2/length(union_tree$tip.label)
 
   left_tree <- ggtree(union_tree,
@@ -1416,33 +1404,15 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
     tree_data_rightval[[i]] <- length(data_right_chemicals)
     tree_data_centerval[[i]] <- length(shared_chemicals)
   }
-
-  #print(tree_data_leftval)
-  #print(tree_data_rightval)
-  #print(tree_data_centerval)
-  #print(nTip)
-
   value <- c(tree_data_leftval, tree_data_rightval, tree_data_centerval)
   tree_data <- cbind(tree_data, value)
   names(tree_data)[[3]] <- "value"
 
-  #print(names(tree_data))
-
-  #print(str(tree_data))
-  #left_data_plot <- ggplot(tree_data, aes(y = tip.label, x = leftval)) +
-  #  geom_tile()#Or some other data viz
-  #return(left_data_plot)
-  #center_data_plot <- ggplot(tree_data, aes(y = tip.label, x = centerval)) +
-  #  geom_tile()#Or some other data viz
-  #right_data_plot <- ggplot(tree_data, aes(y = tip.label, x = rightval)) +
-  #  geom_tile()#Or some other data viz
-
-  #return(tree_data)
-
   trans <- ifelse(log_trans, 'log1p', 'identity')
 
   data_plot <- ggplot(tree_data, aes(x = tree, y = tip.label)) +
-    geom_tile(aes(fill = value)) + viridis::scale_fill_viridis(trans=trans) +
+    geom_tile(aes(fill = value)) +
+    ggplot2::scale_fill_viridis_c(trans=trans) +
     theme_minimal() + ylab(NULL)  +
       theme(axis.text.y = element_text(size = 3),
             axis.title.y = NULL)
@@ -1500,12 +1470,10 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 #' @return A ggtree object consisting of subtree induced by data and boxplots
 #'   corresponding to specified numeric column of data.
 #' @export
+#' @import ggplot2
 #' @import ggtree
 #' @import ggtreeExtra
-#' @import viridis
-#' @importFrom ggnewscale new_scale_fill
-#' @importFrom grDevices colorRampPalette
-#' @importFrom RColorBrewer brewer.pal
+#' @import data.table
 circ_tree_boxplot <- function(data,
                               col,
                               tax_level_labels = chemont_tax_levels,
@@ -1525,7 +1493,6 @@ circ_tree_boxplot <- function(data,
   if (!(col %in% names(data)))
     stop(paste('The column', col, 'is not in the input data!'))
 
-  #print(col)
   if (!('terminal_label' %in% names(data))){
     data <- add_terminal_label(copy(data))
   }
@@ -1534,9 +1501,7 @@ circ_tree_boxplot <- function(data,
   data <- data.table::data.table(data)
 
   columns <- which(names(data) %in% c(col, 'terminal_label'))
-  print(columns)
   column_names <- names(data)[columns]
-  print(column_names)
 
   new_data <- as.data.frame(data[, .SD, .SDcols = names(data)[columns]])
   index <- which(names(new_data) %in% col)
@@ -1546,7 +1511,6 @@ circ_tree_boxplot <- function(data,
   new_data[["val"]] <- new_data[, index]
   new_data[["node"]] <- new_data$terminal_label
 
-  #summary(new_data)
 
   new_data_tree <- prune_and_display_subtree(
     prune_to = data,
@@ -1556,26 +1520,22 @@ circ_tree_boxplot <- function(data,
     adjust_branch_length = adjust_branch_length,
     no_plot = TRUE
   )
-  #print(new_data_tree)
+
   num_nodes_tips <- length(new_data_tree$tip.label) + new_data_tree$Nnode
-  #print(num_nodes_tips)
 
   tip_node_data <- data.frame('ID' = c(new_data_tree$tip.label,
                                        new_data_tree$node.label),
                               'Label' = c(new_data_tree$tip.label,
                                           new_data_tree$node.label))
   tip_node_data$Label <- factor(tip_node_data$Label)
-  #print(tip_node_data)
-
 
   circ_plot <- ggtree(new_data_tree,
                       layout = 'circular')
   if (tippoint_boxplot) {
     circ_plot <- circ_plot %<+% tip_node_data +
       geom_tippoint(aes(color = Label), show.legend = FALSE) +
-      scale_color_viridis(name = 'Terminal label',
-                          option = 'magma',
-                          discrete = TRUE)# + ggnewscale::new_scale_color()
+      ggplot2::scale_color_viridis_d(name = 'Terminal label',
+                          option = 'magma')#
 
     circ_plot <- circ_plot +
       ggtreeExtra::geom_fruit(data = new_data,
@@ -1594,9 +1554,8 @@ circ_tree_boxplot <- function(data,
                                                  hjust = 0),
                               grid.params = list(),
                               show.legend = FALSE) +
-      scale_fill_viridis(name = 'Group label',
-                         option = 'magma',
-                         discrete = TRUE) +
+     ggplot2::scale_fill_viridis_d(name = 'Group label',
+                         option = 'magma') +
       ggnewscale::new_scale_fill() +
       ggnewscale::new_scale_color()
   } else {
@@ -1617,7 +1576,7 @@ circ_tree_boxplot <- function(data,
                                                  hjust = 0),
                               grid.params = list(),
                               show.legend = FALSE) +
-      new_scale_fill()
+      ggnewscale::new_scale_fill()
   }
 
   if (!is.null(layers)){
@@ -1629,22 +1588,34 @@ circ_tree_boxplot <- function(data,
       level_names <- c()
     }
 
-    fruit_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label))
-    palettes <- c('Blues', 'Oranges', 'BuGn', 'OrRd', 'BuPu', 'Reds','GnBu', 'RdPu','Greens', 'YlOrBr',
-                  'PuBu', 'YlOrRd', 'PuBuGn', 'YlGnBu', 'PuRd', 'YlGn', 'Purples', 'Greys')
-    print(level_names)
+    fruit_data <- data.frame('ID' = c(new_data_tree$tip.label,
+                                      new_data_tree$node.label))
+    palettes <- c('Blues', 'Oranges', 'BuGn',
+                  'OrRd', 'BuPu', 'Reds','GnBu',
+                  'RdPu','Greens', 'YlOrBr',
+                  'PuBu', 'YlOrRd', 'PuBuGn',
+                  'YlGnBu', 'PuRd', 'YlGn', 'Purples', 'Greys')
 
     for (i in rev(seq_along(level_names))){
       level_index <- which(names(data) %in% level_names[[i]])
-      values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
+      values <- unname(
+        as.list(
+          data[, unique(.SD),
+               .SDcol = level_names[[i]]])
+      )[[1]]
       values <- values[!is.na(values)]
       empty_strings <- which(sapply(values, function(t) {t == ''}))
       if (length(empty_strings) > 0){
         values <- values[-which(sapply(values, function(t) {t == ''}))]
       }
 
-      tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
-      #print(tree_nodes)
+      tree_nodes <- lapply(
+        c(
+          new_data_tree$tip.label,
+          new_data_tree$node.label),
+        function(x) {x}
+        )
+
       for (j in seq_along(values)){
         total_descendants <- c(
           tree$tip.label,
@@ -1686,10 +1657,11 @@ circ_tree_boxplot <- function(data,
 
       fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
 
-      #print(level_names[[i]])
-      #print(fruit_data)
-
-      colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(n = 9, name = palettes[[i]]))
+      colors <- grDevices::colorRampPalette(
+        RColorBrewer::brewer.pal(
+          n = 9,
+          name = palettes[[i]])
+        )
       current_palette <- colors(level_number)
       circ_plot <- circ_plot +
         geom_fruit(data = fruit_data,
@@ -1709,7 +1681,9 @@ circ_tree_boxplot <- function(data,
   }
 
   if (is.character(title)){
-    circ_plot <- circ_plot + ggtitle(title, subtitle = paste('Boxplots of the data from', col, 'column')) +
+    circ_plot <- circ_plot +
+      ggtitle(title,
+              subtitle = paste('Boxplots of the data from', col, 'column')) +
       theme(plot.title = element_text(hjust = 0.5),
             plot.subtitle = element_text(hjust = 0.5))
   }
@@ -1762,9 +1736,6 @@ leaf_fraction_subtree <- function(data_1, data_2,
   percentages <- NULL
   terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
 
-  # print('terminal labels')
-  # print(terminal_labels)
-
   # For each terminal_label value, determine the chemicals from data_2 that are
   # also in data_1. This checks using the INCHIKEY of each chemical.
   label_percentages <- sapply(terminal_labels, function(t) {
@@ -1809,7 +1780,11 @@ leaf_fraction_subtree <- function(data_1, data_2,
   tree_plot <- tree_plot + ggtree::geom_tippoint(aes(color = percentages),
                                          size = tip_size)
   tree_plot <- tree_plot +
-    scale_color_viridis_c(name = paste0('Percentage of ',name_1, ' chemicals that are ', name_2, ' chemicals'),
+    ggplot2::scale_color_viridis_c(name = paste0('Percentage of ',
+                                                 name_1,
+                                                 ' chemicals that are ',
+                                                 name_2,
+                                                 ' chemicals'),
                           option = 'plasma')
 
   if (show_labels){

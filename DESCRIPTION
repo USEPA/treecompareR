@@ -13,9 +13,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10),
-    ggplot2,
-    ggtree,
-    ComplexHeatmap
+    ggtree
 LazyData: true
 LazyDataCompression: xz
 Suggests: 
@@ -32,13 +30,16 @@ Imports:
     aplot,
     circlize,
     clisymbols,
+    ComplexHeatmap,
     crayon,
     ctxR,
     data.table,
     data.tree,
     dplyr,
+    ggplot2,
     ggnewscale,
     ggtreeExtra,
+    grDevices,
     httr,
     jsonlite,
     magrittr,
