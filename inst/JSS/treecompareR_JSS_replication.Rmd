@@ -403,8 +403,8 @@ biosolids_usgs_ht
 ```{r, include=FALSE, eval=FALSE}
 fig_13 <- generate_heatmap(tree_object = chemont_tree, 
                                       matrix = chemont_jaccard, 
-                                      row_data = USGSWATER_class, 
-                                      column_data = BIOSOLIDS2021_class, 
+                                      row_data = usgs_class, 
+                                      column_data = biosolids_class, 
                                       row_split = 9L, column_split = 9L, 
                                       row_title = 'USGS Water', 
                                       column_title = 'Biosolids', 
