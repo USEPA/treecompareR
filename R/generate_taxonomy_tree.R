@@ -10,7 +10,6 @@
 #'
 #' @param file_name Path to JSON file
 #' @return A data.frame with parent-object relationships.
-#' @importFrom jsonlite fromJSON
 #'
 get_parent_child <- function(file_name){
   temp <- jsonlite::fromJSON(txt = file_name)
@@ -219,12 +218,6 @@ generate_parent_child <- function(data, col_indices, id_index, root_label = 'Roo
         print('Next rows')
         print(next_rows)
 
-          #temp <- data.frame(Name = data[next_rows, col_indices[next_col]],
-          #                   Id = data[next_rows, id_index],
-          #                   Parent_Id = data[current_rows[[1]], id_index])
-          #df <- rbind(df, temp)
-
-          #print(df)
          if (length(current_rows) > 1) {
           for (j in 2:(length(current_rows))){
             print(df)
@@ -233,8 +226,6 @@ generate_parent_child <- function(data, col_indices, id_index, root_label = 'Roo
             temp <- data.frame(Name = data[temp_rows, col_indices[next_col]],
                               ID = data[temp_rows, id_index],
                               Parent_ID = data[current_rows[[j-1]], id_index])
-            #print('Printing temp')
-            #print(temp)
             df <- rbind(df, temp)
             }
           }
@@ -245,10 +236,7 @@ generate_parent_child <- function(data, col_indices, id_index, root_label = 'Roo
           temp <- data.frame(Name = data[temp_rows, col_indices[next_col]],
                              ID = data[temp_rows, id_index],
                              Parent_ID = data[current_rows[[length(current_rows)]], id_index])
-          #print('Printing temp')
-          #print(temp)
           df <- rbind(df, temp)
-          #print(df)
           }
 
         }

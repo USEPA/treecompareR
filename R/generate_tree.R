@@ -12,7 +12,6 @@ enumerate_partitions <- function(n, max_deg = NULL, min_deg = NULL){
   partitions <- partitions::parts(n)
   if (!is.null(max_deg)){
     if (n > max_deg){
-    #partitions <- partitions::parts(n)
     exclude <- logical(dim(partitions)[[2]])
     for (i in 1:(dim(partitions)[[2]])){
       exclude[[i]] <- any(partitions[,i] > max_deg)
@@ -23,13 +22,11 @@ enumerate_partitions <- function(n, max_deg = NULL, min_deg = NULL){
 }
 
   if (!is.null(min_deg)){
-    #partitions <- partitions::parts(n)
-    #print(dim(partitions))
+
     exclude <- logical(dim(partitions)[[2]])
 
-    #print(partitions)
     for (i in 1:(dim(partitions)[[2]])){
-      #print(i)
+
       current <- partitions[, i]
       current <- current[which(current != 0)]
       exclude[[i]] <- any(current < min_deg)
@@ -39,8 +36,6 @@ enumerate_partitions <- function(n, max_deg = NULL, min_deg = NULL){
       partitions <- as.matrix(partitions[, -exclude_index])
     }
 
-    #print(dim(partitions))
-    #print(is.null(dim(partitions)))
     if (is.null(dim(partitions)) | dim(partitions)[[2]] == 0){
       warning('There are no such partitions that fit these criteria!')
       return(NULL)
@@ -120,8 +115,6 @@ choose_partition <- function(n, max_deg = NULL, min_deg = NULL){
 #' @param seed A seed to allow for replication of results.
 #' @return A 'phylo' object representing the generated tree.
 #' @export
-#' @importFrom ape rtree
-#' @importFrom ape root.phylo
 #'
 generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA){
   if (!is.na(seed)){
@@ -187,12 +180,6 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
   edge[1:2 + N] <- TIPS[1:2]
   i <- 1L
 
-  #print(partition)
-  #print(x)
-  #print(breaks)
-  #print(add_tips)
-  #print(edge)
-  #print(alive)
   while (i <= length(partition)) {
     ## draw a branch among the live ones
     k <- which(alive)[x[i]]
@@ -208,8 +195,6 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
     nextnode <- nextnode + 1L
     Nalive <- Nalive + partition[i]
     i <- i + 1L
-    #print(edge)
-    #print(alive)
   }
 
 
@@ -227,10 +212,6 @@ generate_topology <- function(n, rooted = FALSE, max_deg = NULL, min_deg = NULL,
 
   phy
 }
-
-
-
-
 
 
 # In this function we generate a sequence of integers, each is at least 2, with
@@ -625,12 +606,6 @@ generate_balanced <- function(n){
   phy <- reorder(phy)
 
   phy <- ape::root.phylo(phy, node = n+1)
-
-  #for (i in 2:(n-1)){
-  #  phy <- ape::rotate(phy = phy, node = (n+i))
-  #}
-
-  #phy <- ape::rotate(phy = phy, node = (n+1))
 
   return(phy)
 

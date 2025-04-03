@@ -12,6 +12,7 @@
 #'   consisting of the terminal labels.
 #' @export
 #' @import data.table
+#' @importFrom magrittr `%>%`
 add_terminal_label <- function(data,
                                tax_level_labels = chemont_tax_levels){
   label <- NULL

@@ -178,35 +178,55 @@ generate_heatmap <- function(tree_object,
     col_anno_label <- 'col count bars'
   }
 
-  heatmap <- ComplexHeatmap::Heatmap(#matrix = matrix[row_indices, column_indices],
-                                     matrix = matrix[matrix_row_indices, matrix_column_indices],
-                                     name = name,
-                                     col = circlize::colorRamp2(seq(0, 1, len = 20), viridis::viridis(20, option = 'C')),
+  heatmap <- ComplexHeatmap::Heatmap(
+    matrix = matrix[
+      matrix_row_indices,
+      matrix_column_indices
+    ],
+    name = name,
+    col = circlize::colorRamp2(
+      seq(0, 1, len = 20),
+      viridis::viridis(20,
+                       option = 'C')
+    ),
 
-                                     # NEED TO ADD HELPER FUNCTIONS FOR THIS
-                                     top_annotation = HeatmapAnnotation(#col_log_count_bar = anno_barplot(column_label_numbers[match(dimnames(matrix)[[2]][column_indices], column_labels)]),
-                                                                        col_log_count_bar = anno_barplot(column_label_numbers[column_labels[column_anno_indices]]),
-                                                                        annotation_name_rot = 45,
-                                                                        annotation_label = col_anno_label,# c('log(col count) bars'),
-                                                                        annotation_name_gp = grid::gpar(fontsize = 8)
-                                     ),
-                                     left_annotation = rowAnnotation(#row_log_count_bar = anno_barplot(row_label_numbers[match(dimnames(matrix)[[1]][row_indices], row_labels)],
-                                                                      row_log_count_bar = anno_barplot(row_label_numbers[row_labels[row_anno_indices]],
-                                                                      axis_param = list(direction = 'reverse')),
-                                                                      annotation_name_rot = 45,
-                                                                      annotation_label = row_anno_label,#c('log(row count) bars'),
-                                                                      annotation_name_gp = grid::gpar(fontsize = 8)
-                                                                      ),
-                                     show_row_names = FALSE,
-                                     show_column_names = FALSE,
-                                     row_split = row_split,
-                                     column_split = column_split
-                                     )
+    # NEED TO ADD HELPER FUNCTIONS FOR THIS
+    top_annotation = ComplexHeatmap::HeatmapAnnotation(
+      col_log_count_bar = anno_barplot(
+        column_label_numbers[
+          column_labels[
+            column_anno_indices
+          ]
+        ]
+      ),
+      annotation_name_rot = 45,
+      annotation_label = col_anno_label,
+      annotation_name_gp = grid::gpar(fontsize = 8)
+    ),
+    left_annotation = ComplexHeatmap::rowAnnotation(
+      row_log_count_bar = anno_barplot(
+        row_label_numbers[
+          row_labels[
+            row_anno_indices
+          ]
+        ],
+        axis_param = list(direction = 'reverse')),
+      annotation_name_rot = 45,
+      annotation_label = row_anno_label,
+      annotation_name_gp = grid::gpar(fontsize = 8)
+    ),
+    show_row_names = FALSE,
+    show_column_names = FALSE,
+    row_split = row_split,
+    column_split = column_split
+  )
   heatmap <- draw(heatmap,
                   row_title = row_title,
-                  row_title_gp = grid::gpar(fontsize = 10, fontface = 'bold'),
+                  row_title_gp = grid::gpar(fontsize = 10,
+                                            fontface = 'bold'),
                   column_title = column_title,
-                  column_title_gp = grid::gpar(fontsize = 10, fontface = 'bold'))
+                  column_title_gp = grid::gpar(fontsize = 10,
+                                               fontface = 'bold'))
 }
 
 
@@ -417,7 +437,6 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
 #' @param i The index for which list_superclasses element will be labeled.
 #' @param color A color for the clade label.
 #' @return A ggtree object that will have the specified clade labeled.
-#' @import phangorn
 #' @import ggplot2
 #' @import ggtree
 #'
@@ -465,7 +484,6 @@ handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses,
 #' @param i The index for which list_superclasses element will be highlighted.
 #' @param color A color for the clade highlight.
 #' @return A ggtree object that will have the specified clade highlighted.
-#' @import phangorn
 #' @import ggplot2
 #' @import ggtree
 #'
@@ -490,12 +508,6 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
   return(tree_visual)
 
 }
-
-
-
-################################################################################
-## CHECK THAT THE drop.tip FUCNTION CALL ON LINE 594 IS USING ape OR tree.io !##
-################################################################################
 
 
 #' Generate tree cluster
@@ -529,7 +541,6 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #' @import ggplot2
 #' @import ggtree
 #' @import phangorn
-#' @importFrom ape drop.tip
 #'
 #' @seealso \code{\link{generate_heatmap}}
 #'
@@ -544,39 +555,65 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
   # get shared labels
   shared_labels <- intersect(row_labels, column_labels)
   # get row superclasses
-  row_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree)[1])))
+  row_superclasses <- unique(
+    unname(
+      unlist(
+        cluster_analysis(htmap = htmap,
+                         row_cluster = row_cluster,
+                         column_cluster = column_cluster,
+                         tree_object = tree_object,
+                         tree = tree)[1]
+      )
+    )
+  )
   # get column superclasses
-  column_superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree)[2])))
+  column_superclasses <- unique(
+    unname(
+      unlist(
+        cluster_analysis(htmap = htmap,
+                         row_cluster = row_cluster,
+                         column_cluster = column_cluster,
+                         tree_object = tree_object,
+                         tree = tree)[2])
+      )
+    )
   # shared superclasses
   shared_superclasses <- intersect(row_superclasses, column_superclasses)
   # cut shared superclasses from row and column lists
   row_superclasses <- setdiff(row_superclasses, shared_superclasses)
   column_superclasses <- setdiff(column_superclasses, shared_superclasses)
 
-  #print(row_superclasses)
-  #print(which(tree_labels %in% row_superclasses))
-  #print(column_superclasses)
-  #print(which(tree_labels %in% column_superclasses))
-  #print(shared_superclasses)
-  #print(which(tree_labels %in% shared_superclasses))
-
   # select only colors that represent present tips and data sets
   ###superclass_lengths <- c(length(row_superclasses), length(column_superclasses), length(shared_superclasses))
-  cluster_lengths <- c(length(intersect(setdiff(row_labels, shared_labels),tree_labels)), length(intersect(setdiff(column_labels, shared_labels),tree_labels)), length(intersect(shared_labels,tree_labels)))
-  #print(superclass_lengths)
+  cluster_lengths <- c(
+    length(
+      intersect(
+        setdiff(row_labels,
+                shared_labels),
+        tree_labels
+        )
+    ),
+    length(
+      intersect(
+        setdiff(column_labels,
+                shared_labels),
+        tree_labels
+        )
+    ),
+    length(
+      intersect(
+        shared_labels,tree_labels
+        )
+    )
+  )
   color_selection <- which(cluster_lengths > 0)
-  #color_selection <- which(superclass_lengths > 0)
-  #print(color_selection)
   color_values <- c("row" = "#053061", "column" = "#d73027", "both" = "#2d004b")[color_selection]
-  #print(color_values)
   color_labels <- c(row_name, column_name, paste(row_name, 'and', column_name))[color_selection]
-  #print(color_labels)
 
 
   # build tree visual
   tree_visual <- ggtree(tree) +
     ggtree::layout_circular() +
-    #geom_tiplab(size = 0.1) +
     ggtree::geom_point2(aes(subset = (label %in% intersect(setdiff(row_labels, shared_labels), c(tree$tip.label, tree$node.label))),
                     color = "row"),
                 size = point_size) +
@@ -639,7 +676,13 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                                                      fontsize = 3.8,
                                                      angle = 'auto')
         } else {
-          tree_visual <- handle_missing_node_show_clade(tree, tree_object, shared_superclasses, tree_visual, i, '#542788')}
+          tree_visual <- handle_missing_node_show_clade(
+            tree,
+            tree_object,
+            shared_superclasses,
+            tree_visual,
+            i, '#542788')
+          }
       }
     }
   }
@@ -687,12 +730,9 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
     superclasses <- unique(unname(unlist(cluster_analysis(htmap = htmap, row_cluster = row_cluster, column_cluster = column_cluster, tree_object = tree_object, tree = tree))))
     ancestors <- tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% superclasses)))))]
     descendants <- tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% superclasses),type = 'all')))]
-    #print(paste('Desc', length(descendants)))
+
     # handle cases when superclass nodes are not in the tree_label list
     missing_superclasses <- superclasses[-which(superclasses %in% tree_labels)]
-    #print(superclasses)
-    #print(superclasses[which(superclasses %in% tree_labels)])
-    #print(missing_superclasses)
     for (l in seq_along(missing_superclasses)){
       temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% missing_superclasses[[l]]), type = 'all')], tree_labels)
       #print(paste('length of temp desc for l = ', l, ':', length(temp_descendants)))
@@ -703,11 +743,7 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
       ancestors <- unique(c(ancestors, tree_labels[unique(unname(unlist(phangorn::Ancestors(tree, which(tree_labels %in% shallow_descendants)))))]))
       descendants <- unique(c(descendants, tree_labels[unname(unlist(phangorn::Descendants(tree, which(tree_labels %in% shallow_descendants),type = 'all')))]))
     }
-    #print(paste('Desc', length(descendants)))
-    #print('Got all nodes')
 
-
-    #subtree <- ape::drop.tip(tree, setdiff(tree$tip.label, intersect(tree$tip.label, c(superclasses, ancestors, descendants))))
     subtree <- drop_tips_nodes(tree = tree, labels = c(superclasses, ancestors, descendants), keep_descendants = FALSE)
     # get labels
     subtree_labels <- c(subtree$tip.label, subtree$node.label)
@@ -716,7 +752,6 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
 
     tree_visual_sub <- ggtree(subtree) +
       ggtree::layout_circular() +
-      #geom_tiplab(size = 0.1) +
       ggtree::geom_point2(aes(subset = (label %in% intersect(setdiff(row_labels, shared_labels), c(subtree$tip.label, subtree$node.label))),
                       color = "row"),
                   size = point_size) +

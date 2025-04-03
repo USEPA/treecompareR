@@ -65,7 +65,6 @@ generate_descendants <- function(tree){
 #' @param tree A phylo object representing a rooted tree.
 #' @return data.frame consisting of the node number, and the level of each node
 #' @export
-#' @importFrom ape is.rooted
 #'
 #' @examplesIf FALSE
 #'
@@ -132,7 +131,6 @@ get_tree_df <- function(tree){
 #' @return data.frame consisting of node number, children, descendants, level,
 #'   and information content for each node
 #' @export
-#' @importFrom ape is.rooted
 #'
 #' @references \insertRef{seco2004intrinsic}{treecompareR}
 #'
@@ -177,7 +175,6 @@ generate_information_content <- function(tree){
 #'   content to use.
 #' @return phylo object with information content data.frame attached
 #' @export
-#' @importFrom ape is.rooted
 #'
 #' @references
 #' \insertRef{seco2004intrinsic}{treecompareR}
@@ -950,8 +947,6 @@ similarity_matrix <- function(labels_1 = NULL, labels_2 = NULL, nodes_1 = NULL,
 #'   similarity values reported in each row is the mean similarity value for the
 #'   corresponding data set/simulated tree given by the column.
 #' @export
-#' @importFrom data.table is.data.table
-#' @importFrom phangorn Ancestors
 #'
 #' @examplesIf FALSE
 #' \donttest{
@@ -1023,15 +1018,6 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
     dataset_2_indices <- which(dimnames %in% dataset_2_labels)
   }
 
-
-#  if (!(data.table::is.data.table(data_1) & data.table::is.data.table(data_2))){
-#    if (is.null(data_1_indices) | is.null(data_2_indices)){
-#      stop('Please input either indices for `data_1_indices` and `data_2_indices` or data.table objects for `data_1` and `data_2`')
-#    } else {
-#      stop('Please input a data.table object for each of the `data_1` and `data_2` parameters!')
-#    }
-#      }
-
   if (is.null(Jaccard) & is.null(Resnik) & is.null(Lin) & is.null(JiangConrath)){
     stop('Please input a similarity matrix for at least one of Jaccard, Resnik, Lin, and JiangConrath parameters!')
   }
@@ -1058,22 +1044,6 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
                                      JiangConrath_all_data_set_2 = double(),
                                      all_nodes = integer(),
                                      all_tips = integer())
-
-
-
-#  if (is.data.table(data_1) & is.data.table(data_2)) {
-#    dataset_1_labels <- unlist(get_terminal_labels(data = data_1))
-#    dataset_1_indices <- which(dimnames %in% dataset_1_labels)
-#
-#    dataset_2_labels <- unlist(get_terminal_labels(data = data_2))
-#    dataset_2_indices <- which(dimnames %in% dataset_2_labels)
-#  } else {
-#    dataset_1_labels <- dimnames[data_1_indices]
-#    dataset_1_indices <- data_1_indices
-#
-#    dataset_2_labels <- dimnames[data_2_indices]
-#    dataset_2_labels <- data_2_indices
-#  }
 
   get_indices <- function(indices_1, indices_2) {
     dat <- expand.grid(indices_1, indices_2)
@@ -1106,11 +1076,6 @@ MonteCarlo_similarity <- function(tree, data_1 = NULL, data_2 = NULL, data_1_ind
 
     all_node_indices <- which(dimnames %in% label_all_nodes)
     all_tip_indices <- which(dimnames %in% label_all_tips)
-
-    #print(all_node_indices)
-    #print(all_tip_indices)
-
-
 
     all_nodes <- get_indices(all_node_indices, all_node_indices)
     all_tip_all_dataset_1 <- get_indices(all_tip_indices, dataset_1_indices)
@@ -1284,7 +1249,6 @@ get_cutoffs <- function(mat, data, tax_level_labels = NULL, neighbors = 3, cutof
 #'   \code{\link{get_terminal_labels}} function.
 #' @return A phylo object representing the induced subtree of the data.
 #'
-#' @importFrom ape drop.tip
 #'
 #' @references \insertRef{apepackage}{treecompareR}
 
@@ -1483,14 +1447,6 @@ adjust_branch_lengths <- function(tree){
       if (length(children) > 0){
         next_level[[i]] <- children
       }
-      #next_level <- c(next_level, children)
-      #children_height <- tree_height[children]
-
-      #children_tip <- which(children_height == 1)
-      #if (length(children_tip) > 0){
-      #  plot_height[which(names(plot_height) %in% children[children_tip])] <- 0
-      #  children <- children[-children_tip]
-      #}
 
       if(length(children) > 0){
         scale_factor <- (tree_height[children] - 1)/tree_height[children]
@@ -1549,10 +1505,6 @@ compare_similarity_measures <- function(n){
                                         labels_2 = balanced_labels,
                                         tree = balanced, sim_metric = 1)
 
-  #cat_Resnik <- generate_similarity_matrix(cat_IC, similarity = general_Resnik_similarity)
-  #star_Resnik <- generate_similarity_matrix(star_IC, similarity = general_Resnik_similarity)
-  #balanced_Resnik <- generate_similarity_matrix(balanced_IC, similarity = general_Resnik_similarity)
-
   cat_Resnik <- similarity_matrix(labels_1 = cat_labels,
                                    labels_2 = cat_labels,
                                    tree = caterpillar, sim_metric = 2)
@@ -1576,11 +1528,6 @@ compare_similarity_measures <- function(n){
   balanced_Lin <- similarity_matrix(labels_1 = balanced_labels,
                                         labels_2 = balanced_labels,
                                         tree = balanced, sim_metric = 3)
-
-
-  #cat_JiangConrath <- generate_similarity_matrix(cat_IC, similarity = general_JiangConrath_similarity)
-  #star_JiangConrath <- generate_similarity_matrix(star_IC, similarity = general_JiangConrath_similarity)
-  #balanced_JiangConrath <- generate_similarity_matrix(balanced_IC, similarity = general_JiangConrath_similarity)
 
   cat_JiangConrath <- similarity_matrix(labels_1 = cat_labels,
                                    labels_2 = cat_labels,
@@ -1680,7 +1627,7 @@ return(clade_df)
 #'   'superclass', 'class', 'subclass','level5', 'level6', 'level7',
 #'   'level8','level9', 'level10', 'level11')}.
 #' @return A \code{phylo}-class object.
-#'
+#' @export
 bind_entities <- function(tree,
                           data,
                           entity_id_col,
@@ -1932,7 +1879,7 @@ prune_tree <- function(tree,
 #'@param tax_level_labels Vector of the possible taxonomy levels that can appear
 #'  as column names in \code{as_classified.phylo} if it is a \code{data.frame} of
 #'  classified data.
-
+#' @export
 as_classified.phylo <- function(tree,
                                 tax_level_labels = c('kingdom', 'superclass', 'class', 'subclass',
                                                                       'level5', 'level6', 'level7', 'level8',
@@ -2044,41 +1991,6 @@ calc_similarity_data <- function(data_1,
   colnames(m) <- mcollabs
 
   return(m)
-
-  #now calculate matrix elements
-  #only need to calc upper triangular part;
-  #can then assign
-
-  #for(i in 1:(length(mlabs)-1)){
-  #  if(mlabs[i] %in% mrowlabs &
-  #     mlabs[i] %in% mcollabs){
-  #    #entity is 100% similar to itself
-  #    m[mlabs[i], mlabs[i]] <- 1
-  #  }
-  #  for(j in (i+1):(length(mlabs))){
-  #    tmp <- do.call(similarity_fun,
-  #                   list(tree = tree,
-  #                        label_A = mlabs[i],
-  #                        label_B = mlabs[j]))
-  #    if(mlabs[i] %in% mrowlabs &
-  #       mlabs[j] %in% mcollabs){
-  #      m[mlabs[i], mlabs[j]] <- tmp
-  #    }
-
-  #    if(mlabs[j] %in% mrowlabs &
-  #             mlabs[i] %in% mcollabs){
-  #      m[mlabs[j], mlabs[i]] <- tmp
-  #    }
-
-  #    if(mlabs[j] %in% mrowlabs &
-  #       mlabs[j] %in% mcollabs){
-  #      #entity is 100% similar to itself
-  #      m[mlabs[j], mlabs[j]] <- 1
-  #    }
-  #  } #end j loop
-  #} #end i loop
-
-#return(m)
 }
 
 #' Get subtree node numbers
@@ -2127,6 +2039,7 @@ get_subtree_nodes <- function(data,
 #' @return Character vector of tip or internal node labels corresponding to each
 #'   node ID. \code{NA_character_} if no node label corresponds to the input
 #'   node ID.
+#' @export
 get_label_from_node <-function(node, tree){
   #get total number of nodes in the tree
   N <- dim(tree$edge)[[1]] + 1
@@ -2148,6 +2061,7 @@ get_label_from_node <-function(node, tree){
 #' @param label Vector of labels for tips or internal nodes in phylo tree
 #' @param tree phylo tree object
 #' @return Numeric vector of tip or internal node ID numbers
+#' @export
 get_node_from_label <- function(label, tree){
   #tip labels come first
   tip_nodes <- match(label, tree$tip.label)

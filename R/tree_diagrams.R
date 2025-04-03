@@ -12,7 +12,6 @@
 #'   data.table for each taxonomy level.
 #' @export
 #' @import data.table
-#' @importFrom tidyr pivot_longer
 #' @import ggplot2
 label_bars <- function(data = NULL,
                        tax_level_labels = chemont_tax_levels){
@@ -43,7 +42,11 @@ label_bars <- function(data = NULL,
   if (number == 1){
     data_names <- c('Set_1')
   } else {
-    if (is.null(names(data)) | length(names(data)) != number | any(is.na(names(data))) | any(names(data) == '')){
+    if (is.null(names(data)) |
+        length(names(data)) != number |
+        any(is.na(names(data))) |
+        any(names(data) == '')
+        ){
       data_names <- names(data)
       missing_names <- which(names(data) == '')
       data_names[missing_names] <- paste0('Set_', missing_names)
@@ -56,17 +59,37 @@ label_bars <- function(data = NULL,
   names(data) <- data_names
 
 
-  df <- data.frame(tax_level_labels, unname(sapply(data, function(t) get_label_length(get_labels(data = t, tax_level_labels = tax_level_labels)))))
+  df <- data.frame(
+    tax_level_labels,
+                   unname(
+                     sapply(
+                       data,
+                                 function(t) get_label_length(
+                                   get_labels(
+                                     data = t,
+                                     tax_level_labels = tax_level_labels
+                                     )
+                                   )
+                       )
+                     )
+    )
   names(df) <- c('tax_levels', data_names)
   transformed_df <- df %>%
-    tidyr::pivot_longer(!tax_levels, names_to = 'dataset', values_to = 'count_sums')
+    tidyr::pivot_longer(!tax_levels,
+                        names_to = 'dataset',
+                        values_to = 'count_sums')
   transformed_df["count_sums"] <- as.numeric(transformed_df$count_sums)
-  transformed_df["tax_levels"] <- factor(transformed_df$tax_levels, levels = tax_level_labels)
-  transformed_df['dataset'] <- factor(transformed_df$dataset, levels = data_names)
+  transformed_df["tax_levels"] <- factor(transformed_df$tax_levels,
+                                         levels = tax_level_labels)
+  transformed_df['dataset'] <- factor(transformed_df$dataset,
+                                      levels = data_names)
 
   plot_1 <- ggplot(transformed_df) +
     facet_wrap(~dataset, scales = 'free') +
-    geom_bar(aes(x = tax_levels, y = count_sums, fill = tax_levels), stat = 'identity') +
+    geom_bar(aes(x = tax_levels,
+                 y = count_sums,
+                 fill = tax_levels),
+             stat = 'identity') +
     scale_color_manual(name = 'Taxonomy level') +
     theme(axis.text.x = element_text(angle = 90)) +
     labs(x = 'Taxonomy levels',
@@ -75,7 +98,10 @@ label_bars <- function(data = NULL,
 
   plot_2 <- ggplot(transformed_df) +
     facet_wrap(~tax_levels) +
-    geom_bar(aes(x = dataset, y = count_sums, fill = dataset), stat = 'identity') +
+    geom_bar(aes(x = dataset,
+                 y = count_sums,
+                 fill = dataset),
+             stat = 'identity') +
     theme(axis.text.x = element_text(angle = 90)) +
     labs(x = 'Data set',
          y = 'Number of unique labels',
@@ -818,6 +844,7 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
 #'   outermost layer represents the fraction of overlap between the entities at
 #'   each tip label (or group of tip labels), calculated as (size of
 #'   intersection)/(size of union).
+#' @import ggplot2
 #' @export
 display_overlap <- function(base_tree,
                             base_name,
@@ -1087,6 +1114,7 @@ return(out_obj)
 #'@param clade_opts A named list of parameters controlling the appearance of
 #'  clade labels. See "Details."
 #'@return \code{tree_plot} with clade labels added.
+#'@export
 add_cladelab <- function(tree_plot,
                           tree = NULL,
                           clade_level = "auto",
@@ -1279,6 +1307,8 @@ add_cladelab <- function(tree_plot,
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
+#' @import ggplot2
+#' @import ggtree
 side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
                                name_left = 'Left tree',
                                name_right = 'Right tree',
@@ -1518,18 +1548,22 @@ circ_tree_boxplot <- function(data,
 
   #summary(new_data)
 
-  new_data_tree <- prune_and_display_subtree(prune_to = data,
-                                             tax_level_labels = tax_level_labels,
-                                             tree = tree,
-                                             show_tips = FALSE,
-                                             adjust_branch_length = adjust_branch_length,
-                                             no_plot = TRUE)
+  new_data_tree <- prune_and_display_subtree(
+    prune_to = data,
+    tax_level_labels = tax_level_labels,
+    tree = tree,
+    show_tips = FALSE,
+    adjust_branch_length = adjust_branch_length,
+    no_plot = TRUE
+  )
   #print(new_data_tree)
   num_nodes_tips <- length(new_data_tree$tip.label) + new_data_tree$Nnode
   #print(num_nodes_tips)
 
-  tip_node_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label),
-                              'Label' = c(new_data_tree$tip.label, new_data_tree$node.label))
+  tip_node_data <- data.frame('ID' = c(new_data_tree$tip.label,
+                                       new_data_tree$node.label),
+                              'Label' = c(new_data_tree$tip.label,
+                                          new_data_tree$node.label))
   tip_node_data$Label <- factor(tip_node_data$Label)
   #print(tip_node_data)
 
@@ -1543,62 +1577,48 @@ circ_tree_boxplot <- function(data,
                           option = 'magma',
                           discrete = TRUE)# + ggnewscale::new_scale_color()
 
-    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
-                                                     mapping = aes(x = val,
-                                                                   y = terminal_label,
-                                                                   fill = grp),
-                                                     size = 0.2,
-                                                     offset = 0.4,
-                                                     outlier.size = 0.5,
-                                                     outlier.stroke = 0.08,
-                                                     outlier.shape = 21,
-                                                     axis.params = list(axis = 'x',
-                                                                        text.size = 1.8,
-                                                                        text.angle = 270,
-                                                                        hjust = 0),
-                                                     grid.params = list(),
-                                                     show.legend = FALSE) +
+    circ_plot <- circ_plot +
+      ggtreeExtra::geom_fruit(data = new_data,
+                              geom = geom_boxplot,
+                              mapping = aes(x = val,
+                                            y = terminal_label,
+                                            fill = grp),
+                              size = 0.2,
+                              offset = 0.4,
+                              outlier.size = 0.5,
+                              outlier.stroke = 0.08,
+                              outlier.shape = 21,
+                              axis.params = list(axis = 'x',
+                                                 text.size = 1.8,
+                                                 text.angle = 270,
+                                                 hjust = 0),
+                              grid.params = list(),
+                              show.legend = FALSE) +
       scale_fill_viridis(name = 'Group label',
                          option = 'magma',
-                         discrete = TRUE) + ggnewscale::new_scale_fill() + ggnewscale::new_scale_color()
+                         discrete = TRUE) +
+      ggnewscale::new_scale_fill() +
+      ggnewscale::new_scale_color()
   } else {
     circ_plot <- circ_plot + geom_tippoint()
-    circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
-                                                     mapping = aes(x = val,
-                                                                   y = terminal_label),
-                                                     size = 0.2,
-                                                     offset = 0.4,
-                                                     outlier.size = 0.5,
-                                                     outlier.stroke = 0.08,
-                                                     outlier.shape = 21,
-                                                     axis.params = list(axis = 'x',
-                                                                        text.size = 1.8,
-                                                                        text.angle = 270,
-                                                                        hjust = 0),
-                                                     grid.params = list(),
-                                                     show.legend = FALSE) + new_scale_fill()
+    circ_plot <- circ_plot +
+      ggtreeExtra::geom_fruit(data = new_data,
+                              geom = geom_boxplot,
+                              mapping = aes(x = val,
+                                            y = terminal_label),
+                              size = 0.2,
+                              offset = 0.4,
+                              outlier.size = 0.5,
+                              outlier.stroke = 0.08,
+                              outlier.shape = 21,
+                              axis.params = list(axis = 'x',
+                                                 text.size = 1.8,
+                                                 text.angle = 270,
+                                                 hjust = 0),
+                              grid.params = list(),
+                              show.legend = FALSE) +
+      new_scale_fill()
   }
-
-  #circ_plot <- circ_plot + ggtreeExtra::geom_fruit(data = new_data, geom = geom_boxplot,
-  #                                                 mapping = aes(x = val,
-  #                                                               y = terminal_label,
-  #                                                               fill = grp),
-  #                                                 size = 0.2,
-  #                                                 outlier.size = 0.5,
-  #                                                 outlier.stroke = 0.08,
-  #                                                 outlier.shape = 21,
-  #                                                 axis.params = list(axis = 'x',
-  #                                                                    text.size = 1.8,
-  #                                                                    text.angle = 270,
-  #                                                                    hjust = 0),
-  #                                                 grid.params = list(),
-  #                                                 show.legend = FALSE) + new_scale_fill()
-  #circ_plot <- circ_plot + scale_fill_discrete(guide = 'none')
-  #circ_plot <- circ_plot + scale_fill_discrete(name = 'Tip label',
-  #                                             guide = guide_legend(keywidth = 0.2,
-  #                                                                  keyheight = 0.2,
-  #                                                                  ncol = 2))
-  #
 
   if (!is.null(layers)){
     label_levels <- get_labels(data, tax_level_labels = tax_level_labels)
@@ -1608,18 +1628,13 @@ circ_tree_boxplot <- function(data,
       warning('The `layers` parameter must be a list or a vector! Skipping extra layers for now...')
       level_names <- c()
     }
-    #print(which(names(label_levels) %in% layers))
-    #print(names(label_levels))
-    #print(level_names)
 
     fruit_data <- data.frame('ID' = c(new_data_tree$tip.label, new_data_tree$node.label))
-    #print(fruit_data)
     palettes <- c('Blues', 'Oranges', 'BuGn', 'OrRd', 'BuPu', 'Reds','GnBu', 'RdPu','Greens', 'YlOrBr',
                   'PuBu', 'YlOrRd', 'PuBuGn', 'YlGnBu', 'PuRd', 'YlGn', 'Purples', 'Greys')
     print(level_names)
 
     for (i in rev(seq_along(level_names))){
-      #print(paste('The current level name is ', level_names[[i]]))
       level_index <- which(names(data) %in% level_names[[i]])
       values <- unname(as.list(data[, unique(.SD), .SDcol = level_names[[i]]]))[[1]]
       values <- values[!is.na(values)]
@@ -1628,24 +1643,46 @@ circ_tree_boxplot <- function(data,
         values <- values[-which(sapply(values, function(t) {t == ''}))]
       }
 
-      #print(which(sapply(values, function(t) {t == ''})))
-      #print(values)
-      #print(paste('Index', i, 'and value', level_names[[i]], '.\n'))
       tree_nodes <- lapply(c(new_data_tree$tip.label, new_data_tree$node.label), function(x) {x})
       #print(tree_nodes)
       for (j in seq_along(values)){
-        #print(values[[j]])
-        total_descendants <- c(tree$tip.label, tree$node.label)[c(phangorn::Descendants(tree, which(c(tree$tip.label, tree$node.label) %in% values[[j]]), type = 'all'), which(c(tree$tip.label, tree$node.label) %in% values[[j]]))]
-        #print(total_descendants)
-        name_indices <- which(c(new_data_tree$tip.label, new_data_tree$node.label) %in% total_descendants)
-        #print(name_indices)
+        total_descendants <- c(
+          tree$tip.label,
+          tree$node.label)[
+            c(
+              phangorn::Descendants(
+                tree,
+                which(
+                  c(
+                    tree$tip.label,
+                    tree$node.label
+                  ) %in% values[[j]]
+                ),
+                type = 'all'
+              ),
+              which(
+                c(
+                  tree$tip.label,
+                  tree$node.label
+                ) %in% values[[j]]
+              )
+            )
+          ]
+        name_indices <- which(
+          c(
+            new_data_tree$tip.label
+            , new_data_tree$node.label) %in% total_descendants
+        )
+
         names(tree_nodes)[name_indices] <- values[[j]]
-        #names(tree_nodes)[c(phangorn::Descendants(new_data_tree, which(tree_nodes %in% values[[j]]), type = 'all'), which(tree_nodes %in% values[[j]]))] <- values[[j]]
-        #print(which(is.na(names(tree_nodes))))
+
       }
       level_number <- length(unique(names(tree_nodes)))
       level_labels <- levels(factor(names(tree_nodes)))
-      names(tree_nodes)[which(is.na(names(tree_nodes)))] <- paste0('_', level_names[[i]])
+      names(tree_nodes)[
+        which(is.na(names(tree_nodes)))
+      ] <- paste0('_',
+                  level_names[[i]])
 
       fruit_data[[level_names[[i]]]] <- factor(names(tree_nodes))
 
@@ -1654,20 +1691,18 @@ circ_tree_boxplot <- function(data,
 
       colors <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(n = 9, name = palettes[[i]]))
       current_palette <- colors(level_number)
-      circ_plot <- circ_plot + geom_fruit(data = fruit_data,
-                                          geom = geom_tile,
-                                          mapping = aes(y = ID, x = .data[[level_names[[i]]]], fill = .data[[level_names[[i]]]]),
-                                          width = 3,
-                                          pwidth = 0,
-                                          color = 'white') +
+      circ_plot <- circ_plot +
+        geom_fruit(data = fruit_data,
+                   geom = geom_tile,
+                   mapping = aes(y = ID,
+                                 x = .data[[level_names[[i]]]],
+                                 fill = .data[[level_names[[i]]]]),
+                   width = 3,
+                   pwidth = 0,
+                   color = 'white') +
         scale_fill_manual(values = current_palette,
                           labels = level_labels) +
         ggnewscale::new_scale_fill()
-
-      #print(names(tree_nodes))
-      #attr(new_data_tree, paste0('_', level_names[[i]])) <- factor(names(tree_nodes))
-      #new_data_tree[[paste0('_', level_names[[i]])]] <- factor(new_data_tree[[paste0('_', level_names[[i]])]])
-      #new_data_tree <- groupOTU(new_data_tree, tree_nodes, paste0('_', level_names[[i]]))
     }
 
 
@@ -1727,8 +1762,8 @@ leaf_fraction_subtree <- function(data_1, data_2,
   percentages <- NULL
   terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
 
-  print('terminal labels')
-  print(terminal_labels)
+  # print('terminal labels')
+  # print(terminal_labels)
 
   # For each terminal_label value, determine the chemicals from data_2 that are
   # also in data_1. This checks using the INCHIKEY of each chemical.
@@ -1751,14 +1786,7 @@ leaf_fraction_subtree <- function(data_1, data_2,
                            ))
   )
 
-   #print(names(label_data))
-   #head(label_data)
-   #print(name_1)
-   #print(name_2)
-
   names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
-
-  #print(label_data)
 
   data_1_tree <- prune_and_display_subtree(prune_to = data_1,
                                            tax_level_labels = tax_level_labels,
