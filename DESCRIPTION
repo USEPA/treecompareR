@@ -2,7 +2,7 @@ Package: treecompareR
 Title: Tree Visualizations of Chemical Space
 Version: 1.0.0
 Authors@R: c(
-    person("Paul", "Kruse", email = "kruse.paul.phd@gmail.com", role = c("aut", "cre"),
+    person("Paul", "Kruse", email = "kruse.paul.phd@gmail.com", role = c("aut"),
            comment = c(ORCID = "0000-0001-5516-9717")),
     person("Caroline", "Ring", email = "ring.caroline.phd@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-0463-1251")))
