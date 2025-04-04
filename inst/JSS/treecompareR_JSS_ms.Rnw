@@ -43,7 +43,7 @@ library('treecompareR')
 
 %% - \Abstract{} almost as usual
 \Abstract{
-  This paper presents the \pkg{treecompareR} package for \proglang{R}, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from \pkg{ggplot2} and \pkg{ggtree} to provide visualizations tailored for use with taxonomic classification data. Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using ClassyFire(\url{http://classyfire.wishartlab.com/}), \pkg{treecompareR} also provides tools for use with more general taxonomies. \pkg{treecompareR} is available from GitHub at \url{https://github.com/USEPA/treecompareR}.
+  This paper presents the \pkg{treecompareR} package for \proglang{R}, which provides tools for reproducible visualizations of data through the use of taxonomies. The package builds on developments from \pkg{ggplot2} and \pkg{ggtree} to provide visualizations tailored for use with taxonomic classification data. Additionally, it provides tools that leverage developments in network analysis to compare data sets. While designed specifically for chemical classification objectives using ClassyFire (\url{http://classyfire.wishartlab.com/}), \pkg{treecompareR} also provides tools for use with more general taxonomies. \pkg{treecompareR} is available from GitHub at \url{https://github.com/USEPA/treecompareR}.
 }
 
 %% - \Keywords{} with LaTeX markup, at least one required
@@ -523,12 +523,11 @@ and all other packages used are available from the Comprehensive
 
 \section*{Acknowledgments}
 
-The authors would like to acknowledge the support of colleagues within the US EPA Center for Computational Toxicology and Exposure. In addition, this project was supported in part by an appointment to the Research Participation Program at the Center for Computational Toxicology and Exposure, Office of Research and Development, U.S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an interagency agreement between the U.S. Department of Energy and EPA.
+This research was supported in part by an appointment to the U.S. Environmental Protection Agency (EPA) Research Participation Program administered by the Oak Ridge Institute for Science and Education (ORISE) through an interagency agreement between the U.S. Department of Energy (DOE) and the U.S. Environmental Protection Agency. ORISE is managed by Oak Ridge Associated Universities (ORAU) under DOE contract number DE-SC0014664.
 
 \section*{Disclaimer}
 
-
-The views expressed in this publication are those of the authors and do not necessarily represent the views for policies of the U.S. Environmental Protection Agency. Reference to commercial products or services does not constitute endorsement.
+All opinions expressed in this paper are those of the authors and do not necessarily reflect the policies and views of US EPA, DOE, or ORAU/ORISE. Reference to commercial products or services does not constitute endorsement.
 
 
 
