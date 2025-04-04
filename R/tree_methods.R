@@ -1318,49 +1318,46 @@ compare_similarity_measures <- function(n){
   balanced_Jaccard <- similarity_matrix(tree = balanced,
                                         labels1 = balanced_labels,
                                         labels2 = balanced_labels,
-                                        tree = balanced,
                                         metric = "jaccard")
 
-  cat_Resnik <- similarity_matrix(labels1 = cat_labels,
-                                   labels2 = cat_labels,
-                                   tree = caterpillar,
+  cat_Resnik <- similarity_matrix(tree = caterpillar,
+                                  labels1 = cat_labels,
+                                  labels2 = cat_labels,
                                   metric = "resnik")
-  star_Resnik <- similarity_matrix(labels1 = star_labels,
-                                    labels2 = star_labels,
-                                    tree = star,
+  star_Resnik <- similarity_matrix(tree = star,
+                                   labels1 = star_labels,
+                                   labels2 = star_labels,
                                    metric = "resnik")
-  balanced_Resnik <- similarity_matrix(labels1 = balanced_labels,
-                                        labels2 = balanced_labels,
-                                        tree = balanced,
+  balanced_Resnik <- similarity_matrix(tree = balanced,
+                                       labels1 = balanced_labels,
+                                       labels2 = balanced_labels,
                                        metric = "resnik")
 
-  cat_Lin <- similarity_matrix(labels1 = cat_labels,
-                                   labels2 = cat_labels,
-                                   tree = caterpillar,
-                              metric = "lin")
-  star_Lin <- similarity_matrix(labels1 = star_labels,
-                                    labels2 = star_labels,
-                                    tree = star,
+  cat_Lin <- similarity_matrix( tree = caterpillar,
+                                labels1 = cat_labels,
+                                labels2 = cat_labels,
                                 metric = "lin")
-  balanced_Lin <- similarity_matrix(labels1 = balanced_labels,
-                                        labels2 = balanced_labels,
-                                        tree = balanced,
+  star_Lin <- similarity_matrix(tree = star,
+                                labels1 = star_labels,
+                                labels2 = star_labels,
+                                metric = "lin")
+  balanced_Lin <- similarity_matrix(tree = balanced,
+                                    labels1 = balanced_labels,
+                                    labels2 = balanced_labels,
                                     metric = "lin")
 
-  cat_JiangConrath <- similarity_matrix(labels1 = cat_labels,
-                                   labels2 = cat_labels,
-                                   tree = caterpillar,
-                                   metric = "jiang")
-  star_JiangConrath <- similarity_matrix(labels1 = star_labels,
-                                    labels2 = star_labels,
-                                    tree = star,
-                                    metric = "jiang")
-  balanced_JiangConrath <- similarity_matrix(labels1 = balanced_labels,
-                                        labels2 = balanced_labels,
-                                        tree = balanced,
-                                        metric = "jiang")
-
-
+  cat_JiangConrath <- similarity_matrix( tree = caterpillar,
+                                         labels1 = cat_labels,
+                                         labels2 = cat_labels,
+                                         metric = "jiang")
+  star_JiangConrath <- similarity_matrix(  tree = star,
+                                           labels1 = star_labels,
+                                           labels2 = star_labels,
+                                           metric = "jiang")
+  balanced_JiangConrath <- similarity_matrix( tree = balanced,
+                                              labels1 = balanced_labels,
+                                              labels2 = balanced_labels,
+                                              metric = "jiang")
 
   simulation <- data.frame("Name (number of tips)" = c(paste("Caterpillar", n),
                                       paste("Star", 2*n),
