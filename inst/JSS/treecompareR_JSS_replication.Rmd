@@ -15,6 +15,37 @@ knitr::opts_chunk$set(
 )
 ```
 
+This vignette provides code to reproduce the analysis in the article "treecompareR: Tree Visualizations of Chemical Space" (Paul M. Kruse and Caroline L. Ring, 2025).
+
+To install the development version of `treecompareR` from GitHub, execute the following code chunk.
+
+```{r install-treecompareR, eval = FALSE}
+#install the devtools package if not installed already
+if (!library(devtools, logical.return = TRUE)){
+  install.packages(devtools)
+  library(devtools)
+}
+
+#now install treecompareR from GitHub
+devtools::install_github('USEPA/treecompareR')
+```
+
+If the following packages are not already installed, you will need to install them from Bioconductor: `ggtree`, `ggtreeExtra`, and `ComplexHeatmap`. To do this, evaluate the following code chunk.
+
+```{r install-biocond-pkgs, eval = FALSE}
+#install package BiocManager if not already installed
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ggtree")
+BiocManager::install("ggtreeExtra")
+BiocManager::install("ComplexHeatmap")
+```
+
+Each code chunk in this R Markdown document that produces a figure has another "auxiliary" code chunk immediately following it, with option `eval = FALSE`, that contains code to save that figure as a PDF. By default, those auxiliary code chunks will not be run. However, you can execute them if you would like to save the figures. 
+
+Load necessary packages.
+
 ```{r setup}
 library(treecompareR)
 library(kableExtra)
