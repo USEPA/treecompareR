@@ -444,7 +444,7 @@ get_labels <- function(data,
 #'
 #' @param data A `data.frame` of classified entities. Variables must include at
 #'   least one of the taxonomy level names in \code{tax_level_labels}.
-#' @param entity_id_cols Character: the name of the variable in `data` with
+#' @param entity_id_col Character: the name of the variable(s) in `data` with
 #'   unique entity identifiers. If `NULL` (default), then each row is assumed to
 #'   be a unique entity.
 #' @param tax_level_labels A vector of taxonomy levels. Default is
@@ -456,7 +456,7 @@ get_labels <- function(data,
 #' get_terminal_labels(data = biosolids_class[1:10, ])
 #'
 get_terminal_labels <- function(data,
-                                entity_id_cols = NULL,
+                                entity_id_col = NULL,
                        tax_level_labels = chemont_tax_levels){
   labels <- add_terminal_label(dat = data,
                      entity_id_col = entity_id_col,
