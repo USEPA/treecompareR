@@ -4,18 +4,27 @@
 \alias{get_labels}
 \title{Get labels}
 \usage{
-get_labels(data, tax_level_labels = NULL)
+get_labels(data, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{data}{A data.table consisting of classified chemicals.}
+\item{data}{A \code{data.frame} of classified entities (or something that can be
+coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}})}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{A character vector of all of the taxonomy levels, in
+order. Default is \code{\link{chemont_tax_levels}}, the levels of the
+ChemOnt taxonomy.}
 }
 \value{
-A list of classification labels for each level of taxonomy.
+A \code{list} the same length as \code{tax_level_labels}: character vectors
+containing the unique classification labels in the data for each level of
+taxonomy.
 }
 \description{
-This is a helper function for retrieving labels in a data.table of classified
-chemicals, grouped by taxonomy level.
+Retrieve all labels in a \code{data.frame} of classified entities, grouped by
+taxonomy level.
+}
+\examples{
+#get labels for the first ten chemicals in the classified biosolids set
+get_labels(data = biosolids_class[1:10, ])
+
 }

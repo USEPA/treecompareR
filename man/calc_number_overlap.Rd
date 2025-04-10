@@ -2,8 +2,7 @@
 % Please edit documentation in R/data_methods.R
 \name{calc_number_overlap}
 \alias{calc_number_overlap}
-\title{calculate overlap between two classified datasets at the individual entity
-level}
+\title{Calculate overlap}
 \usage{
 calc_number_overlap(
   data_1,
@@ -14,23 +13,26 @@ calc_number_overlap(
 )
 }
 \arguments{
-\item{data_1}{A data.frame of classified entities}
+\item{data_1}{A \code{data.frame} of classified entities (or something that can be
+coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}})}
 
-\item{data_2}{A data.frame of classified entities}
+\item{data_2}{A \code{data.frame} of classified entities (or something that can be
+coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}})}
 
-\item{entity_id_col}{Name of column in data.frames that identifies unique
-entities. Must be the same for both \code{data_1} and \code{data_2}. If NULL
-(default), each row is assumed to be a unique entity.}
+\item{entity_id_col}{Character: Name of variable in \code{data_1} and \code{data_2} that
+identifies unique entities. Must be the same for both \code{data_1} and
+\code{data_2}. If \code{NULL} (default), each row is assumed to be a unique
+entity.}
 
 \item{at_level}{Taxonomy level at which to calculate overlap. Default
 \code{"terminal"} calculates overlap for terminal labels. Otherwise, may be
 one of \code{tax_level_labels} to calculate overlap at a more-general level
 of the taxonomy.}
 
-\item{tax_level_labels}{Taxonomy levels.}
+\item{tax_level_labels}{Taxonomy levels. Default \link{chemont_tax_levels}.}
 }
 \value{
-A data.frame with a number of rows equal to the number of unique
+A \code{data.frame} with a number of rows equal to the number of unique
 labels at the specified level that occur either in \code{data_1} or
 \code{data_2}. The first variable is named with the value of
 \code{at_level}, and contains the unique labels at that level that occur
@@ -38,12 +40,28 @@ either in \code{data_1} or \code{data_2}. The other variables are:
 \item{n_1}{The number of entities for this label in \code{data_1}}
 \item{n_2}{The number of entities for this label in \code{data_2}}
 \item{n_intersect}{The number of entities for this label that are in both
-\code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
+\code{data_1} and \code{data_2}}
+\item{n_union}{The number of entities for
 this label that are in either \code{data_1} or \code{data_2}}
 \item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
 and \code{data_2} for each label, \code{n_intersect / n_union}}
 }
 \description{
-calculate overlap between two classified datasets at the individual entity
+Calculate overlap between two datasets
+}
+\details{
+Calculate overlap between two classified datasets at the individual entity
 level
+}
+\examples{
+#show the overlap between BIOSOLIDS 2021 and USGS_WATER data sets
+#for organic and inorganic chemicals
+calc_number_overlap(data_1 = biosolids_class,
+ data_2 = usgs_class,
+ at_level = "kingdom",
+ tax_level_labels = chemont_tax_levels)
+
+}
+\author{
+Caroline Ring, Paul Kruse
 }

@@ -4,19 +4,42 @@
 \alias{add_terminal_label}
 \title{Add terminal label}
 \usage{
-add_terminal_label(data, tax_level_labels = chemont_tax_levels)
+add_terminal_label(
+  dat,
+  entity_id_col = NULL,
+  tax_level_labels = chemont_tax_levels
+)
 }
 \arguments{
-\item{data}{A data.frame of classified chemicals.}
+\item{dat}{A \code{data.frame} of classified entities (or something that can be
+coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}}). Should have variables
+corresponding to one or more of the items in \code{tax_level_labels}.}
 
-\item{tax_level_labels}{A vector of taxonomy levels. Default is
-\code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.}
+\item{entity_id_col}{Character: a name, or vector of names, of variables in
+\code{dat} that uniquely identifies entities. Default \code{NULL} assumes that each
+row is a unique entity.}
+
+\item{tax_level_labels}{A character vector of all levels in the taxonomy.
+Default is \code{\link{chemont_tax_levels}} to use the levels of the
+ChemOnt taxonomy.}
 }
 \value{
-A new data.frame, augmenting the input data.frame with a column
-consisting of the terminal labels.
+The input \code{data.frame}, with new variables \code{terminal_label}
+containing the terminal label for each entity, and \code{terminal_level}
+containing the terminal taxonomy level for each entity (as an integer).
 }
 \description{
-This function takes in a data.frame of classified entities and determines the
-terminal classification label for each entity.
+Add terminal classification labels
+}
+\details{
+Adds the terminal classification label for each entity to a classified data
+set.
+
+The terminal classifications will be added in a new variable
+\code{terminal_level}. If a variable with that name already exists in the data,
+then it will be overwritten (with a warning).
+}
+\examples{
+#add terminal labels to the first ten chemicals in the `biosolids_class` data set
+ add_terminal_label(data = biosolids_class[1:10, ])
 }

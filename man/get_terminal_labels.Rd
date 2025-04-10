@@ -11,11 +11,12 @@ get_terminal_labels(
 )
 }
 \arguments{
-\item{data}{A data.frame consisting of classified items. Rows are entities;
-columns must include all names in \code{tax_level_labels}.}
+\item{data}{A \code{data.frame} of classified entities. Variables must include at
+least one of the taxonomy level names in \code{tax_level_labels}.}
 
-\item{entity_id_cols}{An alternate parameter giving a column name specifying
-the id's of the analytes in each row.}
+\item{entity_id_cols}{Character: the name of the variable in \code{data} with
+unique entity identifiers. If \code{NULL} (default), then each row is assumed to
+be a unique entity.}
 
 \item{tax_level_labels}{A vector of taxonomy levels. Default is
 \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.}
@@ -25,6 +26,10 @@ A vector of terminal classification labels, one for each entity in
 the input data.
 }
 \description{
-This is a helper function for retrieving terminal labels in a data.frame of
-classified chemicals.
+Retrieve terminal labels in a \code{data.frame} of classified entities.
+}
+\examples{
+#get terminal labels for the first ten chemicals in the classified biosolids set
+get_terminal_labels(data = biosolids_class[1:10, ])
+
 }

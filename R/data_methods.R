@@ -1,33 +1,59 @@
 #' Add terminal label
 #'
-#' This function takes in a data.frame of classified entities and determines the
-#' terminal classification label for each entity.
+#' Add terminal classification labels
 #'
-#' @param data A data.frame of classified chemicals.
-#' @param tax_level_labels A vector of taxonomy levels. Default is
-#'   \code{\link{chemont_tax_levels}} to use the levels of the ChemOnt taxonomy.
-# @param tree An alternate parameter giving a different tree structure if not
-#   using ChemOnt taxonomy.
-#' @return A new data.frame, augmenting the input data.frame with a column
-#'   consisting of the terminal labels.
+#' Adds the terminal classification label for each entity to a classified data
+#' set.
+#'
+#' The terminal classifications will be added in a new variable
+#' `terminal_level`. If a variable with that name already exists in the data,
+#' then it will be overwritten (with a warning).
+#'
+#' @param dat A `data.frame` of classified entities (or something that can be
+#'   coerced to one using [base::as.data.frame()]). Should have variables
+#'   corresponding to one or more of the items in `tax_level_labels`.
+#' @param entity_id_col Character: a name, or vector of names, of variables in
+#'   `dat` that uniquely identifies entities. Default `NULL` assumes that each
+#'   row is a unique entity.
+#' @param tax_level_labels A character vector of all levels in the taxonomy.
+#'   Default is \code{\link{chemont_tax_levels}} to use the levels of the
+#'   ChemOnt taxonomy.
+#' @return The input `data.frame`, with new variables `terminal_label`
+#'   containing the terminal label for each entity, and `terminal_level`
+#'   containing the terminal taxonomy level for each entity (as an integer).
 #' @export
-#' @import data.table
 #' @importFrom magrittr `%>%`
-add_terminal_label <- function(data,
+#' @examples
+#' #add terminal labels to the first ten chemicals in the `biosolids_class` data set
+#'  add_terminal_label(data = biosolids_class[1:10, ])
+add_terminal_label <- function(dat,
+                               entity_id_col = NULL,
                                tax_level_labels = chemont_tax_levels){
-  label <- NULL
-  tax_level <- NULL
-  terminal_tax_level <- NULL
 
-  if (is(data, 'data.table')){
-    data <- as.data.frame(data)
-  }
+  dat <- as.data.frame(dat)
+
+  #if no entity ID column specified,
+  #create one with row numbers
+  id_null <- FALSE
+  if(is.null(entity_id_col)){
+    id_null <- TRUE
+    #add a new variable to the data
+    #ensure it does not conflict with any of the existing variable names
+    entity_id_col <- rev(
+      make.names(
+        names = c(names(dat),
+                  "id"
+        ),
+        unique = TRUE
+      )
+    )[1]
+    dat[[entity_id_col]] <- 1:nrow(dat)
+    }
 
 
-  data_orig <- copy(data) #save original input data
 
   #check that the input data.frame has been classified properly
-  if(!any(tax_level_labels %in% names(data))){
+  if(!any(tax_level_labels %in% names(dat))){
     stop(paste("The input data.frame does not appear to be classified",
                "according to the taxonomy with levels defined in",
                "the input 'tax_level_labels' as",
@@ -41,94 +67,106 @@ add_terminal_label <- function(data,
 
   #if data.frame already has terminal label data, throw a warning,
   #but proceed
-  if("terminal_label" %in% names(data)){
+  if("terminal_label" %in% names(dat)){
     warning(paste("Column 'terminal_label' already exists",
     "in the input data.frame;",
     "it will be overwritten"))
-    data[["terminal_label"]] <- NULL
-    data_orig[["terminal_label"]] <- NULL
+    dat[["terminal_label"]] <- NULL
   }
 
-  if("terminal_level" %in% names(data)){
+  if("terminal_level" %in% names(dat)){
     warning(paste("Column 'terminal_level' already exists",
                   "in the input data.frame;",
                   "it will be overwritten"))
-    data[["terminal_level"]] <- NULL
-    data_orig[["terminal_level"]] <- NULL
+    dat[["terminal_level"]] <- NULL
   }
 
   #if data.frame is missing one or more levels (but not all of them),
   #throw a warning and treat those levels as unused (i.e. all NA)
-  if(!all(tax_level_labels %in% names(data))){
+  if(!all(tax_level_labels %in% names(dat))){
     missing_tax_levels <- setdiff(tax_level_labels,
-                                  names(data))
+                                  names(dat))
     warning(paste("Input data.frame is missing columns for taxonomy levels",
             paste(missing_tax_levels, collapse = "; "),
             "These levels will be treated as though they were unused",
             "(i.e., as though those columns were present,",
             "but filled with NAs)."))
     #add the missing columns with NAs
-    data[missing_tax_levels] <- rep(NA_character_, nrow(data))
-  }
-
-  #entity ID -- all other columns
-  entity_id_col <- setdiff(names(data),
-                           tax_level_labels)
-#if no other columns, add row numbers as columns
-  if(length(entity_id_col)==0){
-    data$rowid <- 1:nrow(data)
-    entity_id_cols <- "rowid"
+    dat[missing_tax_levels] <- rep(NA_character_, nrow(dat))
   }
 
   #sort taxonomy level columns in order as given in tax_level_labels
   #this will ensure that most-specific (terminal) label comes last
-  data <- data[c(setdiff(names(data), #all other columns come first
+  dat <- dat[c(setdiff(names(dat), #all other columns come first
                          tax_level_labels),
                  tax_level_labels)]
 
-  labels <- tidyr::pivot_longer(data, #reshape to longer format
-                                cols = tidyselect::all_of(tax_level_labels),
-                                names_to = "tax_level",
-                                values_to = "label") %>%
-    dplyr::filter(!is.na(label)) %>% #remove any unused levels
-    dplyr::group_by( #group by item (e.g. chemical)
-      dplyr::across( #assumed identified by everything *except* tax_level_labels
-        dplyr::all_of(setdiff(names(data),
-                              tax_level_labels)
-        )
+  dat_orig <- dat #save original input data
+
+
+  labels <- dat %>%
+    dplyr::select(dplyr::all_of(c(entity_id_col,
+                                  tax_level_labels))) %>%
+    tidyr::pivot_longer(cols = dplyr::all_of(tax_level_labels),
+                        names_to = "tax_level",
+                        values_to = "label") %>%
+    dplyr::filter(!is.na(label)) %>% #remove unused levels
+    dplyr::distinct( #group by entity
+      dplyr::pick(
+        dplyr::all_of(entity_id_col),
+        label,
+        tax_level
       )
     ) %>%
-    dplyr::slice_tail() %>%  #take most-specific label for each item (i.e. last row)
-    dplyr::rename(terminal_label = label, #rename cols to refer to "terminal"
+    dplyr::group_by(
+      dplyr::pick(
+        dplyr::all_of(entity_id_col)
+      )
+    ) %>%
+    dplyr::slice_tail() %>%  #take most-specific label for each item
+    #(i.e. last row)
+   dplyr::rename(terminal_label = label, #rename cols to refer to "terminal"
                   terminal_tax_level = tax_level) %>%
     dplyr::mutate(terminal_level = match(terminal_tax_level,
                                          tax_level_labels)) %>%
     dplyr::mutate(terminal_tax_level = NULL)
 
-  #merge terminal label & terminal level info back into original
-  data_out <- merge(data_orig,
-                    labels,
-                    by = setdiff(names(data_orig),
-                                           tax_level_labels))
 
-  return(data_out)
+  #merge terminal label & terminal level info back into original
+  dat_out <- merge(dat_orig,
+                    labels,
+                    by = entity_id_col)
+
+  #if a new ID variable was added, remove it
+  if(id_null %in% TRUE){
+    dat_out[[entity_id_col]] <- NULL
+  }
+
+  return(dat_out)
 }
 
 
-#'calculate overlap between two classified datasets at the individual entity
+#'Calculate overlap
+#'
+#'Calculate overlap between two datasets
+#'
+#'Calculate overlap between two classified datasets at the individual entity
 #'level
 #'
-#'@param data_1 A data.frame of classified entities
-#'@param data_2 A data.frame of classified entities
-#'@param entity_id_col Name of column in data.frames that identifies unique
-#'  entities. Must be the same for both \code{data_1} and \code{data_2}. If NULL
-#'  (default), each row is assumed to be a unique entity.
+#'@param data_1 A `data.frame` of classified entities (or something that can be
+#'   coerced to one using [base::as.data.frame()])
+#'@param data_2 A `data.frame` of classified entities (or something that can be
+#'   coerced to one using [base::as.data.frame()])
+#'@param entity_id_col Character: Name of variable in `data_1` and `data_2` that
+#'  identifies unique entities. Must be the same for both \code{data_1} and
+#'  \code{data_2}. If `NULL` (default), each row is assumed to be a unique
+#'  entity.
 #'@param at_level Taxonomy level at which to calculate overlap. Default
 #'  \code{"terminal"} calculates overlap for terminal labels. Otherwise, may be
 #'  one of \code{tax_level_labels} to calculate overlap at a more-general level
 #'  of the taxonomy.
-#'@param tax_level_labels Taxonomy levels.
-#'@return A data.frame with a number of rows equal to the number of unique
+#'@param tax_level_labels Taxonomy levels. Default [chemont_tax_levels].
+#'@return A `data.frame` with a number of rows equal to the number of unique
 #'  labels at the specified level that occur either in \code{data_1} or
 #'  \code{data_2}. The first variable is named with the value of
 #'  \code{at_level}, and contains the unique labels at that level that occur
@@ -136,15 +174,32 @@ add_terminal_label <- function(data,
 #'  \item{n_1}{The number of entities for this label in \code{data_1}}
 #'  \item{n_2}{The number of entities for this label in \code{data_2}}
 #'  \item{n_intersect}{The number of entities for this label that are in both
-#'  \code{data_1} and \code{data_2}} \item{n_union}{The number of entities for
+#'  \code{data_1} and \code{data_2}}
+#'   \item{n_union}{The number of entities for
 #'  this label that are in either \code{data_1} or \code{data_2}}
 #'  \item{simil}{The Jaccard similarity of the sets of entities in \code{data_1}
 #'  and \code{data_2} for each label, \code{n_intersect / n_union}}
+#' @export
+#' @author Caroline Ring, Paul Kruse
+#' @examples
+#' #show the overlap between BIOSOLIDS 2021 and USGS_WATER data sets
+#' #for organic and inorganic chemicals
+#' calc_number_overlap(data_1 = biosolids_class,
+#'  data_2 = usgs_class,
+#'  at_level = "kingdom",
+#'  tax_level_labels = chemont_tax_levels)
+#'
 calc_number_overlap <- function(data_1,
                                 data_2,
                                 entity_id_col = NULL,
                                 at_level = "terminal",
                                 tax_level_labels = chemont_tax_levels){
+
+  #if no entity ID column specified, then set it to be all shared variables between the two data sets
+  if(is.null(entity_id_col)){
+  entity_id_col <- intersect(names(data_1), names(data_2))
+  }
+
   if(at_level %in% "terminal"){
   #get terminal labels if not already there
   if(!("terminal_label" %in% names(data_1))){
@@ -187,23 +242,47 @@ calc_number_overlap <- function(data_1,
     }
   }
 
-  count_1 <- data_1 %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
-    dplyr::summarise(n_1 = dplyr::n_distinct(
+  dat1_grp <- data_1 %>%
+    dplyr::group_by(
       dplyr::across(
-      #  dplyr::all_of(entity_id_col)
+        dplyr::all_of(group_col)
+      )
+    )
+
+  dat2_grp <- data_2 %>%
+    dplyr::group_by(
+      dplyr::across(
+        dplyr::all_of(group_col)
+      )
+    )
+
+  if(is.null(entity_id_col)){
+    count_1 <- dat1_grp %>%
+      dplyr::count() %>%
+      dplyr::rename(n_1 = n)
+    count_2 <- dat2_grp %>%
+      dplyr::count() %>%
+      dplyr::rename(n_2 = n)
+
+  }else{
+    count_1 <- dat1_grp %>%
+      dplyr::summarise(
+        n_1 = dplyr::n_distinct(
+          dplyr::across(
+            dplyr::all_of(entity_id_col)
+          )
         )
       )
-      )
 
-  count_2 <- data_2 %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_col))) %>%
-    dplyr::summarise(n_2 = dplyr::n_distinct(
-      dplyr::across(
-      #  dplyr::all_of(entity_id_col)
+    count_2 <- dat2_grp %>%
+      dplyr::summarise(
+        n_2 = dplyr::n_distinct(
+          dplyr::across(
+            dplyr::all_of(entity_id_col)
+          )
+        )
       )
-    )
-    )
+  }
 
   df_count <- merge(count_1,
                     count_2,
@@ -215,28 +294,12 @@ calc_number_overlap <- function(data_1,
   df_count$n_1[is.na(df_count$n_1)] <- 0
   df_count$n_2[is.na(df_count$n_2)] <- 0
 
-  get_overlap <-  function(grouplab,
-                           group_col,
-                           entity_id_col){
-    id_1 <- data_1[data_1[[group_col]] %in% grouplab,]
-    id_2 <- data_2[data_2[[group_col]] %in% grouplab,]
-    shared_names <- intersect(names(data_1), names(data_2))
-    #n_intersect <- length(intersect(id_1, id_2))
-    n_intersect <- dim(dplyr::inner_join(id_1, id_2, by = shared_names))[[1]]
-    n_union <- dim(dplyr::full_join(id_1, id_2, by = shared_names))[[1]]
-    #n_union <-  length(union(id_1, id_2))
-    simil <- n_intersect/n_union
-    data.frame("group" = grouplab,
-               "n_intersect" = n_intersect,
-               "n_union" = n_union,
-               "simil" = simil
-               )
-  }
-
   df_list <- sapply(df_count[[group_col]],
                     get_overlap,
                     group_col = group_col,
                     entity_id_col = entity_id_col,
+                    data_1 = data_1,
+                    data_2 = data_2,
                     simplify = FALSE,
                     USE.NAMES = TRUE)
 
@@ -254,32 +317,88 @@ calc_number_overlap <- function(data_1,
 
 }
 
+#'Get overlap
+#'
+#'Helper function for [calculate_overlap()]
+#'
+#'Calculates number of overlapping entities in two data sets for a particular
+#'classification label.
+#'
+#'@param grouplab Character: the group label
+#'@param group_col Character: the variable name for the group label (i.e., the
+#'  taxonomy level)
+#'@param entity_id_col Character vector: variable name(s) in `data_1` and
+#'  `data_2` that define the unique entity ID
+#'@param data_1 A data.frame of classified entities
+#'@param data_2 A data.frame of classified entities
+#'@return A `data.frame` with variables `group` (containing `grouplab`),
+#'  `n_intersect` (containing the number of intersecting entities in that group
+#'  for the two datasets), `n_union` (containing the number of entities in the
+#'  union of that group for the two datasets), and `simil` (containing the
+#'  fractional similarity or overlap of entities in that group between the two
+#'  datasets)
+#' @examples
+#' get_overlap(grouplab = "Organic compounds",
+#' group_col = "kingdom",
+#' data_1 = biosolids_class,
+#' data_2 = usgs_class)
+#'
+get_overlap <-  function(grouplab,
+                         group_col,
+                         entity_id_col = NULL,
+                         data_1,
+                         data_2){
+  #if no entity ID column specified, then set it to be all shared variables between the two data sets
+  if(is.null(entity_id_col)){
+    entity_id_col <- intersect(names(data_1), names(data_2))
+  }
+
+  id_1 <- data_1[data_1[[group_col]] %in% grouplab, ]
+  id_2 <- data_2[data_2[[group_col]] %in% grouplab,]
+
+  n_intersect <- dim(dplyr::inner_join(id_1,
+                                       id_2,
+                                       by = entity_id_col))[[1]]
+  n_union <- dim(dplyr::full_join(id_1,
+                                  id_2,
+                                  by = entity_id_col))[[1]]
+  simil <- n_intersect/n_union
+  data.frame("group" = grouplab,
+             "n_intersect" = n_intersect,
+             "n_union" = n_union,
+             "simil" = simil
+  )
+}
+
 
 #' Get labels at a specified taxonomy level
 #'
-#' This function takes in a data.table of chemicals with classification data and
-#' a taxonomy level, and returns all the unique labels for the given taxonomy
-#' level.
+#' Get all the unique labels for a given taxonomy level in a given set of
+#' classified entities.
 #'
-#' @param data A data.frame with data that has been classified by some taxonomy.
-#' @param level_label A string indicating a taxonomy level of the classified
-#'   data.
-#' @param tax_level_labels A vector of all of the taxonomy levels, in order.
+#' @param data A `data.frame` of classified entities (or something that can be
+#'   coerced to one using [base::as.data.frame()])
+#' @param level_label Character: A taxonomy level of the classified data.
+#' @param tax_level_labels A character vector of all of the taxonomy levels, in order.
 #'   Default is \code{\link{chemont_tax_levels}}, the levels of the ChemOnt
 #'   taxonomy.
-#' @return The unique labels corresponding to the given level and classified
-#'   data.
-#' @import data.table
+#' @return Character vector: The unique labels in `data` at the given taxonomy
+#'   level.
+#' @examples
+#' #get all the superclass labels in the BIOSOLIDS2021 data
+#' get_label_level(data = biosolids_class,
+#' level_label = "superclass")
+#'
 get_label_level <- function(data,
                             level_label,
                             tax_level_labels = chemont_tax_levels){
-  data <- copy(data.table(data))
+  data <- as.data.frame(data)
 
   if (!(level_label %in% names(data) | !(level_label %in% tax_level_labels)))
     stop(paste('Please input a valid label!', level_label))
 
   # Collect the labels
-  labels <- data[, sapply(.SD, unique), .SDcols = c(level_label)]
+  labels <- unique(data[[level_label]])
 
   # Remove NA from list of labels
   labels <- labels[!is.na(labels)]
@@ -292,156 +411,150 @@ get_label_level <- function(data,
 
 #' Get labels
 #'
-#' This is a helper function for retrieving labels in a data.table of classified
-#' chemicals, grouped by taxonomy level.
+#' Retrieve all labels in a `data.frame` of classified entities, grouped by
+#' taxonomy level.
 #'
-#' @param data A data.table consisting of classified chemicals.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @return A list of classification labels for each level of taxonomy.
-get_labels <- function(data, tax_level_labels = NULL){
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
-  }
-  labels <- sapply(tax_level_labels, function(t) {get_label_level(data, t, tax_level_labels)})
+#' @param data A `data.frame` of classified entities (or something that can be
+#'   coerced to one using [base::as.data.frame()])
+#' @param tax_level_labels A character vector of all of the taxonomy levels, in
+#'   order. Default is \code{\link{chemont_tax_levels}}, the levels of the
+#'   ChemOnt taxonomy.
+#' @return A `list` the same length as `tax_level_labels`: character vectors
+#'   containing the unique classification labels in the data for each level of
+#'   taxonomy.
+#' @examples
+#' #get labels for the first ten chemicals in the classified biosolids set
+#' get_labels(data = biosolids_class[1:10, ])
+#'
+get_labels <- function(data,
+                       tax_level_labels = chemont_tax_levels){
+  labels <- sapply(tax_level_labels,
+                   function(t) {
+                     get_label_level(data = data,
+                                     level_label = t,
+                                     tax_level_labels = tax_level_labels)
+                     }
+                   )
   labels
 }
 
 #' Get terminal labels
 #'
-#' This is a helper function for retrieving terminal labels in a data.frame of
-#' classified chemicals.
+#' Retrieve terminal labels in a `data.frame` of classified entities.
 #'
-#' @param data A data.frame consisting of classified items. Rows are entities;
-#'   columns must include all names in \code{tax_level_labels}.
-#' @param entity_id_cols An alternate parameter giving a column name specifying
-#'   the id's of the analytes in each row.
+#' @param data A `data.frame` of classified entities. Variables must include at
+#'   least one of the taxonomy level names in \code{tax_level_labels}.
+#' @param entity_id_cols Character: the name of the variable in `data` with
+#'   unique entity identifiers. If `NULL` (default), then each row is assumed to
+#'   be a unique entity.
 #' @param tax_level_labels A vector of taxonomy levels. Default is
 #'   \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.
 #' @return A vector of terminal classification labels, one for each entity in
 #'   the input data.
+#' @examples
+#' #get terminal labels for the first ten chemicals in the classified biosolids set
+#' get_terminal_labels(data = biosolids_class[1:10, ])
+#'
 get_terminal_labels <- function(data,
                                 entity_id_cols = NULL,
                        tax_level_labels = chemont_tax_levels){
-  label <- NULL
-
-  #check if data is data.table or data.frame. If data.table, cast as data.frame
-  if (data.table::is.data.table(class(data))){
-    data <- as.data.frame(data)
-  }
-
-  #check that the input data.frame has been classified properly
-  if(!any(tax_level_labels %in% names(data))){
-    stop(paste("The input data.frame does not appear to be classified",
-               "according to the taxonomy with levels defined in",
-               "the input 'tax_level_labels' as",
-               paste(tax_level_labels, collapse = ", "),
-               "because the input data.frame does not contain any columns",
-               "named for these taxonomy levels.",
-               "Please check that the input data.frame is classified,",
-               "and/or check that the input 'tax_level_labels'",
-               "matches the taxonomy levels of the classified data.frame."))
-  }
-
-
-
-  #if data.frame is missing one or more taxonomy levels (but not all of them),
-  #throw a warning and treat those levels as unused (i.e. all NA)
-  if(!all(tax_level_labels %in% names(data))){
-    missing_tax_levels <- setdiff(tax_level_labels,
-                                  names(data))
-    warning(paste("Input data.frame is missing columns for taxonomy levels",
-                  paste(missing_tax_levels, collapse = "; "),
-                  "These levels will be treated as though they were unused",
-                  "(i.e., as though those columns were present,",
-                  "but filled with NAs)."))
-    #add the missing columns with NAs
-    data[missing_tax_levels] <- rep(NA_character_, nrow(data))
-  }
-
-  #if entity ID column not specified, then assume rows are entities
-  if(is.null(entity_id_cols)){
-    data <- data %>% tibble::rowid_to_column(var = "rowid")
-    entity_id_cols <- "rowid"
-  }
-
-  #sort columns in order as specified in tax_level_labels
-  #this ensures taht most specific labels come last
-  data <- data[c(setdiff(names(data), #all other columns come first
-                         tax_level_labels),
-                 tax_level_labels)]
-
-  labels <- tidyr::pivot_longer(data, #reshape to longer format
-                                cols = tidyselect::all_of(tax_level_labels),
-                                names_to = "tax_level",
-                                values_to = "label") %>%
-    dplyr::filter(!is.na(label) & #remove any unused levels: NA or blank
-                    nzchar(trimws(label))) %>%
-    dplyr::group_by( #group by entity (e.g. chemical)
-      dplyr::across(
-        tidyselect::all_of(entity_id_cols)
-      )
-    ) %>%
-    dplyr::slice_tail() %>% #take most-specific label for each item
-    dplyr::pull(label) #return as a vector
-
+  labels <- add_terminal_label(dat = data,
+                     entity_id_col = entity_id_col,
+                     tax_level_labels = tax_level_labels)[["terminal_label"]]
   return(labels)
 }
 
-#' Number of labels
+#' Count entities per label
 #'
-#' This is a helper function to determine number of occurrences for each label
-#' in a data.table containing chemicals and their classification data.
+#' Given a `data.frame` of classified entities, determine the number of entities
+#' with each label at each level of the taxonomy.
 #'
-#' @param data A data.table of chemicals with classifications.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not  using ClassyFire taxonomy
-#' @return A named list of chemical labels and their number of occurrences.
-get_number_of_labels <- function(data,
+#' @param data A `data.frame` of classified entities.
+#' @param entity_id_col `NULL` (default) or character vector giving the name(s)
+#'   of variables in `data` that specify unique entities. If `NULL`, each row
+#'   will be treated as a unique entity.
+#' @param tax_level_labels A character vector of taxonomy levels. Default is
+#'   \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.
+#' @return A list the same length as , and named after, `tax_level_labels`,
+#'   where each element is a `data.frame` with first variable `label`, giving
+#'   the labels, and second variable `n`, giving the count of entities with each
+#'   label in the data.
+#' @examples
+#' #count entities per label in the first ten BIOSOLIDS2021 chemicals
+#' count_entities_per_label(data = biosolids_class[1:10, ])
+#'
+count_entities_per_label <- function(data,
+                              entity_id_col = NULL,
                                  tax_level_labels = chemont_tax_levels){
 
-
-  #labels <- get_terminal_labels(data = data, tax_level_labels = tax_level_labels)
-  labels <- get_labels(data = data, tax_level_labels = tax_level_labels)
-
-  N <- sum(sapply(labels, length))
-
-  number_of_labels <- integer(N)
-  names(number_of_labels) <- unlist(unname(labels))
-
-  #print(names(number_of_labels))
-
-  for (i in seq_along(tax_level_labels)){
-    #print(paste('There are ', length(labels[[i]]), 'levels', 'at label', names(labels)[[i]]))
-    #print(labels[[i]])
-
-    for (j in seq_along(labels[[i]])){
-      index <- which(names(number_of_labels) == labels[[i]][[j]])
-      #print(length(index))
-      #print(paste(tax_level_labels[[i]], labels[[i]][[j]]))
-      #print(names(labels)[[i]])
-      #print(paste(labels[[i]][[j]], '\n', j))
-      #print(index)
-      #print(data[, .(names(labels)[[i]])])
-      #print(data[, .SD, .SDcols = c(names(labels)[[i]])])
-      number_of_labels[index] <- length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]]))
-      #print(length(which(unname(unlist(data[, .SD, .SDcols = c(names(labels)[[i]])])) == labels[[i]][[j]])))
-    }
+  #if no entity ID column specified,
+  #create one with row numbers
+  id_null <- FALSE
+  if(is.null(entity_id_col)){
+    id_null <- TRUE
+    #add a new variable to the data
+    #ensure it does not conflict with any of the existing variable names
+    entity_id_col <- rev(
+      make.names(
+        names = c(names(dat),
+                  "id"
+        ),
+        unique = TRUE
+      )
+    )[1]
+    dat[[entity_id_col]] <- 1:nrow(dat)
   }
 
-  return(number_of_labels)
+
+label_counts <-  sapply(tax_level_labels,
+         function(this_level){
+           if(this_level %in% names(data)){
+           data %>%
+             dplyr::group_by(
+               dplyr::pick(
+                 dplyr::all_of(this_level)
+               )
+             ) %>%
+             dplyr::count(
+               dplyr::pick(
+                 dplyr::all_of(entity_id_col)
+               )
+             ) %>%
+             dplyr::ungroup() %>%
+               as.data.frame() %>%
+             setNames(c("label",
+                        "n"))
+           }else{
+             #if no variable for this level in the data,
+             #return data.frame with label NA and n = number of rows
+             #this is the same behavior as if a variable were present but all-NA
+             data.frame(label = NA_character_,
+                        n = nrow(data))
+           }
+         },
+        simplify = FALSE,
+        USE.NAMES = TRUE)
+
+  return(label_counts)
 }
 
-#' Label length
+#' Count unique labels
 #'
-#' This is a helper function that returns the number of labels per taxonomy
-#' level for a given data.table of chemicals and their classification data.
+#' Count the number of unique labels per taxonomy level in a classified data set.
 #'
-#' @param label_list A named list of labels corresponding to taxonomy levels.
+#' @param data A `data.frame` of classified entities.
+#' @param tax_level_labels A character vector of taxonomy levels. Default is
+#'   \code{\link{chemont_tax_levels}}, the levels of the ClassyFire taxonomy.
 #' @return The number of labels per taxonomy level.
-get_label_length <- function(label_list){
-  lengths <- sapply(label_list, length)
+#' @examples
+#' #count unique labels in the first ten BIOSOLIDS2021 chemicals
+#' count_labels(data = biosolids_class[1:10, ])
+#'
+count_labels <- function(data,
+                             tax_level_labels = chemont_tax_levels){
+
+  lengths <- sapply(get_labels(data = data,
+                               tax_level_labels = tax_level_labels),
+                    length)
   lengths
 }

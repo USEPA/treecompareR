@@ -7,21 +7,26 @@
 get_label_level(data, level_label, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{data}{A data.frame with data that has been classified by some taxonomy.}
+\item{data}{A \code{data.frame} of classified entities (or something that can be
+coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}})}
 
-\item{level_label}{A string indicating a taxonomy level of the classified
-data.}
+\item{level_label}{Character: A taxonomy level of the classified data.}
 
-\item{tax_level_labels}{A vector of all of the taxonomy levels, in order.
+\item{tax_level_labels}{A character vector of all of the taxonomy levels, in order.
 Default is \code{\link{chemont_tax_levels}}, the levels of the ChemOnt
 taxonomy.}
 }
 \value{
-The unique labels corresponding to the given level and classified
-data.
+Character vector: The unique labels in \code{data} at the given taxonomy
+level.
 }
 \description{
-This function takes in a data.table of chemicals with classification data and
-a taxonomy level, and returns all the unique labels for the given taxonomy
-level.
+Get all the unique labels for a given taxonomy level in a given set of
+classified entities.
+}
+\examples{
+#get all the superclass labels in the BIOSOLIDS2021 data
+get_label_level(data = biosolids_class,
+level_label = "superclass")
+
 }
