@@ -2,19 +2,24 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_label_from_node}
 \alias{get_label_from_node}
-\title{Get label for a tip or internal node ID in a phylo tree}
+\title{Get label from node}
 \usage{
 get_label_from_node(node, tree)
 }
 \arguments{
-\item{node}{Vector of node ID numbers in phylo tree.}
+\item{node}{Integer vector of node ID numbers in phylo tree.}
 
-\item{tree}{phylo tree object}
+\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 }
 \value{
 Character vector of tip or internal node labels corresponding to each
 node ID. \code{NA_character_} if no node label corresponds to the input
 node ID.
+@author Caroline Ring, Paul Kruse
+@examples
+get_label_from_node(node = 35, tree = chemont_tree)
+get_label_from_node(node = c(35, 42), tree = chemont_tree)
 }
 \description{
 Get label for a tip or internal node ID in a phylo tree

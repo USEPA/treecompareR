@@ -7,31 +7,49 @@
 bind_entities(
   tree,
   data,
-  entity_id_col,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5", "level6",
-    "level7", "level8", "level9", "level10", "level11")
+  entity_id_col = NULL,
+  tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{tree}{The base tree as a \code{phylo}-class object. Tips will be bound
-to this tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class). Tips will be bound to
+this tree.}
 
-\item{data}{Either one data.frame, or a list of data.frames, containing
-classified entities. Each row of the data.frame is one entity. The
-data.frames must include the column names specifeid in
-\code{tax_level_labels} and \code{entity_id_col}.}
+\item{data}{Either one \code{data.frame}, or a list of \code{data.frames}, containing
+classified entities. The data.frames must include the column names
+specifiedin \code{tax_level_labels} and \code{entity_id_col}.}
 
-\item{entity_id_col}{The column name in \code{data} containing identifying
-labels for the entities.}
+\item{entity_id_col}{Character vector: One or more variable name(s) in
+\code{data} that, together, uniquely identify the entities. Default \code{NULL},
+which treats each row in \code{data} as a unique entity named \code{entity1},
+\code{entity2}, ... for as many rows as there are in the data. If a vector of
+variable names is provided, entities will be named by concatenating rows of
+the specified variables.}
 
 \item{tax_level_labels}{Taxonomy levels used for classification in
-\code{data}. Default is the Chemont taxonomy levels: \code{c('kingdom',
-  'superclass', 'class', 'subclass','level5', 'level6', 'level7',
-  'level8','level9', 'level10', 'level11')}.}
+\code{data}. Default is \link{chemont_tax_levels}.}
 }
 \value{
 A \code{phylo}-class object.
 }
 \description{
 Bind individual entities as new tips to a tree
+}
+\examples{
+
+#explicitly specifying entity ID
+bind_entities(tree = prune_tree(tree = chemont_tree,
+prune_to = biosolids_class[1:20, ]),
+data = biosolids_class[1:20, ],
+entity_id_col = "DTXSID")
+
+#not specifying entity ID
+bind_entities(tree = prune_tree(tree = chemont_tree,
+prune_to = biosolids_class[1:20, ]),
+data = biosolids_class[1:20, ])
+
+}
+\author{
+Caroline Ring, Paul Kruse
 }

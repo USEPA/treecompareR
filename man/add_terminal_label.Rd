@@ -5,18 +5,18 @@
 \title{Add terminal label}
 \usage{
 add_terminal_label(
-  dat,
+  data,
   entity_id_col = NULL,
   tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{dat}{A \code{data.frame} of classified entities (or something that can be
+\item{data}{A \code{data.frame} of classified entities (or something that can be
 coerced to one using \code{\link[base:as.data.frame]{base::as.data.frame()}}). Should have variables
 corresponding to one or more of the items in \code{tax_level_labels}.}
 
 \item{entity_id_col}{Character: a name, or vector of names, of variables in
-\code{dat} that uniquely identifies entities. Default \code{NULL} assumes that each
+\code{data} that uniquely identifies entities. Default \code{NULL} assumes that each
 row is a unique entity.}
 
 \item{tax_level_labels}{A character vector of all levels in the taxonomy.

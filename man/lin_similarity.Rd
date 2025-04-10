@@ -4,24 +4,17 @@
 \alias{lin_similarity}
 \title{Lin Similarity}
 \usage{
-lin_similarity(
-  tree = NULL,
-  label_1 = NULL,
-  label_2 = NULL,
-  node_1 = NULL,
-  node_2 = NULL
-)
+lin_similarity(tree = NULL, node_1 = NULL, node_2 = NULL)
 }
 \arguments{
-\item{tree}{The underlying tree being examined.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
-\item{label_1}{A label for a node within the \code{tree} object.}
+\item{node_1}{First node of interest. Character (a node name) or integer (a
+node number).}
 
-\item{label_2}{A label for a node within the \code{tree} object.}
-
-\item{node_1}{An alternate parameter for a node within the \code{tree} object.}
-
-\item{node_2}{An alternate parameter for a node within the \code{tree} object.}
+\item{node_2}{Second node of interest. Character (a node name) or integer (a
+node number).}
 }
 \value{
 The Lin similarity value between the two input nodes.
@@ -32,9 +25,16 @@ numbers) and returns the Lin similarity values of the nodes based on the tree
 structure. The function uses the formulation as described in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}.
-Furthermore, this function is a wrapper for a RCPP function. For rapid
+For rapid
 calculation of similarity values of several pairs of nodes, consider using
 \code{\link{similarity_matrix}}.
+}
+\examples{
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 19)
+lin_similarity(tree = tree,
+node_1 = 1,
+node_2 = 2)
+
 }
 \references{
 \insertRef{lin1998information}{treecompareR}

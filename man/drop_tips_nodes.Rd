@@ -11,39 +11,49 @@ drop_tips_nodes(
   nodes = NULL,
   level = NULL,
   keep_descendants = NULL,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5", "level6",
-    "level7", "level8", "level9", "level10", "level11")
+  tax_level_labels = chemont_tax_levels
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
-\item{data}{A data.table (or data.frame) of chemicals with classifications.}
+\item{data}{A \code{data.frame} of classified entities. Default \code{NULL}.}
 
-\item{labels}{An alternate parameter for a set of labels of the subtree.}
+\item{labels}{Character: a set of labels of the subtree. Default \code{NULL}.}
 
-\item{nodes}{An alternate parameter for a set of nodes of the subtree.}
+\item{nodes}{Integer: a set of nodes of the subtree. Default \code{NULL}.}
 
-\item{level}{An alternate parameter specifying the level to which the tree
-should be pruned. The root is level zero and each subsequent generation of
-children nodes is one level greater.}
+\item{level}{Integer: the level to which the tree should be pruned. The root
+is level zero and each subsequent generation of children nodes is one level
+greater. Default \code{NULL}.}
 
-\item{keep_descendants}{Alternate parameter specifying whether to keep all
-descendants of list of nodes input.}
+\item{keep_descendants}{TRUE/FALSE: whether to keep all descendants of the
+input labels/nodes/level. Default \code{NULL}, which means behavior depends on
+whether \code{data}, \code{labels}, \code{nodes}, or \code{level} was provided. See
+\code{\link[=prune_tree]{prune_tree()}} for more details.}
 
-\item{tax_level_labels}{An alternate parameter passed to the
-\code{\link{get_terminal_labels}} function.}
+\item{tax_level_labels}{Levels of the taxonomy in order. Default
+\code{\link[=chemont_tax_levels]{chemont_tax_levels()}}.}
 }
 \value{
-A phylo object representing the induced subtree of the data.
+A \code{phylo}-class object representing the induced subtree of the data.
 }
 \description{
-This function is an extension of drop.tip from the APE package. It takes in a
-data set, collects the labels from classifications of the chemicals in the
-data set, and drops tips and nodes until the induced subtree that remains
-consists solely of the labels associated to the data set and their ancestors.
-Alternatively, one can provide a set of labels instead and the induced
-subtree is constructed from these labels in the same manner.
+Helper function used by \code{\link[=prune_tree]{prune_tree()}}.
+}
+\details{
+This function takes in a data set, collects the labels from classifications
+of the chemicals in the data set, and drops tips and nodes until the induced
+subtree that remains consists solely of the labels associated to the data set
+and their ancestors. Alternatively, one can provide a set of labels instead
+and the induced subtree is constructed from these labels in the same manner.
+}
+\examples{
+drop_tips_nodes(tree = chemont_tree,
+data = biosolids_class[1:20,])
+
+
 }
 \references{
 \insertRef{apepackage}{treecompareR}

@@ -6,8 +6,6 @@
 \usage{
 similarity_matrix(
   tree = NULL,
-  labels1 = NULL,
-  labels2 = NULL,
   nodes1 = NULL,
   nodes2 = NULL,
   metric = "jaccard",
@@ -15,23 +13,16 @@ similarity_matrix(
 )
 }
 \arguments{
-\item{tree}{The underlying tree being examined, as a \code{phylo} object.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
-\item{labels1}{Character vector: Set of node labels for rows of the
-similarity matrix. Default \code{NULL}.}
+\item{nodes1}{A vector of the first set of nodes of interest. Character (node
+names) or integer (node numbers). If \code{NULL} (default), will be taken as all
+nodes in \code{tree}.}
 
-\item{labels2}{Character vector: Set of node labels for columns of the
-similarity matrix. Default \code{NULL}.}
-
-\item{nodes1}{Integer vector: set of node numbers for rows  of the similarity
-matrix. Default \code{NULL}. If \code{labels1} is provided, it will override
-\code{nodes1}. If both \code{labels1} and \code{nodes1} are \code{NULL}, \code{nodes1} will be set
-to all nodes in \code{tree}.}
-
-\item{nodes2}{Integer vector: set of node numbers for columns of the
-similarity matrix. Default \code{NULL}. If \code{labels2} is provided, it will
-override \code{nodes2}. If both \code{labels} and \code{nodes} are \code{NULL}, \code{nodes2} will
-be set to all nodes in \code{tree}.}
+\item{nodes2}{A vector of the second set of nodes of interest. Character
+(node names) or integer (node numbers). If \code{NULL} (default), will be taken as all
+nodes in \code{tree}.}
 
 \item{metric}{A string naming the similarity metric to use. Options are
 "jaccard", "resnik", "lin", and "jiang_conrath". Only the first two letters
@@ -55,8 +46,8 @@ when the set of nodes for rows and columns differ, one must turn off this
 feature.
 }
 \details{
-To calculate the similarity matrix for all pairs of nodes in a tree, provide \code{tree} and leave \code{labels1}, \code{labels2}, \code{nodes1}, and \code{nodes2} all \code{NULL}.
-#'
+To calculate the similarity matrix for all pairs of nodes in a tree, provide
+\code{tree} and leave \code{labels1}, \code{labels2}, \code{nodes1}, and \code{nodes2} all \code{NULL}.
 }
 \seealso{
 \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},

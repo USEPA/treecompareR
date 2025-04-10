@@ -7,7 +7,7 @@
 get_cutoffs(
   mat,
   data,
-  tax_level_labels = NULL,
+  tax_level_labels = chemont_tax_levels,
   neighbors = 3,
   cutoff = NA_real_,
   labels = NULL,
@@ -16,21 +16,21 @@ get_cutoffs(
 }
 \arguments{
 \item{mat}{A similarity matrix corresponding to a similarity measure and a
-rooted tree .}
+rooted tree.}
 
-\item{data}{A data.table of chemicals with classifications.}
+\item{data}{A data.frame of classified entities.}
 
 \item{tax_level_labels}{Parameter giving classification levels.}
 
 \item{neighbors}{A parameter giving how many neighbors to use for finding
 label average values.}
 
-\item{cutoff}{An alternate parameter giving the cutoff percentage value.}
+\item{cutoff}{Numeric: the cutoff percentage value.}
 
-\item{labels}{An alternate parameter giving a list of node labels
-corresponding to a subtree of a rooted tree..}
+\item{labels}{Character: a list of node labels
+corresponding to a subtree of a rooted tree.}
 
-\item{counts}{An alternate parameter giving the counts of occurrence for each
+\item{counts}{Integer: the counts of occurrence for each
 label.}
 }
 \value{
@@ -45,10 +45,7 @@ data set that is represented by the induced subtree of the data set for
 various values of a fixed similarity measure.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\donttest{
+get_cutoffs(mat = chemont_jaccard, data = biosolids_class)
+get_cutoffs(mat = chemont_jaccard, data = biosolids_class, neighbors = 6)
 
-dt <- data.table::data.table(BIOSOLIDS2021_class)
-}
-\dontshow{\}) # examplesIf}
 }

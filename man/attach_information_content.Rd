@@ -7,7 +7,8 @@
 attach_information_content(tree, log_descendants = TRUE)
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
 \item{log_descendants}{Alternate parameter determining type of information
 content to use.}

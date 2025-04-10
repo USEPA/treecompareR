@@ -2,19 +2,36 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_clade}
 \alias{get_clade}
-\title{Get node number of clade (ancestor at a specified level)}
+\title{Get clade}
 \usage{
 get_clade(node, tree, level = 2)
 }
 \arguments{
-\item{node}{The node number(s) for which to get the clade(s)}
+\item{node}{Integer: A vector of node number(s) for which to get the clade(s)}
 
-\item{tree}{The underlying tree (node numbers refer to this tree)}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
-\item{level}{The hierarchical taxonomy level at which to get the clade(s). Root
-is level 0. Default value is 2 (superclass level, in ChemOnt).}
+\item{level}{Integer: The hierarchical taxonomy level at which to get the clade(s).
+Root is level 0. Default value is 2 (superclass level, in ChemOnt).}
+}
+\value{
+Integer vector of node numbers representing the ancestors of the input
+nodes at the specified level.
 }
 \description{
-Helper function to get the node number defining a clade for a specified input
-node number
+Get clade (ancestor at a specified level)
+}
+\details{
+Get the node numbers defining the clades (ancestors at a specified level) for specified input
+node numbers
+}
+\examples{
+get_clade(node = 35,
+tree = chemont_tree,
+level = 3)
+
+}
+\author{
+Caroline Ring, Paul Kruse
 }

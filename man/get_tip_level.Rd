@@ -4,14 +4,13 @@
 \alias{get_tip_level}
 \title{Tree level}
 \usage{
-get_tip_level(tree, label, node_number = NULL)
+get_tip_level(tree, node)
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
-\item{label}{The node label.}
-
-\item{node_number}{Alternate parameter, the number of the given node.}
+\item{node}{Character (a node name) or integer (a node number).}
 }
 \value{
 The level of the node from the root of the tree.
@@ -24,7 +23,7 @@ This function returns the tree level of the given node in a rooted tree.
 
 tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
-get_tip_level(tree = tree, label = 't2')
-get_tip_level(tree = tree, label = 'n1')
+get_tip_level(tree = tree, node = 't2') #specify node by name
+get_tip_level(tree = tree, node = 2) #specify node by number
 \dontshow{\}) # examplesIf}
 }

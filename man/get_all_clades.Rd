@@ -7,7 +7,8 @@
 get_all_clades(tree, level)
 }
 \arguments{
-\item{tree}{The \code{\link[ape]{phylo}}-class tree object}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{level}{The level at which to display nodes (0 is the root)}
 }
@@ -19,4 +20,12 @@ tree); \code{level} (the level of the node in the tree, where root is level
 }
 \description{
 List all clades in a tree at a specified level
+}
+\examples{
+#list all ChemOnt superclasses:
+get_all_clades(tree = chemont_tree, level = 2)
+
+}
+\author{
+Caroline Ring
 }

@@ -2,21 +2,39 @@
 % Please edit documentation in R/tree_methods.R
 \name{as_classified.phylo}
 \alias{as_classified.phylo}
-\title{Convert a phylo tree into a wide-format "classified" data.frame}
+\title{Convert phylo to classified data.frame}
 \usage{
-as_classified.phylo(
-  tree,
-  tax_level_labels = c("kingdom", "superclass", "class", "subclass", "level5", "level6",
-    "level7", "level8", "level9", "level10", "level11")
-)
+as_classified.phylo(tree, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{tree}{An object of class \code{phylo}.}
+\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{tax_level_labels}{Vector of the possible taxonomy levels that can appear
-as column names in \code{as_classified.phylo} if it is a \code{data.frame} of
-classified data.}
+as column names in \code{as_classified.phylo} if it is a \code{data.frame}
+of classified data. Default \link{chemont_tax_levels}.}
+}
+\value{
+A \code{data.frame} with variables \code{tip_label} (naming the tips or
+entities) and one variable for each item in \code{tax_level_labels}, giving the
+classification for each entity at each taxonomic level.
 }
 \description{
-Convert a phylo tree into a wide-format "classified" data.frame
+Convert a phylo tree into a wide-format "classified" \code{data.frame}
+}
+\examples{
+#a tree pruned to only the first 10 BIOSOLIDS2021 chemicals
+my_tree <- prune_tree(tree = chemont_tree, prune_to = biosolids_class[1:10, ])
+#bind the DTXSIDs as new tips
+my_tree <- bind_entities(tree = my_tree,
+                         data = biosolids_class[1:10,],
+                         entity_id_col = "CASRN")
+#now convert this tree to a "classified" data.frame
+as_classified.phylo(tree = my_tree)
+#compare the result to the original classified data.frame
+biosolids_class[1:10, c("CASRN", chemont_tax_level)]
+
+}
+\author{
+Caroline Ring, Paul Kruse
 }

@@ -4,24 +4,17 @@
 \alias{jiang_conrath_similarity}
 \title{Jiang Conrath Similarity}
 \usage{
-jiang_conrath_similarity(
-  tree = NULL,
-  label_1 = NULL,
-  label_2 = NULL,
-  node_1 = NULL,
-  node_2 = NULL
-)
+jiang_conrath_similarity(tree = NULL, node_1 = NULL, node_2 = NULL)
 }
 \arguments{
-\item{tree}{The underlying tree being examined.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
-\item{label_1}{A label for a node within the \code{tree} object.}
+\item{node_1}{First node of interest. Character (a node name) or integer (a
+node number).}
 
-\item{label_2}{A label for a node within the \code{tree} object.}
-
-\item{node_1}{An alternate parameter for a node within the \code{tree} object.}
-
-\item{node_2}{An alternate parameter for a node within the \code{tree} object.}
+\item{node_2}{Second node of interest. Character (a node name) or integer (a
+node number).}
 }
 \value{
 The Jiang Conrath similarity value between the two input nodes.

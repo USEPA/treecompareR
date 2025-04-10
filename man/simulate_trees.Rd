@@ -4,13 +4,10 @@
 \alias{simulate_trees}
 \title{Tree simulator}
 \usage{
-simulate_trees(n_trees = 1, simulation_seed = NA, n, ...)
+simulate_trees(n_trees = 1, n, ...)
 }
 \arguments{
-\item{n_trees}{The number of trees to generate.}
-
-\item{simulation_seed}{Optional parameter to allow for replication of
-simulations.}
+\item{n_trees}{Integer: The number of trees to generate. Default 1}
 
 \item{n}{The number of tips each tree will have.}
 
@@ -20,5 +17,16 @@ simulations.}
 A list of 'phylo' objects, each representing a simulated tree.
 }
 \description{
+Randomly generate trees.
+}
+\details{
 This function generates several trees subject to input constraints.
+}
+\examples{
+set.seed(42)
+simulate_trees(n_trees = 2, n = 5) #a list of two trees, plot each using ggtree()
+
+}
+\author{
+Paul Kruse
 }

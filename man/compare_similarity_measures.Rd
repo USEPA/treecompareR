@@ -10,7 +10,7 @@ compare_similarity_measures(n)
 \item{n}{Each tree has 2n-1 total nodes and tips.}
 }
 \value{
-A data.frame consisting of the mean self-similarity scores for each
+A \code{data.frame} consisting of the mean self-similarity scores for each
 tree and similarity measure.
 }
 \description{
@@ -19,4 +19,12 @@ Jiang and Conrath on a variety of trees. The tree types include the
 caterpillar, star, and balanced trees. The input parameter \code{n} indicates how
 many tips for the caterpillar and balanced tree. The star has 2n tips, and
 all trees have 2n-1 total nodes and tips.
+}
+\examples{
+compare_similarity_measures(n=10)
+compare_similarity_measures(n=20)
+
+}
+\author{
+Paul Kruse
 }

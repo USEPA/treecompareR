@@ -13,8 +13,9 @@ get_subtree_nodes(
 \arguments{
 \item{data}{A classified data set.}
 
-\item{base_tree}{A phylo-class tree object representing the base tree. Default is \code{\link{chemont_tree}},
-the full ChemOnt taxonomy tree.}
+\item{base_tree}{The base tree, as a \code{\link[ape]{phylo}}-class object
+(see \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class). Default is
+\code{\link{chemont_tree}}, the full ChemOnt taxonomy tree.}
 
 \item{tax_level_labels}{A vector of levels for the taxonomy. Default is
 \code{\link{chemont_tax_levels}}, the levels of the ChemOnt taxonomy.}
@@ -24,6 +25,12 @@ A vector of node numbers in the base tree that are represented in the
 subtree corresponding to the data set.
 }
 \description{
-This is a helper function that takes a classified set and a base taxonomy tree and
-provides all node numbers in the subtree corresponding to the data set.
+This is a helper function that takes a classified data set and a base
+taxonomy tree and provides all node numbers in the subtree corresponding to
+the data set.
+}
+\author{
+Caroline Ring, Paul Kruse
+@examples
+get_subtree_nodes(data = biosolids_class\link{1:10,})
 }

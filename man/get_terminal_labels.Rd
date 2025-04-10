@@ -6,7 +6,7 @@
 \usage{
 get_terminal_labels(
   data,
-  entity_id_cols = NULL,
+  entity_id_col = NULL,
   tax_level_labels = chemont_tax_levels
 )
 }
@@ -14,7 +14,7 @@ get_terminal_labels(
 \item{data}{A \code{data.frame} of classified entities. Variables must include at
 least one of the taxonomy level names in \code{tax_level_labels}.}
 
-\item{entity_id_cols}{Character: the name of the variable in \code{data} with
+\item{entity_id_col}{Character: the name of the variable(s) in \code{data} with
 unique entity identifiers. If \code{NULL} (default), then each row is assumed to
 be a unique entity.}
 

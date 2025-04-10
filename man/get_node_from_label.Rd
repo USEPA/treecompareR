@@ -2,18 +2,27 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_node_from_label}
 \alias{get_node_from_label}
-\title{Get node ID for a label in a phylo tree}
+\title{Get node from label}
 \usage{
 get_node_from_label(label, tree)
 }
 \arguments{
-\item{label}{Vector of labels for tips or internal nodes in phylo tree}
+\item{label}{Character vector of labels for tips or internal nodes in phylo tree}
 
-\item{tree}{phylo tree object}
+\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 }
 \value{
-Numeric vector of tip or internal node ID numbers
+Integer vector of tip or internal node ID numbers.
 }
 \description{
 Get node ID for a label in a phylo tree
+}
+\examples{
+get_node_from_label(label = "Benzacridines", tree = chemont_tree)
+get_node_from_label(label = c("Benzacridines","Dihydrofuranoquinolines"), tree = chemont_tree)
+
+}
+\author{
+Caroline Ring, Paul Kruse
 }

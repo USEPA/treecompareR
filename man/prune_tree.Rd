@@ -13,7 +13,8 @@ prune_tree(
 )
 }
 \arguments{
-\item{tree}{The tree to be pruned, as a \code{\link[ape]{phylo}}-class object.}
+\item{tree}{The tree to be pruned, as a \code{\link[ape]{phylo}}-class object (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{prune_to}{What to \emph{keep} from the base tree (everything else will be
 pruned away). May be a \code{data.frame} of classified data; one or more
@@ -55,7 +56,7 @@ corresponding level for each entity. It must also have at least one more
 column, uniquely identifying the entities; the name of the additional column
 does not matter, as long as it is not the same as one of the taxonomy levels.
 The result will be to keep only the subtree induced by this classified data
-set, i.e., only the branches of the tree that occur in this classified data
+set, \emph{i.e.}, only the branches of the tree that occur in this classified data
 set. By default, any descendants of the node labels in the \code{data.frame}
 that do not themselves appear in the \code{data.frame} will \emph{not} be kept. If
 you want to keep descendants that do not themselves appear in the
@@ -91,3 +92,30 @@ node labels/numbers, then specify \code{keep_descendants = FALSE}.
 }
 }
 
+\examples{
+
+#prune_to as a data.frame of classified entities
+#prunes to the first 20 chemicals in BIOSOLIDS2021
+prune_tree(tree = chemont_tree,
+prune_to = biosolids_class[1:20, ])
+
+#prune_to as a character vector of labels
+#prunes to the first 20 chemicals in BIOSOLIDS2021
+prune_tree(tree = chemont_tree,
+prune_to = biosolids_class[1:20, "terminal_label"])
+
+#prune_to as an integer vector of node numbers
+#prunes to the first 20 chemicals in BIOSOLIDS2021
+my_nodes <- get_node_from_label(label = biosolids_class[1:20, "terminal_label"],
+tree = chemont_tree)
+prune_tree(tree = chemont_tree,
+prune_to = my_nodes)
+
+#prune_to as a taxonomy level
+prune_tree(tree = chemont_tree,
+prune_to = 2) #prunes to superclasses
+
+}
+\author{
+Caroline Ring, Paul Kruse
+}

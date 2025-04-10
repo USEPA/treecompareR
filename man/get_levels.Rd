@@ -2,26 +2,31 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_levels}
 \alias{get_levels}
-\title{Generate tree levels}
+\title{Get levels}
 \usage{
 get_levels(tree)
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 }
 \value{
-data.frame consisting of the node number, and the level of each node
+A \code{data.frame} with variables \code{node} (the node number) and \code{level}
+(the level of each node in the tree). There is one row for each node in
+\code{tree} (including both tips and internal nodes).
 }
 \description{
-This function generates a data.frame of node levels for input rooted tree.
-The data.frame has a row corresponding to each tip and internal node. It
-records the depth from the root of each node.
+Get levels for each node in a tree
+}
+\details{
+Levels are counted starting with the root of the tree at level 0. The
+immediate children of the root node are level 1. Then their children are
+level 2, etc.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
-tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+  tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 
-get_levels(tree = tree)
-\dontshow{\}) # examplesIf}
+  get_levels(tree = tree)
+
 }

@@ -2,59 +2,30 @@
 % Please edit documentation in R/tree_methods.R
 \name{MonteCarlo_similarity}
 \alias{MonteCarlo_similarity}
-\title{Random subtree similarity simulation}
+\title{Random subtree similarity}
 \usage{
 MonteCarlo_similarity(
-  tree,
-  data_1 = NULL,
-  data_2 = NULL,
-  data_1_indices = NULL,
-  data_2_indices = NULL,
-  name_1 = "data_set_1",
-  name_2 = "data_set_2",
-  label_number = 100,
-  repetition = 10,
-  seed = NA_real_,
-  only_tips = FALSE,
-  Jaccard = NULL,
-  Resnik = NULL,
-  Lin = NULL,
-  JiangConrath = NULL
+  n1,
+  n2,
+  fun = mean,
+  tree = chemont_tree,
+  sim_tree = chemont_jaccard
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{n1}{Number of nodes to sample for tree1.}
 
-\item{data_1}{A data.table of chemicals with classifications.}
+\item{n2}{Number of nodes to sample for tree2.}
 
-\item{data_2}{A data.table of chemicals with classifications.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class). Default \code{chemont_tree}
+to use the full ChemOnt tree.}
 
-\item{data_1_indices}{Alternate parameter giving indices of nodes of a
-subtree of \code{tree}.}
-
-\item{data_2_indices}{Alternate parameter giving indices of nodes of a
-subtree of \code{tree}.}
-
-\item{name_1}{An alternate parameter for the name of \code{data_1}.}
-
-\item{name_2}{An alternate parameter for the name of \code{data_2}.}
-
-\item{label_number}{Number of labels to use to build the simulated trees.}
-
-\item{repetition}{Number of simulated trees to build.}
-
-\item{seed}{Alternate parameter to allow for replication of results.}
-
-\item{only_tips}{Alternate parameter restricting starting labels to tips or
-to tips and internal nodes.}
-
-\item{Jaccard}{The Jaccard similarity matrix for \code{tree}.}
-
-\item{Resnik}{The Resnik similarity matrix for \code{tree}.}
-
-\item{Lin}{The Lin similarity matrix for \code{tree}.}
-
-\item{JiangConrath}{The JiangConrath similarity matrix for \code{tree}.}
+\item{sim_tree}{A pre-computed similarity matrix for \code{tree}. Default
+\link{chemont_jaccard} to use the full Jaccard similarity matrix for
+\link{chemont_tree}. Other pre-computed options for \link{chemont_tree} include
+\link{chemont_resnik_IC_SVH}, \link{chemont_lin_IC_SVH},
+\link{chemont_jiangconrath_IC_SVH}.}
 }
 \value{
 A data.frame with similarity values for each simulation. The
@@ -62,17 +33,23 @@ similarity values reported in each row is the mean similarity value for the
 corresponding data set/simulated tree given by the column.
 }
 \description{
-This function takes in a tree, two data sets (or indices representing two
-subtrees of the tree) and creates random subtrees, calculates their
-similarity values, and returns the results in a data.frame. This function
-allows for comparison of the similarity of the input data sets (or subtrees)
-with similarity of random subtrees of specified sizes.
+Random subtree similarity simulation
+}
+\details{
+Given a tree, randomly sample (with replacement) \code{n1} nodes in the tree and
+treat these as terminal labels for a subtree (tree1). Repeat for \code{n2},
+generating a second randomly sampled subtree tree2. Using a pre-calculated
+matrix of similarities for all nodes in the full tree, subset its rows to
+keep only the labels from tree1, and its columns to keep only the labels from
+tree2.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-\donttest{
-dt1 <- data.table::data.table(BIOSOLIDS2021_class[1:20,])
-dt2 <- data.table::data.table(USGSWATER_class[1:20, ])
+set.seed(42)
+#average similarity between two random subtrees
+#the same sizes as BIOSOLIDS2021 and USGS_WATER
+MonteCarlo_similarity(n1 = nrow(biosolids_class), n2 = nrow(usgs_class))
+
 }
-\dontshow{\}) # examplesIf}
+\author{
+Paul Kruse, Caroline Ring
 }

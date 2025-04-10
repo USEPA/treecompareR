@@ -7,12 +7,21 @@
 adjust_branch_lengths(tree)
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 }
 \value{
-A tree with adjust branch lengths.
+Numeric: A vector of adjusted branch lengths for the input tree.
 }
 \description{
-This is a helper function that is used to reset branch lengths for pruned
-trees.
+Adjust branch lengths for pruned trees.
+}
+\examples{
+my_tree <- prune_tree(tree = chemont_tree,
+ prune_to = biosolids_class[1:10,])
+adjust_branch_lengths(tree = tree)
+
+}
+\author{
+Paul Kruse, Caroline Ring
 }

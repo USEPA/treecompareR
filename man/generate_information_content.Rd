@@ -7,15 +7,18 @@
 generate_information_content(tree)
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 }
 \value{
-data.frame consisting of node number, children, descendants, level,
-and information content for each node
+Numeric: a vector of information content for each node of the tree.
 }
 \description{
-This function generates a data.frame of information content for the input
-tree. This uses the formulation as described in
+Generate information content for a tree.
+}
+\details{
+Generates a data.frame of information content for the input
+tree, where information content is as described in
 \href{https://www.researchgate.net/publication/220837848_An_Intrinsic_Information_Content_Metric_for_Semantic_Similarity_in_WordNet/stats}{An
 Intrinsic Information Content Metric for Semantic Similarity in WordNet}. The
 data.frame also includes the depth of each tip and internal node, the number

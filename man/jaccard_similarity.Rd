@@ -4,27 +4,20 @@
 \alias{jaccard_similarity}
 \title{Jaccard similarity}
 \usage{
-jaccard_similarity(
-  tree = NULL,
-  label_1 = NULL,
-  label_2 = NULL,
-  node_1 = NULL,
-  node_2 = NULL
-)
+jaccard_similarity(tree = NULL, node_1 = NULL, node_2 = NULL)
 }
 \arguments{
-\item{tree}{A \code{phylo} object representing a rooted tree.}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 
-\item{label_1}{A label for a node within the \code{tree} object.}
+\item{node_1}{First node of interest. Character (a node name) or integer (a
+node number).}
 
-\item{label_2}{A label for a node within the \code{tree} object.}
-
-\item{node_1}{An alternate parameter for a node within the \code{tree} object.}
-
-\item{node_2}{An alternate parameter for a node within the \code{tree} object.}
+\item{node_2}{Second node of interest. Character (a node name) or integer (a
+node number).}
 }
 \value{
-The Jaccard similarity of the label sets for the root to node path.
+Numeric: The Jaccard similarity of the ancestry of the two nodes.
 }
 \description{
 This function takes in a tree and two input nodes (either labels or node
@@ -35,9 +28,16 @@ information on Jaccard similarity, please consult
 \href{https://en.wikipedia.org/wiki/Jaccard_index}{Jaccard Index}.
 }
 \details{
-Furthermore, this function is a wrapper for a RCPP function. For rapid
-calculation of similarity values of several pairs of nodes, consider using
-\code{\link{similarity_matrix}}.
+For rapid calculation of similarity values of multiple pairs of nodes,
+consider using \code{\link{similarity_matrix}}.
+}
+\examples{
+tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+jaccard_similarity(tree = tree,
+node_1 = 1,
+node_2 = 2)
+
+
 }
 \references{
 \insertRef{pekar2002taxonomy}{treecompareR}

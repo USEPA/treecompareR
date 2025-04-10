@@ -2,12 +2,13 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_tree_df}
 \alias{get_tree_df}
-\title{Get data.frame representation of phylo tree}
+\title{Tree as data.frame}
 \usage{
 get_tree_df(tree)
 }
 \arguments{
-\item{tree}{A phylo-class tree object}
+\item{tree}{An object of class \code{phylo} representing a rooted tree (see
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of this class)}
 }
 \value{
 A data.frame with as many rows as the number of nodes in \code{tree},
@@ -16,6 +17,9 @@ level of each node, where the root is level 0), and "Name" (the label
 corresponding to each node number).
 }
 \description{
-Helper function to get a data.frame listing node numbers, node names, and
-level of each node
+Get data.frame representation of phylo tree
+}
+\details{
+Given a tree, get a data.frame listing node numbers, node names, and
+level of each node.
 }
