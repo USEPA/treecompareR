@@ -4,25 +4,26 @@
 \alias{generate_partition}
 \title{Partition generator}
 \usage{
-generate_partition(n, seed = NA)
+generate_partition(n)
 }
 \arguments{
 \item{n}{positive integer at least 2.}
-
-\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 A vector of integers each at least 2 and with sum equal to the input.
 }
 \description{
+Randomly generate partition
+}
+\details{
 This function generates a partition of an input positive integer. Each
 constituent of the partition has value at least 2.
-2.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+set.seed(42)
+generate_partition(n = 4)
 
-generate_partition(n = 4, seed = 42)
-generate_partition(n = 4, seed = 24)
-\dontshow{\}) # examplesIf}
+}
+\author{
+Paul Kruse
 }

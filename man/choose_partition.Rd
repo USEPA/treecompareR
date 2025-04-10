@@ -9,11 +9,9 @@ choose_partition(n, max_deg = NULL, min_deg = NULL)
 \arguments{
 \item{n}{The integer for which a permuted partition is generated.}
 
-\item{max_deg}{An alternate parameter, giving a constraint on the permissible
-partitions.}
+\item{max_deg}{Integer: Maximum value an element of the partition can take. Default \code{NULL} to auto-select.}
 
-\item{min_deg}{An alternate parameter, giving a constraint on the permissible
-partitions.}
+\item{min_deg}{Integer: Minimum value an element of the partition can take. Default \code{NULL} to auto-select.}
 }
 \value{
 A permuted partition of the integer \code{n}.
@@ -22,4 +20,12 @@ A permuted partition of the integer \code{n}.
 This function selects a permuted partition given a positive integer input.
 This is a helper function for generating a tree topology closer to random
 than \code{generate_topology} would otherwise.
+}
+\examples{
+choose_partition(n = 5)
+
+
+}
+\author{
+Paul Kruse
 }

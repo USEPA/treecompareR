@@ -2,29 +2,40 @@
 % Please edit documentation in R/generate_tree.R
 \name{generate_topology}
 \alias{generate_topology}
-\title{Generate topology}
+\title{Generate tree}
 \usage{
-generate_topology(n, rooted = FALSE, max_deg = NULL, min_deg = NULL, seed = NA)
+generate_topology(n, rooted = TRUE, max_deg = NULL, min_deg = NULL)
 }
 \arguments{
-\item{n}{The number of tips, a positive integer.}
+\item{n}{Integer: The number of tips. Must be positive.}
 
-\item{rooted}{Whether the tree is rooted or not.}
+\item{rooted}{TRUE/FALSE: Whether the tree is rooted or not. Default \code{TRUE}.}
 
-\item{max_deg}{The maximum degree any node can have.}
+\item{max_deg}{Integer: The maximum degree any node can have. Default \code{NULL}.}
 
-\item{min_deg}{The minimum degree any node can have (aside from the root, if
-rooted).}
+\item{min_deg}{Integer: The minimum degree any node can have (aside from the root, if
+rooted). Default \code{NULL}.}
 
 \item{seed}{A seed to allow for replication of results.}
 }
 \value{
-A 'phylo' object representing the generated tree.
+A 'phylo' object representing the generated tree. (See
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of the \code{phylo} class.)
 }
 \description{
-This function generates a rooted tree with internal nodes of degree at least
+Generate a random tree
+}
+\details{
+This function randomly generates a rooted tree with internal nodes of degree at least
 two. The sampling of potential topologies and labels assigned to each
 topology are not completely random. The root is degree two, and all other
 internal nodes have degrees (potentially) governed by the alternate
 parameters \code{max_deg} and \code{min_deg}.
+}
+\examples{
+generate_topology(n = 10)
+
+}
+\author{
+Paul Kruse
 }

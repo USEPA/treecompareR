@@ -4,7 +4,7 @@
 \alias{generate_partition_2}
 \title{Partition generator 2}
 \usage{
-generate_partition_2(n, max_deg = NULL, min_deg = 0, seed = NA)
+generate_partition_2(n, max_deg = NULL, min_deg = 0)
 }
 \arguments{
 \item{n}{Positive integer.}
@@ -12,20 +12,23 @@ generate_partition_2(n, max_deg = NULL, min_deg = 0, seed = NA)
 \item{max_deg}{Maximal value an element of the partition can take.}
 
 \item{min_deg}{Minimal value an element of the partition can take.}
-
-\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 Vector of generated partition.
 }
 \description{
+Randomly generate partition
+}
+\details{
 This function generates a partition with optional constraints placed on it.
 If no such partition can be generated, the function stops and reports this.
 }
 \examples{
-\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
-generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 4)
-generate_partition_2(n = 7, min_deg = 3, max_deg = 5, seed = 2)
-\dontshow{\}) # examplesIf}
+set.seed(42)
+generate_partition_2(n = 7, min_deg = 3, max_deg = 5)
+
+}
+\author{
+Paul Kruse
 }

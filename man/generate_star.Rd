@@ -10,9 +10,17 @@ generate_star(n)
 \item{n}{The number of tips.}
 }
 \value{
-A \code{phylo} object representing the generated tree.
+A \code{phylo} object representing the generated tree. (See
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of the \code{phylo} class.)
 }
 \description{
 This function generates a star tree, a rooted tree of minimal
 depth with n tips.
+}
+\examples{
+set.seed(42)
+generate_star(5)
+}
+\author{
+Paul Kruse
 }

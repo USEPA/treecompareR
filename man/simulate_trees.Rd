@@ -14,7 +14,8 @@ simulate_trees(n_trees = 1, n, ...)
 \item{...}{Parameters passed to the generate_topology() function.}
 }
 \value{
-A list of 'phylo' objects, each representing a simulated tree.
+A list of 'phylo' objects, each representing a simulated tree. (See
+\code{\link[ape:read.tree]{ape::read.tree()}} for description of the \code{phylo} class.)
 }
 \description{
 Randomly generate trees.

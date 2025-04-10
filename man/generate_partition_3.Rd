@@ -4,7 +4,7 @@
 \alias{generate_partition_3}
 \title{Partition generator 3}
 \usage{
-generate_partition_3(n, max_deg, min_deg, seed = NA)
+generate_partition_3(n, max_deg, min_deg)
 }
 \arguments{
 \item{n}{positive integer.}
@@ -12,14 +12,24 @@ generate_partition_3(n, max_deg, min_deg, seed = NA)
 \item{max_deg}{Maximum value an element of the partition can take.}
 
 \item{min_deg}{Minimum value an element of the partition can take.}
-
-\item{seed}{A seed to allow for replication of results.}
 }
 \value{
 Vector with partition or error in case specified partition is
 impossible.
 }
 \description{
+Randomly generate partition
+}
+\details{
 This function generates a partition of an input positive integer subject to
 both minimum degree and maximum degree constraints.
+}
+\examples{
+set.seed(42)
+generate_partition_3(n=5, max_deg = 4, min_deg = 2)
+
+
+}
+\author{
+Paul Kruse
 }

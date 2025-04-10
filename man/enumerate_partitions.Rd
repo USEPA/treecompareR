@@ -9,15 +9,23 @@ enumerate_partitions(n, max_deg = NULL, min_deg = NULL)
 \arguments{
 \item{n}{An integer for which partitions will be generated and enumerated.}
 
-\item{max_deg}{An alternate parameter, giving a constraint on the permissible
-partitions.}
+\item{max_deg}{Integer: maximum permissible
+partitions. Default \code{NULL} to auto-select.}
 
-\item{min_deg}{An alternate parameter, giving a constraint on the permissible
-partitions.}
+\item{min_deg}{Integer: minimum permissible
+partitions. Default \code{NULL} to auto-select.}
 }
 \value{
-A name list of partitions, with names corresponding to probabilities.
+A named list of partitions, with names corresponding to probabilities.
 }
 \description{
 Enumerate partitions
+}
+\examples{
+enumerate_partitions(n = 5)
+
+
+}
+\author{
+Paul Kruse
 }
