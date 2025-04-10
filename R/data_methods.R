@@ -9,11 +9,11 @@
 #' `terminal_level`. If a variable with that name already exists in the data,
 #' then it will be overwritten (with a warning).
 #'
-#' @param dat A `data.frame` of classified entities (or something that can be
+#' @param data A `data.frame` of classified entities (or something that can be
 #'   coerced to one using [base::as.data.frame()]). Should have variables
 #'   corresponding to one or more of the items in `tax_level_labels`.
 #' @param entity_id_col Character: a name, or vector of names, of variables in
-#'   `dat` that uniquely identifies entities. Default `NULL` assumes that each
+#'   `data` that uniquely identifies entities. Default `NULL` assumes that each
 #'   row is a unique entity.
 #' @param tax_level_labels A character vector of all levels in the taxonomy.
 #'   Default is \code{\link{chemont_tax_levels}} to use the levels of the
@@ -26,11 +26,11 @@
 #' @examples
 #' #add terminal labels to the first ten chemicals in the `biosolids_class` data set
 #'  add_terminal_label(data = biosolids_class[1:10, ])
-add_terminal_label <- function(dat,
+add_terminal_label <- function(data,
                                entity_id_col = NULL,
                                tax_level_labels = chemont_tax_levels){
 
-  dat <- as.data.frame(dat)
+  data <- as.data.frame(data)
 
   #if no entity ID column specified,
   #create one with row numbers
@@ -41,19 +41,19 @@ add_terminal_label <- function(dat,
     #ensure it does not conflict with any of the existing variable names
     entity_id_col <- rev(
       make.names(
-        names = c(names(dat),
+        names = c(names(data),
                   "id"
         ),
         unique = TRUE
       )
     )[1]
-    dat[[entity_id_col]] <- 1:nrow(dat)
+    data[[entity_id_col]] <- 1:nrow(data)
     }
 
 
 
   #check that the input data.frame has been classified properly
-  if(!any(tax_level_labels %in% names(dat))){
+  if(!any(tax_level_labels %in% names(data))){
     stop(paste("The input data.frame does not appear to be classified",
                "according to the taxonomy with levels defined in",
                "the input 'tax_level_labels' as",
@@ -67,44 +67,44 @@ add_terminal_label <- function(dat,
 
   #if data.frame already has terminal label data, throw a warning,
   #but proceed
-  if("terminal_label" %in% names(dat)){
+  if("terminal_label" %in% names(data)){
     warning(paste("Column 'terminal_label' already exists",
     "in the input data.frame;",
     "it will be overwritten"))
-    dat[["terminal_label"]] <- NULL
+    data[["terminal_label"]] <- NULL
   }
 
-  if("terminal_level" %in% names(dat)){
+  if("terminal_level" %in% names(data)){
     warning(paste("Column 'terminal_level' already exists",
                   "in the input data.frame;",
                   "it will be overwritten"))
-    dat[["terminal_level"]] <- NULL
+    data[["terminal_level"]] <- NULL
   }
 
   #if data.frame is missing one or more levels (but not all of them),
   #throw a warning and treat those levels as unused (i.e. all NA)
-  if(!all(tax_level_labels %in% names(dat))){
+  if(!all(tax_level_labels %in% names(data))){
     missing_tax_levels <- setdiff(tax_level_labels,
-                                  names(dat))
+                                  names(data))
     warning(paste("Input data.frame is missing columns for taxonomy levels",
             paste(missing_tax_levels, collapse = "; "),
             "These levels will be treated as though they were unused",
             "(i.e., as though those columns were present,",
             "but filled with NAs)."))
     #add the missing columns with NAs
-    dat[missing_tax_levels] <- rep(NA_character_, nrow(dat))
+    data[missing_tax_levels] <- rep(NA_character_, nrow(data))
   }
 
   #sort taxonomy level columns in order as given in tax_level_labels
   #this will ensure that most-specific (terminal) label comes last
-  dat <- dat[c(setdiff(names(dat), #all other columns come first
+  data <- data[c(setdiff(names(data), #all other columns come first
                          tax_level_labels),
                  tax_level_labels)]
 
-  dat_orig <- dat #save original input data
+  dat_orig <- data #save original input data
 
 
-  labels <- dat %>%
+  labels <- data %>%
     dplyr::select(dplyr::all_of(c(entity_id_col,
                                   tax_level_labels))) %>%
     tidyr::pivot_longer(cols = dplyr::all_of(tax_level_labels),
@@ -458,7 +458,7 @@ get_labels <- function(data,
 get_terminal_labels <- function(data,
                                 entity_id_col = NULL,
                        tax_level_labels = chemont_tax_levels){
-  labels <- add_terminal_label(dat = data,
+  labels <- add_terminal_label(data = data,
                      entity_id_col = entity_id_col,
                      tax_level_labels = tax_level_labels)[["terminal_label"]]
   return(labels)
@@ -496,13 +496,13 @@ count_entities_per_label <- function(data,
     #ensure it does not conflict with any of the existing variable names
     entity_id_col <- rev(
       make.names(
-        names = c(names(dat),
+        names = c(names(data),
                   "id"
         ),
         unique = TRUE
       )
     )[1]
-    dat[[entity_id_col]] <- 1:nrow(dat)
+    data[[entity_id_col]] <- 1:nrow(data)
   }
 
 
@@ -515,11 +515,13 @@ label_counts <-  sapply(tax_level_labels,
                  dplyr::all_of(this_level)
                )
              ) %>%
-             dplyr::count(
-               dplyr::pick(
-                 dplyr::all_of(entity_id_col)
-               )
-             ) %>%
+            dplyr::summarise(
+              n = dplyr::n_distinct(
+                dplyr::pick(
+                  dplyr::all_of(entity_id_col)
+                )
+              )
+            ) %>%
              dplyr::ungroup() %>%
                as.data.frame() %>%
              setNames(c("label",
@@ -557,4 +559,106 @@ count_labels <- function(data,
                                tax_level_labels = tax_level_labels),
                     length)
   lengths
+}
+
+#' Similarity for two datasets
+#'
+#' Calculate similarity measures for two datasets
+#'
+#' @param data_1 A `data.frame` of classified entities
+#' @param data_2 Another `data.frame` of classified entities
+#' @param terminal_label The variable name in the two data.frames that denotes
+#'   the terminal label of the classification. Default `"terminal_label"`.
+#' @param tree The taxonomy tree to use as a \code{\link[ape]{phylo}}-class object (see
+#'   [ape::read.tree()] for description of this class). Default \code{\link{chemont_tree}}.
+#' @param tax_level_labels The set of taxonomy levels to use. Default
+#'   \code{\link{chemont_tax_levels}}.
+#' @param sim_matrix Optional: A pre-computed similarity matrix to use as a
+#'   lookup table. Default `NULL`, which will compute similarity from scratch
+#'   using the metric specified in `similarity`. If non-`NULL`, will override
+#'   anything specified in `similarity` (with a warning). For example, if `tree
+#'   = chemont_tree`, you could use `sim_matrix = chemont_jaccard` to lookup
+#'   values in the pre-computed pairwise Jaccard similarity matrix for all nodes
+#'   in the ChemOnt taxonomy tree. Providing a pre-computed similarity matrix
+#'   may be faster if `data_1` and `data_2` are large.
+#' @param similarity The similarity metric to calculate. Used only if
+#'   `sim_matrix = NULL`. Default `NULL`, which will calculate Jaccard
+#'   similarity. Options include "jaccard", "resnik", "lin", and
+#'   "jiang_conrath". Note: Ignored if `sim_matrix` is non-`NULL`, with a
+#'   warning.
+#' @return A similarity matrix with rows and columns corresponding to labels
+#'   from the `terminal_label` variable in `data_1` and `data_2`, respectively.
+#' @author Caroline Ring, Paul Kruse
+#' @export
+#'
+#' @examples
+#' #computing similarity from scratch
+#' calc_similarity_data(data_1 = biosolids_class[1:10,], data_2 = usgs_class[1:10, ], sim_matrix = NULL, similarity = "jaccard")
+#'
+#' #using pre-computed similarity matrix as lookup table
+#' calc_similarity_data(data_1 = biosolids_class[1:10,], data_2 = usgs_class[1:10, ], sim_matrix = chemont_jaccard)
+#'
+#' #providing both sim_matrix and similarity throws a warning
+#' calc_similarity_data(data_1 = biosolids_class[1:10, ], data_2 = usgs_class[1:20, ], sim_matrix = chemont_jaccard, similarity = "resnik")
+#'
+#'
+#' @seealso \code{\link{jaccard_similarity}}, \code{\link{resnik_similarity}},
+#'   \code{\link{lin_similarity}}, \code{\link{jiang_conrath_similarity}},
+#'   \code{\link{similarity_matrix}}
+calc_similarity_data <- function(data_1,
+                                 data_2,
+                                 terminal_label = "terminal_label",
+                                 tree = chemont_tree,
+                                 tax_level_labels = chemont_tax_levels,
+                                 sim_matrix = NULL,
+                                 similarity = NULL){
+
+  #calculate pairwise similarity of ancestry of terminal labels in two data sets
+
+  #check for terminal_label
+  if(terminal_label == "terminal_label"){
+    if(!(terminal_label %in% names(data_1))){
+      data_1 <- add_terminal_label(data = data_1,
+                                   tax_level_labels = tax_level_labels)
+    }
+
+    if(!(terminal_label %in% names(data_2))){
+      data_2 <- add_terminal_label(data = data_2,
+                                   tax_level_labels = tax_level_labels)
+    }
+  }
+
+  #Keep only data with terminal labels in the tree
+  data_1 <- data_1[data_1[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+  data_2 <- data_2[data_2[[terminal_label]] %in%
+                     c(tree$tip.label, tree$node.label), ]
+
+  if(is.null(sim_matrix)){
+    if(is.null(similarity)){
+      warning("Defaulting to Jaccard similarity")
+      similarity = "jaccard"
+    }
+    m <- similarity_matrix(nodes1 = data_1[[terminal_label]],
+                           nodes2 = data_2[[terminal_label]],
+                           tree = tree,
+                           metric = similarity,
+                           upper_tri = FALSE)
+
+    rownames(m) <- data_1[[terminal_label]]
+    colnames(m) <- data_2[[terminal_label]]
+  }else{ #if sim.matrix provided, just use it as lookup table
+    if(!is.null(similarity)){
+      warning(
+        paste0(
+          "Both `sim_matrix` and `similarity` were provided.",
+          " Ignoring `similarity = ",
+          similarity, "` and using provided `sim_matrix` as lookup table.")
+      )
+    }
+    m <- sim_matrix[data_1[[terminal_label]],
+                    data_2[[terminal_label]]]
+  }
+
+  return(m)
 }
