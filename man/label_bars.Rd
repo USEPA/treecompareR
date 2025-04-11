@@ -7,18 +7,27 @@
 label_bars(data = NULL, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{data}{A data.table or list of data.tables with chemicals and their
+\item{data}{A \code{data.frame} or list of \code{data.frames} with chemicals and their
 classification data.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{Character vector of taxonomy levels. Default \link{chemont_tax_levels}.}
 }
 \value{
 A list of two plots, the first showing number of labels by taxonomy
-level for each data.table and the second showing the number of labels by
+level for each \code{data.frame} and the second showing the number of labels by
 data.table for each taxonomy level.
 }
 \description{
-This function takes in a (list of) data.table(s) and returns figures
+Bar plot of numbers of labels by taxonomy level
+}
+\details{
+This function takes in a (list of) \code{data.frame}(s) and returns figures
 illustrating the label numbers by taxonomy level.
+}
+\examples{
+label_bars(data = biosolids_class[1:10, ])
+
+}
+\author{
+Paul Kruse
 }

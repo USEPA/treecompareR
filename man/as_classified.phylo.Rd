@@ -7,7 +7,7 @@
 as_classified.phylo(tree, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
-\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\item{tree}{A \code{phylo}-class object (see
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{tax_level_labels}{Vector of the possible taxonomy levels that can appear

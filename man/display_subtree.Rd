@@ -6,6 +6,9 @@
 \usage{
 display_subtree(
   base_tree = chemont_tree,
+  prune_to = NULL,
+  prune_args = list(adjust_branch_length = FALSE, tax_level_labels = chemont_tax_levels,
+    keep_descendants = NULL),
   base_name = NULL,
   data_1 = NULL,
   data_2 = NULL,
@@ -14,106 +17,215 @@ display_subtree(
   tax_level_labels = chemont_tax_levels,
   layout = "circular",
   show_tips = TRUE,
+  tiplab_opts = NULL,
+  tiplab_size = NULL,
   base_opts = list(color = "black", size = 0.5, linetype = 1),
-  subtree_mapping = list(color = "default"),
-  clade_level = "auto",
+  subtree_mapping = list(color = c("gray70", "#66C2A5", "#8DA0CB", "#FC8D62")),
+  color_overlap = FALSE,
+  entity_id_col = NULL,
+  point_size = 3,
+  clade_level = NULL,
   clade_opts = list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7,
     default_to_tip = TRUE, draw_text = TRUE)
 )
 }
 \arguments{
-\item{base_tree}{The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
-object.  Default is the full ChemOnt taxonomy tree,
-\code{\link{chemont_tree}}.}
+\item{base_tree}{The "base tree" to plot, as a \code{phylo}-class object.  Default
+is the full ChemOnt taxonomy tree, \code{chemont_tree}.}
 
-\item{base_name}{Will be used as the plot title. Usually this should name or
-describe the base tree. Default NULL will result in no plot title.}
+\item{prune_to}{Optional: Use this argument if you want to prune the base tree
+before plotting. Default is \code{NULL}, which results in no pruning being done
+(\emph{i.e.}, the \code{base_tree} is plotted as-is). Options are as for
+\code{\link[=prune_tree]{prune_tree()}}: What to \emph{keep} from the base tree (everything else will be
+pruned away). May be a \code{data.frame} of classified data; a character vector
+of one or more labels in the tree (tip or internal node labels); an integer
+vector od one or more node numbers in the tree (tip or internal nodes); or a
+character scalar giving the name of a taxonomy level (one of the items in
+\code{tax_level_labels}).  See the help for \code{\link[=prune_tree]{prune_tree()}}.}
+
+\item{prune_args}{A named list of additional arguments to be passed to
+\code{\link[=prune_tree]{prune_tree()}} (used only if \code{prune_to} is non-\code{NULL}). Default:
+\code{list(adjust_branch_length = FALSE, tax_level_labels = chemont_tax_levels, keep_descendants = NULL)}. See the help for \code{\link[=prune_tree]{prune_tree()}} for details.}
+
+\item{base_name}{Character: A string to use as the plot title. Usually this
+should name or describe the base tree (or the pruned base tree). Default
+\code{NULL} will result in no plot title.}
 
 \item{data_1}{Optional: Highlight branches of the base tree according to their
-membership in this list. Default is \code{NULL}, to do no highlighting. If
-not \code{NULL}, must be one of the following options: A \code{data.frame}
-consisting of a list of entities with classification data; a vector of node
-numbers in the base tree; a vector of node labels in the base tree; or a
-subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class object. See
-Details.}
-
-\item{data_2}{Optional: Highlight branches of the base tree to compare
-membership in this list and \code{data_1}. Default is \code{NULL}, to do no
-highlighting. If not \code{NULL}, one of the following options: A
-\code{data.frame} consisting of a list of chemicals with classification data; a
-list of node numbers in the base tree; a list of node labels in the base
-tree; or a subtree of \code{base_tree} as a \code{\link[ape]{phylo}}-class
+membership in this data set. Default is \code{NULL}, to do no highlighting. If
+not \code{NULL}, must be one of the following options: A \code{data.frame} of
+classified entities; a vector of node numbers in the base tree; a vector of
+node labels in the base tree; or a subtree of \code{base_tree} as a \code{phylo}-class
 object. See Details.}
 
-\item{name_1}{Optional: A string giving the name of the list in \code{data_1},
-for plot labeling. Default is "Set 1".}
+\item{data_2}{Optional: Highlight branches of the base tree to compare
+membership in this data set and \code{data_1}. Default is \code{NULL}, to do no
+highlighting. If not \code{NULL}, one of the following options: A \code{data.frame} of
+classified entities; a vector of node numbers in the base tree; a vector of
+node labels in the base tree; or a subtree of \code{base_tree} as a \code{phylo}-class
+object. See Details.}
 
-\item{name_2}{Optional: A string giving the name of the list in \code{data_2}
-(if any), for plot labeling. Default is "Set 2".}
+\item{name_1}{Optional: Character string giving the name of \code{data_1} that
+should be used in the plot legend. Default is \code{"Set 1"}.}
+
+\item{name_2}{Optional: Character string giving the name of \code{data_2} (if
+\code{data_2} is provided) that should be used in the plot legend. Default is
+\code{"Set 2"}. If \code{data_2} is \code{NULL}, \code{name_2} will be ignored.}
 
 \item{tax_level_labels}{Optional: a vector of the taxonomy level labels to be
-used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
-the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
- "subclass", paste0("level", 5:11))}.}
+used. Default value:\link{chemont_tax_levels}.}
 
-\item{layout}{\code{\link{ggtree}} layout option. Default "circular."}
+\item{layout}{\code{\link[ggtree:ggtree]{ggtree::ggtree()}} tree layout option. Default \code{"circular."}}
 
-\item{show_tips}{Whether to display the tip labels. Default value of TRUE.}
+\item{show_tips}{\code{TRUE}/\code{FALSE}: Whether to display the tip labels. Default
+\code{TRUE}. Note that when \code{show_tips = TRUE}, clade labels will be suppressed
+(\emph{i.e.}, arguments \code{clade_opts} and \code{clade_level} will b}
 
-\item{base_opts}{List of parameters with default values that control}
+\item{tiplab_opts}{A named list of additional arguments to
+\code{\link[ggtree:geom_tiplab2]{ggtree::geom_tiplab2()}}; see the documentation for that function for more
+options. Default \code{NULL} to use defaults for that function. For example, you
+could specify \code{tiplab_opts = list(offset = 3)} to increase the space between
+tips and labels.}
 
-\item{subtree_mapping}{List of color values for displaying subtree.}
+\item{tiplab_size}{Numeric: size to use for tip labels (if \code{show_tips = TRUE}). Default \code{NULL}, to attempt auto-scaling based on the number of tips
+(\code{tiplab_size = 3} if fewer than 200 tips; \code{tiplab_size = 1.5} if between
+200 and 500 tips; otherwise \code{tiplab_size = 0.5}). Make it larger for bigger
+text, smaller for smaller text. You can change this after the fact by taking
+the output of this function and adding \code{+ ggtree::geom_tiplab(size = N)}
+where \code{N} is replaced by your desired size.}
 
-\item{clade_level}{The taxonomy level at which to draw clade labels, if any.
-Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
-to NULL to suppress clade labels altogether.}
+\item{base_opts}{List of parameters to control color, size, and linetype of
+the base tree diagram. Default \code{list(color = "black", size = 0.5, linetype = 1)}. Should be a named list with one or more of \code{color}, \code{size}, and
+\code{linetype}. Each should be a single value: \code{color} should be a character
+specifying a color name or hex code; \code{size} should be numeric specifying
+line weight; and \code{linetype} should be an integer specifying line type (1 =
+solid, 2 = dotted, 3 = dashed, etc.) If any of the three are not provided,
+their value from the default list will be substituted. For example, if you
+provide \code{base_opts = list(color = "red")}, it will be the same as if you
+provided \code{base_opts = list(color = "red", size = 0.5, linetype = 1)}.}
 
-\item{clade_opts}{List of parameters with default values for illustrating
-clades within the tree diagram.}
+\item{subtree_mapping}{List of aesthetics used to control branch highlighting
+according to membership in the provided data set(s). Must be a named list
+with one or more of the following named elements: \code{color} (or \code{colour}),
+\code{size}, and/or \code{linetype}. Default is \code{list(color = c("gray70", "#66C2A5", "#8DA0CB", "#FC8D62"))}. See Details.}
+
+\item{color_overlap}{\code{TRUE}/\code{FALSE}: Whether to color branches according to
+fractional overlap in number of entities, if two data sets were provided.
+Default \code{FALSE}, to color branches according to subtree membership instead.
+If \code{TRUE}, \code{subtree_mapping} will be ignored. To use this option, either
+\code{prune_to} and \code{data_1} must both be provided as \code{data.frame}s of classified
+entities (in which case the overlap in number of entities will be computed
+between \code{prune_to} and \code{data_1}), or \code{data_1} and \code{data_2} must both be
+provided as \code{data.frame}s of classified entities (in which case the overlap
+in number of entities will be computed between \code{data_1} and \code{data_2}). If
+all three of \code{prune_to}, \code{data_1}, and \code{data_2} are provided as
+\code{data.frame}s of classified entities, then the overlap will be computed
+between \code{data_1} and \code{data_2}.}
+
+\item{entity_id_col}{Character: the name of the variable in \code{prune_to},
+\code{data_1}, and/or \code{data_2} that identifies entities, if those arguments are
+provided as \code{data.frame}s of classified entities. Used only if
+\code{color_overlap = TRUE} (because it's used by \code{\link[=calc_number_overlap]{calc_number_overlap()}} to
+calculate the overlap in entities). Default \code{NULL} to assume that entities
+are uniquely identified by the combination of all variables other than those
+in \code{tax_level_labels}.}
+
+\item{point_size}{Numeric: the size at which to draw node and tip points,
+which are only drawn if \code{color_overlap = TRUE}. Default 3.}
+
+\item{clade_level}{Integer or character: The taxonomy level at which to draw
+clade labels, if any. Default is \code{NULL}, which will suppress clade labels
+altogether. \code{clade_level = "auto"} is a special value that automatically
+selects the taxonomy level of the MRCA of the tips plus one, or level 2,
+whichever is the greater number. See \code{\link[=add_cladelabels]{add_cladelabels()}}. If \code{show_tips = TRUE}, \code{clade_level} will be ignored and clade labels will not be drawn.}
+
+\item{clade_opts}{List of parameters defining aesthetic options for labeling
+clades. See \code{\link[=add_cladelabels]{add_cladelabels()}} for options.  Default is \code{list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7, default_to_tip = TRUE, draw_text = TRUE)}. You can provide any of the additional parameters
+of \code{\link[ggtree:geom_cladelab]{ggtree::geom_cladelab()}}. If \code{show_tips = TRUE}, \code{clade_opts} will be
+ignored and clade labels will not be drawn.}
 }
 \value{
-A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
-with branches highlighted to indicate presence in \code{data_1}, in
-\code{data_2} if supplied, neither, or both.
+A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} object visualizing the full base tree, with
+branches highlighted to indicate presence in \code{data_1}, in \code{data_2} (if
+supplied), neither, or both.
 }
 \description{
-This function takes in a base tree, and (optionally) one or two data sets
-consisting of entities with classification labels. It returns a tree diagram
-consisting of the base tree; if data sets were provided, branches of the base
-tree will be highlighted according to their membership in the provided data
-sets.
+Plot a tree with branches highlighted according to their
+membership in the provided data sets.
 }
+\details{
+This function takes in a base tree; an optional pruning specification
+as for \code{\link[=prune_tree]{prune_tree()}}; and optionally, one or two data sets used to specify
+subtrees of interest to highlight. If a pruning specification is given, the
+base tree will be pruned, and the pruned tree will be used as a new base
+tree. The function returns a tree diagram that plots the base tree (or the
+pruned base tree); if data sets were provided, branches of the plotted tree
+will be highlighted according to their membership in the provided data sets.
+
+If one data set is provided, branches will be highlighted in one of two
+ways: whether they are in the data set or not.
+
+If two data sets are provided, branches will be highlighted in one of four
+ways: whether they are in neither data set; whether they are in data set 1
+only; whether they are in data set 2 only; or whether they are in both
+datasets.
+
+More information on how to specify some of the function arguments:
+}
+\section{How to specify pruning}{
+\subsection{\code{prune_to} See \code{\link[=prune_tree]{prune_tree()}} for details about how to specify \code{prune_to}}{
+
+and the list of additional arguments in \code{prune_args}. \code{prune_to} can be
+specified as a \code{data.frame}, as an integer vector of node numbers, as a
+character vector of node labels, as a character scalar defining a taxonomy
+level. Note that default pruning behavior changes depending on how you
+specify \code{prune_to}! This is explained in \code{\link[=prune_tree]{prune_tree()}}.
+}
+
+\subsection{\code{prune_args}}{
+
+This is a named list of additional arguments for \code{\link[=prune_tree]{prune_tree()}}; please see
+the documentation for that function for details. The default is \code{NULL}, to
+use the defaults for \code{\link[=prune_tree]{prune_tree()}}. Names in this list can include
+\code{keep_descendants}, \code{adjust_branch_length}, and/or \code{tax_level_labels}.
+}
+}
+
 \section{How to specify data sets}{
+Arguments \code{data_1} and \code{data_2} are data sets that define subtrees of
+interest to highlight on the tree plot. They can be specified in one of
+several different ways. You are allowed to mix and match (specify \code{data_1}
+in a different way from \code{data_2}).
 \subsection{As \code{data.frame} objects containing classified entities}{
 
 If \code{data_1} or \code{data_2} are provided as \code{data.frame} objects containing
-classified entities, they must be of the following format: Rows correspond to
-individual entities. There must be one column corresponding to each of the
-taxonomy levels specified in \code{tax_level_labels}, containing the label at that
-level for each entity. These columns must have names corresponding to the
-members of \code{tax_level_labels}. For example, to use the ChemOnt taxonomy, the
-\code{data.frame} must have columns \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
-\code{level5}, \code{level6}, ... \code{level11}. Whenever an entity does not have a label at
-a given level, the corresponding element in the data table for that row and
-column should be \code{NA_character_}.
+classified entities, they must be of the following format: There must be one
+variable corresponding to, and named for, each of the taxonomy levels
+specified in \code{tax_level_labels}, containing the label at that level for each
+entity. For example, to use the ChemOnt taxonomy, the \code{data.frame} must have
+columns \code{kingdom}, \code{superclass}, \code{class}, \code{subclass}, \code{level5}, \code{level6},
+\code{level7}, \code{level8}, \code{level9}, \code{level10}, \code{level11}. Whenever an entity does
+not have a label at a given level, the corresponding element in the data
+table for that row and column should be \code{NA_character_}.
 
 The \code{data.frame} must have at least one additional column that uniquely
 identifies individual entities; the name of that additional column does not
 matter, as long as it is not the same as one of the taxonomy levels.
 
 For an example of a properly-formatted input \code{data.frame}, see the built-in
-dataset \code{\link{biosolids_class}}. The only required columns in
-\code{\link{biosolids_class}} are \code{kingdom, superclass, class, subclass,
-level5, level6, level7, level8, level9, level10, level11} and any one of the
-chemical identifier columns, for example \code{DTXSID}.
+dataset \link{biosolids_class}. The only required columns in \link{biosolids_class}
+are the ChemOnt taxonomy levels (\code{kingdom}, \code{superclass}, \code{class},
+\code{subclass}, \code{level5}, \code{level6}, \code{level7}, \code{level8}, \code{level9}, \code{level10},
+\code{level11}), and at least one entity identifer column, for example \code{DTXSID}.
 }
 
-\subsection{As vectors of node labels}{
+\subsection{As character vectors of node labels}{
 
-If \code{data_1} or \code{data_2} are provided as vectors of node labels, they refer to
-node labels in \code{base_tree}, i.e. labels that appear in
-\code{base_tree$tip.label} or \code{base_tree$node.label}. Any labels in
-\code{data_1} or \code{data_2} that do not appear in the base tree will be ignored.
+If \code{data_1} or \code{data_2} are provided as character vectors of node labels,
+they refer to node labels in \code{base_tree} (or in the pruned base tree),
+\emph{i.e.}, labels that appear in \code{base_tree$tip.label} or
+\code{base_tree$node.label}. Any labels in \code{ data_1} or \code{data_2} that do not
+appear in the base tree will be ignored.
 
 The labels in \code{data_1} and/or \code{data_2}, plus all of their ancestors in the
 base tree, will be highlighted. Their descendants will not be highlighted
@@ -122,32 +234,129 @@ unless those descendants themselves appear in \code{data_1} or \code{data_2}.
 
 \subsection{As vectors of node numbers}{
 
-If \code{data_1} or \code{data_2} are provided as vectors of node numbers, they refer to
-node and tip index numbers in the base tree. Tip numbers run from 1 to
-\code{ape::Ntip(base_tree)}, and node numbers run from
-\code{ape::Ntip(base_tree) + 1} to \code{ape::Ntip(base_tree) +
-ape::Nnode(base_tree) - 1}.
+If \code{data_1} or \code{data_2} are provided as vectors of node numbers, they refer
+to node and tip index numbers in the base tree (or the pruned base tree).
+Tip numbers run from 1 to \code{ape::Ntip(base_tree)}, and node numbers run from
+\code{ape::Ntip(base_tree) + 1} to `ape::Ntip(base_tree) + ape::Nnode(base_tree)
+\itemize{
+\item 1`.
+}
 
 You might specify \code{data_1} or \code{data_2} as vectors of node numbers if, for
-example, you have used \code{\link[phangorn]{Ancestors}} or
-\code{\link[phangorn]{Descendants}} to trace ancestors or descendants of a
-specified node, and now you want to visualize those ancestors or descendants.
-\code{\link[phangorn]{Ancestors}} and \code{\link[phangorn]{Descendants}} both
-return lists or vectors of node numbers, so it would be convenient to be able
-to pass those vectors of node numbers directly to \code{display_subtree}.
+example, you have used \code{\link[phangorn:Ancestors]{phangorn::Ancestors()}} or \code{\link[phangorn:Ancestors]{phangorn::Descendants()}}
+to trace ancestors or descendants of a specified node, and now you want to
+visualize those ancestors or descendants. \code{\link[phangorn:Ancestors]{phangorn::Ancestors()}} and
+\code{\link[phangorn:Ancestors]{phangorn::Descendants()}} both return lists or vectors of node numbers, so
+it would be convenient to be able to pass those vectors of node numbers
+directly to \code{\link[=display_subtree]{display_subtree()}}.
 
-'The nodes/tips in \code{data_1} and/or \code{data_2}, plus all of their ancestors in
-the base tree, will be highlighted. Their descendants will not be highlighted
-unless those descendants themselves appear in \code{data_1} or \code{data_2}.
+The nodes/tips in \code{data_1} and/or \code{data_2}, plus all of their ancestors in
+the base tree, will be highlighted. Their descendants will not be
+highlighted unless those descendants themselves appear in \code{data_1} or
+\code{data_2}.
 }
 
 \subsection{As tree objects}{
 
-If \code{data_1} or \code{data_2} are provided as \code{\link[ape]{phylo}}-class tree
-objects, any labels in their \code{tip.label} or \code{node.label} elements
-that do not appear in the tip or node labels of the base tree will be ignored.
-In other words, only the portions of \code{data_1} and \code{data_2} that are subtrees
-of \code{base_tree} wil be used.
+If \code{data_1} or \code{data_2} are provided as \code{phylo}-class tree objects, any
+labels in their \code{tip.label} or \code{node.label} elements that do not
+appear in the tip or node labels of the base tree will be ignored. In other
+words, only the portions of \code{data_1} and \code{data_2} that are subtrees of
+\code{base_tree} wil be used.
 }
 }
 
+\section{How to specify \code{subtree_mapping}}{
+Each element of \code{subtree_mapping} should be a vector of values. \code{color}
+should be a character vector of color names or hex specifications; \code{size}
+should be a numeric vector indicating line width;  \code{linetype} should be an
+integer vector indicating line type (1 = solid, 2 = dashed, 3 = dotted, 4 =
+dot-dashed, etc.).
+
+If you supplied only \code{data_1}, then each vector should be size 2,
+corresponding (in order) to the following categories: "not in set 1" and "in
+set 1." If you want to name the elements of the vectors, they should be
+named according to the following recipe: \code{paste("Not in", name_1)},
+\verb{paste("In", name_1))}. If (and only if) you provide those names, then
+aesthetics will be assigned based on name rather than order.
+
+If you supplied both \code{data_1} and \code{data_2}, each vector should be 4 elements
+long, corresponding (in order) to the following categories: "neither set",
+"set 1 only", "set 2 only", and "both set 1 and set 2." If you want to name
+the elements of the vectors, they should be named according to the following
+recipe: \code{"Neither set"}, \code{paste(name_1, "only")}, \code{paste(name_2, "only")},
+\code{paste(name_1, "and", name_2)}. If (and only if) you provide those names,
+then aesthetics will be assigned based on name rather than order.
+
+If you provide a vector that is too long; it will be truncated to the needed
+length (with a warning). If you provide a vector that is too short, it will
+be recycled to the needed length (with a warning). If any of \code{color},
+\code{size}, or \code{linetype} are not provided, the value from \code{base_opts} will be
+used for all data sets. If you provide any aesthetics (any named list
+elements) other than \code{color}/\code{colour}, \code{size}, or \code{linetype}, they will be
+ignored (with a warning).
+}
+
+\section{Helpful hints}{
+If you supply \code{show_tips = TRUE} and some of the tip labels are cut off, you
+can enlarge the margin using \code{\link[ggplot2:lims]{ggplot2::xlim()}}. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{my_tree <- display_subtree(prune_to = biosolids_class,
+base_name = "Biosolids",
+data_1 = usgs_class,
+name_1 = "USGS",
+show_tips = TRUE)
+
+my_tree #labels are cut off
+
+my_tree + xlim(c(0, max(my_tree$data$x) + 50) #add extra space
+}\if{html}{\out{</div>}}
+}
+
+\examples{
+
+#make a smaller base tree for visibility
+oh_tree <- prune_tree(tree = chemont_tree,
+prune_to = "Organohalogen compounds")
+
+#one data set
+display_subtree(base_tree = oh_tree, data_1 = biosolids_class)
+
+#two data sets
+display_subtree(base_tree = oh_tree,
+ data_1 = biosolids_class,
+data_2 = usgs_class)
+
+#increasing line width
+display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
+data_2 = usgs_class, base_opts = list(size = 1))
+
+#different subtree color mapping
+display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
+data_2 = usgs_class, base_opts = list(size = 1),
+ subtree_mapping = list(color = c("black", "red", "blue", "purple")))
+
+ #clade level
+ display_subtree(base_tree = oh_tree,
+  data_1 = biosolids_class,
+data_2 = usgs_class, base_opts = list(size = 1),
+clade_level = 2)
+
+#prune to BIOSOLIDS2021 classes only
+#and color by overlap between BIOSOLIDS2021 and USGS Water
+display_subtree(prune_to = biosolids_class,
+data_1 = usgs_class,
+base_name = "Biosolids",
+name_1 = "USGS Water",
+base_opts = list(size = 1),
+color_overlap = TRUE,
+show_tips = FALSE,
+clade_level = 2,
+clade_opts = list(offset = 3,
+offset.text = 1,
+fontsize = 4))
+
+}
+\author{
+Caroline Ring, Paul Kruse
+}

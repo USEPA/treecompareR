@@ -11,18 +11,18 @@ classify_inchikeys(
 )
 }
 \arguments{
-\item{inchikeys}{A vector of InCHiKeys to be classified}
+\item{inchikeys}{Character: A vector of InCHiKeys to be classified}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
  level11}.}
 
-\item{wait_min}{A parameter controlling how many seconds between qqueries sent
+\item{wait_min}{Numeric: A parameter controlling how many seconds between qqueries sent
 to the ClassyFire API server. Default 5, to respect the limit of 12 requests
-per second.}
+per second. Setting it any lower than 5 will result in failed queries.}
 }
 \value{
-A data.frame with the following variables: \itemize{
+A \verb{data.frame with the following variables}: \itemize{
 \item{identifier: The input InCHiKey that was queried. For example,
 "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
 \item{smiles: The corresponding SMILES returned by ClassyFire, if any}
@@ -72,11 +72,12 @@ will do the merge: \code{dplyr::left_join(source_dat, dat, by = "INCHIKEY" =
 for any missing or invalid InCHiKeys.
 }
 \description{
-This function uses the ClassyFire API to classify chemicals from an input
-data.table using the InChIKey chemical identifier.
+This function uses the ClassyFire API to classify chemicals from
+an input data.table using the InChIKey chemical identifier.
 }
 \details{
-This function queries ClassyFire's lookup table of pre-classified InChiKeys
+This function queries ClassyFire's lookup table of pre-classified
+InChiKeys to get classifications, using the ClassyFire API.
 }
 \references{
 \insertRef{djoumbou2016classyfire}{treecompareR}

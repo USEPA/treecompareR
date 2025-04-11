@@ -15,7 +15,7 @@ side_by_side_trees(
 )
 }
 \arguments{
-\item{base_tree}{The tree to be pruned, as a \code{\link[ape]{phylo}}-class
+\item{base_tree}{The tree to be pruned, as a \code{phylo}-class
 object.}
 
 \item{data_left}{The left data.frame(or data.table) of chemical
@@ -31,7 +31,7 @@ classifications.}
 \item{log_trans}{Alternate parameter for log-transforming data.}
 
 \item{tax_level_labels}{Vector of the possible taxonomy levels that can
-appear as column names in \code{data_left} and \code{data_right} of
+appear as column names in \code{data_left} and `data_right`` of
 classified data.}
 }
 \value{

@@ -7,38 +7,35 @@
 leaf_fraction_subtree(
   data_1,
   data_2,
-  name_1 = "data_1",
-  name_2 = "data_2",
+  name_1 = "Set 1",
+  name_2 = "Set 2",
   show_labels = FALSE,
   tax_level_labels = chemont_tax_levels,
   tree = NULL
 )
 }
 \arguments{
-\item{data_1}{A data.table of chemicals, classifications, and column
-\code{terminal_label}.}
+\item{data_1}{A \code{data.frame} of classified entities (including terminal labels).}
 
-\item{data_2}{A data.table of chemicals, classifications, and column
-\code{terminal_label}}
+\item{data_2}{A \code{data.frame} of classified entities (including terminal labels).}
 
-\item{name_1}{Alternate parameter for name of first data.table.}
+\item{name_1}{Character: name of first data set (used for plot legend).}
 
-\item{name_2}{Alternate parameter for name of second data.table.}
+\item{name_2}{Character: name of second data set (used for plot legend).}
 
-\item{show_labels}{Alternate parameter indicating whether to show tip labels.}
+\item{show_labels}{\code{TRUE}/\code{FALSE}: whether to show tip labels.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{Character vector of taxonomy levels. Default \link{chemont_tax_levels}.}
 
-\item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
+\item{tree}{A \code{phylo}-class tree object defining the base tree. Default \link{chemont_tree}.}
 }
 \value{
-A ggtree plot.
+A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} object.
 }
 \description{
-This function takes in two data.tables, plots the subtree induced by the
-first data.table and colors the tips based on the proportion of chemicals
-from the second data.table that make up the chemicals from the first, grouped
+This function takes in two \code{data.frame}s, plots the subtree induced by the
+first \code{data.frame} and colors the tips based on the proportion of chemicals
+from the second \code{data.frame} that make up the chemicals from the first, grouped
 by tip (or terminal) label.
 }
 \seealso{

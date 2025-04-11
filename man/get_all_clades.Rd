@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{get_all_clades}
 \alias{get_all_clades}
-\title{List all clades in a tree at a specified level}
+\title{Get all clades}
 \usage{
 get_all_clades(tree, level)
 }
@@ -14,12 +14,16 @@ get_all_clades(tree, level)
 }
 \value{
 A data.frame with four variables: \code{node} (the node number in the
-tree); \code{level} (the level of the node in the tree, where root is level
-0); \code{parent} (the node number of the node's immediate parent); and
-\code{Name} (the text label of the node).
+tree); \code{level} (the level of the node in the tree, where root is level 0);
+\code{parent} (the node number of the node's immediate parent); and \code{Name} (the
+text label of the node).
 }
 \description{
 List all clades in a tree at a specified level
+}
+\details{
+List all the labels in a specified tree at a specified level of the
+taxonomy.
 }
 \examples{
 #list all ChemOnt superclasses:

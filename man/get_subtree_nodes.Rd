@@ -13,7 +13,7 @@ get_subtree_nodes(
 \arguments{
 \item{data}{A classified data set.}
 
-\item{base_tree}{The base tree, as a \code{\link[ape]{phylo}}-class object
+\item{base_tree}{The base tree, as a \code{phylo}-class object
 (see \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class). Default is
 \code{\link{chemont_tree}}, the full ChemOnt taxonomy tree.}
 

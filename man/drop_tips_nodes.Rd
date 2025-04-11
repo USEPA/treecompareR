@@ -28,26 +28,35 @@ drop_tips_nodes(
 is level zero and each subsequent generation of children nodes is one level
 greater. Default \code{NULL}.}
 
-\item{keep_descendants}{TRUE/FALSE: whether to keep all descendants of the
-input labels/nodes/level. Default \code{NULL}, which means behavior depends on
-whether \code{data}, \code{labels}, \code{nodes}, or \code{level} was provided. See
+\item{keep_descendants}{\code{TRUE}/\code{FALSE}: whether to keep all descendants of
+the input labels/nodes/level. Default \code{NULL}, which means behavior depends
+on whether \code{data}, \code{labels}, \code{nodes}, or \code{level} was provided. See
 \code{\link[=prune_tree]{prune_tree()}} for more details.}
 
-\item{tax_level_labels}{Levels of the taxonomy in order. Default
+\item{tax_level_labels}{Character vector naming the levels of the taxonomy in
+order from most general to most specific (excluding root). Default
 \code{\link[=chemont_tax_levels]{chemont_tax_levels()}}.}
 }
 \value{
 A \code{phylo}-class object representing the induced subtree of the data.
 }
 \description{
-Helper function used by \code{\link[=prune_tree]{prune_tree()}}.
+Drop tips and nodes of a tree as needed to keep only the nodes
+of a specified subtree.
 }
 \details{
-This function takes in a data set, collects the labels from classifications
-of the chemicals in the data set, and drops tips and nodes until the induced
-subtree that remains consists solely of the labels associated to the data set
-and their ancestors. Alternatively, one can provide a set of labels instead
-and the induced subtree is constructed from these labels in the same manner.
+This is a helper function used by \code{\link[=prune_tree]{prune_tree()}}. Usually it will
+not be called by the user directly.
+
+This function takes in a \code{phylo}-class tree and one of several ways of
+specifying a subtree, and drops tips and nodes until the remaining tree
+consists solely of the nodes and tips associated with the specified subtree
+and their ancestors. The subtree can be specified using argument \code{data} as
+a \code{data.frame} of classified entities; using argument \code{label} as a
+character vector of subtree labels; using argument \code{nodes} as an integer
+vector of tip and node IDs; or using argument \code{level} as either a character
+string naming one of the taxonomy levels, or an integer giving the taxonomy
+level of interest (where root is level 0).
 }
 \examples{
 drop_tips_nodes(tree = chemont_tree,
@@ -57,4 +66,7 @@ data = biosolids_class[1:20,])
 }
 \references{
 \insertRef{apepackage}{treecompareR}
+}
+\author{
+Caroline Ring, Paul Kruse
 }

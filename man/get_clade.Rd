@@ -7,24 +7,26 @@
 get_clade(node, tree, level = 2)
 }
 \arguments{
-\item{node}{Integer: A vector of node number(s) for which to get the clade(s)}
+\item{node}{Integer: A vector of one or more node number(s) for which to get
+the clade(s)}
 
 \item{tree}{An object of class \code{phylo} representing a rooted tree (see
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
-\item{level}{Integer: The hierarchical taxonomy level at which to get the clade(s).
-Root is level 0. Default value is 2 (superclass level, in ChemOnt).}
+\item{level}{Integer: The hierarchical taxonomy level at which to get the
+clade(s). Root is level 0. Default value is 2 (superclass level, in
+ChemOnt).}
 }
 \value{
 Integer vector of node numbers representing the ancestors of the input
 nodes at the specified level.
 }
 \description{
-Get clade (ancestor at a specified level)
+Get clade (ancestor of a node at a specified level)
 }
 \details{
-Get the node numbers defining the clades (ancestors at a specified level) for specified input
-node numbers
+Get the node numbers defining the clades (ancestors at a specified
+level) for specified input node numbers.
 }
 \examples{
 get_clade(node = 35,

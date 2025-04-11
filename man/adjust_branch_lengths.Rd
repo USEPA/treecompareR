@@ -16,6 +16,15 @@ Numeric: A vector of adjusted branch lengths for the input tree.
 \description{
 Adjust branch lengths for pruned trees.
 }
+\details{
+This is a helper function used by \code{\link[=prune_tree]{prune_tree()}}. Usually it will not
+be called by the user directly.
+
+This function adjusts the length of branches after pruning. With the
+adjustment in this function, internal nodes that have become tip nodes after
+pruning (\emph{i.e.}, because their descendants have been pruned away) will be
+plotted at the same branch length as other tip nodes.
+}
 \examples{
 my_tree <- prune_tree(tree = chemont_tree,
  prune_to = biosolids_class[1:10,])

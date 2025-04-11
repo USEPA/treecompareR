@@ -9,7 +9,7 @@ get_node_from_label(label, tree)
 \arguments{
 \item{label}{Character vector of labels for tips or internal nodes in phylo tree}
 
-\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\item{tree}{A \code{phylo}-class object (see
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 }
 \value{

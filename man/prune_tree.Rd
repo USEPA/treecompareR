@@ -9,11 +9,12 @@ prune_tree(
   prune_to = NULL,
   keep_descendants = NULL,
   adjust_branch_length = FALSE,
-  tax_level_labels = chemont_tax_levels
+  tax_level_labels = chemont_tax_levels,
+  ...
 )
 }
 \arguments{
-\item{tree}{The tree to be pruned, as a \code{\link[ape]{phylo}}-class object (see
+\item{tree}{The tree to be pruned, as a \code{phylo}-class object (see
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{prune_to}{What to \emph{keep} from the base tree (everything else will be
@@ -37,9 +38,11 @@ were originally internal nodes. Default FALSE.}
 \item{tax_level_labels}{Vector of the possible taxonomy levels that can appear
 as column names in \code{prune_to} if it is a \code{data.frame} of
 classified data.}
+
+\item{...}{Additional arguments, not currently used.}
 }
 \value{
-A \code{\link[ape]{phylo}}-class object representing the pruned tree.
+A \code{phylo}-class object representing the pruned tree.
 }
 \description{
 Prune a tree to keep only a specified subtree.

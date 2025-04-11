@@ -9,7 +9,7 @@ get_label_from_node(node, tree)
 \arguments{
 \item{node}{Integer vector of node ID numbers in phylo tree.}
 
-\item{tree}{A \code{\link[ape]{phylo}}-class object (see
+\item{tree}{A \code{phylo}-class object (see
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 }
 \value{

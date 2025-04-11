@@ -16,38 +16,47 @@ circ_tree_boxplot(
 )
 }
 \arguments{
-\item{data}{A data.table consisting of classification data and additional
-numeric data.}
+\item{data}{A \code{data.frame} of classified entities with at least one
+additional numeric data variable. Must contain at least the following
+variables: variables named for every element of \code{tax_level_labels},
+containing the (character) labels at each level of classification; and the
+variable named in \code{col}.}
 
-\item{col}{A specified numeric column for use in displaying boxplots.}
+\item{col}{Character: the name of the numeric data variable to make boxplots
+with.}
 
-\item{tax_level_labels}{An alternate parameter giving the taxonomy levels if
-not using ClassyFire taxonomy.}
+\item{tax_level_labels}{Character: the taxonomy levels. Default
+\link{chemont_tax_levels}.}
 
-\item{title}{An alternate parameter for the title of the plot.}
+\item{title}{Character: the title of the plot.}
 
-\item{tree}{An alternate parameter giving a taxonomy if not using ChemOnt.}
+\item{tree}{A \code{phylo}-class tree object specifying the tree to plot.}
 
-\item{layers}{An alternate parameter giving which taxonomic layers to display
-outside of the boxplot layer. This can be either a string with a single
-column name, a vector of column names, or a list of column names. If the
-input is a vector or a list, it is fine for it to be length 1.}
+\item{layers}{Which taxonomic layers to display outside of the boxplot layer.
+This can be either a string with a single column name, a vector of column
+names, or a list of column names. If the input is a vector or a list, it is
+fine for it to be length 1.}
 
-\item{adjust_branch_length}{Whether to adjust branch length so that all
-newly-pruned terminal nodes appear at the same length as tips, even if they
-were originally internal nodes. Default FALSE.}
+\item{adjust_branch_length}{\code{TRUE}/\code{FALSE}: If \code{TRUE}, adjust branch length
+so that all newly-pruned terminal nodes appear at the same length as tips,
+even if they were originally internal nodes. Default \code{FALSE}.}
 
-\item{tippoint_boxplot}{Alternate parameter for determining whether to color
-the tippoints and the boxplots. If TRUE, they will match in colors, and if
-FALSE, the boxplots will be filled white with black outline and the
-tippoints will be black.}
+\item{tippoint_boxplot}{\code{TRUE}/\code{FALSE}: Whether to color the tip points and
+the boxplots. If \code{TRUE}, tip points and boxplots will have matching colors.
+If \code{FALSE} (default), the boxplots will be filled white with black outline
+and the tip points will be black.}
 }
 \value{
-A ggtree object consisting of subtree induced by data and boxplots
-corresponding to specified numeric column of data.
+A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} object, plotting the subtree induced by the data, annotated with boxplots
+corresponding to the specified numeric column of data.
 }
 \description{
-This function takes in a data.table of chemicals with classification data and
-additional numeric data, and displays selected numeric data grouped by tip
-label on the data-induced subtree of the classification taxonomy.
+Plot a circular tree annotated with boxplots.
+}
+\details{
+This function takes in a \code{data.frame} of classified entities with an
+additional numeric data variable. The \code{data.frame} will be grouped
+according to the terminal classification of the entities, and the specified
+numeric data will be plotted as boxplot annotations at the corresponding
+tips of the tree.
 }

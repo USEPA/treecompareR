@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_methods.R
 \name{bind_entities}
 \alias{bind_entities}
-\title{Bind individual entities as new tips to a tree}
+\title{Bind entities to a tree}
 \usage{
 bind_entities(
   tree,
@@ -34,7 +34,19 @@ the specified variables.}
 A \code{phylo}-class object.
 }
 \description{
-Bind individual entities as new tips to a tree
+Bind individual classified entities as new tips to a tree
+}
+\details{
+Given a \code{data.frame} of classified entities with identifiers, this
+function gets the terminal classifications for each entity, and then binds
+the entity ID to each terminal classification as a new tip node of the
+tree.
+
+This function may be useful when you plotting classified entities: for
+example, if you are using the ChemOnt taxonomy and plotting classified
+chemicals, and you want to show all of the individual chemicals with each
+classification in the tree, you could use \code{\link[=bind_entities]{bind_entities()}} first and then
+plot the resulting tree using, for example, \code{\link[=display_subtree]{display_subtree()}}.
 }
 \examples{
 

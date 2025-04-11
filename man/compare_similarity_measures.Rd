@@ -14,11 +14,14 @@ A \code{data.frame} consisting of the mean self-similarity scores for each
 tree and similarity measure.
 }
 \description{
-This functions compares the similarity measures of Jaccard, Resnik, Lin, and
-Jiang and Conrath on a variety of trees. The tree types include the
-caterpillar, star, and balanced trees. The input parameter \code{n} indicates how
-many tips for the caterpillar and balanced tree. The star has 2n tips, and
-all trees have 2n-1 total nodes and tips.
+Compare various similarity measures on a variety of tree shapes.
+}
+\details{
+This function compares the similarity measures of Jaccard, Resnik,
+Lin, and Jiang and Conrath on a variety of trees with different shapes. The
+tree types include the caterpillar, star, and balanced trees. The input
+parameter \code{n} indicates how many tips for the caterpillar and balanced
+tree. The star has 2n tips, and all trees have 2n-1 total nodes and tips.
 }
 \examples{
 compare_similarity_measures(n=10)

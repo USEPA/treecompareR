@@ -2,7 +2,7 @@
 % Please edit documentation in R/tree_diagrams.R
 \name{add_cladelab}
 \alias{add_cladelab}
-\title{Add clade labels to an existing \code{\link[ggtree]{ggtree}} plot.}
+\title{Add clade labels}
 \usage{
 add_cladelab(
   tree_plot,
@@ -13,13 +13,13 @@ add_cladelab(
 )
 }
 \arguments{
-\item{tree_plot}{A \code{\link[ggtree]{ggtree}} plot object, e.g. the output
-of \code{\link{display_subtree}} or of \code{\link[ggtree]{ggtree}}.}
+\item{tree_plot}{A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} plot object, e.g. the output
+of \code{\link[=display_subtree]{display_subtree()}} or of \code{\link[ggtree:ggtree]{ggtree::ggtree()}}.}
 
-\item{tree}{Optional: the \code{\link[ape]{phylo}} tree object plotted in
+\item{tree}{Optional: the \code{phylo} tree object plotted in
 \code{tree_plot}. Function will run faster if \code{tree} is provided;
 otherwise \code{tree} will be reconstructed from \code{tree_plot$data} using
-\code{\link{generate_taxonomy_tree}}.}
+\code{\link[=generate_taxonomy_tree]{generate_taxonomy_tree()}}.}
 
 \item{clade_level}{Numeric or \code{"auto"}: the taxonomy level at which to
 label clades, where level 0 is the root. Default value \code{"auto"} selects
@@ -34,23 +34,25 @@ clade labels. See "Details."}
 \code{tree_plot} with clade labels added.
 }
 \description{
-Wrapper for \code{\link[ggtree]{geom_cladelab}} to add clade labels to an
-existing \code{\link[ggtree]{ggtree}} plot. Handles some fiddly data wrangling
-and allows the option to plot clade labels with alternating thick/thin bar
-widths, which is useful to distinguish clades when they are separated by
-little or no space on the plot.
+Add clade labels to an existing \code{\link[ggtree:ggtree]{ggtree::ggtree()}} plot.
 }
 \details{
-Currently, \code{add_cladelab} cannot be chained using the
-\code{\link[ggplot2]{\%+\%}} operator. This is because \code{add_cladelab}
-is not currently defined as an S3 class with an associated \code{ggplot_add}
+Adds clade labels to an existing \code{\link[ggtree:ggtree]{ggtree::ggtree()}} plot. Wrapper
+for \code{\link[ggtree:geom_cladelab]{ggtree::geom_cladelab()}} that handles some fiddly data wrangling, and
+allows the option to plot clade labels with alternating thick/thin bar
+widths, which is useful to distinguish clades when they are separated by
+little or no space on the plot.
+
+Currently, \code{\link[=add_cladelab]{add_cladelab()}} cannot be chained using the
+\code{+} operator. This is because \code{\link[=add_cladelab]{add_cladelab()}} is not
+currently defined as an S3 class with an associated \code{\link[ggplot2:ggplot_add]{ggplot2::ggplot_add()}}
 method.
 
 #'For example, the following code will \emph{not} work:
 
 \verb{R ggtree(tree) + add_cladelab() }
 
-\code{add_cladelab} also cannot be chained using the
+\code{\link[=add_cladelab]{add_cladelab()}} also cannot be chained using the
 \code{\link[magrittr]{\%>\%}} operator if the preceding chain involves
 \code{`+`}. This is because of operator precedence: R evaluates
 \code{\link[magrittr]{\%>\%}} before \code{\link[ggplot2]{\%+\%}}.
@@ -65,23 +67,23 @@ However, the following code \emph{will} work:
 }
 \section{Clade options}{
 The \code{cladeopt} parameter may include any of the "additional parameters"
-understood by \code{\link[ggtree]{geom_cladelab}}, including
+understood by \code{\link[ggtree:geom_cladelab]{ggtree::geom_cladelab()}}, including
 \itemize{
-\item offset
-\item offset.text
-\item align
-\item extend
-\item angle
-\item horizontal
-\item barsize
-\item barcolour
-\item fontsize
-\item textcolour
-\item imagesize
-\item imagecolour
+\item \code{offset}
+\item \code{offset.text}
+\item \code{align}
+\item \code{extend}
+\item \code{angle}
+\item \code{horizontal}
+\item \code{barsize}
+\item \code{barcolour}
+\item \code{fontsize}
+\item \code{textcolour}
+\item \code{imagesize}
+\item \code{imagecolour}
 }
 
-Additionally, in \code{add_cladelab}, the following parameters are
+Additionally, in \code{\link[=add_cladelab]{add_cladelab()}}, the following parameters are
 understood:
 \itemize{
 \item \code{wrap}: the number of characters to wrap text labels. Default 20.
@@ -95,7 +97,7 @@ labeled with its tip label (\code{default_to_tip = TRUE}), or should
 that tip be unlabeled (\code{default_to_tip = FALSE})? The default
 value is \code{TRUE}.
 \item \code{draw_text} Logical: Whether to draw the text of clade labels,
-or only the bars. If TRUE, draw text. If FALSE, do not. Default TRUE.
+or only the bars. If \code{TRUE}, draw text. If \code{FALSE}, do not. Default \code{TRUE}.
 }
 }
 

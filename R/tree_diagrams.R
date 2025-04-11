@@ -1050,9 +1050,9 @@ tree_plot <- tree_plot %<+% overlap_dat + #add the similarity data
 #' @param entity_id_col The name of the variable identifying unique entities in
 #'   both `data_1` and `data_2`. Must be the same in both data sets.
 #' @param group_level Taxonomy level at which to aggregate entities. Default
-#'   \code{"terminal"}: Calculate number of entities and overlap for each tip
+#'   `"terminal"`: Calculate number of entities and overlap for each tip
 #'   label. Can also be any element of `tax_level_labels`, or an integer
-#'   between 1 and `length{tax_level_labels`. In this case, entities will
+#'   between 1 and `length(tax_level_labels)`. In this case, entities will
 #'   be grouped by unique labels at the specified taxonomic level, rather than
 #'   by terminal (tip) labels, for calculation and plotting of number of
 #'   chemicals and overlap.
@@ -1270,7 +1270,7 @@ return(out_obj)
 #'   little or no space on the plot.
 #'
 #'   Currently, [add_cladelab()] cannot be chained using the
-#'   [ggplot2::`\%+\%`()] operator. This is because [add_cladelab()] is not
+#'   `+` operator. This is because [add_cladelab()] is not
 #'   currently defined as an S3 class with an associated [ggplot2::ggplot_add()]
 #'   method.
 #'

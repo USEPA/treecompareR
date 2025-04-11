@@ -30,30 +30,32 @@ If classification could not be completed for one or more structures, they
 will be listed in the table with \code{NA_character_} in the \code{name} column.
 }
 \description{
-This function takes a vector of structural identifiers (SMILES strings or
-InChi strings) and queries the ClassyFire API to get classifications for each
-one.
+This function takes a vector of structural identifiers (SMILES
+strings or InChi strings) and queries the ClassyFire API to get
+classifications for each one.
 }
 \details{
-For use with \code{treecompareR} functions that expect a \code{data.frame} of
-classified entities, this \code{data.frame} will need to be reshaped into wider
-format, with one row for each structure and one column for each level of
+For use with \code{treecompareR} functions that expect a
+\code{data.frame} of classified entities, the \code{data.frame} returned by this
+function will need to be reshaped into wider format, with one row for each
+structure and one column for each level of
 classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
  names_from = "level", values_from = "name")} (where \code{dat} is the
 returned \code{data.frame}.) However, be on the lookout for pathological cases
 where a structure is listed with two different labels at the same level.
-These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will throw
-a warning if this happens -- pay attention to it!
+These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
+throw a warning if this happens -- pay attention to it!
 
-Note also that the returned data.frame includes only unique, valid
+Note also that the returned \code{data.frame} includes only unique, valid
 structures. Any duplicates, blanks, or NAs are not queried, and are not
 included in the output.
 
 If you have a source \code{data.frame} with duplicate, missing, or invalid
-structures, you can merge the returned \code{data.frame} with it (or pivot wider,
-then merge). For example, if your source \code{data.frame} is called
-\code{source_dat} with variable \code{"STRUCTURE"} containing the structures,
-and the returned \code{data.frame} is in variable \code{dat}, the following code
+structures, you can merge the returned \code{data.frame} with it (or pivot
+wider, then merge). For example, if your source \code{data.frame} is called
+\code{source_dat} with variable \code{"STRUCTURE"} containing the
+structures, and the returned \code{data.frame} is in variable \code{dat}, the
+following code
 will do the merge: \code{dplyr::left_join(source_dat, dat, by = "STRUCTURE" =
  "structure")}. In that case, classification columns will be filled with NA
 for any missing or invalid structures.
