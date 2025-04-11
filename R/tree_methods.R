@@ -838,15 +838,23 @@ get_cutoffs <- function(mat,
   }
   }
 
-#' Drop tips and nodes
+#' @title Drop tips and nodes
 #'
-#' Helper function used by [prune_tree()].
+#' @description Drop tips and nodes of a tree as needed to keep only the nodes
+#'   of a specified subtree.
 #'
-#' This function takes in a data set, collects the labels from classifications
-#' of the chemicals in the data set, and drops tips and nodes until the induced
-#' subtree that remains consists solely of the labels associated to the data set
-#' and their ancestors. Alternatively, one can provide a set of labels instead
-#' and the induced subtree is constructed from these labels in the same manner.
+#' @details This is a helper function used by [prune_tree()]. Usually it will
+#'   not be called by the user directly.
+#'
+#'   This function takes in a `phylo`-class tree and one of several ways of
+#'   specifying a subtree, and drops tips and nodes until the remaining tree
+#'   consists solely of the nodes and tips associated with the specified subtree
+#'   and their ancestors. The subtree can be specified using argument `data` as
+#'   a `data.frame` of classified entities; using argument `label` as a
+#'   character vector of subtree labels; using argument `nodes` as an integer
+#'   vector of tip and node IDs; or using argument `level` as either a character
+#'   string naming one of the taxonomy levels, or an integer giving the taxonomy
+#'   level of interest (where root is level 0).
 #'
 #' @param tree An object of class `phylo` representing a rooted tree (see
 #'   [ape::read.tree()] for description of this class).
@@ -856,13 +864,15 @@ get_cutoffs <- function(mat,
 #' @param level Integer: the level to which the tree should be pruned. The root
 #'   is level zero and each subsequent generation of children nodes is one level
 #'   greater. Default `NULL`.
-#' @param keep_descendants TRUE/FALSE: whether to keep all descendants of the
-#'   input labels/nodes/level. Default `NULL`, which means behavior depends on
-#'   whether `data`, `labels`, `nodes`, or `level` was provided. See
+#' @param keep_descendants `TRUE`/`FALSE`: whether to keep all descendants of
+#'   the input labels/nodes/level. Default `NULL`, which means behavior depends
+#'   on whether `data`, `labels`, `nodes`, or `level` was provided. See
 #'   [prune_tree()] for more details.
-#' @param tax_level_labels Levels of the taxonomy in order. Default
+#' @param tax_level_labels Character vector naming the levels of the taxonomy in
+#'   order from most general to most specific (excluding root). Default
 #'   [chemont_tax_levels()].
 #' @return A `phylo`-class object representing the induced subtree of the data.
+#' @author Caroline Ring, Paul Kruse
 #'
 #' @examples
 #' drop_tips_nodes(tree = chemont_tree,
@@ -1034,13 +1044,22 @@ drop_tips_nodes <- function(tree,
 }
 
 
-#' Adjust branch lengths
+#'@title Adjust branch lengths
 #'
-#' Adjust branch lengths for pruned trees.
+#'@description Adjust branch lengths for pruned trees.
 #'
-#' @param tree An object of class `phylo` representing a rooted tree (see
-#'   [ape::read.tree()] for description of this class).
-#' @return Numeric: A vector of adjusted branch lengths for the input tree.
+#'@details This is a helper function used by [prune_tree()]. Usually it will not
+#'  be called by the user directly.
+#'
+#'  This function adjusts the length of branches after pruning. With the
+#'  adjustment in this function, internal nodes that have become tip nodes after
+#'  pruning (*i.e.*, because their descendants have been pruned away) will be
+#'  plotted at the same branch length as other tip nodes.
+#'
+#'
+#'@param tree An object of class `phylo` representing a rooted tree (see
+#'  [ape::read.tree()] for description of this class).
+#'@return Numeric: A vector of adjusted branch lengths for the input tree.
 #'
 #' @examples
 #' my_tree <- prune_tree(tree = chemont_tree,
@@ -1091,13 +1110,15 @@ adjust_branch_lengths <- function(tree){
 }
 
 
-#' Compare similarity measures
+#' @title Compare similarity measures
 #'
-#' This functions compares the similarity measures of Jaccard, Resnik, Lin, and
-#' Jiang and Conrath on a variety of trees. The tree types include the
-#' caterpillar, star, and balanced trees. The input parameter `n` indicates how
-#' many tips for the caterpillar and balanced tree. The star has 2n tips, and
-#' all trees have 2n-1 total nodes and tips.
+#' @description Compare various similarity measures on a variety of tree shapes.
+#'
+#' @details This function compares the similarity measures of Jaccard, Resnik,
+#'   Lin, and Jiang and Conrath on a variety of trees with different shapes. The
+#'   tree types include the caterpillar, star, and balanced trees. The input
+#'   parameter `n` indicates how many tips for the caterpillar and balanced
+#'   tree. The star has 2n tips, and all trees have 2n-1 total nodes and tips.
 #'
 #' @param n Each tree has 2n-1 total nodes and tips.
 #' @return A `data.frame` consisting of the mean self-similarity scores for each
@@ -1191,21 +1212,23 @@ compare_similarity_measures <- function(n){
   return(simulation)
 }
 
-#' Get clade
+#'@title Get clade
 #'
-#'Get clade (ancestor at a specified level)
+#'@description Get clade (ancestor of a node at a specified level)
 #'
-#'Get the node numbers defining the clades (ancestors at a specified level) for specified input
-#'node numbers
+#'@details Get the node numbers defining the clades (ancestors at a specified
+#'  level) for specified input node numbers.
 #'
-#'@param node Integer: A vector of node number(s) for which to get the clade(s)
+#'@param node Integer: A vector of one or more node number(s) for which to get
+#'  the clade(s)
 #'@param tree An object of class `phylo` representing a rooted tree (see
 #'  [ape::read.tree()] for description of this class).
-#'@param level Integer: The hierarchical taxonomy level at which to get the clade(s).
-#'  Root is level 0. Default value is 2 (superclass level, in ChemOnt).
+#'@param level Integer: The hierarchical taxonomy level at which to get the
+#'  clade(s). Root is level 0. Default value is 2 (superclass level, in
+#'  ChemOnt).
 #'@return Integer vector of node numbers representing the ancestors of the input
 #'  nodes at the specified level.
-#' @author Caroline Ring, Paul Kruse
+#'@author Caroline Ring, Paul Kruse
 #' @examples
 #' get_clade(node = 35,
 #' tree = chemont_tree,
@@ -1240,15 +1263,20 @@ clades <- sapply(ancestors, function(x) {
 return(clades)
 }
 
-#' List all clades in a tree at a specified level
+#' @title Get all clades
+#'
+#' @description List all clades in a tree at a specified level
+#'
+#' @details List all the labels in a specified tree at a specified level of the
+#'   taxonomy.
 #'
 #' @param tree An object of class `phylo` representing a rooted tree (see
 #'   [ape::read.tree()] for description of this class).
 #' @param level The level at which to display nodes (0 is the root)
-#' @return A data.frame with four variables: \code{node} (the node number in the
-#'   tree); \code{level} (the level of the node in the tree, where root is level
-#'   0); \code{parent} (the node number of the node's immediate parent); and
-#'   \code{Name} (the text label of the node).
+#' @return A data.frame with four variables: `node` (the node number in the
+#'   tree); `level` (the level of the node in the tree, where root is level 0);
+#'   `parent` (the node number of the node's immediate parent); and `Name` (the
+#'   text label of the node).
 #' @author Caroline Ring
 #' @examples
 #' #list all ChemOnt superclasses:
@@ -1261,22 +1289,35 @@ clade_df <- tree_df[tree_df$level %in% level, ]
 return(clade_df)
 }
 
-#' Bind individual entities as new tips to a tree
+#' @title Bind entities to a tree
+#'
+#' @description Bind individual classified entities as new tips to a tree
+#'
+#' @details Given a `data.frame` of classified entities with identifiers, this
+#'   function gets the terminal classifications for each entity, and then binds
+#'   the entity ID to each terminal classification as a new tip node of the
+#'   tree.
+#'
+#'   This function may be useful when you plotting classified entities: for
+#'   example, if you are using the ChemOnt taxonomy and plotting classified
+#'   chemicals, and you want to show all of the individual chemicals with each
+#'   classification in the tree, you could use [bind_entities()] first and then
+#'   plot the resulting tree using, for example, [display_subtree()].
 #'
 #' @param tree An object of class `phylo` representing a rooted tree (see
 #'   [ape::read.tree()] for description of this class). Tips will be bound to
 #'   this tree.
 #' @param data Either one `data.frame`, or a list of `data.frames`, containing
 #'   classified entities. The data.frames must include the column names
-#'   specifiedin \code{tax_level_labels} and \code{entity_id_col}.
+#'   specifiedin `tax_level_labels` and `entity_id_col`.
 #' @param entity_id_col Character vector: One or more variable name(s) in
-#'   \code{data} that, together, uniquely identify the entities. Default `NULL`,
+#'   `data` that, together, uniquely identify the entities. Default `NULL`,
 #'   which treats each row in `data` as a unique entity named `entity1`,
 #'   `entity2`, ... for as many rows as there are in the data. If a vector of
 #'   variable names is provided, entities will be named by concatenating rows of
 #'   the specified variables.
 #' @param tax_level_labels Taxonomy levels used for classification in
-#'   \code{data}. Default is [chemont_tax_levels].
+#'   `data`. Default is [chemont_tax_levels].
 #' @return A \code{phylo}-class object.
 #' @author Caroline Ring, Paul Kruse
 #' @examples
@@ -1422,76 +1463,78 @@ bind_entities <- function(tree,
 
 }
 
-#'Prune a tree
+#' @title Prune a tree
 #'
-#'Prune a tree to keep only a specified subtree.
+#' @description Prune a tree to keep only a specified subtree.
 #'
+#' @details
 #' # How to specify the subtree to keep
-#'\code{prune_to} defines the subtree to *keep* (everything else will be pruned
-#'away). It may be specified in several different ways.
+#' `prune_to` defines the subtree to *keep* (everything else will be pruned
+#' away). It may be specified in several different ways.
 #'
 #' ## As a data.frame
 #'
-#'If \code{prune_to} is a \code{data.frame} of classified entities, it must have
-#'columns corresponding to, and named for, each of the taxonomy levels as
-#'defined in the argument \code{tax_level_labels}, containing the labels at the
-#'corresponding level for each entity. It must also have at least one more
-#'column, uniquely identifying the entities; the name of the additional column
-#'does not matter, as long as it is not the same as one of the taxonomy levels.
-#'The result will be to keep only the subtree induced by this classified data
-#'set, *i.e.*, only the branches of the tree that occur in this classified data
-#'set. By default, any descendants of the node labels in the \code{data.frame}
-#'that do not themselves appear in the \code{data.frame} will *not* be kept. If
-#'you want to keep descendants that do not themselves appear in the
-#'\code{data.frame}, specify \code{keep_descendants = TRUE}.
+#' If `prune_to` is a `data.frame` of classified entities, it must have
+#' columns corresponding to, and named for, each of the taxonomy levels as
+#' defined in the argument `tax_level_labels`, containing the labels at the
+#' corresponding level for each entity. It must also have at least one more
+#' column, uniquely identifying the entities; the name of the additional column
+#' does not matter, as long as it is not the same as one of the taxonomy levels.
+#' The result will be to keep only the subtree induced by this classified data
+#' set, *i.e.*, only the branches of the tree that occur in this classified data
+#' set. By default, any descendants of the node labels in the `data.frame`
+#' that do not themselves appear in the `data.frame` will *not* be kept. If
+#' you want to keep descendants that do not themselves appear in the
+#' `data.frame`, specify \code{keep_descendants = TRUE}.
 #'
 #' ## As the name of a taxonomy level
 #'
-#'If \code{prune_to} is the name of a taxonomy level (one of the levels defined
-#'in argument \code{tax_level_labels}), the result will be to keep only nodes at
-#'that taxonomic level or less-specific levels. (For example, for the ChemOnt
-#'taxonomy, specifying \code{prune_to = "class"} will keep only nodes at levels
-#'"kingdom", "superclass", and "class". Any nodes at level "subclass", "level5",
-#'"level6", ... "level11" will be dropped. (If you specify \code{prune_to} as
-#'the name of a taxonomy level, and also specify \code{keep_descendants = TRUE},
-#'the result will be to keep the whole tree.)
+#' If `prune_to` is the name of a taxonomy level (one of the levels defined
+#' in argument `tax_level_labels`), the result will be to keep only nodes at
+#' that taxonomic level or less-specific levels. (For example, for the ChemOnt
+#' taxonomy, specifying \code{prune_to = "class"} will keep only nodes at levels
+#' "kingdom", "superclass", and "class". Any nodes at level "subclass", "level5",
+#' "level6", ... "level11" will be dropped. (If you specify `prune_to` as
+#' the name of a taxonomy level, and also specify \code{keep_descendants = TRUE},
+#' the result will be to keep the whole tree.)
 #'
 #' ## As a vector of node/tip labels or numbers
 #'
-#'If \code{prune_to} is a vector of node/tip labels (i.e., labels appearing in
-#'\code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers (i.e.
-#'node/tip index numbers between 1 and \code{ape::Ntip(tree) +
-#'ape::Nnode(tree)}), the result will be to keep only the nodes/tips that are in
-#'that vector, keep their common ancestors, and (by default) also keep their
-#'descendants if any. The intention of keeping the descendants by default is to
-#'allow the user to prune to specified clades simply by specifying the labels or
-#'node numbers of the MRCAs of the clades. For example, using the ChemOnt
-#'taxonomy, you could prune to keep all branches in the superclass
-#'"Organohalogen compounds" by simply specifying \code{prune_to = "Organohalogen
-#'compounds"}.  If you do *not* wish to keep the descendants of the specified
-#'node labels/numbers, then specify \code{keep_descendants = FALSE}.
+#' If `prune_to` is a vector of node/tip labels (i.e., labels appearing in
+#' \code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers (i.e.
+#' node/tip index numbers between 1 and \code{ape::Ntip(tree) +
+#' ape::Nnode(tree)}), the result will be to keep only the nodes/tips that are in
+#' that vector, keep their common ancestors, and (by default) also keep their
+#' descendants if any. The intention of keeping the descendants by default is to
+#' allow the user to prune to specified clades simply by specifying the labels or
+#' node numbers of the MRCAs of the clades. For example, using the ChemOnt
+#' taxonomy, you could prune to keep all branches in the superclass
+#' "Organohalogen compounds" by simply specifying \code{prune_to = "Organohalogen
+#' compounds"}.  If you do *not* wish to keep the descendants of the specified
+#' node labels/numbers, then specify \code{keep_descendants = FALSE}.
 #'
-#'@param tree The tree to be pruned, as a \code{\link[ape]{phylo}}-class object (see
+#' @param tree The tree to be pruned, as a `phylo`-class object (see
 #'   [ape::read.tree()] for description of this class).
-#'@param prune_to What to *keep* from the base tree (everything else will be
-#'  pruned away). May be a \code{data.frame} of classified data; one or more
+#' @param prune_to What to *keep* from the base tree (everything else will be
+#'  pruned away). May be a `data.frame` of classified data; one or more
 #'  labels in the tree (tip or internal node labels); one or more node numbers
 #'  in the tree (tip or internal nodes); or the name of a taxonomy level (one of
-#'  the items in \code{tax_level_labels}). Default is NULL, which results in no
+#'  the items in `tax_level_labels`). Default is NULL, which results in no
 #'  pruning being done (i.e., the base tree is returned as-is). See Details.
-#'@param keep_descendants Whether to keep descendants of what is specified in
-#'  \code{prune_to}. Default NULL will choose the behavior based on the class of
-#'  \code{prune_to}: when \code{prune_to} is a \code{data.frame} or one of the
+#' @param keep_descendants Whether to keep descendants of what is specified in
+#'  `prune_to`. Default NULL will choose the behavior based on the class of
+#'  `prune_to`: when `prune_to` is a `data.frame` or one of the
 #'  taxonomy level labels, \code{keep_descendants = FALSE} by default. When
-#'  \code{prune_to} is a vector of node/tip labels or numbers in the base
+#'  `prune_to` is a vector of node/tip labels or numbers in the base
 #'  tree,\code{keep_descendants = TRUE} by default. See Details.
-#'@param adjust_branch_length Whether to adjust branch length so that all
+#' @param adjust_branch_length Whether to adjust branch length so that all
 #'  newly-pruned terminal nodes appear at the same length as tips, even if they
 #'  were originally internal nodes. Default FALSE.
-#'@param tax_level_labels Vector of the possible taxonomy levels that can appear
-#'  as column names in \code{prune_to} if it is a \code{data.frame} of
+#' @param tax_level_labels Vector of the possible taxonomy levels that can appear
+#'  as column names in `prune_to` if it is a `data.frame` of
 #'  classified data.
-#'@return A \code{\link[ape]{phylo}}-class object representing the pruned tree.
+#' @param ... Additional arguments, not currently used.
+#' @return A `phylo`-class object representing the pruned tree.
 #' @author Caroline Ring, Paul Kruse
 #' @examples
 #'
@@ -1521,7 +1564,8 @@ prune_tree <- function(tree,
                        prune_to = NULL,
                        keep_descendants = NULL,
                        adjust_branch_length = FALSE,
-                       tax_level_labels = chemont_tax_levels){
+                       tax_level_labels = chemont_tax_levels,
+                       ...){
   if(!is.null(prune_to)){ #if user has specified something to prune to
     if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
       #Prune the tree according to the specified dataset
@@ -1589,10 +1633,10 @@ prune_tree <- function(tree,
 #'
 #'Convert a phylo tree into a wide-format "classified" `data.frame`
 #'
-#'@param tree A \code{\link[ape]{phylo}}-class object (see
+#'@param tree A `phylo`-class object (see
 #'   [ape::read.tree()] for description of this class).
 #'@param tax_level_labels Vector of the possible taxonomy levels that can appear
-#'  as column names in \code{as_classified.phylo} if it is a \code{data.frame}
+#'  as column names in \code{as_classified.phylo} if it is a `data.frame`
 #'  of classified data. Default [chemont_tax_levels].
 #'@return A `data.frame` with variables `tip_label` (naming the tips or
 #'  entities) and one variable for each item in `tax_level_labels`, giving the
@@ -1652,7 +1696,7 @@ return(as.data.frame(foo2))
 #' the data set.
 #'
 #' @param data A classified data set.
-#' @param base_tree The base tree, as a \code{\link[ape]{phylo}}-class object
+#' @param base_tree The base tree, as a `phylo`-class object
 #'   (see [ape::read.tree()] for description of this class). Default is
 #'   \code{\link{chemont_tree}}, the full ChemOnt taxonomy tree.
 #' @param tax_level_labels A vector of levels for the taxonomy. Default is
@@ -1695,7 +1739,7 @@ get_subtree_nodes <- function(data,
 #' Get label for a tip or internal node ID in a phylo tree
 #'
 #' @param node Integer vector of node ID numbers in phylo tree.
-#' @param tree A \code{\link[ape]{phylo}}-class object (see
+#' @param tree A `phylo`-class object (see
 #'   [ape::read.tree()] for description of this class).
 #' @return Character vector of tip or internal node labels corresponding to each
 #'   node ID. \code{NA_character_} if no node label corresponds to the input
@@ -1725,7 +1769,7 @@ get_label_from_node <-function(node, tree){
 #' Get node ID for a label in a phylo tree
 #'
 #' @param label Character vector of labels for tips or internal nodes in phylo tree
-#' @param tree A \code{\link[ape]{phylo}}-class object (see
+#' @param tree A `phylo`-class object (see
 #'   [ape::read.tree()] for description of this class).
 #' @return Integer vector of tip or internal node ID numbers.
 #' @author Caroline Ring, Paul Kruse
