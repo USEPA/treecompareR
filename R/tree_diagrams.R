@@ -1,17 +1,21 @@
 #' Label bars
 #'
-#' This function takes in a (list of) data.table(s) and returns figures
+#' Bar plot of numbers of labels by taxonomy level
+#'
+#' This function takes in a (list of) `data.frame`(s) and returns figures
 #' illustrating the label numbers by taxonomy level.
 #'
-#' @param data A data.table or list of data.tables with chemicals and their
+#' @param data A `data.frame` or list of `data.frames` with chemicals and their
 #'   classification data.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
+#' @param tax_level_labels Character vector of taxonomy levels. Default [chemont_tax_levels].
 #' @return A list of two plots, the first showing number of labels by taxonomy
-#'   level for each data.table and the second showing the number of labels by
+#'   level for each `data.frame` and the second showing the number of labels by
 #'   data.table for each taxonomy level.
+#' @author Paul Kruse
+#' @examples
+#' label_bars(data = biosolids_class[1:10, ])
+#'
 #' @export
-#' @import data.table
 #' @import ggplot2
 label_bars <- function(data = NULL,
                        tax_level_labels = chemont_tax_levels){
@@ -21,18 +25,13 @@ label_bars <- function(data = NULL,
 
   if (is.null(data))
     stop('Please input data!')
-  if (data.table::is.data.table(data) | is.data.frame(data)){
+
+  if (is.data.frame(data)){
     data <- list(data)
   } else {
     if (!is.list(data) | !all(sapply(data, function(t) {
-      data.table::is.data.table(t) | is.data.frame(t)})))
-      stop('Please input a single data.table or list of data.tables!')
-  }
-
-  if (is.null(tax_level_labels)){
-    tax_level_labels <- c('kingdom', 'superclass', 'class', 'subclass',
-                          'level5', 'level6', 'level7', 'level8',
-                          'level9', 'level10', 'level11')
+     is.data.frame(t)})))
+      stop('Please input a single data.frame or list of data.frames!')
   }
 
   data <- lapply(data, as.data.frame)
@@ -64,11 +63,9 @@ label_bars <- function(data = NULL,
                    unname(
                      sapply(
                        data,
-                                 function(t) get_label_length(
-                                   get_labels(
+                                 function(t) count_labels(
                                      data = t,
                                      tax_level_labels = tax_level_labels
-                                     )
                                    )
                        )
                      )
@@ -111,147 +108,320 @@ label_bars <- function(data = NULL,
 }
 
 
-#'Display subtree
+#'@title Display subtree
 #'
-#'This function takes in a base tree, and (optionally) one or two data sets
-#'consisting of entities with classification labels. It returns a tree diagram
-#'consisting of the base tree; if data sets were provided, branches of the base
-#'tree will be highlighted according to their membership in the provided data
-#'sets.
+#'@description Plot a tree with branches highlighted according to their
+#'  membership in the provided data sets.
 #'
-#'# How to specify data sets
+#'@details This function takes in a base tree; an optional pruning specification
+#'  as for [prune_tree()]; and optionally, one or two data sets used to specify
+#'  subtrees of interest to highlight. If a pruning specification is given, the
+#'  base tree will be pruned, and the pruned tree will be used as a new base
+#'  tree. The function returns a tree diagram that plots the base tree (or the
+#'  pruned base tree); if data sets were provided, branches of the plotted tree
+#'  will be highlighted according to their membership in the provided data sets.
 #'
-#'## As `data.frame` objects containing classified entities
+#'  If one data set is provided, branches will be highlighted in one of two
+#'  ways: whether they are in the data set or not.
 #'
-#'If `data_1` or `data_2` are provided as `data.frame` objects containing
-#'classified entities, they must be of the following format: Rows correspond to
-#'individual entities. There must be one column corresponding to each of the
-#'taxonomy levels specified in `tax_level_labels`, containing the label at that
-#'level for each entity. These columns must have names corresponding to the
-#'members of `tax_level_labels`. For example, to use the ChemOnt taxonomy, the
-#'`data.frame` must have columns `kingdom`, `superclass`, `class`, `subclass`,
-#'`level5`, `level6`, ... `level11`. Whenever an entity does not have a label at
-#'a given level, the corresponding element in the data table for that row and
-#'column should be `NA_character_`.
+#'  If two data sets are provided, branches will be highlighted in one of four
+#'  ways: whether they are in neither data set; whether they are in data set 1
+#'  only; whether they are in data set 2 only; or whether they are in both
+#'  datasets.
 #'
-#'The `data.frame` must have at least one additional column that uniquely
-#'identifies individual entities; the name of that additional column does not
-#'matter, as long as it is not the same as one of the taxonomy levels.
+#'  More information on how to specify some of the function arguments:
 #'
-#'For an example of a properly-formatted input `data.frame`, see the built-in
-#'dataset \code{\link{biosolids_class}}. The only required columns in
-#'\code{\link{biosolids_class}} are \code{kingdom, superclass, class, subclass,
-#'level5, level6, level7, level8, level9, level10, level11} and any one of the
-#'chemical identifier columns, for example \code{DTXSID}.
+#'  # How to specify pruning
 #'
-#'## As vectors of node labels
+#'  ## `prune_to` See [prune_tree()] for details about how to specify `prune_to`
+#'  and the list of additional arguments in `prune_args`. `prune_to` can be
+#'  specified as a `data.frame`, as an integer vector of node numbers, as a
+#'  character vector of node labels, as a character scalar defining a taxonomy
+#'  level. Note that default pruning behavior changes depending on how you
+#'  specify `prune_to`! This is explained in [prune_tree()].
 #'
-#'If `data_1` or `data_2` are provided as vectors of node labels, they refer to
-#'node labels in \code{base_tree}, i.e. labels that appear in
-#'\code{base_tree$tip.label} or \code{base_tree$node.label}. Any labels in
-#'`data_1` or `data_2` that do not appear in the base tree will be ignored.
+#'  ## `prune_args`
 #'
-#'The labels in `data_1` and/or `data_2`, plus all of their ancestors in the
-#'base tree, will be highlighted. Their descendants will not be highlighted
-#'unless those descendants themselves appear in `data_1` or `data_2`.
+#'  This is a named list of additional arguments for [prune_tree()]; please see
+#'  the documentation for that function for details. The default is `NULL`, to
+#'  use the defaults for [prune_tree()]. Names in this list can include
+#'  `keep_descendants`, `adjust_branch_length`, and/or `tax_level_labels`.
 #'
-#'## As vectors of node numbers
+#'  # How to specify data sets
 #'
-#'If `data_1` or `data_2` are provided as vectors of node numbers, they refer to
-#'node and tip index numbers in the base tree. Tip numbers run from 1 to
-#'\code{ape::Ntip(base_tree)}, and node numbers run from
-#'\code{ape::Ntip(base_tree) + 1} to \code{ape::Ntip(base_tree) +
-#'ape::Nnode(base_tree) - 1}.
+#'  Arguments `data_1` and `data_2` are data sets that define subtrees of
+#'  interest to highlight on the tree plot. They can be specified in one of
+#'  several different ways. You are allowed to mix and match (specify `data_1`
+#'  in a different way from `data_2`).
 #'
-#'You might specify `data_1` or `data_2` as vectors of node numbers if, for
-#'example, you have used \code{\link[phangorn]{Ancestors}} or
-#'\code{\link[phangorn]{Descendants}} to trace ancestors or descendants of a
-#'specified node, and now you want to visualize those ancestors or descendants.
-#'\code{\link[phangorn]{Ancestors}} and \code{\link[phangorn]{Descendants}} both
-#'return lists or vectors of node numbers, so it would be convenient to be able
-#'to pass those vectors of node numbers directly to \code{display_subtree}.
+#'  ## As `data.frame` objects containing classified entities
 #'
-#''The nodes/tips in `data_1` and/or `data_2`, plus all of their ancestors in
-#'the base tree, will be highlighted. Their descendants will not be highlighted
-#'unless those descendants themselves appear in `data_1` or `data_2`.
+#'  If `data_1` or `data_2` are provided as `data.frame` objects containing
+#'  classified entities, they must be of the following format: There must be one
+#'  variable corresponding to, and named for, each of the taxonomy levels
+#'  specified in `tax_level_labels`, containing the label at that level for each
+#'  entity. For example, to use the ChemOnt taxonomy, the `data.frame` must have
+#'  columns `kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`,
+#'  `level7`, `level8`, `level9`, `level10`, `level11`. Whenever an entity does
+#'  not have a label at a given level, the corresponding element in the data
+#'  table for that row and column should be `NA_character_`.
 #'
-#'## As tree objects
+#'  The `data.frame` must have at least one additional column that uniquely
+#'  identifies individual entities; the name of that additional column does not
+#'  matter, as long as it is not the same as one of the taxonomy levels.
 #'
-#'If `data_1` or `data_2` are provided as \code{\link[ape]{phylo}}-class tree
-#'objects, any labels in their \code{tip.label} or \code{node.label} elements
-#'that do not appear in the tip or node labels of the base tree will be ignored.
-#'In other words, only the portions of `data_1` and `data_2` that are subtrees
-#'of `base_tree` wil be used.
+#'  For an example of a properly-formatted input `data.frame`, see the built-in
+#'  dataset [biosolids_class]. The only required columns in [biosolids_class]
+#'  are the ChemOnt taxonomy levels (`kingdom`, `superclass`, `class`,
+#'  `subclass`, `level5`, `level6`, `level7`, `level8`, `level9`, `level10`,
+#'  `level11`), and at least one entity identifer column, for example `DTXSID`.
 #'
-#'@param base_tree The "base tree" to plot, as a \code{\link[ape]{phylo}}-class
-#'  object.  Default is the full ChemOnt taxonomy tree,
-#'  \code{\link{chemont_tree}}.
-#'@param base_name Will be used as the plot title. Usually this should name or
-#'  describe the base tree. Default NULL will result in no plot title.
+#'  ## As character vectors of node labels
+#'
+#'  If `data_1` or `data_2` are provided as character vectors of node labels,
+#'  they refer to node labels in `base_tree` (or in the pruned base tree),
+#'  *i.e.*, labels that appear in `base_tree$tip.label` or
+#'  `base_tree$node.label`. Any labels in ` data_1` or `data_2` that do not
+#'  appear in the base tree will be ignored.
+#'
+#'  The labels in `data_1` and/or `data_2`, plus all of their ancestors in the
+#'  base tree, will be highlighted. Their descendants will not be highlighted
+#'  unless those descendants themselves appear in `data_1` or `data_2`.
+#'
+#'  ## As vectors of node numbers
+#'
+#'  If `data_1` or `data_2` are provided as vectors of node numbers, they refer
+#'  to node and tip index numbers in the base tree (or the pruned base tree).
+#'  Tip numbers run from 1 to `ape::Ntip(base_tree)`, and node numbers run from
+#'  `ape::Ntip(base_tree) + 1` to `ape::Ntip(base_tree) + ape::Nnode(base_tree)
+#'  - 1`.
+#'
+#'  You might specify `data_1` or `data_2` as vectors of node numbers if, for
+#'  example, you have used [phangorn::Ancestors()] or [phangorn::Descendants()]
+#'  to trace ancestors or descendants of a specified node, and now you want to
+#'  visualize those ancestors or descendants. [phangorn::Ancestors()] and
+#'  [phangorn::Descendants()] both return lists or vectors of node numbers, so
+#'  it would be convenient to be able to pass those vectors of node numbers
+#'  directly to [display_subtree()].
+#'
+#'  The nodes/tips in `data_1` and/or `data_2`, plus all of their ancestors in
+#'  the base tree, will be highlighted. Their descendants will not be
+#'  highlighted unless those descendants themselves appear in `data_1` or
+#'  `data_2`.
+#'
+#'  ## As tree objects
+#'
+#'  If `data_1` or `data_2` are provided as `phylo`-class tree objects, any
+#'  labels in their \code{tip.label} or \code{node.label} elements that do not
+#'  appear in the tip or node labels of the base tree will be ignored. In other
+#'  words, only the portions of `data_1` and `data_2` that are subtrees of
+#'  `base_tree` wil be used.
+#'
+#'  # How to specify `subtree_mapping`
+#'
+#'  Each element of `subtree_mapping` should be a vector of values. `color`
+#'  should be a character vector of color names or hex specifications; `size`
+#'  should be a numeric vector indicating line width;  `linetype` should be an
+#'  integer vector indicating line type (1 = solid, 2 = dashed, 3 = dotted, 4 =
+#'  dot-dashed, etc.).
+#'
+#'  If you supplied only `data_1`, then each vector should be size 2,
+#'  corresponding (in order) to the following categories: "not in set 1" and "in
+#'  set 1." If you want to name the elements of the vectors, they should be
+#'  named according to the following recipe: `paste("Not in", name_1)`,
+#'  `paste("In", name_1))`. If (and only if) you provide those names, then
+#'  aesthetics will be assigned based on name rather than order.
+#'
+#'
+#'  If you supplied both `data_1` and `data_2`, each vector should be 4 elements
+#'  long, corresponding (in order) to the following categories: "neither set",
+#'  "set 1 only", "set 2 only", and "both set 1 and set 2." If you want to name
+#'  the elements of the vectors, they should be named according to the following
+#'  recipe: `"Neither set"`, `paste(name_1, "only")`, `paste(name_2, "only")`,
+#'  `paste(name_1, "and", name_2)`. If (and only if) you provide those names,
+#'  then aesthetics will be assigned based on name rather than order.
+#'
+#'  If you provide a vector that is too long; it will be truncated to the needed
+#'  length (with a warning). If you provide a vector that is too short, it will
+#'  be recycled to the needed length (with a warning). If any of `color`,
+#'  `size`, or `linetype` are not provided, the value from `base_opts` will be
+#'  used for all data sets. If you provide any aesthetics (any named list
+#'  elements) other than `color`/`colour`, `size`, or `linetype`, they will be
+#'  ignored (with a warning).
+#'
+#'  # Helpful hints
+#'
+#'  If you supply `show_tips = TRUE` and some of the tip labels are cut off, you
+#'  can enlarge the margin using [ggplot2::xlim()]. For example:
+#'
+#' ```
+#' my_tree <- display_subtree(prune_to = biosolids_class,
+#' base_name = "Biosolids",
+#' data_1 = usgs_class,
+#' name_1 = "USGS",
+#' show_tips = TRUE)
+#'
+#' my_tree #labels are cut off
+#'
+#' my_tree + xlim(c(0, max(my_tree$data$x) + 50) #add extra space
+#' ```
+#'
+#'@param base_tree The "base tree" to plot, as a `phylo`-class object.  Default
+#'  is the full ChemOnt taxonomy tree, `chemont_tree`.
+#'@param prune_to Optional: Use this argument if you want to prune the base tree
+#'  before plotting. Default is `NULL`, which results in no pruning being done
+#'  (*i.e.*, the `base_tree` is plotted as-is). Options are as for
+#'  [prune_tree()]: What to *keep* from the base tree (everything else will be
+#'  pruned away). May be a `data.frame` of classified data; a character vector
+#'  of one or more labels in the tree (tip or internal node labels); an integer
+#'  vector od one or more node numbers in the tree (tip or internal nodes); or a
+#'  character scalar giving the name of a taxonomy level (one of the items in
+#'  `tax_level_labels`).  See the help for [prune_tree()].
+#'@param prune_args A named list of additional arguments to be passed to
+#'  [prune_tree()] (used only if `prune_to` is non-`NULL`). Default:
+#'  `list(adjust_branch_length = FALSE, tax_level_labels = chemont_tax_levels,
+#'  keep_descendants = NULL)`. See the help for [prune_tree()] for details.
+#'@param base_name Character: A string to use as the plot title. Usually this
+#'  should name or describe the base tree (or the pruned base tree). Default
+#'  `NULL` will result in no plot title.
 #'@param data_1 Optional: Highlight branches of the base tree according to their
-#'  membership in this list. Default is \code{NULL}, to do no highlighting. If
-#'  not \code{NULL}, must be one of the following options: A `data.frame`
-#'  consisting of a list of entities with classification data; a vector of node
-#'  numbers in the base tree; a vector of node labels in the base tree; or a
-#'  subtree of `base_tree` as a \code{\link[ape]{phylo}}-class object. See
-#'  Details.
-#'@param data_2 Optional: Highlight branches of the base tree to compare
-#'  membership in this list and \code{data_1}. Default is \code{NULL}, to do no
-#'  highlighting. If not \code{NULL}, one of the following options: A
-#'  `data.frame` consisting of a list of chemicals with classification data; a
-#'  list of node numbers in the base tree; a list of node labels in the base
-#'  tree; or a subtree of `base_tree` as a \code{\link[ape]{phylo}}-class
+#'  membership in this data set. Default is `NULL`, to do no highlighting. If
+#'  not `NULL`, must be one of the following options: A `data.frame` of
+#'  classified entities; a vector of node numbers in the base tree; a vector of
+#'  node labels in the base tree; or a subtree of `base_tree` as a `phylo`-class
 #'  object. See Details.
-#'@param name_1 Optional: A string giving the name of the list in \code{data_1},
-#'  for plot labeling. Default is "Set 1".
-#'@param name_2 Optional: A string giving the name of the list in \code{data_2}
-#'  (if any), for plot labeling. Default is "Set 2".
+#'@param data_2 Optional: Highlight branches of the base tree to compare
+#'  membership in this data set and `data_1`. Default is `NULL`, to do no
+#'  highlighting. If not `NULL`, one of the following options: A `data.frame` of
+#'  classified entities; a vector of node numbers in the base tree; a vector of
+#'  node labels in the base tree; or a subtree of `base_tree` as a `phylo`-class
+#'  object. See Details.
+#'@param name_1 Optional: Character string giving the name of `data_1` that
+#'  should be used in the plot legend. Default is `"Set 1"`.
+#'@param name_2 Optional: Character string giving the name of `data_2` (if
+#'  `data_2` is provided) that should be used in the plot legend. Default is
+#'  `"Set 2"`. If `data_2` is `NULL`, `name_2` will be ignored.
 #'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
-#'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
-#'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
-#'  "subclass", paste0("level", 5:11))}.
-#'@param layout \code{\link{ggtree}} layout option. Default "circular."
-#'@param show_tips Whether to display the tip labels. Default value of TRUE.
-#'@param base_opts List of parameters with default values that control
-#  line properties within tree diagram.
-#'@param subtree_mapping List of color values for displaying subtree.
-#'@param clade_opts List of parameters with default values for illustrating
-#'  clades within the tree diagram.
-#@param base_color Color for base tree (branches not in any input data set).
-#  Default "gray80" for a light gray.
-#@param subtree_colors Vector of colors to use to highlight branches according
-#  to subtree membership. If \code{data_2} is NULL, only the first element of
-#  \code{subtree_colors} will be used (to signify that a branch is in
-#  \code{data_1}). If \code{data_2} is not NULL, then the colors will be used
-#  in the following order: branch in \code{data_1} only; branch in
-#  \code{data_2} only; branch in both \code{data_1} and \code{data_2}. Default
-#  is \code{c("#66C2A5", "#FC8D62","#8DA0CB")}, the first 3 colors of the
-#  ColorBrewer2 "Set2" set.
-#@param base_size Line width for base tree. If NULL, default line width will be
-#  used.
-#@param subtree_sizes Vector of line widths to use to highlight branches
-#  according to subtree membership. If \code{data_2} is NULL, only the first
-#  element of \code{subtree_sizes} will be used (to signify that a branch is in
-#  \code{data_1}). If \code{data_2} is not NULL, then the sizes will be used in
-#  the following order: branch in \code{data_1} only; branch in \code{data_2}
-#  only; branch in both \code{data_1} and \code{data_2}. If NULL, then size
-#  will not be used to highlight branches; all branches will be plotted with
-#  line width given by \code{base_size}. Default is NULL.
-#'@param clade_level The taxonomy level at which to draw clade labels, if any.
-#'  Root is level 0. Default is level 2 (superclass, in ChemOnt taxonomy). Set
-#'  to NULL to suppress clade labels altogether.
-#@param clade_label_fontsize Font size for clade labels. Default 3.
-#@param clade_label_wrap Number of characters at which to wrap clade labels to
-#  a second line. Default 20.
-#@param clade_label_lineheight Line height for multi-line clade labels, as a
-#  multiple of the size of text. Controls vertical space between lines on
-#  multi-line clade labels. Default 0.7.
-#'@return A \code{\link[ggtree]{ggtree}} object visualizing the full base tree,
-#'  with branches highlighted to indicate presence in \code{data_1}, in
-#'  \code{data_2} if supplied, neither, or both.
+#'  used. Default value:[chemont_tax_levels].
+#'@param layout [ggtree::ggtree()] tree layout option. Default `"circular."`
+#'@param show_tips `TRUE`/`FALSE`: Whether to display the tip labels. Default
+#'  `TRUE`. Note that when `show_tips = TRUE`, clade labels will be suppressed
+#'  (*i.e.*, arguments `clade_opts` and `clade_level` will b
+#'@param tiplab_size Numeric: size to use for tip labels (if `show_tips =
+#'  TRUE`). Default `NULL`, to attempt auto-scaling based on the number of tips
+#'  (`tiplab_size = 3` if fewer than 200 tips; `tiplab_size = 1.5` if between
+#'  200 and 500 tips; otherwise `tiplab_size = 0.5`). Make it larger for bigger
+#'  text, smaller for smaller text. You can change this after the fact by taking
+#'  the output of this function and adding `+ ggtree::geom_tiplab(size = N)`
+#'  where `N` is replaced by your desired size.
+#'@param tiplab_opts A named list of additional arguments to
+#'  [ggtree::geom_tiplab2()]; see the documentation for that function for more
+#'  options. Default `NULL` to use defaults for that function. For example, you
+#'  could specify `tiplab_opts = list(offset = 3)` to increase the space between
+#'  tips and labels.
+#'@param base_opts List of parameters to control color, size, and linetype of
+#'  the base tree diagram. Default `list(color = "black", size = 0.5, linetype =
+#'  1)`. Should be a named list with one or more of `color`, `size`, and
+#'  `linetype`. Each should be a single value: `color` should be a character
+#'  specifying a color name or hex code; `size` should be numeric specifying
+#'  line weight; and `linetype` should be an integer specifying line type (1 =
+#'  solid, 2 = dotted, 3 = dashed, etc.) If any of the three are not provided,
+#'  their value from the default list will be substituted. For example, if you
+#'  provide `base_opts = list(color = "red")`, it will be the same as if you
+#'  provided `base_opts = list(color = "red", size = 0.5, linetype = 1)`.
+#'@param subtree_mapping List of aesthetics used to control branch highlighting
+#'  according to membership in the provided data set(s). Must be a named list
+#'  with one or more of the following named elements: `color` (or `colour`),
+#'  `size`, and/or `linetype`. Default is `list(color = c("gray70", "#66C2A5",
+#'  "#8DA0CB", "#FC8D62"))`. See Details.
+#'@param color_overlap `TRUE`/`FALSE`: Whether to color branches according to
+#'  fractional overlap in number of entities, if two data sets were provided.
+#'  Default `FALSE`, to color branches according to subtree membership instead.
+#'  If `TRUE`, `subtree_mapping` will be ignored. To use this option, either
+#'  `prune_to` and `data_1` must both be provided as `data.frame`s of classified
+#'  entities (in which case the overlap in number of entities will be computed
+#'  between `prune_to` and `data_1`), or `data_1` and `data_2` must both be
+#'  provided as `data.frame`s of classified entities (in which case the overlap
+#'  in number of entities will be computed between `data_1` and `data_2`). If
+#'  all three of `prune_to`, `data_1`, and `data_2` are provided as
+#'  `data.frame`s of classified entities, then the overlap will be computed
+#'  between `data_1` and `data_2`.
+#'@param entity_id_col Character: the name of the variable in `prune_to`,
+#'  `data_1`, and/or `data_2` that identifies entities, if those arguments are
+#'  provided as `data.frame`s of classified entities. Used only if
+#'  `color_overlap = TRUE` (because it's used by [calc_number_overlap()] to
+#'  calculate the overlap in entities). Default `NULL` to assume that entities
+#'  are uniquely identified by the combination of all variables other than those
+#'  in `tax_level_labels`.
+#'@param point_size Numeric: the size at which to draw node and tip points,
+#'  which are only drawn if `color_overlap = TRUE`. Default 3.
+#'@param clade_level Integer or character: The taxonomy level at which to draw
+#'  clade labels, if any. Default is `NULL`, which will suppress clade labels
+#'  altogether. `clade_level = "auto"` is a special value that automatically
+#'  selects the taxonomy level of the MRCA of the tips plus one, or level 2,
+#'  whichever is the greater number. See [add_cladelabels()]. If `show_tips =
+#'  TRUE`, `clade_level` will be ignored and clade labels will not be drawn.
+#'@param clade_opts List of parameters defining aesthetic options for labeling
+#'  clades. See [add_cladelabels()] for options.  Default is `list(wrap = 20,
+#'  barsize = "alternate", fontsize = 3, lineheight = 0.7, default_to_tip =
+#'  TRUE, draw_text = TRUE)`. You can provide any of the additional parameters
+#'  of [ggtree::geom_cladelab()]. If `show_tips = TRUE`, `clade_opts` will be
+#'  ignored and clade labels will not be drawn.
+#'@return A [ggtree::ggtree()] object visualizing the full base tree, with
+#'  branches highlighted to indicate presence in `data_1`, in `data_2` (if
+#'  supplied), neither, or both.
+#'@author Caroline Ring, Paul Kruse
+#' @examples
+#'
+#' #make a smaller base tree for visibility
+#' oh_tree <- prune_tree(tree = chemont_tree,
+#' prune_to = "Organohalogen compounds")
+#'
+#' #one data set
+#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class)
+#'
+#' #two data sets
+#' display_subtree(base_tree = oh_tree,
+#'  data_1 = biosolids_class,
+#' data_2 = usgs_class)
+#'
+#' #increasing line width
+#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
+#' data_2 = usgs_class, base_opts = list(size = 1))
+#'
+#' #different subtree color mapping
+#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
+#' data_2 = usgs_class, base_opts = list(size = 1),
+#'  subtree_mapping = list(color = c("black", "red", "blue", "purple")))
+#'
+#'  #clade level
+#'  display_subtree(base_tree = oh_tree,
+#'   data_1 = biosolids_class,
+#' data_2 = usgs_class, base_opts = list(size = 1),
+#' clade_level = 2)
+#'
+#' #prune to BIOSOLIDS2021 classes only
+#' #and color by overlap between BIOSOLIDS2021 and USGS Water
+#' display_subtree(prune_to = biosolids_class,
+#' data_1 = usgs_class,
+#' base_name = "Biosolids",
+#' name_1 = "USGS Water",
+#' base_opts = list(size = 1),
+#' color_overlap = TRUE,
+#' show_tips = FALSE,
+#' clade_level = 2,
+#' clade_opts = list(offset = 3,
+#' offset.text = 1,
+#' fontsize = 4))
+#'
 #'@export
 #'@import ggtree
+#'@importFrom magrittr `%>%`
 display_subtree <- function(base_tree = chemont_tree,
+                            prune_to = NULL,
+                            prune_args = list(adjust_branch_length = FALSE,
+                                             tax_level_labels = chemont_tax_levels,
+                                             keep_descendants = NULL),
                             base_name = NULL,
                             data_1 = NULL,
                             data_2 = NULL,
@@ -260,11 +430,19 @@ display_subtree <- function(base_tree = chemont_tree,
                             tax_level_labels = chemont_tax_levels,
                             layout = "circular",
                             show_tips = TRUE,
+                            tiplab_opts = NULL,
+                            tiplab_size = NULL,
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
-                            subtree_mapping = list(color = "default"),
-                            clade_level = "auto",
+                            subtree_mapping = list(color = c("gray70",
+                                                             "#66C2A5",
+                                                             "#8DA0CB",
+                                                             "#FC8D62")),
+                            color_overlap = FALSE,
+                            entity_id_col = NULL,
+                            point_size = 3,
+                            clade_level = NULL,
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
                                               fontsize = 3,
@@ -282,7 +460,10 @@ display_subtree <- function(base_tree = chemont_tree,
                                            names(base_opts))])
 
   #Keep defaults for any subtree_mapping not otherwise specified
-  subtree_mapping_default <- list(color = "default")
+  subtree_mapping_default <- list(color = c("gray70",
+                                            "#66C2A5",
+                                            "#8DA0CB",
+                                            "#FC8D62"))
   subtree_mapping <- c(subtree_mapping,
                        subtree_mapping_default[
                          setdiff(names(subtree_mapping_default),
@@ -391,7 +572,19 @@ display_subtree <- function(base_tree = chemont_tree,
 
 
 
-#Base tree
+  #############
+  #Base tree
+  #############
+
+  # Prune base tree if user specified pruning
+  if(!is.null(prune_to)){
+    base_tree <- do.call(prune_tree,
+                         args = c(list(tree = base_tree,
+                                       prune_to = prune_to),
+                                       prune_args)
+    )
+  }
+
   #Use base options, unless they will be mapped to list presence later
   #(aes() doesn't seem to overwrite them as expected)
   #e.g. if subtree_mapping has a "color" element, don't use base_opts$color
@@ -403,8 +596,6 @@ display_subtree <- function(base_tree = chemont_tree,
                                 ]
                       )
                       )
-
-
 
   if(!is.null(data_1)){
 
@@ -430,7 +621,8 @@ display_subtree <- function(base_tree = chemont_tree,
                              x$node.labels)
                          }))
       }else{
-        stop("data_1 is a list, but one or more elements are not one of the recognized classes: data.frame, numeric, character, or phylo. ")
+        stop(paste("data_1 is a list, but one or more elements are not one of",
+        "the recognized classes: data.frame, numeric, character, or phylo."))
       }
       #and keep only the unique combined elements
       data_1 <- unique(data_1)
@@ -494,7 +686,8 @@ display_subtree <- function(base_tree = chemont_tree,
       data_1_nodes <- get_node_from_label(label = data_1_labels,
                                           tree = base_tree)
     }else{
-      stop("data_1 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
+      stop(paste("data_1 is not one of the recognized classes:",
+      "data.frame, numeric, character, or phylo."))
     }
 
     #get ancestors of data_1_nodes
@@ -540,7 +733,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                     x$node.labels)
                                 }))
       }else{
-        stop("data_2 is a list, but one or more elements are not one of the recognized classes: data.frame, numeric, character, or phylo. ")
+        stop(paste0("data_2 is a list, but one or more elements are not one of",
+        "the recognized classes: data.frame, numeric, character, or phylo."))
       }
       #and keep only the unique combined elements
       data_2 <- unique(data_2)
@@ -601,7 +795,8 @@ display_subtree <- function(base_tree = chemont_tree,
       data_2_nodes <- get_node_from_label(label = data_2_labels,
                                           tree = base_tree)
     }else{
-      stop("data_2 is not one of the recognized classes: data.frame, numeric, character, or phylo.")
+      stop(paste("data_2 is not one of the recognized classes: data.frame,",
+      "numeric, character, or phylo."))
     }
 
     #get ancestors of these nodes
@@ -646,7 +841,7 @@ display_subtree <- function(base_tree = chemont_tree,
                              expr = quote(list_presence))
    #name the list elements after the aesthetics in subtree_mapping
    subtree_aes <- setNames(subtree_aes, names(subtree_mapping))
-   #you end up with something like:
+   #you end up with something like this:
    #`subtree_aes <- list(color = quote(list_presence),
    #                   size = quote(list_presence))``
    #`do.call(aes, subtree_aes)` is then equivalent to:
@@ -709,22 +904,119 @@ display_subtree <- function(base_tree = chemont_tree,
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
 
+
+
+
+  #if coloring branches according to overlaps
+  if(color_overlap %in% TRUE){
+    #if neither data_1 nor data_2 were provided, then ignore with a warning
+    if(is.null(data_1)){
+      message(paste("To use color_overlap = TRUE",
+                    "either data_1 and data_2 must be provided",
+                    "or prune_to and data_1 must be provided.",
+                    "Here, data_1 was not provided,",
+                    "so there is nothing to calculate overlap with.",
+                    "Therefore, color_overlap will be ignored."))
+    }else{ #if data_1 is provided
+      if(is.null(data_2)){
+        #if data_2 not provided, then prune_to must be provided
+        if(!is.null(prune_to)){
+          message("computing overlap in numbers of entities for each label of prune_to and data_1")
+        overlap_dat <- lapply(tax_level_labels,
+                              function(this_level) {
+                                calc_number_overlap(prune_to,
+                                                    data_1,
+                                                    entity_id_col = entity_id_col,
+                                                    at_level = this_level) %>%
+                                  dplyr::rename(
+                                    label = dplyr::all_of(this_level))
+                              }
+        )
+        }else{
+          #if data_2 not provided and prune_to also not provided,
+          #there is nothing to calcualte overlap with
+          message(paste("To use color_overlap = TRUE",
+                        "either data_1 and data_2 must be provided",
+                        "or prune_to and data_1 must be provided.",
+                        "Here, only data_1 was provided,",
+                        "so there is nothing to calculate overlap with.",
+                        "Therefore, color_overlap will be ignored."))
+        }
+      }else{ #if data_1 and data_2 provided
+        message("computing overlap in numbers of entities for each label of data_1 and data_2")
+        overlap_dat <- lapply(tax_level_labels,
+                              function(this_level) {
+                                calc_number_overlap(data_1,
+                                                    data_2,
+                                                    entity_id_col = entity_id_col,
+                                                    at_level = this_level) %>%
+                                  dplyr::rename(
+                                    label = dplyr::all_of(this_level))
+                              }
+        )
+      }
+    }
+    #calculate fractional overlaps of entities at each node
+overlap_dat <- overlap_dat  %>%
+  dplyr::bind_rows() %>%
+  dplyr::mutate(node = get_node_from_label(
+    label,
+    base_tree)
+  )
+
+
+bg_opts <- base_opts
+bg_opts$size <- base_opts$size * 1.8
+tree_plot <- do.call(ggtree,
+                     c(list(tr = base_tree,
+                            layout = layout),
+                       bg_opts
+                     )
+) +
+  geom_tippoint(size = point_size * 1.8) +
+  geom_nodepoint(size = point_size * 1.8)
+
+tree_plot <- tree_plot %<+% overlap_dat + #add the similarity data
+      geom_tree(aes(color = simil),
+                    size = base_opts$size) + #color branches by similarity
+      geom_nodepoint(aes(color = simil),
+                     size = point_size) + #color nodes by similarity
+      geom_tippoint(aes(color = simil), size = point_size) + #color tip points by similarity
+      scale_color_distiller(palette = "PiYG",
+                            name = paste0("Overlap % with\n",
+                                          name_1),
+                            limits = c(0,1)) #a color scale
+
+
+  }
   if (show_tips){
-    tree_plot <- tree_plot + geom_tiplab(size = 1)
+    if(is.null(tiplab_size))
+      if (length(base_tree$tip.label) <= 200){
+        tiplab_size = 3
+      } else if (length(base_tree$tip.label) <= 500){
+        tiplab_size = 1.5
+      } else {
+        tiplab_size = .5
+      }
+
+    tree_plot <- tree_plot +
+      do.call(ggtree::geom_tiplab2,
+              args = c(list(size = tiplab_size),
+                          tiplab_opts))
   }
 
-   #if clade labels have been selected, add them to the plot
+  #if clade labels have been selected, add them to the plot
   # When show_tip = TRUE, do not display clade labels
   if(!show_tips & !is.null(clade_level)){
-  tree_plot <- add_cladelab(tree_plot = tree_plot,
-                                          tree = base_tree,
-                                          clade_level = clade_level,
-                                          clade_opts = clade_opts)
+    tree_plot <- add_cladelab(tree_plot = tree_plot,
+                              tree = base_tree,
+                              clade_level = clade_level,
+                              clade_opts = clade_opts)
   }
 
   #add title with base tree name, if provided
   if(!is.null(base_name)){
-  tree_plot <- tree_plot + ggtitle(base_name)
+    tree_plot <- tree_plot + ggtitle(base_name)
   }
 
   return(tree_plot)
@@ -732,100 +1024,35 @@ display_subtree <- function(base_tree = chemont_tree,
 }
 
 
-#'Prune and display subtree
+#' @title Display tree with overlap
 #'
-#'This function takes in a base tree, a pruning specification as for
-#'\code{\link{prune_tree}}, and other arguments as for
-#'\code{\link{display_subtree}}. It first prunes the base tree using
-#'\code{\link{prune_tree}}, then calls \code{\link{display_subtree}}
-#'substituting the pruned tree as the base tree for plotting.  It returns a tree
-#'diagram consisting of the pruned base tree; if data sets were provided,
-#'branches of the base tree will be highlighted according to their membership in
-#'the provided data sets.
+#' @description Display a tree with branches highlighted according to membership
+#'   in two classified data sets, annotated with numbers of entities and
+#'   fractional overlap between entities in the two data sets.
+#'
+#' @details Given a base tree and two classified data sets: Display a tree with
+#' branches highlighted according to membership in neither set, `data_1` only,
+#' `data_2` only, or both sets (as for [display_subtree()] with both `data_1`
+#' and `data_2` provided). Add a heatmap annotation around the tips of the tree,
+#' indicating the number of entities at each tip in each dataset, and the
+#' fractional overlap in entities at each tip between datasets. Fractional
+#' overlap is calculated using [calc_number_overlap()].
 #'
 #'
-#'@param base_tree The "base tree" to prune and then plot, as a
-#'  \code{\link[ape]{phylo}}-class object.  Default is the full ChemOnt taxonomy
-#'  tree, \code{\link{chemont_tree}}.
-#'@param prune_to As for \code{\link{prune_tree}}: What to *keep* from the base
-#'  tree (everything else will be pruned away). May be a \code{data.frame} of
-#'  classified data; one or more labels in the tree (tip or internal node
-#'  labels); one or more node numbers in the tree (tip or internal nodes); or
-#'  the name of a taxonomy level (one of the items in \code{tax_level_labels}).
-#'  Default is NULL, which results in no pruning being done (i.e., the base tree
-#'  is returned as-is). See Details.
-#'@param prune_name Name of pruned tree to use as plot title. Default NULL
-#'  results in no plot title.
-#'@param adjust_branch_length Whether to adjust branch length so that all
-#'  newly-pruned terminal nodes appear at the same length as tips, even if they
-#'  were originally internal nodes. Default FALSE.
-#'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
-#'  used. Default value: \code{\link{chemont_tax_levels}}, i.e., the levels of
-#'  the ClassyFire taxonomy: \code{c("kingdom", "superclass", "class",
-#'  "subclass", paste0("level", 5:11))}.
-#'@param keep_descendants Whether to keep descendants of specified nodes in the
-#'  subtree or not. The default value of the parameter is NULL and the pruning
-#'  behavior follows that of \code{\link{prune_tree}}. If the parameter value is
-#'  TRUE, all descendant nodes will be kept rather than pruned away and if the
-#'  parameter value is FALSE, only the nodes of the subtree will remain while
-#'  all other nodes are pruned.
-#' @param no_plot Boolean indicating whether to return the subtree instead of
-#' the ggtree object.
-#'@param ... Other arguments to \code{\link{display_subtree}}.
-#'@inheritDotParams display_subtree -base_tree -tax_level_labels
-#'@return A ggtree object visualizing the pruned base tree. If \code{data_1}
-#'  and/or \code{data_2} are supplied, branches will be highlighted to indicate
-#'  whether they are present in each set, neither, or both. In the case of
-#'  `no_plot = TRUE` the subtree phylo object is returned instead.
-#'@export
-prune_and_display_subtree <- function(base_tree = chemont_tree,
-                                      prune_to = NULL,
-                                      prune_name = NULL,
-                                      adjust_branch_length = FALSE,
-                                      tax_level_labels = chemont_tax_levels,
-                                      keep_descendants = NULL,
-                                      no_plot = FALSE,
-                                      ...) { #args as for display_subtree()
-
-  args <- list(...)
-
-  pruned_tree <- prune_tree(tree = base_tree,
-                            prune_to = prune_to,
-                            adjust_branch_length = adjust_branch_length,
-                            tax_level_labels = tax_level_labels,
-                            keep_descendants = keep_descendants)
-
-  if (no_plot)
-    return(pruned_tree)
-
-  tree_plot <- do.call(display_subtree,
-                       args = c(list(base_tree = pruned_tree,
-                               base_name = prune_name,
-                               tax_level_labels = tax_level_labels),
-                               args))
-
-
-  return(tree_plot)
-}
-
-
-
-#' Display taxonomy tree, annotated with numbers of chemicals and fraction
-#' overlap between chemicals for two data sets.
-#'
-#' @param base_tree A \code{\link[ape]{phylo}}-class tree object to plot.
+#' @param base_tree A `phylo`-class tree object to plot (see [ape::read.tree()]
+#'   for details on this class).
 #' @param base_name A name for the base tree (used for the plot title)
-#' @param data_1 A \code{data.frame} containing a classified list of entities
-#' @param name_1 A name for the list in \code{data_1}, used for the plot legend
-#' @param data_2 Another \code{data.frame} containing a classified list of
+#' @param data_1 A `data.frame` containing a classified list of entities
+#' @param name_1 A name for the list in `data_1`, used for the plot legend
+#' @param data_2 Another `data.frame` containing a classified list of
 #'   entities
-#' @param name_2 A name for the list in \code{data_2}, used for the plot legend
+#' @param name_2 A name for the list in `data_2`, used for the plot legend
 #' @param entity_id_col The name of the variable identifying unique entities in
-#'   both \code{data_1} and \code{data_2}. Must be the same in both data sets.
+#'   both `data_1` and `data_2`. Must be the same in both data sets.
 #' @param group_level Taxonomy level at which to aggregate entities. Default
 #'   \code{"terminal"}: Calculate number of entities and overlap for each tip
-#'   label. Can also be any element of \code{tax_level_labels}, or an integer
-#'   between 1 and \code{length{tax_level_labels}}. In this case, entities will
+#'   label. Can also be any element of `tax_level_labels`, or an integer
+#'   between 1 and `length{tax_level_labels`. In this case, entities will
 #'   be grouped by unique labels at the specified taxonomic level, rather than
 #'   by terminal (tip) labels, for calculation and plotting of number of
 #'   chemicals and overlap.
@@ -834,13 +1061,13 @@ prune_and_display_subtree <- function(base_tree = chemont_tree,
 #'   ... level11.
 #' @param annot_angle Angle at which to plot the annotation text (names of
 #'   datasets).
-#' @param ... Additional arguments as for \code{\link{display_subtree}}.
-#' @return A \code{\link[ggtree]{ggtree}} plot object, branches highlighted by
-#'   list membership as in \code{\link{display_subtree}}, with three layers of
+#' @param ... Additional arguments as for [display_subtree()].
+#' @return A [ggtree::ggtree()] plot object, branches highlighted by
+#'   list membership as in [display_subtree()], with three layers of
 #'   heatmap annotation at the tree tips. The innermost layer represents the
 #'   number of entities in each tip label (or group of tip labels) in list
-#'   \code{data_1}. The second (middle) layer represents the number of entities
-#'   in each tip label (or group of tip labels) for the list \code{data_2}. The
+#'   `data_1`. The second (middle) layer represents the number of entities
+#'   in each tip label (or group of tip labels) for the list `data_2`. The
 #'   outermost layer represents the fraction of overlap between the entities at
 #'   each tip label (or group of tip labels), calculated as (size of
 #'   intersection)/(size of union).
@@ -980,7 +1207,7 @@ out_obj <- do.call(display_subtree,
                        na.value = "white") +
   ggnewscale::new_scale_fill() +
   ggtreeExtra::geom_fruit(data = overlap,
-             geom = geom_tile,
+             geom = ggplot2::geom_tile,
              mapping = aes(y = terminal_label,
                            x = 5,
                            fill = simil,
@@ -1032,88 +1259,88 @@ return(out_obj)
 }
 
 
-#'Add clade labels to an existing \code{\link[ggtree]{ggtree}} plot.
+#' @title Add clade labels
 #'
-
-#'Wrapper for \code{\link[ggtree]{geom_cladelab}} to add clade labels to an
-#'existing \code{\link[ggtree]{ggtree}} plot. Handles some fiddly data wrangling
-#'and allows the option to plot clade labels with alternating thick/thin bar
-#'widths, which is useful to distinguish clades when they are separated by
-#'little or no space on the plot.
+#' @description Add clade labels to an existing [ggtree::ggtree()] plot.
 #'
-#'Currently, \code{add_cladelab} cannot be chained using the
-#'\code{\link[ggplot2]{\%+\%}} operator. This is because \code{add_cladelab}
-#'is not currently defined as an S3 class with an associated \code{ggplot_add}
-#'method.
+#' @details Adds clade labels to an existing [ggtree::ggtree()] plot. Wrapper
+#'   for [ggtree::geom_cladelab()] that handles some fiddly data wrangling, and
+#'   allows the option to plot clade labels with alternating thick/thin bar
+#'   widths, which is useful to distinguish clades when they are separated by
+#'   little or no space on the plot.
 #'
-#'#'For example, the following code will *not* work:
+#'   Currently, [add_cladelab()] cannot be chained using the
+#'   [ggplot2::`\%+\%`()] operator. This is because [add_cladelab()] is not
+#'   currently defined as an S3 class with an associated [ggplot2::ggplot_add()]
+#'   method.
 #'
-#'```R ggtree(tree) + add_cladelab() ```
+#'   #'For example, the following code will *not* work:
 #'
-#'\code{add_cladelab} also cannot be chained using the
-#'\code{\link[magrittr]{%>%}} operator if the preceding chain involves
-#'\code{`+`}. This is because of operator precedence: R evaluates
-#'\code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{\%+\%}}.
+#' ```R ggtree(tree) + add_cladelab() ```
+#'
+#' [add_cladelab()] also cannot be chained using the
+#' \code{\link[magrittr]{%>%}} operator if the preceding chain involves
+#' \code{`+`}. This is because of operator precedence: R evaluates
+#' \code{\link[magrittr]{%>%}} before \code{\link[ggplot2]{\%+\%}}.
 #'
 #'
-#'For example, the following code also will *not* work:
+#' For example, the following code also will *not* work:
 #'
-#'```R ggtree(tree) + layout_circular() %>% add_cladelab() ```
+#' ```R ggtree(tree) + layout_circular() %>% add_cladelab() ```
 #'
-#'However, the following code *will* work:
+#'   However, the following code *will* work:
 #'
-#'```R ggtree(tree) %>% add_cladelab() ```
-
+#' ```R ggtree(tree) %>% add_cladelab() ```
 #'
-#'# Clade options
+#' # Clade options
 #'
-#'The \code{cladeopt} parameter may include any of the "additional parameters"
-#'understood by \code{\link[ggtree]{geom_cladelab}}, including
+#' The `cladeopt` parameter may include any of the "additional parameters"
+#' understood by [ggtree::geom_cladelab()], including
 #'
-#'* offset
-#'* offset.text
-#'* align
-#'* extend
-#'* angle
-#' * horizontal
-#' * barsize
-#' * barcolour
-#' * fontsize
-#'* textcolour
-#'* imagesize
-#' * imagecolour
+#' * `offset`
+#' * `offset.text`
+#' * `align`
+#' * `extend`
+#' * `angle`
+#' * `horizontal`
+#' * `barsize`
+#' * `barcolour`
+#' * `fontsize`
+#' * `textcolour`
+#' * `imagesize`
+#' * `imagecolour`
 #'
-#'Additionally, in \code{add_cladelab}, the following parameters are
-#'understood:
+#' Additionally, in [add_cladelab()], the following parameters are
+#' understood:
 #'
-#' * \code{wrap}: the number of characters to wrap text labels. Default 20.
+#' * `wrap`: the number of characters to wrap text labels. Default 20.
 #'    Use NULL for no wrapping.
-#' * \code{barsize = "alternate"}: Alternates thick and thin bars. This is the
+#' * `barsize = "alternate"`: Alternates thick and thin bars. This is the
 #'    default. It is useful to distinguish tightly-packed clades.
-#' * \code{default_to_tip} Logical: Whether to default to showing tip labels if
+#' * `default_to_tip` Logical: Whether to default to showing tip labels if
 #'    no clade label exists at the specified level. For example, if a tip
-#'     terminates at level 3, but \code{clade_level = 4}, should that tip be
-#'     labeled with its tip label (\code{default_to_tip = TRUE}), or should
-#'     that tip be unlabeled (\code{default_to_tip = FALSE})? The default
-#'     value is \code{TRUE}.
-#' * \code{draw_text} Logical: Whether to draw the text of clade labels,
-#'    or only the bars. If TRUE, draw text. If FALSE, do not. Default TRUE.
+#'     terminates at level 3, but `clade_level = 4`, should that tip be
+#'     labeled with its tip label (`default_to_tip = TRUE`), or should
+#'     that tip be unlabeled (`default_to_tip = FALSE`)? The default
+#'     value is `TRUE`.
+#' * `draw_text` Logical: Whether to draw the text of clade labels,
+#'    or only the bars. If `TRUE`, draw text. If `FALSE`, do not. Default `TRUE`.
 #'
 #'
-#' @param tree_plot A \code{\link[ggtree]{ggtree}} plot object, e.g. the output
-#'  of \code{\link{display_subtree}} or of \code{\link[ggtree]{ggtree}}.
-#' @param tree Optional: the \code{\link[ape]{phylo}} tree object plotted in
-#'  \code{tree_plot}. Function will run faster if \code{tree} is provided;
-#'  otherwise \code{tree} will be reconstructed from \code{tree_plot$data} using
-#'  \code{\link{generate_taxonomy_tree}}.
-#' @param clade_level Numeric or \code{"auto"}: the taxonomy level at which to
-#'  label clades, where level 0 is the root. Default value \code{"auto"} selects
+#' @param tree_plot A [ggtree::ggtree()] plot object, e.g. the output
+#'  of [display_subtree()] or of [ggtree::ggtree()].
+#' @param tree Optional: the `phylo` tree object plotted in
+#'  `tree_plot`. Function will run faster if `tree` is provided;
+#'  otherwise `tree` will be reconstructed from `tree_plot$data` using
+#'  [generate_taxonomy_tree()].
+#' @param clade_level Numeric or `"auto"`: the taxonomy level at which to
+#'  label clades, where level 0 is the root. Default value `"auto"` selects
 #'  the taxonomy level of the MRCA of the tips plus one, or level 2, whichever
-#'  is the greater number. If \code{clade_level = NULL}, no clade labels will be
-#'  added and \code{tree_plot} will be returned unchanged.
+#'  is the greater number. If `clade_level = NULL`, no clade labels will be
+#'  added and `tree_plot` will be returned unchanged.
 #'@param clade_opts A named list of parameters controlling the appearance of
 #'  clade labels. See "Details."
-#'@return \code{tree_plot} with clade labels added.
+#'@return `tree_plot` with clade labels added.
 #'@export
 add_cladelab <- function(tree_plot,
                           tree = NULL,
@@ -1292,7 +1519,7 @@ add_cladelab <- function(tree_plot,
 #' sets. The center displays label statistics shared by the left and right data
 #' sets.
 #'
-#' @param base_tree The tree to be pruned, as a \code{\link[ape]{phylo}}-class
+#' @param base_tree The tree to be pruned, as a `phylo`-class
 #'   object.
 #' @param data_left The left data.frame(or data.table) of chemical
 #'   classifications.
@@ -1302,14 +1529,16 @@ add_cladelab <- function(tree_plot,
 #' @param name_right Alternate parameter for right data set.
 #' @param log_trans Alternate parameter for log-transforming data.
 #' @param tax_level_labels Vector of the possible taxonomy levels that can
-#'   appear as column names in \code{data_left} and \code{data_right} of
+#'   appear as column names in `data_left` and `data_right`` of
 #'   classified data.
 #' @return An `aplot` consisting of two outer layer `ggtree` objects and three
 #'   inner layer `ggplot2` objects.
 #' @export
 #' @import ggplot2
 #' @import ggtree
-side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
+side_by_side_trees <- function(base_tree = chemont_tree,
+                               data_left,
+                               data_right,
                                name_left = 'Left tree',
                                name_right = 'Right tree',
                                log_trans = FALSE,
@@ -1348,7 +1577,9 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 
   all_labels <- union(left_labels, right_labels)
 
-  union_tree <- drop_tips_nodes(tree = chemont_tree, labels = all_labels, keep_descendants = FALSE)
+  union_tree <- drop_tips_nodes(tree = chemont_tree,
+                                labels = all_labels,
+                                keep_descendants = FALSE)
   union_tree$edge.length <- adjust_branch_lengths(union_tree)
   terminal_labels <- intersect(terminal_labels, union_tree$tip.label)
 
@@ -1443,32 +1674,40 @@ side_by_side_trees <- function(base_tree = chemont_tree, data_left, data_right,
 
 }
 
-#' Circular tree with boxplots
+#' @title Circular tree with boxplots
 #'
-#' This function takes in a data.table of chemicals with classification data and
-#' additional numeric data, and displays selected numeric data grouped by tip
-#' label on the data-induced subtree of the classification taxonomy.
+#' @description Plot a circular tree annotated with boxplots.
 #'
-#' @param data A data.table consisting of classification data and additional
-#'   numeric data.
-#' @param col A specified numeric column for use in displaying boxplots.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @param title An alternate parameter for the title of the plot.
-#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @param layers An alternate parameter giving which taxonomic layers to display
-#'   outside of the boxplot layer. This can be either a string with a single
-#'   column name, a vector of column names, or a list of column names. If the
-#'   input is a vector or a list, it is fine for it to be length 1.
-#' @param adjust_branch_length Whether to adjust branch length so that all
-#'  newly-pruned terminal nodes appear at the same length as tips, even if they
-#'  were originally internal nodes. Default FALSE.
-#' @param tippoint_boxplot Alternate parameter for determining whether to color
-#'   the tippoints and the boxplots. If TRUE, they will match in colors, and if
-#'   FALSE, the boxplots will be filled white with black outline and the
-#'   tippoints will be black.
-#' @return A ggtree object consisting of subtree induced by data and boxplots
-#'   corresponding to specified numeric column of data.
+#' @details This function takes in a `data.frame` of classified entities with an
+#'   additional numeric data variable. The `data.frame` will be grouped
+#'   according to the terminal classification of the entities, and the specified
+#'   numeric data will be plotted as boxplot annotations at the corresponding
+#'   tips of the tree.
+#'
+#' @param data A `data.frame` of classified entities with at least one
+#'   additional numeric data variable. Must contain at least the following
+#'   variables: variables named for every element of `tax_level_labels`,
+#'   containing the (character) labels at each level of classification; and the
+#'   variable named in `col`.
+#' @param col Character: the name of the numeric data variable to make boxplots
+#'   with.
+#' @param tax_level_labels Character: the taxonomy levels. Default
+#'   [chemont_tax_levels].
+#' @param title Character: the title of the plot.
+#' @param tree A `phylo`-class tree object specifying the tree to plot.
+#' @param layers Which taxonomic layers to display outside of the boxplot layer.
+#'   This can be either a string with a single column name, a vector of column
+#'   names, or a list of column names. If the input is a vector or a list, it is
+#'   fine for it to be length 1.
+#' @param adjust_branch_length `TRUE`/`FALSE`: If `TRUE`, adjust branch length
+#'   so that all newly-pruned terminal nodes appear at the same length as tips,
+#'   even if they were originally internal nodes. Default `FALSE`.
+#' @param tippoint_boxplot `TRUE`/`FALSE`: Whether to color the tip points and
+#'   the boxplots. If `TRUE`, tip points and boxplots will have matching colors.
+#'   If `FALSE` (default), the boxplots will be filled white with black outline
+#'   and the tip points will be black.
+#' @return A [ggtree::ggtree()] object, plotting the subtree induced by the data, annotated with boxplots
+#'   corresponding to the specified numeric column of data.
 #' @export
 #' @import ggplot2
 #' @import ggtree
@@ -1497,28 +1736,21 @@ circ_tree_boxplot <- function(data,
     data <- add_terminal_label(copy(data))
   }
 
-  # Cast as data.table
-  data <- data.table::data.table(data)
-
-  columns <- which(names(data) %in% c(col, 'terminal_label'))
-  column_names <- names(data)[columns]
-
-  new_data <- as.data.frame(data[, .SD, .SDcols = names(data)[columns]])
-  index <- which(names(new_data) %in% col)
-  new_data[, index] <- as.numeric(new_data[, index])
-  new_data <- new_data[!is.na(new_data[, index]),]
+  new_data <- data[, c(col, 'terminal_label')]
+  new_data[[col]] <- as.numeric(new_data[[col]])
+  #drop NAs
+  new_data <- new_data[!is.na(new_data[[col]]), ]
+  #give harmonized names
   new_data[["grp"]] <- new_data$terminal_label
-  new_data[["val"]] <- new_data[, index]
+  new_data[["val"]] <- new_data[[col]]
   new_data[["node"]] <- new_data$terminal_label
 
-
-  new_data_tree <- prune_and_display_subtree(
+  #prune tree to supplied data
+  new_data_tree <- prune_tree(
     prune_to = data,
     tax_level_labels = tax_level_labels,
     tree = tree,
-    show_tips = FALSE,
-    adjust_branch_length = adjust_branch_length,
-    no_plot = TRUE
+    adjust_branch_length = adjust_branch_length
   )
 
   num_nodes_tips <- length(new_data_tree$tip.label) + new_data_tree$Nnode
@@ -1692,37 +1924,33 @@ circ_tree_boxplot <- function(data,
 
 #' Leaf fraction subtree
 #'
-#' This function takes in two data.tables, plots the subtree induced by the
-#' first data.table and colors the tips based on the proportion of chemicals
-#' from the second data.table that make up the chemicals from the first, grouped
+#' This function takes in two `data.frame`s, plots the subtree induced by the
+#' first `data.frame` and colors the tips based on the proportion of chemicals
+#' from the second `data.frame` that make up the chemicals from the first, grouped
 #' by tip (or terminal) label.
 #'
-#' @param data_1 A data.table of chemicals, classifications, and column
-#'   `terminal_label`.
-#' @param data_2 A data.table of chemicals, classifications, and column
-#'   `terminal_label`
-#' @param name_1 Alternate parameter for name of first data.table.
-#' @param name_2 Alternate parameter for name of second data.table.
-#' @param show_labels Alternate parameter indicating whether to show tip labels.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @return A ggtree plot.
+#' @param data_1 A `data.frame` of classified entities (including terminal labels).
+#' @param data_2 A `data.frame` of classified entities (including terminal labels).
+#' @param name_1 Character: name of first data set (used for plot legend).
+#' @param name_2 Character: name of second data set (used for plot legend).
+#' @param show_labels `TRUE`/`FALSE`: whether to show tip labels.
+#' @param tax_level_labels Character vector of taxonomy levels. Default [chemont_tax_levels].
+#' @param tree A `phylo`-class tree object defining the base tree. Default [chemont_tree].
+#' @return A [ggtree::ggtree()] object.
 #' @export
-#' @import data.table
 #' @import ggtree
-#' @import ggtreeExtra
 #' @import ggplot2
 #'
 #' @seealso \code{\link{add_terminal_label}}
 #'
-leaf_fraction_subtree <- function(data_1, data_2,
-                                  name_1 = 'data_1', name_2 = 'data_2',
+leaf_fraction_subtree <- function(data_1,
+                                  data_2,
+                                  name_1 = 'Set 1',
+                                  name_2 = 'Set 2',
                                   show_labels = FALSE,
                                   tax_level_labels = chemont_tax_levels,
                                   tree = NULL){
-  data_1 <- data.table::as.data.table(data_1)
-  data_2 <- data.table::as.data.table(data_2)
+
   if (!all('terminal_label' %in% names(data_1))){
     warning('The column `terminal_label` is missing from one of the first input data.table! Attaching column...')
     data_1 <- add_terminal_label(data_1)
@@ -1734,34 +1962,52 @@ leaf_fraction_subtree <- function(data_1, data_2,
   terminal_label <- NULL
   INCHIKEY <- NULL
   percentages <- NULL
-  terminal_labels <- data_1[!is.na(terminal_label), unique(terminal_label)]
+  terminal_labels <- unique(data_1[!is.na(data_1$terminal_label),
+                            "terminal_label"])
 
   # For each terminal_label value, determine the chemicals from data_2 that are
   # also in data_1. This checks using the INCHIKEY of each chemical.
-  label_percentages <- sapply(terminal_labels, function(t) {
-    data_1_chemicals <- data_1[terminal_label == t, unique(INCHIKEY)]
-    data_2_chemicals <- data_2[terminal_label == t, unique(INCHIKEY)]
+  label_percentages <- sapply(terminal_labels,
+                              function(t) {
+    data_1_chemicals <- unique(data_1[data_1$terminal_label == t, "INCHIKEY"])
+    data_2_chemicals <- unique(data_2[data_2$terminal_label == t, "INCHIKEY"])
     shared_chemicals <- intersect(data_1_chemicals, data_2_chemicals)
     return(length(shared_chemicals)/length(data_1_chemicals))
-  })
+  }
+  )
 
   label_data <- data.frame('label' = terminal_labels,
                            'percentages' = unname(label_percentages),
-                           'data_1_numbers' <- unname(sapply(terminal_labels, function(t) {
-                             length(data_1[terminal_label == t, unique(INCHIKEY)])
-                           })),
-                           'data_2_numbers' <- unname(sapply(terminal_labels, function(t) {
-                             length(intersect(data_1[terminal_label == t, unique(INCHIKEY)],
-                                              data_2[terminal_label == t, unique(INCHIKEY)]))
+                           'data_1_numbers' <- unname(sapply(terminal_labels,
+                                                             function(t) {
+
+                             length(
+                               unique(data_1[data_1$terminal_label == t, "INCHIKEY"])
+                               )
+                           }
+                           )
+                           ),
+                           'data_2_numbers' <- unname(
+                             sapply(terminal_labels,
+                                    function(t) {
+                             length(
+                               intersect(unique(data_1[data_1$terminal_label == t,
+                                                       "INCHIKEY"]),
+                                         unique(data_2[data_2$terminal_label == t,
+                                                       "INCHIKEY"])
+                                         )
+                               )
                            }
                            ))
   )
 
-  names(label_data)[3:4] <- c(paste(name_1, 'label numbers'), paste(name_2, 'label numbers in', name_1))
+  names(label_data)[3:4] <- c(paste(name_1, 'label numbers'),
+                              paste(name_2, 'label numbers in', name_2)
+                              )
 
-  data_1_tree <- prune_and_display_subtree(prune_to = data_1,
+  data_1_tree <- prune_tree(prune_to = data_1,
                                            tax_level_labels = tax_level_labels,
-                                           tree = tree, no_plot = TRUE)
+                                           tree = tree)
 
   if (length(data_1_tree$tip.label) <= 200){
     tip_size = 3
@@ -1771,130 +2017,35 @@ leaf_fraction_subtree <- function(data_1, data_2,
     tip_size = .5
   }
 
-  #tree <- full_join(data_1_tree, label_data, by = 'label')
+  #add annotation data
+  tree_plot <- ggtree::ggtree(data_1_tree,
+                              layout = 'circular') %<+%
+    label_data
 
-  tree_plot <- ggtree::ggtree(data_1_tree, layout = 'circular') %<+% label_data
-  tree_plot <- tree_plot + ggplot2::ggtitle(paste0(name_1, ' subtree')) +
+  tree_plot <- tree_plot +
+    ggplot2::ggtitle(name_1) +
     theme(plot.title = element_text(hjust = 0.5))
 
-  tree_plot <- tree_plot + ggtree::geom_tippoint(aes(color = percentages),
+  tree_plot <- tree_plot +
+    ggtree::geom_tippoint(aes(color = percentages),
                                          size = tip_size)
   tree_plot <- tree_plot +
-    ggplot2::scale_color_viridis_c(name = paste0('Percentage of ',
-                                                 name_1,
-                                                 ' chemicals that are ',
-                                                 name_2,
-                                                 ' chemicals'),
+    ggplot2::scale_color_viridis_c(name = paste0('Overlap %\nwith ',
+                                                 name_2),
                           option = 'plasma')
 
   if (show_labels){
-    tree_plot <- tree_plot + ggtree::geom_tiplab(aes(color = percentages), size = 1)
+    tree_plot <- tree_plot +
+      ggtree::geom_tiplab(aes(color = percentages), size = 1)
   } else {
-    tree_plot <- tree_plot + ggtreeExtra::geom_fruit(geom = geom_tile,
-                                                     mapping = aes(color = percentages),
-                                                     width = 10,
-                                                     height = .1,
-                                                     offset = 0.1)
+    tree_plot <- tree_plot +
+      ggtreeExtra::geom_fruit(geom = geom_tile,
+                              mapping = aes(color = percentages),
+                              width = 10,
+                              height = .1,
+                              offset = 0.1)
   }
 
-  return(list(tree_plot, label_data))
+  return(tree_plot)
 
-}
-
-
-#' Compare data set subtrees
-#'
-#' This function takes in two data.tables of chemicals with classification data,
-#' and creates two plots each of which show a visual comparison of the subtrees
-#' induced by two data sets. The visual comparison consists of branches of one
-#' data-induced subtree colored and labeled based on whether they are
-#' represented by chemicals from the other data set.
-#'
-#' @param data_1 A data.table of chemicals and their classifications.
-#' @param data_2 A data.table of chemicals and their classifications.
-#' @param name_1 An alternate parameter giving the name of the first data set.
-#' @param name_2 An alternate parameter giving the name of the second data set.
-#' @param tax_level_labels An alternate parameter giving the taxonomy levels if
-#'   not using ClassyFire taxonomy.
-#' @param tree An alternate parameter giving a taxonomy if not using ChemOnt.
-#' @param show_tips An alternate parameter determining whether to show tip
-#'   labels.
-#' @param adjust_branch_length An alternate parameter determining whether to
-#'   resize branches of subtree.
-#' @return A list of two ggtree objects.
-#' @export
-#' @import ggtree
-data_set_subtrees <- function(data_1, data_2, name_1 = 'data_1', name_2 = 'data_2', tax_level_labels = chemont_tax_levels, tree = NULL, show_tips = TRUE, adjust_branch_length = TRUE){
-  membership <- NULL
-  # Prune subtrees for each data set.
-  tree_1 <- prune_and_display_subtree(prune_to = data_1,
-                                      tax_level_labels = tax_level_labels,
-                                      tree = tree, show_tips = show_tips,
-                                      no_plot = TRUE,
-                                      adjust_branch_length = adjust_branch_length)
-  tree_2 <- prune_and_display_subtree(prune_to = data_2,
-                                      tax_level_labels = tax_level_labels,
-                                      tree = tree, show_tips = show_tips,
-                                      no_plot = TRUE,
-                                      adjust_branch_length = adjust_branch_length)
-
-  # Get all taxonomy labels associated with the data
-  data_labels_1 <- setNames(unlist(get_labels(data_1)), NULL)
-  data_labels_2 <- setNames(unlist(get_labels(data_2)), NULL)
-
-  # Create membership tables
-  membership_1 <- data.frame('node' = 1:length(c(tree_1$tip.label, tree_1$node.label)),
-                             'membership' = c(tree_1$tip.label, tree_1$node.label) %in% data_labels_2)
-  membership_2 <- data.frame('node' = 1:length(c(tree_2$tip.label, tree_2$node.label)),
-                             'membership' = c(tree_2$tip.label, tree_2$node.label) %in% data_labels_1)
-
-  # Create tree plots
-  plot_1 <- ggtree(tree_1) %<+% membership_1 +
-    aes(color = membership) +
-    layout_circular() +
-    scale_color_manual(name = paste('Labels from', name_2, 'that are in', name_1),
-                       labels = c('True', 'False'),
-                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
-    ggtitle(paste0(name_1, ' subtree')) +
-    theme(plot.title = element_text(hjust = 0.5))
-
-  plot_2 <- ggtree(tree_2) %<+% membership_2 +
-    aes(color = membership) +
-    layout_circular() +
-    scale_color_manual(name = paste('Labels from', name_1, 'that are in', name_2),
-                       labels = c('True', 'False'),
-                       values = c('TRUE' = '#66c2a5', 'FALSE' = '#cccccc')) +
-    ggtitle(paste0(name_2, ' subtree'))  +
-    theme(plot.title = element_text(hjust = 0.5))
-
-  if (show_tips){
-    # Adjust the tip label size depending on the number of tips of the tree
-    if (length(tree_1$tip.label) <= 200){
-      tip_size_1 = 3
-    } else if (length(tree_1$tip.label) <= 500){
-      tip_size_1 = 1.5
-    } else {
-      tip_size_1 = .5
-    }
-
-    # Adjust the tip label size depending on the number of tips of the tree
-    if (length(tree_2$tip.label) <= 200){
-      tip_size_2 = 3
-    } else if (length(tree_1$tip.label) <= 500){
-      tip_size_2 = 1.5
-    } else {
-      tip_size_2 = .5
-    }
-
-    plot_1 <- plot_1 + geom_tiplab(size = tip_size_1)
-    plot_1 <- plot_1 + xlim(0, max(plot_1$data$x) + 50)
-
-    plot_2 <- plot_2 + geom_tiplab(size = tip_size_2)
-    plot_2 <- plot_2 + xlim(0, max(plot_2$data$x) + 50)
-  }
-
-  plot_1 <- plot_1 + theme(legend.justification = 'top')
-  plot_2 <- plot_2 + theme(legend.justification = 'top')
-
-  return(list(plot_1, plot_2))
 }
