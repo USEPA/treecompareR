@@ -1,19 +1,20 @@
 
-#'InChIKey classification
+#'@title InChIKey classification
 #'
-#'This function uses the ClassyFire API to classify chemicals from an input
-#'data.table using the InChIKey chemical identifier.
+#'@description This function uses the ClassyFire API to classify chemicals from
+#'  an input data.table using the InChIKey chemical identifier.
 #'
-#'This function queries ClassyFire's lookup table of pre-classified InChiKeys
+#'@details This function queries ClassyFire's lookup table of pre-classified
+#'  InChiKeys to get classifications, using the ClassyFire API.
 #'
-#'@param inchikeys A vector of InCHiKeys to be classified
+#'@param inchikeys Character: A vector of InCHiKeys to be classified
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'  level11}.
-#'@param wait_min A parameter controlling how many seconds between qqueries sent
+#'@param wait_min Numeric: A parameter controlling how many seconds between qqueries sent
 #'  to the ClassyFire API server. Default 5, to respect the limit of 12 requests
-#'  per second.
-#'@return A data.frame with the following variables: \itemize{
+#'  per second. Setting it any lower than 5 will result in failed queries.
+#'@return A `data.frame with the following variables`: \itemize{
 #'  \item{identifier: The input InCHiKey that was queried. For example,
 #'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
 #'  \item{smiles: The corresponding SMILES returned by ClassyFire, if any}
@@ -200,34 +201,36 @@ classify_datatable <- function(data) {
 }
 
 
-#' Query ClassyFire by structure
+#' @title Query ClassyFire by structure
 #'
-#' This function takes a vector of structural identifiers (SMILES strings or
-#' InChi strings) and queries the ClassyFire API to get classifications for each
-#' one.
+#' @description This function takes a vector of structural identifiers (SMILES
+#'   strings or InChi strings) and queries the ClassyFire API to get
+#'   classifications for each one.
 #'
-#' For use with \code{treecompareR} functions that expect a `data.frame` of
-#' classified entities, this `data.frame` will need to be reshaped into wider
-#' format, with one row for each structure and one column for each level of
+#' @details For use with \code{treecompareR} functions that expect a
+#'   `data.frame` of classified entities, the `data.frame` returned by this
+#'   function will need to be reshaped into wider format, with one row for each
+#'   structure and one column for each level of
 #'  classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
 #'  names_from = "level", values_from = "name")} (where \code{dat} is the
-#' returned `data.frame`.) However, be on the lookout for pathological cases
-#' where a structure is listed with two different labels at the same level.
-#' These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will throw
-#' a warning if this happens -- pay attention to it!
+#'   returned `data.frame`.) However, be on the lookout for pathological cases
+#'   where a structure is listed with two different labels at the same level.
+#'   These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
+#'   throw a warning if this happens -- pay attention to it!
 #'
-#' Note also that the returned data.frame includes only unique, valid
-#' structures. Any duplicates, blanks, or NAs are not queried, and are not
-#' included in the output.
+#'   Note also that the returned `data.frame` includes only unique, valid
+#'   structures. Any duplicates, blanks, or NAs are not queried, and are not
+#'   included in the output.
 #'
-#' If you have a source `data.frame` with duplicate, missing, or invalid
-#' structures, you can merge the returned `data.frame` with it (or pivot wider,
-#' then merge). For example, if your source `data.frame` is called
-#' \code{source_dat} with variable \code{"STRUCTURE"} containing the structures,
-#' and the returned `data.frame` is in variable \code{dat}, the following code
+#'   If you have a source `data.frame` with duplicate, missing, or invalid
+#'   structures, you can merge the returned `data.frame` with it (or pivot
+#'   wider, then merge). For example, if your source `data.frame` is called
+#'   \code{source_dat} with variable \code{"STRUCTURE"} containing the
+#'   structures, and the returned `data.frame` is in variable \code{dat}, the
+#'   following code
 #'  will do the merge: \code{dplyr::left_join(source_dat, dat, by = "STRUCTURE" =
 #'  "structure")}. In that case, classification columns will be filled with NA
-#' for any missing or invalid structures.
+#'   for any missing or invalid structures.
 #'
 #' @param input A character vector of structural identifiers: SMILES strings or
 #'   InChi strings. May optionally be named. If so, the names will be returned
