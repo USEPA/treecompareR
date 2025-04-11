@@ -197,18 +197,22 @@ calc_number_overlap <- function(data_1,
 
   #if no entity ID column specified, then set it to be all shared variables between the two data sets
   if(is.null(entity_id_col)){
-  entity_id_col <- intersect(names(data_1), names(data_2))
+  entity_id_col <- setdiff(intersect(names(data_1),
+                             names(data_2)),
+                           tax_level_labels)
   }
 
   if(at_level %in% "terminal"){
   #get terminal labels if not already there
   if(!("terminal_label" %in% names(data_1))){
     data_1 <- add_terminal_label(data_1,
+                                 entity_id_col = entity_id_col,
                                     tax_level_labels = tax_level_labels)
   }
 
   if(!("terminal_label" %in% names(data_2))){
     data_2 <- add_terminal_label(data_2,
+                                 entity_id_col = entity_id_col,
                                     tax_level_labels = tax_level_labels)
   }
     group_col <- "terminal_label"
