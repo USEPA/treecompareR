@@ -7,8 +7,8 @@
 #'
 
 #' @param datatable A data.table object of chemical classifications.
-#' @param chemont Alternate parameter indicating whether ChemOnt taxonomy is used.
-#' @param log Alternate parameter indicating whether numbers are reported as is or as their log.
+#' @param chemont `TRUE`/`FALSE`: whether to use ChemOnt taxonomy.
+#' @param log `TRUE`/`FALSE`: whether numbers are reported as-is or as their log.
 #' @return Number of occurrences of each label in the parameter `datatable`.
 #' @import data.table
 
@@ -77,39 +77,59 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 }
 
 
-#' Generate similarity heatmap
+#' @title Generate similarity heatmap
 #'
-#' This function generates a heatmap from an input similarity matrix and
-#' indices. If row data and column data are used instead, indices are generated
-#' from their classification labels and the labels of the similarity matrix.
+#' @description Generate a heatmap from an input similarity matrix.
 #'
-#' @param tree_object A phylo object representing a rooted tree.
-#' @param matrix A matrix of similarity measure values derived from parameter
-#'   `tree_object`.
-#' @param row_indices The row indices for the matrix.
-#' @param column_indices The column indices for the matrix.
-#' @param row_data A data.table or data.frame object of chemical classifications.
-#' @param column_data A data.table or data.frame object of chemical classifications.
-#' @param name Name of the heatmap similarity measure.
-#' @param row_split Number of clusters for rows.
-#' @param column_split Number of cluster for columns.
-#' @param row_title Title for rows.
-#' @param column_title Title for columns.
-#' @param log_trans Alternate parameter for log transforming numbers of label
-#'   occurrence for labels present in each data set.
-#' @return A Heatmap object.
+#' @details This function generates a heatmap from an input similarity matrix
+#'   and indices. If row data and column data are used instead, indices are
+#'   generated from their classification labels and the labels of the similarity
+#'   matrix.
+#'
+#' @param tree_object A `phylo`-class object representing a rooted tree. Default
+#'   [chemont_tree].
+#' @param matrix A matrix of similarity measure values derived from
+#'   `tree_object`. Default [chemont_jaccard].
+#' @param row_indices The row indices for the matrix. Default NA.
+#' @param column_indices The column indices for the matrix. Default NA.
+#' @param row_data A `data.frame` object of classified entities.
+#' @param column_data A `data.frame` object of classified entities.
+#' @param entity_id_col Character: the variable name in `row_data` and
+#'   `column_data` that identifies entities. Default `NULL` to assume each row
+#'   is its own entity.
+#' @param tax_level_labels Character: levels of the taxonomy in `tree_object`.
+#'   Default [chemont_tax_levels].
+#' @param name Name of the heatmap similarity measure. Default `'Similarity'`.
+#' @param row_split Number of clusters for rows. Default `NULL`.
+#' @param column_split Number of clusters for columns. Default `NULL`.
+#' @param row_title Character: Title for rows. Default `'Row title'`.
+#' @param column_title Character: Title for columns. Default `'Column title'`.
+#' @param log_trans `TRUE`/`FALSE`: Whether to log transform numbers of label
+#'   occurrence for labels present in each data set. Default `TRUE`.
+#' @return A [ComplexHeatmap::Heatmap()] object.
+#' @examples
+#' generate_heatmap(tree_object = chemont_tree,
+#'  matrix = chemont_jaccard,
+#'   row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'     row_title = "Biosolids",
+#'      column_title = "USGS Water",
+#'    name = "Jaccard")
+#'
 #' @export
 #' @import ComplexHeatmap
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
-generate_heatmap <- function(tree_object,
-                             matrix,
+generate_heatmap <- function(tree_object = chemont_tree,
+                             matrix = chemont_jaccard,
                              row_indices = NA,
                              column_indices = NA,
                              row_data,
                              column_data,
-                             name = 'Name',
+                             entity_id_col = NULL,
+                             tax_level_labels = chemont_tax_levels,
+                             name = 'Similarity',
                              row_split = NULL,
                              column_split = NULL,
                              row_title = 'Row title',
@@ -127,12 +147,16 @@ generate_heatmap <- function(tree_object,
     column_indices <- 1:dim(matrix)[[2]]
   }
 
+  if(!is.null(row_split)){
   if (!(is.integer(row_split) & row_split > 1)){
     row_split <- NULL
   }
+  }
 
+  if(!is.null(column_split)){
   if (!(is.integer(column_split) & column_split > 1)) {
     column_split <- NULL
+  }
   }
 
   if (is.data.frame(row_data) & !data.table::is.data.table(row_data)){
@@ -145,9 +169,18 @@ generate_heatmap <- function(tree_object,
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
 
-  row_label_data <- label_numbers(row_data, log = log_trans)
-  row_label_numbers <- row_label_data[[1]]
-  row_labels <- row_label_data[[2]]
+  row_label_data <-
+    count_entities_per_label(data = row_data,
+                             entity_id_col = entity_id_col,
+                             tax_level_labels = tax_level_labels) %>%
+    dplyr::bind_rows() %>%
+    dplyr::filter(!is.na(label))
+  row_label_numbers <- row_label_data$n
+  if(log_trans %in% TRUE){
+    row_label_numbers <- log10(row_label_numbers)
+  }
+  row_labels <- row_label_data$label
+  names(row_label_numbers) <- row_labels
 
   row_anno_indices <- match(dimnames(matrix)[[2]][row_indices], row_labels)
   row_na_indices <- which(sapply(row_anno_indices, is.na))
@@ -156,9 +189,18 @@ generate_heatmap <- function(tree_object,
   }
 
 
-  column_label_data <- label_numbers(column_data, log = log_trans)
-  column_label_numbers <- column_label_data[[1]]
-  column_labels <- column_label_data[[2]]
+  column_label_data <-
+    count_entities_per_label(data = column_data,
+                             entity_id_col = entity_id_col,
+                             tax_level_labels = tax_level_labels)  %>%
+    dplyr::bind_rows() %>%
+    dplyr::filter(!is.na(label))
+  column_label_numbers <- column_label_data$n
+  if(log_trans %in% TRUE){
+    column_label_numbers <- log10(column_label_numbers)
+  }
+  column_labels <- column_label_data$label
+  names(column_label_numbers) <- column_labels
 
   column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
   column_na_indices <- which(sapply(column_anno_indices, is.na))
@@ -167,8 +209,12 @@ generate_heatmap <- function(tree_object,
   }
 
 
-  matrix_row_indices <- intersect(which(dimnames(matrix)[[2]] %in% row_labels), row_indices)
-  matrix_column_indices <- intersect(which(dimnames(matrix)[[2]] %in% column_labels), column_indices)
+  matrix_row_indices <- intersect(
+    which(dimnames(matrix)[[2]] %in% row_labels),
+    row_indices)
+  matrix_column_indices <- intersect(
+    which(dimnames(matrix)[[2]] %in% column_labels),
+    column_indices)
 
   if(log_trans){
     row_anno_label <- 'log(row count) bars'
@@ -256,36 +302,82 @@ generate_heatmap <- function(tree_object,
 #' visual identification of different clades based on the specified taxonomic
 #' level.
 #'
-#' @param htmap A ComplexHeatmap object with hierarchical clustering.
+#' @param htmap A ComplexHeatmap object with hierarchical clustering, as created by [generate_heatmap()].
 #' @param row_cluster Index for the row cluster.
 #' @param column_cluster Index for the column cluster.
-#' @param level Alternate parameter indicating the level of depth for labels.
+#' @param level Integer: the level of depth for labels. Default 2.
 #' @param tree_object A phylo object representing a rooted tree, the taxonomy
-#'   being investigated.
+#'   being investigated. Default [chemont_tree].
 #' @param tree Alternate parameter, a phylo object representing a rooted tree,
-#'   for restricting the labels.
+#'   for restricting the labels. Default `NULL`.
 #' @return A list of labels for the row and column clusters, based on the level
 #'   specified.
 #' @import stats
 #' @import ComplexHeatmap
-cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree_object, tree = NULL){
+cluster_analysis <- function(htmap,
+                             row_cluster,
+                             column_cluster,
+                             level = 2,
+                             tree_object,
+                             tree = NULL){
   if (!is.null(tree)){
     tree_labels <- c(tree$tip.label, tree$node.label)
   }
   # get row levels for row cluster (restrict to tree if tree is given)
-  row_names <- dimnames(htmap@ht_list[[1]]@matrix)[[1]][stats::order.dendrogram(ComplexHeatmap::row_dend(htmap)[[row_cluster]])]
+  row_names <- dimnames(htmap@ht_list[[1]]@matrix)[[1]][
+    stats::order.dendrogram(
+      ComplexHeatmap::row_dend(htmap)[[row_cluster]]
+      )
+    ]
   if (is.null(tree)){
-    row_levels <- sort(unique(sapply(row_names, get_tip_level, tree = tree_object)))
+    row_levels <- sort(
+      unique(
+        sapply(
+          row_names,
+          get_tip_level,
+          tree = tree_object
+          )
+        )
+      )
   } else {
-    row_levels <- sort(unique(sapply(intersect(tree_labels, row_names), get_tip_level, tree = tree_object)))
+    row_levels <- sort(
+      unique(
+        sapply(
+          intersect(
+            tree_labels,
+            row_names
+            ),
+          get_tip_level,
+          tree = tree_object)
+        )
+      )
   }
 
   # get column levels for column cluster
-  column_names <- dimnames(htmap@ht_list[[1]]@matrix)[[2]][stats::order.dendrogram(ComplexHeatmap::column_dend(htmap)[[column_cluster]])]
+  column_names <- dimnames(
+    htmap@ht_list[[1]]@matrix)[[2]][
+      stats::order.dendrogram(
+        ComplexHeatmap::column_dend(htmap)[[column_cluster]]
+        )
+      ]
   if (is.null(tree)){
-    column_levels <- sort(unique(sapply(column_names, get_tip_level, tree = tree_object)))
+    column_levels <- sort(
+      unique(
+        sapply(
+          column_names,
+          get_tip_level,
+          tree = tree_object)
+        )
+      )
   } else {
-    column_levels <- sort(unique(sapply(intersect(tree_labels, column_names), get_tip_level, tree = tree_object)))
+    column_levels <- sort(
+      unique(
+        sapply(
+          intersect(tree_labels, column_names),
+          get_tip_level,
+          tree = tree_object)
+        )
+      )
   }
 
   if (level == 2){
@@ -305,16 +397,31 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
       }
       )
     } else {
-      row_superclass <- sapply(row_levels, function(q) {
-        unique(unlist((sapply(intersect(tree_labels, row_names)[which(sapply(intersect(tree_labels, row_names), function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-2]
-        }
-        )
-        )
-        )
+      row_superclass <- sapply(row_levels,
+                               function(q) {
+        unique(
+          unlist(
+            (
+              sapply(
+                intersect(
+                  tree_labels,
+                  row_names)[
+                    which(
+                      sapply(
+                        intersect(
+                          tree_labels,
+                          row_names), function(t) {
+                            unname(get_tip_level(tree = tree_object, t))
+                          }
+                      ) == q)
+                  ], function(s) {
+                    phangorn::Ancestors(x = tree_object,
+                                        node = s,
+                                        type = "all")[q-2]
+                  }
+              )
+            )
+          )
         )
       }
       )
@@ -327,7 +434,8 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-2]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-2]
         }
         )
         )
@@ -341,7 +449,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-2]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-2]
+          # get_ancestors(tree_object, s)[q-2]
         }
         )
         )
@@ -360,7 +470,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-3]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-3]
+          # get_ancestors(tree_object, s)[q-3]
         }
         )
         )
@@ -374,7 +486,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-3]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-3]
+          # get_ancestors(tree_object, s)[q-3]
         }
         )
         )
@@ -391,7 +505,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-3]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-3]
+          # get_ancestors(tree_object, s)[q-3]
         }
         )
         )
@@ -401,11 +517,24 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
       )
     } else {
       column_class <- sapply(column_levels, function(q) {
-        unique(unlist((sapply(intersect(tree_labels, column_names)[which(sapply(intersect(tree_labels, column_names), function(t) {
+        unique(
+          unlist(
+            (
+              sapply(
+                intersect(
+                  tree_labels,
+                  column_names)[
+                    which(
+                      sapply(
+                        intersect(
+                          tree_labels, column_names),
+                        function(t) {
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-3]
+          phangorn::Ancestors(x = tree_object,
+                              node = s, type = "all")[q-3]
+          # get_ancestors(tree_object, s)[q-3]
         }
         )
         )
@@ -414,9 +543,9 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
       }
       )
     }
+  }
     return(list('row_class' = unique(unlist(row_class)),
                 'column_class' = unique(unlist(column_class))))
-  }
 
 }
 
@@ -442,12 +571,26 @@ cluster_analysis <- function(htmap, row_cluster, column_cluster, level = 2, tree
 #'
 #' @seealso \code{\link{handle_missing_node_highlight_clade}}
 #'
-handle_missing_node_show_clade <- function(tree, tree_object, list_superclasses, tree_visual, i, color){
-  #print(paste('superclasses:', list_superclasses))
+handle_missing_node_show_clade <- function(tree,
+                                           tree_object,
+                                           list_superclasses,
+                                           tree_visual,
+                                           i,
+                                           color){
   tree_labels <- c(tree$tip.label, tree$node.label)
-  #print(intersect(c(tree_object$tip.label, tree_object$node.label)[Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% list_superclasses[[i]]), type = 'all')], tree_labels))
 
-  temp_descendants <- intersect(c(tree_object$tip.label, tree_object$node.label)[phangorn::Descendants(tree_object, which(c(tree_object$tip.label, tree_object$node.label) %in% list_superclasses[[i]]), type = 'all')], tree_labels)
+  temp_descendants <- intersect(
+    c(
+      tree_object$tip.label,
+      tree_object$node.label)[
+        phangorn::Descendants(
+          tree_object,
+          which(
+            c(tree_object$tip.label,
+              tree_object$node.label) %in%
+              list_superclasses[[i]]),
+          type = 'all')],
+    tree_labels)
   #print(temp_descendants)
   shallow_level <- min(sapply(temp_descendants, get_tip_level, tree = tree_object))
   shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
@@ -544,7 +687,19 @@ handle_missing_node_highlight_clade <- function(tree, tree_object, list_supercla
 #'
 #' @seealso \code{\link{generate_heatmap}}
 #'
-generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_cluster, row_name = 'Row data set', column_name = 'Column data set',  isolate_subtree = FALSE, show_labels = FALSE, show_clades = TRUE, highlight_clades = TRUE, point_size = 2, bar_size = 1){
+generate_tree_cluster <- function(tree,
+                                  tree_object,
+                                  htmap,
+                                  row_cluster,
+                                  column_cluster,
+                                  row_name = 'Row data set',
+                                  column_name = 'Column data set',
+                                  isolate_subtree = FALSE,
+                                  show_labels = FALSE,
+                                  show_clades = TRUE,
+                                  highlight_clades = TRUE,
+                                  point_size = 2,
+                                  bar_size = 1){
   label <- NULL
   # get tree labels
   tree_labels <- c(tree$tip.label, tree$node.label)
@@ -614,13 +769,31 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
   # build tree visual
   tree_visual <- ggtree(tree) +
     ggtree::layout_circular() +
-    ggtree::geom_point2(aes(subset = (label %in% intersect(setdiff(row_labels, shared_labels), c(tree$tip.label, tree$node.label))),
+    ggtree::geom_point2(
+      aes(
+        subset = (
+          label %in% intersect(setdiff(row_labels, shared_labels),
+                               c(tree$tip.label, tree$node.label)
+                               )
+          ),
                     color = "row"),
                 size = point_size) +
-    ggtree::geom_point2(aes(subset = (label %in% intersect(setdiff(column_labels, shared_labels), c(tree$tip.label, tree$node.label))),
+    ggtree::geom_point2(
+      aes(
+        subset = (
+          label %in% intersect(setdiff(column_labels, shared_labels),
+                               c(tree$tip.label, tree$node.label)
+                               )
+          ),
                     color = "column"),
                 size = point_size) +
-    ggtree::geom_point2(aes(subset = (label %in% intersect(shared_labels, c(tree$tip.label, tree$node.label))),
+    ggtree::geom_point2(
+      aes(
+        subset = (
+          label %in% intersect(shared_labels,
+                               c(tree$tip.label, tree$node.label)
+                               )
+          ),
                     color = "both"),
                 size = point_size) +
     ggtree::scale_color_manual(name = 'Data sets',
@@ -632,7 +805,11 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
     if (length(row_superclasses) > 0){
       for (i in seq_along(row_superclasses)){
         if (row_superclasses[[i]] %in% tree_labels){
-          tree_visual <- tree_visual + ggtree::geom_cladelab(node = which(tree_labels %in% row_superclasses[[i]]),
+          tree_visual <- tree_visual +
+            ggtree::geom_cladelab(
+              node = which(
+                tree_labels %in% row_superclasses[[i]]
+                ),
                                                      label = row_superclasses[[i]],
                                                      textcolor = '#2166ac',
                                                      barcolor = '#2166ac',
@@ -640,16 +817,25 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                                                      offset = .2,
                                                      offset.text = 3,
                                                      fontsize = 3.8,
-                                                     angle = 'auto')
+                                                     angle = 'auto'
+              )
         } else {
-          tree_visual <- handle_missing_node_show_clade(tree, tree_object, row_superclasses, tree_visual, i, '#2166ac')}
+          tree_visual <- handle_missing_node_show_clade(
+            tree,
+            tree_object,
+            row_superclasses,
+            tree_visual,
+            i, '#2166ac')}
       }
     }
 
     if (length(column_superclasses) > 0){
       for (i in seq_along(column_superclasses)){
         if (column_superclasses[[i]] %in% tree_labels){
-          tree_visual <- tree_visual + ggtree::geom_cladelab(node = which(tree_labels %in% column_superclasses[[i]]),
+          tree_visual <- tree_visual +
+            ggtree::geom_cladelab(node = which(
+              tree_labels %in% column_superclasses[[i]]
+              ),
                                                      label = column_superclasses[[i]],
                                                      textcolor = '#b2182b',
                                                      barcolor = '#b2182b',
@@ -659,7 +845,14 @@ generate_tree_cluster <- function(tree, tree_object, htmap, row_cluster, column_
                                                      fontsize = 3.8,
                                                      angle = 'auto')
         } else {
-          tree_visual <- handle_missing_node_show_clade(tree, tree_object, column_superclasses, tree_visual, i, '#b2182b')}
+          tree_visual <- handle_missing_node_show_clade(
+            tree,
+            tree_object,
+            column_superclasses,
+            tree_visual,
+            i,
+            '#b2182b')
+          }
       }
     }
 
