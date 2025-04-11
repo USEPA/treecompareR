@@ -296,9 +296,9 @@ check_similarity_inputs <- function(tree = NULL,
                                   tree = tree)
   }
 
-  if (1 <= min(c(node1, node2))){
-    if (max(c(node1, node2)) <= length(tree_labels)){
-      return(c(node1, node2))
+  if (1 <= min(c(node_1, node_2))){
+    if (max(c(node_1, node_2)) <= length(tree_labels)){
+      return(c(node_1, node_2))
     } else {
       stop('An input node is out of range!')
     }
