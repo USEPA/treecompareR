@@ -226,20 +226,21 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 
 #' Tree level
 #'
-#' This function returns the tree level of the given node in a rooted tree.
+#' Get the level of the given node(s) in a rooted tree.
 #'
 #' @param tree An object of class `phylo` representing a rooted tree (see
-#'   [ape::read.tree()] for description of this class)
-#' @param node Character (a node name) or integer (a node number).
-#' @return The level of the node from the root of the tree.
+#'   [ape::read.tree()] for description of this class).
+#' @param node A vector: Character (node names) or integer (node ID numbers).
+#' @return An integer vector the same length as `node`, giving the taxonomic
+#'   level of the node(s) (where level 0 is the root).
 #' @export
 #'
 #' @examplesIf FALSE
 #'
-#' tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
+#'   tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#' get_tip_level(tree = tree, node = 't2') #specify node by name
-#' get_tip_level(tree = tree, node = 2) #specify node by number
+#'   get_tip_level(tree = tree, node = 't2') #specify node by name
+#'   get_tip_level(tree = tree, node = 2) #specify node by number
 get_tip_level <- function(tree,
                           node){
 
@@ -248,8 +249,16 @@ get_tip_level <- function(tree,
                         tree = tree)
   }
 
-  return(length(phangorn::Ancestors(x = tree,
-                                    node = node)))
+  anc <- phangorn::Ancestors(x = tree,
+                             node = node)
+
+  if(length(node)>1){
+    #in which case phangorn::Ancestors() returns a list of vectors
+    return(sapply(anc, length))
+  }else{
+    #in which case phangorn::Ancestors() returns a vector
+    return(length(anc))
+  }
 }
 
 #' Check similarity inputs
