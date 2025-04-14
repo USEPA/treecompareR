@@ -935,7 +935,7 @@ display_subtree <- function(base_tree = chemont_tree,
         )
         }else{
           #if data_2 not provided and prune_to also not provided,
-          #there is nothing to calcualte overlap with
+          #there is nothing to calculate overlap with
           message(paste("To use color_overlap = TRUE",
                         "either data_1 and data_2 must be provided",
                         "or prune_to and data_1 must be provided.",
@@ -967,6 +967,9 @@ overlap_dat <- overlap_dat  %>%
   )
 
 
+#plot a "background" tree with linewidth a little bigger
+#this will create a "border" around the colored branches
+#useful when color is light and background is white
 bg_opts <- base_opts
 bg_opts$size <- base_opts$size * 1.8
 tree_plot <- do.call(ggtree,

@@ -2,10 +2,10 @@
 % Please edit documentation in R/heatmaps_and_subplots.R
 \name{generate_tree_cluster}
 \alias{generate_tree_cluster}
-\title{Generate tree cluster}
+\title{Generate tree from cluster}
 \usage{
 generate_tree_cluster(
-  tree,
+  subtree,
   tree_object,
   htmap,
   row_cluster,
@@ -21,44 +21,70 @@ generate_tree_cluster(
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{subtree}{A \code{phylo} object representing a rooted tree.}
 
-\item{tree_object}{A phylo object representing the entire taxonomy from which
-the parameter \code{tree} is derived.}
+\item{tree_object}{A \code{phylo} object representing the entire taxonomy from
+which the parameter \code{tree} is derived.}
 
-\item{htmap}{A ComplexHeatmap object.}
+\item{htmap}{A \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}} object produced by
+\code{\link[=generate_heatmap]{generate_heatmap()}}.}
 
 \item{row_cluster}{Index for row cluster of htmap to be illustrated.}
 
 \item{column_cluster}{Index for column cluster of htmap to be illustrated.}
 
-\item{row_name}{Alternate parameter for name of row data set.}
+\item{row_name}{Character: name of row data set.}
 
-\item{column_name}{Alternte parameter for name of column data set.}
+\item{column_name}{Character: name of column data set.}
 
-\item{isolate_subtree}{Alternate parameter for pruning tree diagram to create
-a second diagram.}
+\item{isolate_subtree}{\code{TRUE}/\code{FALSE}: Whether to prune tree diagram to
+create a second diagram. Default \code{FALSE}.}
 
-\item{show_labels}{Alternate parameter specifying whether to show tip labels.}
+\item{show_labels}{\code{TRUE}/\code{FALSE}: whether to show tip labels. Default
+\code{FALSE}.}
 
-\item{show_clades}{Alternate parameter for labeling superclass clades.}
+\item{show_clades}{\code{TRUE}/\code{FALSE}: Whether to label superclass clades.
+Default \code{TRUE}.}
 
-\item{highlight_clades}{Alternate parameter for labeling superclass clades.}
+\item{highlight_clades}{\code{TRUE}/\code{FALSE}: Whether to highlight superclass
+clades. Default \code{TRUE}.}
 
-\item{point_size}{Alternate parameter for size of tip points of represented
-tips.}
+\item{point_size}{Numeric: Size of tip points of represented
+tips. Default 2.}
 
-\item{bar_size}{Alternate parameter for size of bars highlighting clades.}
+\item{bar_size}{Numeric: Size of bars highlighting clades. Default 1.}
 }
 \value{
 A ggtree object or list of ggtree objects.
 }
 \description{
+Generates a tree diagram highlighting specified row and column
+clusters from a similarity heatmap
+}
+\details{
 This function generates tree visuals highlighting specified row and column
 clusters produced from \code{\link{generate_heatmap}}. The \code{tree} parameter
 gives an underlying tree that will be used in the plots. A second plot may
 also be produced that prunes away extraneous superclasses to highlight only
 the portions of the tree with labels present.
+}
+\examples{
+#first generate a heatmap to highlight
+my_htmap <- generate_heatmap(
+  row_data = biosolids_class,
+   column_data = usgs_class,
+   tree_object = chemont_tree,
+ matrix = chemont_jaccard,
+ row_split = 5L,
+ column_split = 5L,
+    row_title = "Biosolids",
+     column_title = "USGS Water",
+   name = "Jaccard")
+#then generate a tree with highlights
+generate_tree_cluster(htmap = my_htmap,
+tree = chemont_tree,
+)
+
 }
 \seealso{
 \code{\link{generate_heatmap}}

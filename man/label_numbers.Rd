@@ -9,9 +9,9 @@ label_numbers(datatable, chemont = TRUE, log = TRUE)
 \arguments{
 \item{datatable}{A data.table object of chemical classifications.}
 
-\item{chemont}{Alternate parameter indicating whether ChemOnt taxonomy is used.}
+\item{chemont}{\code{TRUE}/\code{FALSE}: whether to use ChemOnt taxonomy.}
 
-\item{log}{Alternate parameter indicating whether numbers are reported as is or as their log.}
+\item{log}{\code{TRUE}/\code{FALSE}: whether numbers are reported as-is or as their log.}
 }
 \value{
 Number of occurrences of each label in the parameter \code{datatable}.

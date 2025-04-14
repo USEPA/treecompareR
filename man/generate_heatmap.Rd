@@ -5,54 +5,119 @@
 \title{Generate similarity heatmap}
 \usage{
 generate_heatmap(
-  tree_object,
-  matrix,
-  row_indices = NA,
-  column_indices = NA,
   row_data,
   column_data,
-  name = "Name",
+  terminal_only = TRUE,
+  tree_object = chemont_tree,
+  matrix = chemont_jaccard,
+  row_indices = NULL,
+  column_indices = NULL,
+  entity_id_col = NULL,
+  tax_level_labels = chemont_tax_levels,
+  name = "Similarity",
   row_split = NULL,
   column_split = NULL,
   row_title = "Row title",
   column_title = "Column title",
-  log_trans = TRUE
+  log_trans = TRUE,
+  colors = circlize::colorRamp2(breaks = seq(0, 1, len = 20), colors = viridis::viridis(n
+    = 20, option = "C"))
 )
 }
 \arguments{
-\item{tree_object}{A phylo object representing a rooted tree.}
+\item{row_data}{A \code{data.frame} object of classified entities. Typically, each
+row represents one entity. Must include variables with names matching
+everything in \code{tax_level_labels}, containing the classification at each
+taxonomy level. May include a variable with unique identifiers for
+entities; if so, this must be the same variable name in both \code{row_data} and
+\code{column_data}, and it should be supplied in \code{entity_id_col}.}
 
-\item{matrix}{A matrix of similarity measure values derived from parameter
-\code{tree_object}.}
+\item{column_data}{A \code{data.frame} object of classified entities.  Typically,
+each row represents one entity. Must include variables with names matching
+everything in \code{tax_level_labels}, containing the classification at each
+taxonomy level. May include a variable with unique identifiers for
+entities; if so, this must be the same variable name in both \code{row_data} and
+\code{column_data}, and it should be supplied in \code{entity_id_col}.}
 
-\item{row_indices}{The row indices for the matrix.}
+\item{terminal_only}{\code{TRUE}/\code{FALSE}: Whether to show only terminal
+classifications of row/column data in the heatmap (\code{TRUE}, default) or
+whether to include classifications at all levels (\code{FALSE}).}
 
-\item{column_indices}{The column indices for the matrix.}
+\item{tree_object}{A \code{phylo}-class object representing a rooted tree. Default
+\link{chemont_tree}.}
 
-\item{row_data}{A data.table or data.frame object of chemical classifications.}
+\item{matrix}{A matrix of pairwise similarity measure values derived from
+\code{tree_object}. Default \link{chemont_jaccard}, to plot Jaccard similarity of
+taxonomic classification. Other pre-built option include
+\link{chemont_resnik_IC_SVH} (to plot Resnik similarity), \link{chemont_lin_IC_SVH}
+(to plot Lin similarity), and \link{chemont_jiangconrath_IC_SVH} (to plot
+Jiang-Conrath similarity).}
 
-\item{column_data}{A data.table or data.frame object of chemical classifications.}
+\item{row_indices}{Integer vector: A subset of row indices of the similarity
+matrix to consider. Default \code{NULL} to include all rows.}
 
-\item{name}{Name of the heatmap similarity measure.}
+\item{column_indices}{Integer vector: The column indices of the similarity
+matrix to consider. Default \code{NULL} to include all columns.}
 
-\item{row_split}{Number of clusters for rows.}
+\item{entity_id_col}{Character: the variable name(s) in \code{row_data} and
+\code{column_data} that uniquely identifies entities. Must be the same name(s)
+in each \code{data.frame}. Default \code{NULL} to assume each row is its own entity.}
 
-\item{column_split}{Number of cluster for columns.}
+\item{tax_level_labels}{Character: levels of the taxonomy in \code{tree_object}.
+Default \link{chemont_tax_levels}.}
 
-\item{row_title}{Title for rows.}
+\item{name}{Name of the heatmap similarity measure for legend title. Default
+\code{'Similarity'}.}
 
-\item{column_title}{Title for columns.}
+\item{row_split}{Positive integer: Number of clusters to split rows into.
+Default \code{NULL}, to do no row splitting.}
 
-\item{log_trans}{Alternate parameter for log transforming numbers of label
-occurrence for labels present in each data set.}
+\item{column_split}{Positive integer: Number of clusters to split columns
+into. Default \code{NULL}, to do no column splitting.}
+
+\item{row_title}{Character: Title for rows. Default \code{'Row title'}.}
+
+\item{column_title}{Character: Title for columns. Default \code{'Column title'}.}
+
+\item{log_trans}{\code{TRUE}/\code{FALSE}: Whether to log-transform numbers of label
+occurrence for labels present in each data set before plotting them as bar
+chart annotations on the heatmap. Default \code{TRUE}.}
+
+\item{colors}{A colormap used for the heatmap. Should be a function produced
+by \code{\link[circlize:colorRamp2]{circlize::colorRamp2()}}, which accepts a vector of numeric values and
+returns interpolated colors. Default \code{circlize::colorRamp2(breaks = seq(0, 1, len = 20), viridis::viridis(n=20, option = 'C'))} to use the
+\code{\link[viridis:reexports]{viridis::viridis()}} colormap.}
 }
 \value{
-A Heatmap object.
+A \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}} object.
 }
 \description{
-This function generates a heatmap from an input similarity matrix and
-indices. If row data and column data are used instead, indices are generated
-from their classification labels and the labels of the similarity matrix.
+Generate a heatmap showing similarity of two classified data
+sets.
+}
+\details{
+This function takes in two \code{data.frame}s of classified entities,
+along with the taxonomy tree used to classify them, and a pre-computed
+matrix of pairwise similarities between all nodes of that tree. It produces
+a heatmap showing the pairwise similarities between the classifications of
+the two data sets, one data set on the rows and the other on the columns,
+annotated with bar graphs showing the number of occurrences of each label
+in each data set. The heatmap will be automatically clustered on rows and
+columns. Optionally, the user may specify that rows and columns should be
+split according to these clusters for plotting. See \href{https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html}{the ComplexHeatmap reference}
+for more details.
+}
+\examples{
+generate_heatmap(tree_object = chemont_tree,
+ matrix = chemont_jaccard,
+  row_data = biosolids_class,
+   column_data = usgs_class,
+   row_split = 5L,
+   column_split = 5L,
+    row_title = "Biosolids",
+     column_title = "USGS Water",
+   name = "Jaccard")
+
 }
 \seealso{
 \code{\link{generate_tree_cluster}}

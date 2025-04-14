@@ -224,7 +224,7 @@ attach_information_content <- function(tree, log_descendants = TRUE){
   return(tree)
 }
 
-#' Tree level
+#' Node level
 #'
 #' Get the level of the given node(s) in a rooted tree.
 #'
@@ -239,9 +239,9 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #'
 #'   tree <- generate_topology(n = 8, rooted = TRUE, seed = 42)
 #'
-#'   get_tip_level(tree = tree, node = 't2') #specify node by name
-#'   get_tip_level(tree = tree, node = 2) #specify node by number
-get_tip_level <- function(tree,
+#'   get_node_level(tree = tree, node = 't2') #specify node by name
+#'   get_node_level(tree = tree, node = 2) #specify node by number
+get_node_level <- function(tree,
                           node){
 
   if(is.character(node)){
@@ -250,7 +250,8 @@ get_tip_level <- function(tree,
   }
 
   anc <- phangorn::Ancestors(x = tree,
-                             node = node)
+                             node = node,
+                             type = "all")
 
   if(length(node)>1){
     #in which case phangorn::Ancestors() returns a list of vectors

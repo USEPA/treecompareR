@@ -5,7 +5,7 @@
 \title{Handle missing node highlight clade}
 \usage{
 handle_missing_node_highlight_clade(
-  tree,
+  subtree,
   tree_object,
   list_superclasses,
   tree_visual,
@@ -14,14 +14,14 @@ handle_missing_node_highlight_clade(
 )
 }
 \arguments{
-\item{tree}{A phylo object representing a rooted tree.}
+\item{subtree}{A \code{phylo} object representing a rooted tree (pruned from a larger tree).}
 
-\item{tree_object}{A phylo object representing the entire taxonomy from which
-parameter \code{tree} is derived.}
+\item{tree_object}{A \code{phylo} object representing the entire taxonomy from which
+parameter \code{subtree} is derived.}
 
 \item{list_superclasses}{A list of superclasses to be highlighted.}
 
-\item{tree_visual}{A ggtree object that will have clades highlighted.}
+\item{tree_visual}{A \code{ggtree} object that will have clades highlighted.}
 
 \item{i}{The index for which list_superclasses element will be highlighted.}
 
@@ -31,6 +31,10 @@ parameter \code{tree} is derived.}
 A ggtree object that will have the specified clade highlighted.
 }
 \description{
+Highlight clades associated with missing nodes
+after pruning a tree
+}
+\details{
 This is a helper function to highlight clades associated with missing nodes
 after pruning a tree. Missing nodes occur when a node from an original tree
 loses all but one child in the pruning process and is thus no longer
@@ -38,4 +42,7 @@ considered a node in the subtree.
 }
 \seealso{
 \code{\link{handle_missing_node_show_clade}}
+}
+\author{
+Paul Kruse
 }

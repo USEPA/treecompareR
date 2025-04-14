@@ -10,23 +10,24 @@ cluster_analysis(
   column_cluster,
   level = 2,
   tree_object,
-  tree = NULL
+  subtree = NULL
 )
 }
 \arguments{
-\item{htmap}{A ComplexHeatmap object with hierarchical clustering.}
+\item{htmap}{A ComplexHeatmap object with hierarchical clustering, as created
+by \code{\link[=generate_heatmap]{generate_heatmap()}}.}
 
 \item{row_cluster}{Index for the row cluster.}
 
 \item{column_cluster}{Index for the column cluster.}
 
-\item{level}{Alternate parameter indicating the level of depth for labels.}
+\item{level}{Integer: the level of depth for labels. Default 2.}
 
-\item{tree_object}{A phylo object representing a rooted tree, the taxonomy
-being investigated.}
+\item{tree_object}{A \code{phylo} object representing a rooted tree, the taxonomy
+being investigated. Default \link{chemont_tree}.}
 
-\item{tree}{Alternate parameter, a phylo object representing a rooted tree,
-for restricting the labels.}
+\item{subtree}{Optional: Another \code{phylo} object representing a rooted tree, to
+restrict cluster analysis to a subtree. Default \code{NULL}.}
 }
 \value{
 A list of labels for the row and column clusters, based on the level
@@ -37,4 +38,28 @@ This is a helper function that returns superclasses or classes for specified
 clusters in \code{\link{generate_tree_cluster}}. This is used for providing
 visual identification of different clades based on the specified taxonomic
 level.
+}
+\examples{
+#first generate a heatmap on which to do the cluster analysis
+my_htmap <- generate_heatmap(
+  row_data = biosolids_class,
+   column_data = usgs_class,
+   tree_object = chemont_tree,
+ matrix = chemont_jaccard,
+ row_split = 5L,
+ column_split = 5L,
+    row_title = "Biosolids",
+     column_title = "USGS Water",
+   name = "Jaccard")
+#now do the cluster analysis
+cluster_analysis(htmap = my_htmap,
+row_cluster = 2L,
+column_cluster = 2L,
+level = 2,
+tree_object = chemont_tree
+)
+
+}
+\author{
+Paul Kruse
 }
