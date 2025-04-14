@@ -446,6 +446,7 @@ display_subtree <- function(base_tree = chemont_tree,
                             subtree_mapping = NULL,
                             highlight_by = "set", #or "overlap" or "sim"
                             sim_mat = chemont_jaccard,
+                            sim_metric = "jaccard",
                             point_size = 3,
                             bg_tree_scale = 1.8,
                             clade_level = NULL,
@@ -984,6 +985,26 @@ display_subtree <- function(base_tree = chemont_tree,
                               nodes2 = data_1_all_labs,
                               metric = sim_metric,
                               upper_tri = FALSE)
+
+            #similarity matrix usually excludes the root node
+            #add it back in
+            root_label <- base_tree$node.label[1]
+
+            if(!(root_label %in% colnames(sim_mat))){
+              sim_mat1 <- cbind(sim_mat,
+                                rep(NA_real_, nrow(sim_mat))
+              )
+              sim_mat1 <- rbind(sim_mat1,
+                                c(rep(NA_real_, ncol(sim_mat1)-1),
+                                  1.0))
+              sim_mat <- sim_mat[cohort_data$Name,
+                                 data_1_all_labs]
+            }
+
+            rownames(sim_mat1) <- c(rownames(sim_mat),
+                                    root_label)
+            colnames(sim_mat1) <- c(colnames(sim_mat),
+                                    root_label)
             }else{
               message("looking up similarity of taxonomic ancestry from provided sim_mat for each pair of labels in prune_to and data_1")
               #similarity matrix usually excludes the root node
@@ -1075,10 +1096,29 @@ display_subtree <- function(base_tree = chemont_tree,
           if(is.null(sim_mat)){
             message("computing similarity of taxonomic ancestry for each pair of labels of data_1 and data_2")
           sim_mat <- similarity_matrix(tree = base_tree,
-                                       nodes1 = data_1_all,
-                                       nodes2 = data_2_all,
+                                       nodes1 = data_1_all_labs,
+                                       nodes2 = data_2_all_labs,
                                        metric = sim_metric,
                                        upper_tri = FALSE)
+
+          #similarity matrix usually excludes the root node
+          #add it back in
+          root_label <- base_tree$node.label[1]
+
+          if(!(root_label %in% colnames(sim_mat))){
+            sim_mat1 <- cbind(sim_mat,
+                              rep(NA_real_, nrow(sim_mat))
+            )
+            sim_mat1 <- rbind(sim_mat1,
+                              c(rep(NA_real_, ncol(sim_mat1)-1),
+                                1.0))
+            sim_mat <- sim_mat[data_1_all_labs,
+                               data_2_all_labs]
+            rownames(sim_mat1) <- c(rownames(sim_mat),
+                                    root_label)
+            colnames(sim_mat1) <- c(colnames(sim_mat),
+                                    root_label)
+          }
           }else{
             message("looking up similarity of taxonomic ancestry from provided sim_mat for each label of data_1 and data_2")
             #similarity matrix usually excludes the root node
