@@ -329,6 +329,7 @@ cluster_analysis <- function(htmap,
       ComplexHeatmap::row_dend(htmap)[[row_cluster]]
       )
     ]
+
   if (is.null(tree)){
     row_levels <- sort(
       unique(
@@ -388,7 +389,12 @@ cluster_analysis <- function(htmap,
           unname(get_tip_level(tree = tree_object, t))
         }
         ) == q)], function(s) {
-          get_ancestors(tree_object, s)[q-2]
+          get_label_from_node(
+            node = phangorn::Ancestors(x = tree_object,
+                                       node = s,
+                                       type = "all")[q-2],
+            tree = tree_object
+          )
         }
         )
         )
@@ -415,9 +421,13 @@ cluster_analysis <- function(htmap,
                           }
                       ) == q)
                   ], function(s) {
-                    phangorn::Ancestors(x = tree_object,
+                    get_label_from_node(
+                      node = phangorn::Ancestors(x = tree_object,
                                         node = s,
-                                        type = "all")[q-2]
+                                        type = "all")[q-2],
+                      tree = tree_object
+                    )
+
                   }
               )
             )
@@ -430,32 +440,59 @@ cluster_analysis <- function(htmap,
     # get superclass labels per level for column cluster
     if (is.null(tree)) {
       column_superclass <- sapply(column_levels, function(q) {
-        unique(unlist((sapply(column_names[which(sapply(column_names, function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-2]
-        }
-        )
-        )
-        )
+        unique(
+          unlist(
+            (
+              sapply(
+                column_names[
+                  which(
+                    sapply(
+                      column_names, function(t) {
+                        unname(get_tip_level(tree = tree_object, t))
+                      }
+                    ) == q
+                  )
+                ], function(s) {
+                  get_label_from_node(
+                    node = phangorn::Ancestors(x = tree_object,
+                                               node = s,
+                                               type = "all")[q-2],
+                    tree = tree_object
+                  )
+                }
+              )
+            )
+          )
         )
       }
       )
     } else {
       column_superclass <- sapply(column_levels, function(q) {
-        unique(unlist((sapply(intersect(tree_labels, column_names)[which(sapply(intersect(tree_labels, column_names), function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-2]
-          # get_ancestors(tree_object, s)[q-2]
-        }
-        )
-        )
-        )
+        unique(
+          unlist(
+            (
+              sapply(
+                intersect(
+                  tree_labels,
+                  column_names)[
+                    which(
+                      sapply(
+                        intersect(
+                          tree_labels,
+                          column_names), function(t) {
+                            unname(get_tip_level(tree = tree_object, t))
+                          }
+                      ) == q)], function(s) {
+                        get_label_from_node(
+                          node = phangorn::Ancestors(x = tree_object,
+                                                     node = s,
+                                                     type = "all")[q-2],
+                          tree = tree_object
+                        )
+                      }
+              )
+            )
+          )
         )
       }
       )
@@ -466,33 +503,56 @@ cluster_analysis <- function(htmap,
     # get class labels per level for row cluster
     if (is.null(tree)){
       row_class <- sapply(row_levels, function(q) {
-        unique(unlist((sapply(row_names[which(sapply(row_names, function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-3]
-          # get_ancestors(tree_object, s)[q-3]
-        }
-        )
-        )
-        )
+        unique(
+          unlist(
+            (
+              sapply(
+                row_names[
+                  which(
+                    sapply(
+                      row_names, function(t) {
+                        unname(get_tip_level(tree = tree_object, t))
+                      }
+                    ) == q)], function(s) {
+                      get_label_from_node(
+                        node = phangorn::Ancestors(x = tree_object,
+                                                   node = s,
+                                                   type = "all")[q-3],
+                        tree = tree_object
+                      )
+                    }
+              )
+            )
+          )
         )
       }
       )
     } else {
       row_class <- sapply(row_levels, function(q) {
-        unique(unlist((sapply(intersect(tree_labels, row_names)[which(sapply(intersect(tree_labels, row_names), function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-3]
-          # get_ancestors(tree_object, s)[q-3]
-        }
-        )
-        )
-        )
+        unique(
+          unlist(
+            (
+              sapply(
+                intersect(tree_labels,
+                          row_names)[
+                            which(
+                              sapply(
+                                intersect(
+                                  tree_labels,
+                                  row_names), function(t) {
+                                    unname(get_tip_level(tree = tree_object, t))
+                                  }
+                              ) == q)], function(s) {
+                                get_label_from_node(
+                                  node = phangorn::Ancestors(x = tree_object,
+                                                             node = s,
+                                                             type = "all")[q-3],
+                                  tree = tree_object
+                                )
+                              }
+              )
+            )
+          )
         )
       }
       )
@@ -501,17 +561,27 @@ cluster_analysis <- function(htmap,
     # get class labels per level for column cluster
     if (is.null(tree)){
       column_class <- sapply(column_levels, function(q) {
-        unique(unlist((sapply(column_names[which(sapply(column_names, function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-3]
-          # get_ancestors(tree_object, s)[q-3]
-        }
-        )
-        )
-        )
+        unique(
+          unlist(
+            (
+              sapply(
+                column_names[
+                  which(
+                    sapply(
+                      column_names, function(t) {
+                        unname(get_tip_level(tree = tree_object, t))
+                      }
+                    ) == q)], function(s) {
+                      get_label_from_node(
+                        node = phangorn::Ancestors(x = tree_object,
+                                                   node = s,
+                                                   type = "all")[q-3],
+                        tree = tree_object
+                      )
+                    }
+              )
+            )
+          )
         )
       }
       )
@@ -529,23 +599,26 @@ cluster_analysis <- function(htmap,
                         intersect(
                           tree_labels, column_names),
                         function(t) {
-          unname(get_tip_level(tree = tree_object, t))
-        }
-        ) == q)], function(s) {
-          phangorn::Ancestors(x = tree_object,
-                              node = s, type = "all")[q-3]
-          # get_ancestors(tree_object, s)[q-3]
-        }
-        )
-        )
-        )
+                          unname(get_tip_level(tree = tree_object, t))
+                        }
+                      ) == q)], function(s) {
+                        get_label_from_node(
+                          node = phangorn::Ancestors(x = tree_object,
+                                                     node = s,
+                                                     type = "all")[q-3],
+                          tree = tree_object
+                        )
+                      }
+              )
+            )
+          )
         )
       }
       )
     }
   }
-    return(list('row_class' = unique(unlist(row_class)),
-                'column_class' = unique(unlist(column_class))))
+  return(list('row_class' = unique(unlist(row_class)),
+              'column_class' = unique(unlist(column_class))))
 
 }
 
@@ -704,9 +777,20 @@ generate_tree_cluster <- function(tree,
   # get tree labels
   tree_labels <- c(tree$tip.label, tree$node.label)
   # get row labels
-  row_labels <- dimnames(htmap@ht_list[[1]]@matrix)[[1]][stats::order.dendrogram(ComplexHeatmap::row_dend(htmap)[[row_cluster]])]
+  row_labels <- dimnames(
+    htmap@ht_list[[1]]@matrix)[[1]][
+      stats::order.dendrogram(
+        ComplexHeatmap::row_dend(htmap)[[row_cluster]]
+        )
+      ]
   # get column labels
-  column_labels <- dimnames(htmap@ht_list[[1]]@matrix)[[2]][stats::order.dendrogram(column_dend(htmap)[[column_cluster]])]
+  column_labels <- dimnames(
+    htmap@ht_list[[1]]@matrix
+    )[[2]][
+      stats::order.dendrogram(
+        column_dend(htmap)[[column_cluster]]
+        )
+      ]
   # get shared labels
   shared_labels <- intersect(row_labels, column_labels)
   # get row superclasses
