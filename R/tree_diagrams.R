@@ -1005,6 +1005,9 @@ display_subtree <- function(base_tree = chemont_tree,
                                     root_label)
             colnames(sim_mat1) <- c(colnames(sim_mat),
                                     root_label)
+
+            sim_mat <- sim_mat[data_1_all_labs,
+                               data_2_all_labs]
             }else{
               message("looking up similarity of taxonomic ancestry from provided sim_mat for each pair of labels in prune_to and data_1")
               #similarity matrix usually excludes the root node
@@ -1112,12 +1115,14 @@ display_subtree <- function(base_tree = chemont_tree,
             sim_mat1 <- rbind(sim_mat1,
                               c(rep(NA_real_, ncol(sim_mat1)-1),
                                 1.0))
-            sim_mat <- sim_mat[data_1_all_labs,
-                               data_2_all_labs]
+
             rownames(sim_mat1) <- c(rownames(sim_mat),
                                     root_label)
             colnames(sim_mat1) <- c(colnames(sim_mat),
                                     root_label)
+
+            sim_mat <- sim_mat[data_1_all_labs,
+                               data_2_all_labs]
           }
           }else{
             message("looking up similarity of taxonomic ancestry from provided sim_mat for each label of data_1 and data_2")
