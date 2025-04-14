@@ -332,20 +332,27 @@ label_bars <- function(data = NULL,
 #'@param subtree_mapping List of aesthetics used to control branch highlighting
 #'  according to membership in the provided data set(s). Must be a named list
 #'  with one or more of the following named elements: `color` (or `colour`),
-#'  `size`, and/or `linetype`. Default is `list(color = c("gray70", "#66C2A5",
-#'  "#8DA0CB", "#FC8D62"))`. See Details.
-#'@param color_overlap `TRUE`/`FALSE`: Whether to color branches according to
-#'  fractional overlap in number of entities, if two data sets were provided.
-#'  Default `FALSE`, to color branches according to subtree membership instead.
-#'  If `TRUE`, `subtree_mapping` will be ignored. To use this option, either
-#'  `prune_to` and `data_1` must both be provided as `data.frame`s of classified
-#'  entities (in which case the overlap in number of entities will be computed
-#'  between `prune_to` and `data_1`), or `data_1` and `data_2` must both be
+#'  `size`, and/or `linetype`. Default `NULL` to choose a default color mapping
+#'  based on `highlight_by`.
+#'@param highlight_by One of `"set"` (default), `"overlap"`, `"simil"`, or `"none"`.
+#'  `"set"` highlights branches by their membership in `data_1` and/or `data_2`
+#'  if provided. `"overlap"` highlights branches according to fractional overlap
+#'  in number of entities, if two data sets were provided. `"sim"` highlights
+#'  branches according to their maximum similarity of taxonomic ancestry between
+#'  two data sets, if provided. `"none"` does not highlight branches. To use
+#'  `highlight_by = "set"`, `data_1` must be provided (and `data_2` may be
+#'  provided). To use `"overlap"`, either `prune_to` and `data_1` must both be
 #'  provided as `data.frame`s of classified entities (in which case the overlap
-#'  in number of entities will be computed between `data_1` and `data_2`). If
-#'  all three of `prune_to`, `data_1`, and `data_2` are provided as
-#'  `data.frame`s of classified entities, then the overlap will be computed
-#'  between `data_1` and `data_2`.
+#'  in number of entities will be computed between `prune_to` and `data_1`), or
+#'  `data_1` and `data_2` must both be provided as `data.frame`s of classified
+#'  entities (in which case the overlap in number of entities will be computed
+#'  between `data_1` and `data_2`). If all three of `prune_to`, `data_1`, and
+#'  `data_2` are provided as `data.frame`s of classified entities, then the
+#'  overlap will be computed between `data_1` and `data_2`. To use `"simil"`,
+#'  either `prune_to` and `data_1` must be provided, or `data_1` and `data_2`
+#'  must be provided, although they may be provided in any of the allowable
+#'  formats (unlike `highlight_by = "overlap"`, they need not be provided as
+#'  `data.frame`s of classified entities).
 #'@param entity_id_col Character: the name of the variable in `prune_to`,
 #'  `data_1`, and/or `data_2` that identifies entities, if those arguments are
 #'  provided as `data.frame`s of classified entities. Used only if
@@ -428,6 +435,7 @@ display_subtree <- function(base_tree = chemont_tree,
                             name_1 = "Set 1",
                             name_2 = "Set 2",
                             tax_level_labels = chemont_tax_levels,
+                            entity_id_col = NULL,
                             layout = "circular",
                             show_tips = TRUE,
                             tiplab_opts = NULL,
@@ -435,13 +443,11 @@ display_subtree <- function(base_tree = chemont_tree,
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
-                            subtree_mapping = list(color = c("gray70",
-                                                             "#66C2A5",
-                                                             "#8DA0CB",
-                                                             "#FC8D62")),
-                            color_overlap = FALSE,
-                            entity_id_col = NULL,
+                            subtree_mapping = NULL,
+                            highlight_by = "set", #or "overlap" or "sim"
+                            sim_mat = chemont_jaccard,
                             point_size = 3,
+                            bg_tree_scale = 1.8,
                             clade_level = NULL,
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
@@ -459,120 +465,7 @@ display_subtree <- function(base_tree = chemont_tree,
                  base_opts_default[setdiff(names(base_opts_default),
                                            names(base_opts))])
 
-  #Keep defaults for any subtree_mapping not otherwise specified
-  subtree_mapping_default <- list(color = c("gray70",
-                                            "#66C2A5",
-                                            "#8DA0CB",
-                                            "#FC8D62"))
-  subtree_mapping <- c(subtree_mapping,
-                       subtree_mapping_default[
-                         setdiff(names(subtree_mapping_default),
-                                 names(subtree_mapping)
-                         )
-                       ]
-  )
-
-
-  if(is.null(data_1)){
-    #ignore any default subtree mapping
-    subtree_mapping <- NULL
-  }else{
-    if(is.null(subtree_mapping)){
-      warning(paste("Subtree data was supplied, but subtree_mapping is NULL.",
-                    "No subtrees will be highlighted."))
-    }
-    #Check subtree mapping names
-    #They need to be valid aesthetics for ggtree
-    bad_subtree_map <- any(c("color", "colour", "size", "linetype") %in%
-                             names(subtree_mapping))
-
-    if(!is.list(subtree_mapping) |
-       is.null(names(subtree_mapping)) |
-       !isTRUE(bad_subtree_map)){
-      stop(paste("subtree_mapping should be a list with named elements.",
-      "Names must be one or more of 'color' (or 'colour'), 'size', and/or 'linetype'. "))
-    }else{
-    #if something reasonable was provided for subtree_map,
-      #check if any other aesthetics were provided and will be ignored
-    bad_aes <- setdiff(names(subtree_mapping),
-                       c("color", "colour", "size", "linetype"))
-    good_aes <- intersect(names(subtree_mapping),
-                       c("color", "colour", "size", "linetype"))
-    if(length(bad_aes)>0){
-      message(paste("In subtree_mapping, only aesthetics",
-                    paste(good_aes, collapse = ", "),
-                    "will be used. Aesthetics",
-                    paste(bad_aes, collapse = ", "),
-                    "were provided but will be ignored,",
-                    "since ggtree::geom_tree() does not understand them."))
-    }
-
-    if("color" %in% names(subtree_mapping)){
-      if (all(subtree_mapping$color %in% "default")){
-        subtree_mapping$color <- c("gray70",
-                                   "#66C2A5",
-                                   "#8DA0CB",
-                                   "#FC8D62")
-      }
-    }
-  else if ("colour" %in% names(subtree_mapping)){
-    if (all(subtree_mapping$colour %in% "default")){
-      subtree_mapping$colour <- c("gray70",
-                                 "#66C2A5",
-                                 "#8DA0CB",
-                                 "#FC8D62")
-    }
-  }
-
-    #check lengths of subtree_mapping vs. number of datasets provided
-    sm_length <- sapply(subtree_mapping,
-                        length,
-                        USE.NAMES = TRUE)
-
-    if(!is.null(data_1) & !is.null(data_2)){
-      if(any(sm_length < 4)){
-        short_el <- names(subtree_mapping)[sm_length < 4]
-        message(paste("Both data_1 and data_2 were provided, but subtree_mapping elements",
-                paste(short_el, collapse = "; "),
-                "have fewer than 4 elements. They will be recycled to length 4."))
-        subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
-                                            function(x) rep(x, length.out = 4),
-                                            simplify = FALSE,
-                                            USE.NAMES =  TRUE)
-      }
-    }else if(!is.null(data_1) & is.null(data_2))
-      if(any(sm_length > 2)){
-        long_el <- names(subtree_mapping)[sm_length > 2]
-        message(paste("data_1 was provided, but subtree_mapping elements",
-                paste(long_el, collapse = "; "),
-                "have more than 2 elements. Only the first 2 elements will be used."))
-        subtree_mapping[long_el] <- sapply(subtree_mapping[long_el],
-                                            function(x) x[1:2],
-                                            simplify = FALSE,
-                                            USE.NAMES =  TRUE)
-      }
-
-    if(any(sm_length < 2)){
-      short_el <- names(subtree_mapping)[sm_length < 2]
-      message(paste("data_1 was provided, but subtree_mapping elements",
-              paste(short_el, collapse = "; "),
-              "have fewer than 2 elements. They will be recycled to length 2."))
-      subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
-                                          function(x) rep(x, length.out = 2),
-                                          simplify = FALSE,
-                                          USE.NAMES =  TRUE)
-    }
-    } #end if(!is.list(subtree_mapping) |
-    # is.null(names(subtree_mapping)) |
-    #   !isTRUE(bad_subtree_map))
-
-
-
-  } #end if(is.null(data_1))
-
-
-
-  #############
+  ############
   #Base tree
   #############
 
@@ -585,18 +478,11 @@ display_subtree <- function(base_tree = chemont_tree,
     )
   }
 
-  #Use base options, unless they will be mapped to list presence later
-  #(aes() doesn't seem to overwrite them as expected)
-  #e.g. if subtree_mapping has a "color" element, don't use base_opts$color
-  tree_plot <- do.call(ggtree,
-                       c(list(tr = base_tree,
-                      layout = layout),
-                      base_opts[setdiff(names(base_opts),
-                                        names(subtree_mapping))
-                                ]
-                      )
-                      )
 
+
+  ########################################
+  # Handle different formats for data_1
+  ########################################
   if(!is.null(data_1)){
 
     #If it is a list, look at the data type of the list elements,
@@ -655,12 +541,21 @@ display_subtree <- function(base_tree = chemont_tree,
 
         #If there is no entity ID column,
         #throw a warning and add one
-        if(length(setdiff(names(data_1),
-                          tax_level_labels))<1){
-          warning(paste("data_1 is a data.frame,",
-          "but it has no column to identify entities.",
+        if(is.null(entity_id_col)){
+          message(paste("data_1 is a data.frame,",
+          "but no entity ID variable name has been specified.",
           "Each row will be assumed to be one entity."))
-          data_1$id <- 1:nrow(data_1)
+          #add a new variable to the data
+          #ensure it does not conflict with any of the existing variable names
+          entity_id_col <- rev(
+            make.names(
+              names = c(names(data_1),
+                        "id"
+              ),
+              unique = TRUE
+            )
+          )[1]
+          data_1[[entity_id_col]] <- 1:nrow(data_1)
         }
 
       } #end if(!(all(tax_level_labels %in% names(data_1))))
@@ -699,16 +594,11 @@ display_subtree <- function(base_tree = chemont_tree,
         )
       )
     )
+  } #end if(!is.null(data_1))
 
-  #Data frame with all node numbers in taxonomy tree
-   cohort_data <- get_tree_df(tree = base_tree)
-   #Categorical column: is each node in Data Set 1?
-   #0 = no, 1 = yes
-   cohort_data$inSet1 <- ifelse(cohort_data$node %in% data_1_all,
-                                1L,
-                                0L)
-
-
+  ########################################
+  # Handle different formats for data_2
+  ########################################
   if (!is.null(data_2)) {
 
     #If it is a list, look at the data type of the list elements,
@@ -766,14 +656,24 @@ display_subtree <- function(base_tree = chemont_tree,
 
         #If there is no entity ID column,
         #throw a warning and add one
-        if(length(setdiff(names(data_2),
-                          tax_level_labels))<1){
+    #add a new variable to the data
+    #ensure it does not conflict with any of the existing variable names
+        if(is.null(entity_id_col)){
           warning(paste("data_2 is a data.frame,",
-                        "but it has no column to identify entities.",
+                        "but no entity ID variable name has been specified.",
                         "Each row will be assumed to be one entity."))
-          data_2$id <- 1:nrow(data_2)
+          #add a new variable to the data
+          #ensure it does not conflict with any of the existing variable names
+          entity_id_col <- rev(
+            make.names(
+              names = c(names(data_2),
+                        "id"
+              ),
+              unique = TRUE
+            )
+          )[1]
+          data_2[[entity_id_col]] <- 1:nrow(data_2)
         }
-
       } #end if(!(all(tax_level_labels %in% names(data_2))))
       #Get node numbers of data_2 subtree
       data_2_nodes <- get_subtree_nodes(data = data_2,
@@ -800,39 +700,173 @@ display_subtree <- function(base_tree = chemont_tree,
     }
 
     #get ancestors of these nodes
-    data_2_all <- unique(c(data_2_nodes,
+    data_2_all <- unique(
+      c(data_2_nodes,
                            unlist(phangorn::Ancestors(x = base_tree,
-                                                      node = data_2_nodes))))
+                                                      node = data_2_nodes)
+                                  )
+                           )
+                         )
+  } #end if(!is.null(data_2))
 
-    #Categorical column: is each node in Data Set 2?
-    #0 = no, 2 = yes
-    cohort_data$inSet2 <- ifelse(cohort_data$node %in% data_2_all,
-                                 2L,
-                                 0L)
 
-    #Categorical column: Is each node in Set 1, Set 2, neither, or both?
-    #0 = neither
-    #1 = Set 1 only
-    #2 = Set 2 only
-    #3 = both
-    cohort_data$list_presence <- factor(cohort_data$inSet1 + cohort_data$inSet2,
-                                 levels = 0:3,
-                                 labels = c("Neither set",
-                                            paste(name_1, "only"),
-                                            paste(name_2, "only"),
-                                            paste(name_1, "and", name_2)))
+  #############################
+  # Set Up Branch Coloring Data
+  ##############################
 
-  }else{
-    #Categorical column: Is each node in Data Set 1 or not?
-    cohort_data$list_presence <- factor(cohort_data$inSet1,
-                               levels = 0:1,
-                               labels = c(paste("Not in", name_1),
-                                          paste("In", name_1)))
-  }
+  #Data frame with all node numbers in taxonomy tree
+  cohort_data <- get_tree_df(tree = base_tree)
 
-   #Name the subplot_mapping items after the categories in cohort_data$list_presence
+  if(highlight_by %in% "set"){
+  #Categorical column: is each node in Data Set 1?
+  #0 = no, 1 = yes
+
+    if(!is.null(data_1)){
+      cohort_data$inSet1 <- ifelse(cohort_data$node %in% data_1_all,
+                                   1L,
+                                   0L)
+
+      if(!is.null(data_2)){
+        #Categorical column: is each node in Data Set 2?
+        #0 = no, 2 = yes
+        cohort_data$inSet2 <- ifelse(cohort_data$node %in% data_2_all,
+                                     2L,
+                                     0L)
+
+        #Categorical column: Is each node in Set 1, Set 2, neither, or both?
+        #0 = neither
+        #1 = Set 1 only
+        #2 = Set 2 only
+        #3 = both
+        cohort_data$list_presence <- factor(cohort_data$inSet1 + cohort_data$inSet2,
+                                            levels = 0:3,
+                                            labels = c("Neither set",
+                                                       paste(name_1, "only"),
+                                                       paste(name_2, "only"),
+                                                       paste(name_1, "and", name_2)))
+
+      }else{
+        #Categorical column: Is each node in Data Set 1 or not?
+        cohort_data$list_presence <- factor(cohort_data$inSet1,
+                                            levels = 0:1,
+                                            labels = c(paste("Not in", name_1),
+                                                       paste("In", name_1)))
+      }
+    } #end if(!is.null(data_1))
+
+
+  #########################################################
+  # Set up aesthetics for set presence coloring
+  #########################################################
+
+  if(is.null(data_1)){
+    #ignore any subtree mapping
+    subtree_mapping <- NULL
+  }else{ #if data_1 supplied, check subtree mapping
+
+    if(is.null(subtree_mapping)){
+      if(!is.null(data_2)){
+        #If no aesthetic mapping for list presence specified,
+        #then default to color only
+        subtree_mapping <- list(color = c("gray70",
+                                          "#66C2A5",
+                                          "#8DA0CB",
+                                          "#FC8D62"))
+      }else{
+        subtree_mapping <- list(color = c("gray70",
+                                          "#66C2A5"))
+      }
+    }
+
+    #Check subtree mapping names
+    #They need to be valid aesthetics for ggtree
+    good_subtree_map <- any(c("color", "colour", "size", "linetype") %in%
+                             names(subtree_mapping))
+
+    if(!is.list(subtree_mapping) |
+       is.null(names(subtree_mapping)) |
+       !isTRUE(good_subtree_map)){
+      stop(paste("subtree_mapping should be a list with one or more named elements.",
+                 "Names must be one or more of 'color' (or 'colour'),",
+                 "'size', and/or 'linetype'. "))
+    }else{
+      #if something reasonable was provided for subtree_map,
+      #check if any other aesthetics were provided and will be ignored
+      bad_aes <- setdiff(names(subtree_mapping),
+                         c("color", "colour", "size", "linetype"))
+      good_aes <- intersect(names(subtree_mapping),
+                            c("color", "colour", "size", "linetype"))
+      if(length(bad_aes)>0){
+        message(paste("In subtree_mapping, only aesthetics",
+                      paste(good_aes, collapse = ", "),
+                      "will be used. Aesthetics",
+                      paste(bad_aes, collapse = ", "),
+                      "were provided but will be ignored,",
+                      "since ggtree::geom_tree() does not understand them."))
+      }
+
+      #check lengths of subtree_mapping vs. number of datasets provided
+      sm_length <- sapply(subtree_mapping,
+                          length,
+                          USE.NAMES = TRUE)
+
+      if(!is.null(data_1) & !is.null(data_2)){
+        if(any(sm_length < 4)){
+          short_el <- names(subtree_mapping)[sm_length < 4]
+          message(paste("Both data_1 and data_2 were provided, but subtree_mapping elements",
+                        paste(short_el, collapse = "; "),
+                        "have fewer than 4 elements. They will be recycled to length 4."))
+          subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
+                                              function(x) rep(x, length.out = 4),
+                                              simplify = FALSE,
+                                              USE.NAMES =  TRUE)
+        }
+      }else if(!is.null(data_1) & is.null(data_2))
+        if(any(sm_length > 2)){
+          long_el <- names(subtree_mapping)[sm_length > 2]
+          message(paste("data_1 was provided, but subtree_mapping elements",
+                        paste(long_el, collapse = "; "),
+                        "have more than 2 elements. Only the first 2 elements will be used."))
+          subtree_mapping[long_el] <- sapply(subtree_mapping[long_el],
+                                             function(x) x[1:2],
+                                             simplify = FALSE,
+                                             USE.NAMES =  TRUE)
+        }
+
+      if(any(sm_length < 2)){
+        short_el <- names(subtree_mapping)[sm_length < 2]
+        message(paste("data_1 was provided, but subtree_mapping elements",
+                      paste(short_el, collapse = "; "),
+                      "have fewer than 2 elements. They will be recycled to length 2."))
+        subtree_mapping[short_el] <- sapply(subtree_mapping[short_el],
+                                            function(x) rep(x, length.out = 2),
+                                            simplify = FALSE,
+                                            USE.NAMES =  TRUE)
+      }
+    } #end if(!is.list(subtree_mapping) |
+    # is.null(names(subtree_mapping)) |
+    #   !isTRUE(bad_subtree_map))
+
+
+    #Use base options, unless they will be mapped to list presence later
+    #(aes() doesn't seem to overwrite them as expected)
+    #e.g. if subtree_mapping has a "color" element, don't use base_opts$color
+    tree_plot <- do.call(ggtree,
+                         c(list(tr = base_tree,
+                                layout = layout),
+                           base_opts[setdiff(names(base_opts),
+                                             names(subtree_mapping))
+                           ]
+                         )
+    )
+
+   #Name the subtree_mapping items after the categories in cohort_data$list_presence
    subtree_mapping <- sapply(subtree_mapping,
-                             function(x) setNames(x, levels(cohort_data$list_presence)),
+                             function(x) setNames(x,
+                                                  levels(
+                                                    cohort_data$list_presence
+                                                    )
+                                                  ),
                              simplify = FALSE,
                              USE.NAMES = TRUE)
    #set up for aes call -- list of aesthetic mappings,
@@ -848,7 +882,7 @@ display_subtree <- function(base_tree = chemont_tree,
    #`aes(color = list_presence, size = list_presence)`
 
    #Prepare a list of manual scales as provided in subtree_mapping
-   scale_list <- lapply(names(subtree_mapping),
+   scale_list <- sapply(names(subtree_mapping),
                         function(aesthetic) {
                           ggplot2::scale_discrete_manual(
                             aesthetics = aesthetic,
@@ -857,7 +891,9 @@ display_subtree <- function(base_tree = chemont_tree,
                             breaks = levels(cohort_data$list_presence),
                             limits = levels(cohort_data$list_presence)
                           )
-                        }
+                        },
+                        simplify = FALSE,
+                        USE.NAMES = TRUE
    )
    #The result of the above is something like
 #    scale_list <- list(
@@ -903,24 +939,21 @@ display_subtree <- function(base_tree = chemont_tree,
       scale_list + #this applies all of the scales in scale_list to the aesthetics
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
-
-
-
-
-  #if coloring branches according to overlaps
-  if(color_overlap %in% TRUE){
+  ### end if highlight_by %in% "set"#####
+}else if(highlight_by %in% c("overlap", "sim")){
+  #if coloring branches according to overlaps or similarity
     #if neither data_1 nor data_2 were provided, then ignore with a warning
     if(is.null(data_1)){
-      message(paste("To use color_overlap = TRUE",
+      message(paste("To use highlight_by = ", paste0(highlight_by, ","),
                     "either data_1 and data_2 must be provided",
                     "or prune_to and data_1 must be provided.",
-                    "Here, data_1 was not provided,",
-                    "so there is nothing to calculate overlap with.",
+                    "Here, data_1 was not provided.",
                     "Therefore, color_overlap will be ignored."))
     }else{ #if data_1 is provided
       if(is.null(data_2)){
         #if data_2 not provided, then prune_to must be provided
         if(!is.null(prune_to)){
+          if(highlight_by %in% "overlap"){
           message("computing overlap in numbers of entities for each label of prune_to and data_1")
         overlap_dat <- lapply(tax_level_labels,
                               function(this_level) {
@@ -933,17 +966,87 @@ display_subtree <- function(base_tree = chemont_tree,
                                     label = dplyr::all_of(this_level))
                               }
         )
+        #calculate fractional overlaps of entities at each node
+        cohort_data <- overlap_dat  %>%
+          dplyr::bind_rows() %>%
+          dplyr::mutate(node = get_node_from_label(
+            label,
+            base_tree))
+
+          }else if(highlight_by %in% "sim"){
+
+            if(is.null(sim_mat)){
+              message("computing similarity of taxonomic ancestry for each pair of labels in prune_to and data_1")
+              data_1_all_labs <- get_label_from_node(node = data_1_all,
+                                                     tree = base_tree)
+            sim_mat <- similarity_matrix(tree = base_tree,
+                              nodes1 = cohort_data$Name,
+                              nodes2 = data_1_all_labs,
+                              metric = sim_metric,
+                              upper_tri = FALSE)
+            }else{
+              message("looking up similarity of taxonomic ancestry from provided sim_mat for each pair of labels in prune_to and data_1")
+              #similarity matrix usually excludes the root node
+              #add it back in
+              root_label <- base_tree$node.label[1]
+
+              if(!(root_label %in% colnames(sim_mat))){
+                sim_mat1 <- cbind(sim_mat,
+                                  rep(NA_real_, nrow(sim_mat))
+                )
+                sim_mat1 <- rbind(sim_mat1,
+                                  c(rep(NA_real_, ncol(sim_mat1)-1),
+                                    1.0))
+              }
+
+              rownames(sim_mat1) <- c(rownames(sim_mat),
+                                      root_label)
+              colnames(sim_mat1) <- c(colnames(sim_mat),
+                                      root_label)
+              sim_mat <- sim_mat[cohort_data$Name,
+                                 data_1_all_labs]
+            }
+
+            #Each node in the tree is assigned its maximum similarity between the datasets,
+            #unless it does not appear in either data set,
+            #in which case it is assigned NA.
+            #this means similarity will be 1 if a node appears in both datasets.
+            cohort_data <- cohort_data %>%
+              dplyr::mutate(simil_col =   {
+                col_inds <- match(Name, colnames(sim_mat))
+                apply(sim_mat[, col_inds],
+                      MARGIN = 2,
+                      #have to use pmax to return NA without throwing warnings
+                      FUN = function(x) do.call(pmax,
+                                                args = c(as.list(x),
+                                                         list(na.rm = TRUE))))
+              }
+              ) %>%
+              dplyr::mutate(simil_row = {
+                row_inds <- match(Name, rownames(sim_mat))
+                apply(sim_mat[row_inds, ],
+                      MARGIN = 1,
+                      #have to use pmax to return NA without throwing warnings
+                      FUN = function(x) do.call(pmax,
+                                                args = c(as.list(x),
+                                                         list(na.rm = TRUE))))
+              }
+              ) %>%
+              dplyr::mutate(simil = pmax(simil_col,
+                                         simil_row,
+                                         na.rm = TRUE))
+          }
         }else{
           #if data_2 not provided and prune_to also not provided,
           #there is nothing to calculate overlap with
-          message(paste("To use color_overlap = TRUE",
+          message(paste("To use highlight_by = ", paste0(highlight_by, ","),
                         "either data_1 and data_2 must be provided",
                         "or prune_to and data_1 must be provided.",
-                        "Here, only data_1 was provided,",
-                        "so there is nothing to calculate overlap with.",
-                        "Therefore, color_overlap will be ignored."))
+                        "Here, only data_1 was provided (neither prune_to nor data_2 provided).",
+                        "Therefore, highlight_by will be ignored."))
         }
       }else{ #if data_1 and data_2 provided
+        if(highlight_by %in% "overlap"){
         message("computing overlap in numbers of entities for each label of data_1 and data_2")
         overlap_dat <- lapply(tax_level_labels,
                               function(this_level) {
@@ -956,45 +1059,197 @@ display_subtree <- function(base_tree = chemont_tree,
                                     label = dplyr::all_of(this_level))
                               }
         )
-      }
-    }
-    #calculate fractional overlaps of entities at each node
-overlap_dat <- overlap_dat  %>%
-  dplyr::bind_rows() %>%
-  dplyr::mutate(node = get_node_from_label(
-    label,
-    base_tree)
-  )
 
+        #calculate fractional overlaps of entities at each node
+        cohort_data <- overlap_dat  %>%
+          dplyr::bind_rows() %>%
+          dplyr::mutate(node = get_node_from_label(
+            label,
+            base_tree))
+        }else if(highlight_by %in% "sim"){
 
-#plot a "background" tree with linewidth a little bigger
+          data_1_all_labs <- get_label_from_node(node = data_1_all,
+                                                 tree = base_tree)
+          data_2_all_labs <- get_label_from_node(node = data_2_all,
+                                                 tree = base_tree)
+          if(is.null(sim_mat)){
+            message("computing similarity of taxonomic ancestry for each pair of labels of data_1 and data_2")
+          sim_mat <- similarity_matrix(tree = base_tree,
+                                       nodes1 = data_1_all,
+                                       nodes2 = data_2_all,
+                                       metric = sim_metric,
+                                       upper_tri = FALSE)
+          }else{
+            message("looking up similarity of taxonomic ancestry from provided sim_mat for each label of data_1 and data_2")
+            #similarity matrix usually excludes the root node
+            #add it back in
+
+            root_label <- base_tree$node.label[1]
+
+            if(!(root_label %in% colnames(sim_mat))){
+              sim_mat1 <- cbind(sim_mat,
+                               rep(NA_real_, nrow(sim_mat))
+              )
+              sim_mat1 <- rbind(sim_mat1,
+                               c(rep(NA_real_, ncol(sim_mat1)-1),
+                                 1.0))
+            }
+
+            rownames(sim_mat1) <- c(rownames(sim_mat),
+                                    root_label)
+            colnames(sim_mat1) <- c(colnames(sim_mat),
+                                    root_label)
+            sim_mat <- sim_mat1[data_1_all_labs,
+                               data_2_all_labs]
+          }
+
+          #Each node in the tree is assigned its maximum similarity between the datasets,
+          #unless it does not appear in either dataset,
+          #in which case it is assigned NA.
+          #This means that if a node appears in both datasets it gets similarity 1.
+          #ned a function that returns a value if it's in the matrix bounds,
+          #and returns NA otherwise.
+
+          myfun <- function(matrix, name, margin = 1L){
+            if(name %in% dimnames(matrix)[[margin]]){
+              max(matrix[, name])
+            }else{
+              return(NA_real_)
+            }
+          }
+          cohort_data <- cohort_data %>%
+            dplyr::mutate(simil_col =   {
+              col_inds <- match(Name, colnames(sim_mat))
+                          apply(sim_mat[, col_inds],
+                                MARGIN = 2,
+                                #have to use pmax to return NA without throwing warnings
+                                FUN = function(x) do.call(pmax,
+                                                          args = c(as.list(x),
+                                                                   list(na.rm = TRUE)))
+                                )
+            }
+                          ) %>%
+            dplyr::mutate(simil_row = {
+              row_inds <- match(Name, rownames(sim_mat))
+              apply(sim_mat[row_inds, ],
+                    MARGIN = 1,
+                    #have to use pmax to return NA without throwing warnings
+                    FUN = function(x) do.call(pmax,
+                                              args = c(as.list(x),
+                                                       list(na.rm = TRUE))))
+            }
+            ) %>%
+            dplyr::mutate(simil = pmax(simil_col,
+                                       simil_row,
+                                       na.rm = TRUE))
+        }
+      } #end if data_1 and data_2 provided
+    } #end if data_1 provided
+
+#plot a "background" tree with size a little bigger
 #this will create a "border" around the colored branches
-#useful when color is light and background is white
+#useful when color is light and plot has a white background, for example
 bg_opts <- base_opts
-bg_opts$size <- base_opts$size * 1.8
+bg_opts$size <- base_opts$size * bg_tree_scale
 tree_plot <- do.call(ggtree,
                      c(list(tr = base_tree,
                             layout = layout),
                        bg_opts
                      )
 ) +
-  geom_tippoint(size = point_size * 1.8) +
-  geom_nodepoint(size = point_size * 1.8)
+  geom_tippoint(size = point_size * bg_tree_scale) +
+  geom_nodepoint(size = point_size * bg_tree_scale)
 
-tree_plot <- tree_plot %<+% overlap_dat + #add the similarity data
+if(is.null(subtree_mapping)){
+  #use a default color scale
+  subtree_mapping <- list(
+    #this is the result of viridis::inferno(n=20)
+    colour = c('#000004FF',
+  '#08051EFF',
+  '#190C3EFF',
+  '#300A5BFF',
+  '#460B6AFF',
+  '#5C126EFF',
+  '#711A6EFF',
+  '#87216BFF',
+  '#9C2964FF',
+  '#B1325AFF',
+  '#C43C4EFF',
+  '#D64B40FF',
+  '#E55C30FF',
+  '#F17020FF',
+  '#F8870EFF',
+  '#FCA007FF',
+  '#FBB91FFF',
+  '#F7D340FF',
+  '#F1ED6FFF',
+  '#FCFFA4FF')
+  )
+}else{
+  #Check subtree mapping names
+  #It needs to contain "color" or "colour"
+  good_subtree_map <- any(c("color", "colour") %in%
+                            names(subtree_mapping))
+
+  if(!is.list(subtree_mapping) |
+     is.null(names(subtree_mapping)) |
+     !isTRUE(good_subtree_map)){
+    stop(paste("subtree_mapping should be a list with at least one element",
+    "named 'color' (or 'colour')."))
+  }else{
+    #if something reasonable was provided for subtree_map,
+    #check if any other aesthetics were provided and will be ignored
+    bad_aes <- setdiff(names(subtree_mapping),
+                       c("color", "colour"))
+    good_aes <- intersect(names(subtree_mapping),
+                          c("color", "colour"))
+    if(length(bad_aes)>0){
+      message(paste("In subtree_mapping, only aesthetics",
+                    paste(good_aes, collapse = ", "),
+                    "will be used. Aesthetics",
+                    paste(bad_aes, collapse = ", "),
+                    "were provided, but will be ignored."))
+    }
+
+    if("color" %in% names(subtree_mapping)){
+      subtree_mapping$colour <- subtree_mapping$color
+    }
+  } #end if(!is.list(subtree_mapping) |
+  # is.null(names(subtree_mapping)) |
+  #   !isTRUE(bad_subtree_map))
+}
+
+tree_plot <- tree_plot %<+% cohort_data + #add the similarity data
       geom_tree(aes(color = simil),
                     size = base_opts$size) + #color branches by similarity
-      geom_nodepoint(aes(color = simil),
+      geom_nodepoint(aes(colour = simil),
                      size = point_size) + #color nodes by similarity
-      geom_tippoint(aes(color = simil), size = point_size) + #color tip points by similarity
-      scale_color_distiller(palette = "PiYG",
-                            name = paste0("Overlap % with\n",
-                                          name_1),
-                            limits = c(0,1)) #a color scale
+      geom_tippoint(aes(colour = simil), size = point_size) + #color tip points by similarity
+      scale_color_gradientn(colours = subtree_mapping$colour,
+                            limits = c(0,1))
+
+#Set up title for color legend
+color_title <- ifelse(highlight_by %in% "overlap",
+                      paste0("Overlap % with\n",
+                                    name_1),
+                      paste0("Max similarity btw\n",
+                             name_2,
+                             "\nand\n",
+                             name_1)
+                      )
+
+ tree_plot <- tree_plot +  guides(
+    colour = guide_legend(
+      color_title
+    )
+  )
+}#end else if(highlight_by %in% c("overlap", "sim"))
 
 
-  }
-  if (show_tips){
+######
+# Add tip labels (if requested)
+######
+  if (show_tips %in% TRUE){
     if(is.null(tiplab_size))
       if (length(base_tree$tip.label) <= 200){
         tiplab_size = 3
@@ -1011,8 +1266,8 @@ tree_plot <- tree_plot %<+% overlap_dat + #add the similarity data
   }
 
   #if clade labels have been selected, add them to the plot
-  # When show_tip = TRUE, do not display clade labels
-  if(!show_tips & !is.null(clade_level)){
+  # When show_tips = TRUE, do not display clade labels
+  if(show_tips %in% FALSE & !is.null(clade_level)){
     tree_plot <- add_cladelab(tree_plot = tree_plot,
                               tree = base_tree,
                               clade_level = clade_level,
