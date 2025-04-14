@@ -1,4 +1,5 @@
-
+is.wholenumber <-
+  function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
 
 #' Label numbers
 #'
@@ -79,93 +80,178 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 
 #' @title Generate similarity heatmap
 #'
-#' @description Generate a heatmap from an input similarity matrix.
+#' @description Generate a heatmap showing similarity of two classified data
+#'   sets.
 #'
-#' @details This function generates a heatmap from an input similarity matrix
-#'   and indices. If row data and column data are used instead, indices are
-#'   generated from their classification labels and the labels of the similarity
-#'   matrix.
+#' @details This function takes in two `data.frame`s of classified entities,
+#'   along with the taxonomy tree used to classify them, and a pre-computed
+#'   matrix of pairwise similarities between all nodes of that tree. It produces
+#'   a heatmap showing the pairwise similarities between the classifications of
+#'   the two data sets, one data set on the rows and the other on the columns,
+#'   annotated with bar graphs showing the number of occurrences of each label
+#'   in each data set. The heatmap will be automatically clustered on rows and
+#'   columns. Optionally, the user may specify that rows and columns should be
+#'   split according to these clusters for plotting. See [the ComplexHeatmap
+#'   reference](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html)
+#'   for more details.
 #'
+#'
+#'
+#' @param row_data A `data.frame` object of classified entities. Typically, each
+#'   row represents one entity. Must include variables with names matching
+#'   everything in `tax_level_labels`, containing the classification at each
+#'   taxonomy level. May include a variable with unique identifiers for
+#'   entities; if so, this must be the same variable name in both `row_data` and
+#'   `column_data`, and it should be supplied in `entity_id_col`.
+#' @param column_data A `data.frame` object of classified entities.  Typically,
+#'   each row represents one entity. Must include variables with names matching
+#'   everything in `tax_level_labels`, containing the classification at each
+#'   taxonomy level. May include a variable with unique identifiers for
+#'   entities; if so, this must be the same variable name in both `row_data` and
+#'   `column_data`, and it should be supplied in `entity_id_col`.
 #' @param tree_object A `phylo`-class object representing a rooted tree. Default
 #'   [chemont_tree].
-#' @param matrix A matrix of similarity measure values derived from
-#'   `tree_object`. Default [chemont_jaccard].
-#' @param row_indices The row indices for the matrix. Default NA.
-#' @param column_indices The column indices for the matrix. Default NA.
-#' @param row_data A `data.frame` object of classified entities.
-#' @param column_data A `data.frame` object of classified entities.
-#' @param entity_id_col Character: the variable name in `row_data` and
-#'   `column_data` that identifies entities. Default `NULL` to assume each row
-#'   is its own entity.
+#' @param matrix A matrix of pairwise similarity measure values derived from
+#'   `tree_object`. Default [chemont_jaccard], to plot Jaccard similarity of
+#'   taxonomic classification. Other pre-built option include
+#'   [chemont_resnik_IC_SVH] (to plot Resnik similarity), [chemont_lin_IC_SVH]
+#'   (to plot Lin similarity), and [chemont_jiangconrath_IC_SVH] (to plot
+#'   Jiang-Conrath similarity).
+#' @param row_indices Integer vector: A subset of row indices of the similarity
+#'   matrix to consider. Default `NULL` to include all rows.
+#' @param column_indices Integer vector: The column indices of the similarity
+#'   matrix to consider. Default `NULL` to include all columns.
+#' @param entity_id_col Character: the variable name(s) in `row_data` and
+#'   `column_data` that uniquely identifies entities. Must be the same name(s)
+#'   in each `data.frame`. Default `NULL` to assume each row is its own entity.
 #' @param tax_level_labels Character: levels of the taxonomy in `tree_object`.
 #'   Default [chemont_tax_levels].
-#' @param name Name of the heatmap similarity measure. Default `'Similarity'`.
-#' @param row_split Number of clusters for rows. Default `NULL`.
-#' @param column_split Number of clusters for columns. Default `NULL`.
+#' @param name Name of the heatmap similarity measure for legend title. Default
+#'   `'Similarity'`.
+#' @param row_split Positive integer: Number of clusters to split rows into.
+#'   Default `NULL`, to do no row splitting.
+#' @param column_split Positive integer: Number of clusters to split columns
+#'   into. Default `NULL`, to do no column splitting.
 #' @param row_title Character: Title for rows. Default `'Row title'`.
 #' @param column_title Character: Title for columns. Default `'Column title'`.
-#' @param log_trans `TRUE`/`FALSE`: Whether to log transform numbers of label
-#'   occurrence for labels present in each data set. Default `TRUE`.
+#' @param log_trans `TRUE`/`FALSE`: Whether to log-transform numbers of label
+#'   occurrence for labels present in each data set before plotting them as bar
+#'   chart annotations on the heatmap. Default `TRUE`.
+#' @param colors A colormap used for the heatmap. Should be a function produced
+#'   by [circlize::colorRamp2()], which accepts a vector of numeric values and
+#'   returns interpolated colors. Default `circlize::colorRamp2(breaks = seq(0,
+#'   1, len = 20), viridis::viridis(n=20, option = 'C'))` to use the
+#'   [viridis::viridis()] colormap.
 #' @return A [ComplexHeatmap::Heatmap()] object.
 #' @examples
 #' generate_heatmap(tree_object = chemont_tree,
 #'  matrix = chemont_jaccard,
 #'   row_data = biosolids_class,
 #'    column_data = usgs_class,
+#'    row_split = 5L,
+#'    column_split = 5L,
 #'     row_title = "Biosolids",
 #'      column_title = "USGS Water",
 #'    name = "Jaccard")
 #'
 #' @export
 #' @import ComplexHeatmap
+#' @imprtFrom magrittr `%>%`
 #'
 #' @seealso \code{\link{generate_tree_cluster}}
 #'
-generate_heatmap <- function(tree_object = chemont_tree,
-                             matrix = chemont_jaccard,
-                             row_indices = NA,
-                             column_indices = NA,
-                             row_data,
-                             column_data,
-                             entity_id_col = NULL,
-                             tax_level_labels = chemont_tax_levels,
-                             name = 'Similarity',
-                             row_split = NULL,
-                             column_split = NULL,
-                             row_title = 'Row title',
-                             column_title = 'Column title',
-                             log_trans = TRUE) {
+generate_heatmap <- function(
+    row_data,
+    column_data,
+    tree_object = chemont_tree,
+    matrix = chemont_jaccard,
+    row_indices = NULL,
+    column_indices = NULL,
+    entity_id_col = NULL,
+    tax_level_labels = chemont_tax_levels,
+    name = 'Similarity',
+    row_split = NULL,
+    column_split = NULL,
+    row_title = 'Row title',
+    column_title = 'Column title',
+    log_trans = TRUE,
+    colors = circlize::colorRamp2(
+      breaks = seq(0, 1, len = 20),
+      colors = viridis::viridis(n=20,
+                       option = 'C')
+    )) {
 
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
       stop('The classification levels for the row data and column data do not match!')
 
-  if (is.na(row_indices)){
+  if (is.null(row_indices)){
     row_indices <- 1:dim(matrix)[[1]]
   }
 
-  if (is.na(column_indices)){
+  if (is.null(column_indices)){
     column_indices <- 1:dim(matrix)[[2]]
   }
 
   if(!is.null(row_split)){
-  if (!(is.integer(row_split) & row_split > 1)){
-    row_split <- NULL
-  }
+    if(!is.numeric(row_split)){
+      stop("row_split must be a positive integer")
+    }
+    if(length(row_split)>1){
+      row_split <- row_split[1]
+      warning("row_split of length > 1; taking the first element")
+    }
+    if(!is.finite(row_split)){
+      stop("row_split is NA/NaN/Inf; it must be a positive integer")
+    }
+    if(row_split < 1){
+      stop("row_split is zero or negative; it must be a positive integer")
+    }
+    if(!is.integer(row_split)){
+    #attempt to coerce to integer
+    #with a warning if necessary
+      if(is.na(as.integer(row_split))){
+        stop("row_split could not be coerced to integer")
+      }
+      if(!is.wholenumber(row_split)){
+        warning(paste("non-integer row_split = ",
+                      row_split,
+                      "will be coerced to integer row_split = ",
+                      as.integer(row_split)))
+      }
+    row_split <- as.integer(row_split)
+    }
   }
 
   if(!is.null(column_split)){
-  if (!(is.integer(column_split) & column_split > 1)) {
-    column_split <- NULL
-  }
+    if(!is.numeric(column_split)){
+      stop("column_split must be a positive integer")
+    }
+    if(length(column_split)>1){
+      column_split <- column_split[1]
+      warning("column_split of length > 1; taking the first element")
+    }
+    if(!is.finite(column_split)){
+      stop("column_split is NA/NaN/Inf; it must be a positive integer")
+    }
+    if(column_split < 1){
+      stop("column_split is zero or negative; it must be a positive integer")
+    }
+    if(!is.integer(column_split)){
+      #attempt to coerce to integer
+      #with a warning if necessary
+      if(is.na(as.integer(column_split))){
+        stop("column_split could not be coerced to integer")
+      }
+      if(!is.wholenumber(column_split)){
+        warning(paste("non-integer column_split = ",
+                      column_split,
+                      "will be coerced to integer column_split = ",
+                      as.integer(column_split)))
+      }
+      column_split <- as.integer(column_split)
+    }
   }
 
-  if (is.data.frame(row_data) & !data.table::is.data.table(row_data)){
-    row_data <- data.table::as.data.table(row_data)
-  }
-
-  if (is.data.frame(column_data) & !data.table::is.data.table(column_data)){
-    column_data <- data.table::as.data.table(column_data)
-  }
   taxonomy_names <- names(row_data)
   # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
 
@@ -202,7 +288,8 @@ generate_heatmap <- function(tree_object = chemont_tree,
   column_labels <- column_label_data$label
   names(column_label_numbers) <- column_labels
 
-  column_anno_indices <- match(dimnames(matrix)[[2]][column_indices], column_labels)
+  column_anno_indices <- match(dimnames(matrix)[[2]][column_indices],
+                               column_labels)
   column_na_indices <- which(sapply(column_anno_indices, is.na))
   if (length(column_na_indices) > 0){
     column_anno_indices <- column_anno_indices[-column_na_indices]
@@ -230,11 +317,7 @@ generate_heatmap <- function(tree_object = chemont_tree,
       matrix_column_indices
     ],
     name = name,
-    col = circlize::colorRamp2(
-      seq(0, 1, len = 20),
-      viridis::viridis(20,
-                       option = 'C')
-    ),
+    col = colors,
 
     # NEED TO ADD HELPER FUNCTIONS FOR THIS
     top_annotation = ComplexHeatmap::HeatmapAnnotation(
@@ -276,25 +359,6 @@ generate_heatmap <- function(tree_object = chemont_tree,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #' Heatmap cluster analysis
 #'
 #' This is a helper function that returns superclasses or classes for specified
@@ -312,8 +376,27 @@ generate_heatmap <- function(tree_object = chemont_tree,
 #'   for restricting the labels. Default `NULL`.
 #' @return A list of labels for the row and column clusters, based on the level
 #'   specified.
-#' @import stats
-#' @import ComplexHeatmap
+#' @author Paul Kruse
+#' @examples
+#' #first generate a heatmap on which to do the cluster analysis
+#' my_htmap <- generate_heatmap(
+#'   row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'    tree_object = chemont_tree,
+#'  matrix = chemont_jaccard,
+#'  row_split = 5L,
+#'  column_split = 5L,
+#'     row_title = "Biosolids",
+#'      column_title = "USGS Water",
+#'    name = "Jaccard")
+#' #now do the cluster analysis
+#' cluster_analysis(htmap = my_htmap,
+#' row_cluster = 2L,
+#' column_cluster = 2L,
+#' level = 2,
+#' tree_object = chemont_tree
+#' )
+#'
 cluster_analysis <- function(htmap,
                              row_cluster,
                              column_cluster,
@@ -664,22 +747,40 @@ handle_missing_node_show_clade <- function(tree,
               list_superclasses[[i]]),
           type = 'all')],
     tree_labels)
-  #print(temp_descendants)
-  shallow_level <- min(sapply(temp_descendants, get_tip_level, tree = tree_object))
-  shallow_descendants <- temp_descendants[which(sapply(temp_descendants, get_tip_level, tree = tree_object) == shallow_level)]
+
+  shallow_level <- min(
+    sapply(
+      temp_descendants,
+      get_tip_level,
+      tree = tree_object
+    )
+  )
+  shallow_descendants <- temp_descendants[
+    which(
+      sapply(
+        temp_descendants,
+        get_tip_level,
+        tree = tree_object) == shallow_level
+    )
+  ]
   middle <- (length(shallow_descendants)+1)%/% 2
   #print(middle)
   for (j in seq_along(shallow_descendants)){
-    #print(j)
-    #print(middle == j)
-    tree_visual <- tree_visual + ggtree::geom_cladelab(node = which(tree_labels %in% shallow_descendants[[j]]),
-                                               label = ifelse(j == middle, list_superclasses[[i]],''),
-                                               textcolor = color,
-                                               barcolor = color,
-                                               offset = .2,
-                                               offset.text = 3,
-                                               fontsize = 2.6,
-                                               angle = 'auto')
+
+    tree_visual <- tree_visual +
+      ggtree::geom_cladelab(node = which
+                            (tree_labels %in% shallow_descendants[[j]]
+                            ),
+                            label = ifelse(
+                              j == middle,
+                              list_superclasses[[i]],
+                              ''),
+                            textcolor = color,
+                            barcolor = color,
+                            offset = .2,
+                            offset.text = 3,
+                            fontsize = 2.6,
+                            angle = 'auto')
   }
   return(tree_visual)
 
