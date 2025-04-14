@@ -927,7 +927,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                 calc_number_overlap(prune_to,
                                                     data_1,
                                                     entity_id_col = entity_id_col,
-                                                    at_level = this_level) %>%
+                                                    at_level = this_level,
+                                                    tax_level_labels = tax_level_labels) %>%
                                   dplyr::rename(
                                     label = dplyr::all_of(this_level))
                               }
@@ -949,7 +950,8 @@ display_subtree <- function(base_tree = chemont_tree,
                                 calc_number_overlap(data_1,
                                                     data_2,
                                                     entity_id_col = entity_id_col,
-                                                    at_level = this_level) %>%
+                                                    at_level = this_level,
+                                                    tax_level_labels = tax_level_labels) %>%
                                   dplyr::rename(
                                     label = dplyr::all_of(this_level))
                               }
