@@ -58,13 +58,31 @@ system.time(
 
 #plot tree highlighted by similarity
 display_subtree(base_tree = my_tree2,
-                tax_level_labels = c(chemont_tax_levels,
-                                     "level12"),
-                entity_id_col = "CASRN",
-                data_1 = my_biosolids_class,
-                data_2 = my_usgs_class,
-                sim_mat = my_tree_mat2,
-                highlight_by = "sim")
+                prune_to = "Organohalogen compounds",
+tax_level_labels = c(chemont_tax_levels,
+"level12"),
+entity_id_col = "CASRN",
+data_1 = my_biosolids_class,
+data_2 = my_usgs_class,
+sim_mat = my_tree_mat2,
+highlight_by = "sim", point_size = 1,
+base_opts = list(size = 1),
+clade_level = 3,
+show_tips = FALSE)
+
+#and the same tree highlighted by set membership
+display_subtree(base_tree = my_tree2,
+                prune_to = "Organohalogen compounds",
+tax_level_labels = c(chemont_tax_levels,
+"level12"),
+entity_id_col = "CASRN",
+data_1 = my_biosolids_class,
+data_2 = my_usgs_class,
+sim_mat = my_tree_mat2,
+highlight_by = "set", point_size = 1,
+base_opts = list(size = 1),
+clade_level = 3,
+show_tips = FALSE)
 
 #now... create heatmap of similarity of entities only.
 #
