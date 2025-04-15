@@ -319,6 +319,8 @@ calc_number_overlap <- function(data_1,
                  by = group_col,
                  all = TRUE)
 
+  return(outdf)
+
 }
 
 #'Get overlap
