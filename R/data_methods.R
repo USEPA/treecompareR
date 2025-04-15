@@ -48,7 +48,7 @@ add_terminal_label <- function(data,
       )
     )[1]
     data[[entity_id_col]] <- 1:nrow(data)
-    }
+  }
 
 
 
@@ -69,8 +69,8 @@ add_terminal_label <- function(data,
   #but proceed
   if("terminal_label" %in% names(data)){
     warning(paste("Column 'terminal_label' already exists",
-    "in the input data.frame;",
-    "it will be overwritten"))
+                  "in the input data.frame;",
+                  "it will be overwritten"))
     data[["terminal_label"]] <- NULL
   }
 
@@ -87,10 +87,10 @@ add_terminal_label <- function(data,
     missing_tax_levels <- setdiff(tax_level_labels,
                                   names(data))
     warning(paste("Input data.frame is missing columns for taxonomy levels",
-            paste(missing_tax_levels, collapse = "; "),
-            "These levels will be treated as though they were unused",
-            "(i.e., as though those columns were present,",
-            "but filled with NAs)."))
+                  paste(missing_tax_levels, collapse = "; "),
+                  "These levels will be treated as though they were unused",
+                  "(i.e., as though those columns were present,",
+                  "but filled with NAs)."))
     #add the missing columns with NAs
     data[missing_tax_levels] <- rep(NA_character_, nrow(data))
   }
@@ -125,7 +125,7 @@ add_terminal_label <- function(data,
     ) %>%
     dplyr::slice_tail() %>%  #take most-specific label for each item
     #(i.e. last row)
-   dplyr::rename(terminal_label = label, #rename cols to refer to "terminal"
+    dplyr::rename(terminal_label = label, #rename cols to refer to "terminal"
                   terminal_tax_level = tax_level) %>%
     dplyr::mutate(terminal_level = match(terminal_tax_level,
                                          tax_level_labels)) %>%
@@ -134,8 +134,8 @@ add_terminal_label <- function(data,
 
   #merge terminal label & terminal level info back into original
   dat_out <- merge(dat_orig,
-                    labels,
-                    by = entity_id_col)
+                   labels,
+                   by = entity_id_col)
 
   #if a new ID variable was added, remove it
   if(id_null %in% TRUE){
@@ -197,24 +197,24 @@ calc_number_overlap <- function(data_1,
 
   #if no entity ID column specified, then set it to be all shared variables between the two data sets
   if(is.null(entity_id_col)){
-  entity_id_col <- setdiff(intersect(names(data_1),
-                             names(data_2)),
-                           tax_level_labels)
+    entity_id_col <- setdiff(intersect(names(data_1),
+                                       names(data_2)),
+                             tax_level_labels)
   }
 
   if(at_level %in% "terminal"){
-  #get terminal labels if not already there
-  if(!("terminal_label" %in% names(data_1))){
-    data_1 <- add_terminal_label(data_1,
-                                 entity_id_col = entity_id_col,
-                                    tax_level_labels = tax_level_labels)
-  }
+    #get terminal labels if not already there
+    if(!("terminal_label" %in% names(data_1))){
+      data_1 <- add_terminal_label(data_1,
+                                   entity_id_col = entity_id_col,
+                                   tax_level_labels = tax_level_labels)
+    }
 
-  if(!("terminal_label" %in% names(data_2))){
-    data_2 <- add_terminal_label(data_2,
-                                 entity_id_col = entity_id_col,
-                                    tax_level_labels = tax_level_labels)
-  }
+    if(!("terminal_label" %in% names(data_2))){
+      data_2 <- add_terminal_label(data_2,
+                                   entity_id_col = entity_id_col,
+                                   tax_level_labels = tax_level_labels)
+    }
     group_col <- "terminal_label"
   }else if(is.numeric(at_level)){
     if(at_level > length(tax_level_labels)){
@@ -241,8 +241,8 @@ calc_number_overlap <- function(data_1,
         )
       )
     }else{
-    #interpret as an explicit taxonomy level label
-    group_col <- at_level
+      #interpret as an explicit taxonomy level label
+      group_col <- at_level
     }
   }
 
@@ -439,8 +439,8 @@ get_labels <- function(data,
                      get_label_level(data = data,
                                      level_label = t,
                                      tax_level_labels = tax_level_labels)
-                     }
-                   )
+                   }
+  )
   labels
 }
 
@@ -463,11 +463,11 @@ get_labels <- function(data,
 #'
 get_terminal_labels <- function(data,
                                 entity_id_col = NULL,
-                       tax_level_labels = chemont_tax_levels){
+                                tax_level_labels = chemont_tax_levels){
   if(!("terminal_label" %in% names(data)))
-  labels <- add_terminal_label(data = data,
-                     entity_id_col = entity_id_col,
-                     tax_level_labels = tax_level_labels)[["terminal_label"]]
+    labels <- add_terminal_label(data = data,
+                                 entity_id_col = entity_id_col,
+                                 tax_level_labels = tax_level_labels)[["terminal_label"]]
   return(labels)
 }
 
@@ -491,8 +491,8 @@ get_terminal_labels <- function(data,
 #' count_entities_per_label(data = biosolids_class[1:10, ])
 #'
 count_entities_per_label <- function(data,
-                              entity_id_col = NULL,
-                                 tax_level_labels = chemont_tax_levels){
+                                     entity_id_col = NULL,
+                                     tax_level_labels = chemont_tax_levels){
 
   #if no entity ID column specified,
   #create one with row numbers
@@ -513,36 +513,36 @@ count_entities_per_label <- function(data,
   }
 
 
-label_counts <-  sapply(tax_level_labels,
-         function(this_level){
-           if(this_level %in% names(data)){
-           data %>%
-             dplyr::group_by(
-               dplyr::pick(
-                 dplyr::all_of(this_level)
-               )
-             ) %>%
-            dplyr::summarise(
-              n = dplyr::n_distinct(
-                dplyr::pick(
-                  dplyr::all_of(entity_id_col)
-                )
-              )
-            ) %>%
-             dplyr::ungroup() %>%
-               as.data.frame() %>%
-             setNames(c("label",
-                        "n"))
-           }else{
-             #if no variable for this level in the data,
-             #return data.frame with label NA and n = number of rows
-             #this is the same behavior as if a variable were present but all-NA
-             data.frame(label = NA_character_,
-                        n = nrow(data))
-           }
-         },
-        simplify = FALSE,
-        USE.NAMES = TRUE)
+  label_counts <-  sapply(tax_level_labels,
+                          function(this_level){
+                            if(this_level %in% names(data)){
+                              data %>%
+                                dplyr::group_by(
+                                  dplyr::pick(
+                                    dplyr::all_of(this_level)
+                                  )
+                                ) %>%
+                                dplyr::summarise(
+                                  n = dplyr::n_distinct(
+                                    dplyr::pick(
+                                      dplyr::all_of(entity_id_col)
+                                    )
+                                  )
+                                ) %>%
+                                dplyr::ungroup() %>%
+                                as.data.frame() %>%
+                                setNames(c("label",
+                                           "n"))
+                            }else{
+                              #if no variable for this level in the data,
+                              #return data.frame with label NA and n = number of rows
+                              #this is the same behavior as if a variable were present but all-NA
+                              data.frame(label = NA_character_,
+                                         n = nrow(data))
+                            }
+                          },
+                          simplify = FALSE,
+                          USE.NAMES = TRUE)
 
   return(label_counts)
 }
@@ -560,7 +560,7 @@ label_counts <-  sapply(tax_level_labels,
 #' count_labels(data = biosolids_class[1:10, ])
 #'
 count_labels <- function(data,
-                             tax_level_labels = chemont_tax_levels){
+                         tax_level_labels = chemont_tax_levels){
 
   lengths <- sapply(get_labels(data = data,
                                tax_level_labels = tax_level_labels),
