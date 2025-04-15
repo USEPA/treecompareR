@@ -251,15 +251,15 @@ label_bars <- function(data = NULL,
 #'
 #'  # Helpful hints
 #'
-#'  If you supply `show_tips = TRUE` and some of the tip labels are cut off, you
-#'  can enlarge the margin using [ggplot2::xlim()]. For example:
+#'  If you supply `show_tiplabs = TRUE` and some of the tip labels are cut off,
+#'  you can enlarge the margin using [ggplot2::xlim()]. For example:
 #'
 #' ```
 #' my_tree <- display_subtree(prune_to = biosolids_class,
 #' base_name = "Biosolids",
 #' data_1 = usgs_class,
 #' name_1 = "USGS",
-#' show_tips = TRUE)
+#' show_tiplabs = TRUE)
 #'
 #' my_tree #labels are cut off
 #'
@@ -303,22 +303,11 @@ label_bars <- function(data = NULL,
 #'  `"Set 2"`. If `data_2` is `NULL`, `name_2` will be ignored.
 #'@param tax_level_labels Optional: a vector of the taxonomy level labels to be
 #'  used. Default value:[chemont_tax_levels].
+#'@param entity_id_col Character: the name of the variable in `prune_to`,
+#'  `data_1`, and/or `data_2` that identifies entities, if those arguments are
+#'  provided as `data.frame`s of classified entities. Default `NULL` to assume
+#'  that each row is a unique entity.
 #'@param layout [ggtree::ggtree()] tree layout option. Default `"circular."`
-#'@param show_tips `TRUE`/`FALSE`: Whether to display the tip labels. Default
-#'  `TRUE`. Note that when `show_tips = TRUE`, clade labels will be suppressed
-#'  (*i.e.*, arguments `clade_opts` and `clade_level` will b
-#'@param tiplab_size Numeric: size to use for tip labels (if `show_tips =
-#'  TRUE`). Default `NULL`, to attempt auto-scaling based on the number of tips
-#'  (`tiplab_size = 3` if fewer than 200 tips; `tiplab_size = 1.5` if between
-#'  200 and 500 tips; otherwise `tiplab_size = 0.5`). Make it larger for bigger
-#'  text, smaller for smaller text. You can change this after the fact by taking
-#'  the output of this function and adding `+ ggtree::geom_tiplab(size = N)`
-#'  where `N` is replaced by your desired size.
-#'@param tiplab_opts A named list of additional arguments to
-#'  [ggtree::geom_tiplab2()]; see the documentation for that function for more
-#'  options. Default `NULL` to use defaults for that function. For example, you
-#'  could specify `tiplab_opts = list(offset = 3)` to increase the space between
-#'  tips and labels.
 #'@param base_opts List of parameters to control color, size, and linetype of
 #'  the base tree diagram. Default `list(color = "black", size = 0.5, linetype =
 #'  1)`. Should be a named list with one or more of `color`, `size`, and
@@ -329,50 +318,82 @@ label_bars <- function(data = NULL,
 #'  their value from the default list will be substituted. For example, if you
 #'  provide `base_opts = list(color = "red")`, it will be the same as if you
 #'  provided `base_opts = list(color = "red", size = 0.5, linetype = 1)`.
-#'@param subtree_mapping List of aesthetics used to control branch highlighting
-#'  according to membership in the provided data set(s). Must be a named list
-#'  with one or more of the following named elements: `color` (or `colour`),
-#'  `size`, and/or `linetype`. Default `NULL` to choose a default color mapping
-#'  based on `highlight_by`.
-#'@param highlight_by One of `"set"` (default), `"overlap"`, `"simil"`, or `"none"`.
-#'  `"set"` highlights branches by their membership in `data_1` and/or `data_2`
-#'  if provided. `"overlap"` highlights branches according to fractional overlap
-#'  in number of entities, if two data sets were provided. `"sim"` highlights
-#'  branches according to their maximum similarity of taxonomic ancestry between
-#'  two data sets, if provided. `"none"` does not highlight branches. To use
-#'  `highlight_by = "set"`, `data_1` must be provided (and `data_2` may be
-#'  provided). To use `"overlap"`, either `prune_to` and `data_1` must both be
-#'  provided as `data.frame`s of classified entities (in which case the overlap
-#'  in number of entities will be computed between `prune_to` and `data_1`), or
-#'  `data_1` and `data_2` must both be provided as `data.frame`s of classified
-#'  entities (in which case the overlap in number of entities will be computed
-#'  between `data_1` and `data_2`). If all three of `prune_to`, `data_1`, and
-#'  `data_2` are provided as `data.frame`s of classified entities, then the
-#'  overlap will be computed between `data_1` and `data_2`. To use `"simil"`,
-#'  either `prune_to` and `data_1` must be provided, or `data_1` and `data_2`
-#'  must be provided, although they may be provided in any of the allowable
-#'  formats (unlike `highlight_by = "overlap"`, they need not be provided as
-#'  `data.frame`s of classified entities).
-#'@param entity_id_col Character: the name of the variable in `prune_to`,
-#'  `data_1`, and/or `data_2` that identifies entities, if those arguments are
-#'  provided as `data.frame`s of classified entities. Used only if
-#'  `color_overlap = TRUE` (because it's used by [calc_number_overlap()] to
-#'  calculate the overlap in entities). Default `NULL` to assume that entities
-#'  are uniquely identified by the combination of all variables other than those
-#'  in `tax_level_labels`.
-#'@param point_size Numeric: the size at which to draw node and tip points,
-#'  which are only drawn if `color_overlap = TRUE`. Default 3.
+#'@param bg_tree_scale Numeric: The factor by which to increase or decrease the
+#'  size (linewidth) of the base tree (as specified in `base_opts$size`), on
+#'  which the highlighted tree will be overlaid. Default `1.8`. In short, a tree
+#'  is first drawn using the `base_opts`, but with a slightly thicker line
+#'  weight. Then, the highlighted tree is drawn on top of it. This is a way of
+#'  drawing an outline or border around the highlighted tree, using the base
+#'  color. The larger `bg_scale` is, the wider the border will be.
+#'@param highlight_by One of `"set"` (default), `"overlap"`, `"simil"`, or
+#'  `"none"`. `"set"` highlights branches by their membership in `data_1` and/or
+#'  `data_2` if provided. `"overlap"` highlights branches according to
+#'  fractional overlap in number of entities, if two data sets were provided.
+#'  `"sim"` highlights branches according to their maximum similarity of
+#'  taxonomic ancestry between two data sets, if provided. `"none"` does not
+#'  highlight branches. To use `highlight_by = "set"`, `data_1` must be provided
+#'  (and `data_2` may be provided). To use `"overlap"`, either `prune_to` and
+#'  `data_1` must both be provided as `data.frame`s of classified entities (in
+#'  which case the overlap in number of entities will be computed between
+#'  `prune_to` and `data_1`), or `data_1` and `data_2` must both be provided as
+#'  `data.frame`s of classified entities (in which case the overlap in number of
+#'  entities will be computed between `data_1` and `data_2`). If all three of
+#'  `prune_to`, `data_1`, and `data_2` are provided as `data.frame`s of
+#'  classified entities, then the overlap will be computed between `data_1` and
+#'  `data_2`. To use `"simil"`, either `prune_to` and `data_1` must be provided,
+#'  or `data_1` and `data_2` must be provided, although they may be provided in
+#'  any of the allowable formats (unlike `highlight_by = "overlap"`, they need
+#'  not be provided as `data.frame`s of classified entities).
+#'@param subtree_mapping List of aesthetics used to control branch highlighting.
+#'  Must be a named list with one or more of the following named elements:
+#'  `color` (or `colour`), `size`, and/or `linetype`. Default `NULL` to choose a
+#'  default color mapping based on `highlight_by`. If `highlight_by %in%
+#'  c("overlap", "simil")`, then elements `size` or `linetype` in
+#'  `subtree_mapping` will be ignored.
+#'@param show_tiplabs `TRUE`/`FALSE`: Whether to display the tip labels. Default
+#'  `TRUE`. Note that when `show_tiplabs = TRUE`, clade labels will be
+#'  suppressed (*i.e.*, arguments `clade_opts` and `clade_level` will be
+#'  ignored).
+#'@param tiplab_opts A named list of additional arguments to
+#'  [ggtree::geom_tiplab2()]; see the documentation for that function for more
+#'  options. Default `NULL` to use defaults for that function. For example, you
+#'  could specify `tiplab_opts = list(offset = 3)` to increase the space between
+#'  tips and labels. If `size` is not specified, this function will attempt to
+#'  auto-determine size based on the number of tips (`size = 3` if fewer than
+#'  200 tips; `size = 1.5` if between 200 and 500 tips; if more than 500 tips,
+#'  `size = 0.5`).
+#'@param show_tippoints `TRUE`/`FALSE`: Whether to display tip points. Default
+#'  `FALSE`.
+#'@param tippoint_opts A named list of additional arguments to
+#'  [ggtree::geom_tippoint()]; see the documentation for that function for more
+#'  options. Default `NULL` to use defaults for that function. If `size` is not
+#'  specified, this function will attempt to auto-determine size based on the
+#'  number of tips (`size = 1.5` if fewer than 200 tips; `size = 1` if between
+#'  200 and 500 tips; if more than 500 tips, `size = 0.5`).
+#'@param show_nodepoints `TRUE`/`FALSE`: Whether to display (internal) node points. Default
+#'  `FALSE`.
+#'@param nodepoint_opts A named list of additional arguments to
+#'  [ggtree::geom_nodepoint()]; see the documentation for that function for more
+#'  options. Default `NULL` to use defaults for that function. If `size` is not
+#'  specified, this function will attempt to auto-determine size based on the
+#'  number of tips (`size = 1.5` if fewer than 200 tips; `size = 1` if between
+#'  200 and 500 tips; if more than 500 tips, `size = 0.5`).
+#'@param sim_mat Optional: A numeric matrix of pairwise similarities including
+#'  all the nodes in the base tree (or just the pruned tree, if `prune_to` is
+#'  non-`NULL`), as produced by [similarity_matrix()]. Default
+#'  `chemont_jaccard`. Used only if `highlight_by = "sim"`. If `NULL`, then
+#'  similarity highlighting will not be performed.
 #'@param clade_level Integer or character: The taxonomy level at which to draw
 #'  clade labels, if any. Default is `NULL`, which will suppress clade labels
 #'  altogether. `clade_level = "auto"` is a special value that automatically
 #'  selects the taxonomy level of the MRCA of the tips plus one, or level 2,
-#'  whichever is the greater number. See [add_cladelabels()]. If `show_tips =
+#'  whichever is the greater number. See [add_cladelabels()]. If `show_tiplabs =
 #'  TRUE`, `clade_level` will be ignored and clade labels will not be drawn.
 #'@param clade_opts List of parameters defining aesthetic options for labeling
 #'  clades. See [add_cladelabels()] for options.  Default is `list(wrap = 20,
 #'  barsize = "alternate", fontsize = 3, lineheight = 0.7, default_to_tip =
 #'  TRUE, draw_text = TRUE)`. You can provide any of the additional parameters
-#'  of [ggtree::geom_cladelab()]. If `show_tips = TRUE`, `clade_opts` will be
+#'  of [ggtree::geom_cladelab()]. If `show_tiplabs = TRUE`, `clade_opts` will be
 #'  ignored and clade labels will not be drawn.
 #'@return A [ggtree::ggtree()] object visualizing the full base tree, with
 #'  branches highlighted to indicate presence in `data_1`, in `data_2` (if
@@ -415,7 +436,7 @@ label_bars <- function(data = NULL,
 #' name_1 = "USGS Water",
 #' base_opts = list(size = 1),
 #' color_overlap = TRUE,
-#' show_tips = FALSE,
+#' show_tiplabs = FALSE,
 #' clade_level = 2,
 #' clade_opts = list(offset = 3,
 #' offset.text = 1,
@@ -437,18 +458,20 @@ display_subtree <- function(base_tree = chemont_tree,
                             tax_level_labels = chemont_tax_levels,
                             entity_id_col = NULL,
                             layout = "circular",
-                            show_tips = TRUE,
-                            tiplab_opts = NULL,
-                            tiplab_size = NULL,
                             base_opts = list("color" = "black",
                                              "size" = 0.5,
                                              "linetype" = 1),
-                            subtree_mapping = NULL,
+                            bg_tree_scale = 1.8,
                             highlight_by = "set", #or "overlap" or "sim"
+                            subtree_mapping = NULL,
+                            show_tiplabs = TRUE,
+                            tiplab_opts = NULL,
+                            show_tippoints = FALSE,
+                            tippoint_opts = NULL,
+                            show_nodepoints = FALSE,
+                            nodepoint_opts = NULL,
                             sim_mat = chemont_jaccard,
                             sim_metric = "jaccard",
-                            point_size = 3,
-                            bg_tree_scale = 1.8,
                             clade_level = NULL,
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
@@ -458,6 +481,10 @@ display_subtree <- function(base_tree = chemont_tree,
                                               draw_text = TRUE)
 ){
 
+
+  ############
+  #Base options
+  #############
   #Keep defaults for any base_opts not otherwise specified
   base_opts_default <- list("color" = "black",
                                         "size" = 0.5,
@@ -479,7 +506,48 @@ display_subtree <- function(base_tree = chemont_tree,
     )
   }
 
+  ###############
+  # Tip label, tip point, and node point options
+  #################
+  #(auto-size depends on the pruned tree, so it must be after pruning happens)
+  if(is.null(tiplab_opts$size)){
+    if (length(base_tree$tip.label) <= 200){
+      tiplab_size = 3
+    } else if (length(base_tree$tip.label) <= 500){
+      tiplab_size = 1.5
+    } else {
+      tiplab_size = 0.5
+    }
 
+    tiplab_opts <- c(list(size = tiplab_size),
+                     tiplab_opts)
+  }
+
+  if(is.null(tippoint_opts$size)){
+    if (length(base_tree$tip.label) <= 200){
+      tippoint_size = 1.5
+    } else if (length(base_tree$tip.label) <= 500){
+      tippoint_size = 1
+    } else {
+      tippoint_size = 0.5
+    }
+
+    tippoint_opts <- c(list(size = tippoint_size),
+                       tippoint_opts)
+  }
+
+  if(is.null(nodepoint_opts$size)){
+    if (length(base_tree$tip.label) <= 200){
+      nodepoint_size = 1.5
+    } else if (length(base_tree$tip.label) <= 500){
+      nodepoint_size = 1
+    } else {
+      nodepoint_size = 0.5
+    }
+
+    nodepoint_opts <- c(list(size = nodepoint_size),
+                        nodepoint_opts)
+  }
 
   ########################################
   # Handle different formats for data_1
@@ -849,17 +917,49 @@ display_subtree <- function(base_tree = chemont_tree,
     #   !isTRUE(bad_subtree_map))
 
 
+    ####################################
+    # PLOT BACKGROUND TREE FOR SET HIGHLIGHTING
+    #######################################
     #Use base options, unless they will be mapped to list presence later
     #(aes() doesn't seem to overwrite them as expected)
     #e.g. if subtree_mapping has a "color" element, don't use base_opts$color
+    # tree_plot <- do.call(ggtree,
+    #                      c(list(tr = base_tree,
+    #                             layout = layout),
+    #                        base_opts[setdiff(names(base_opts),
+    #                                          names(subtree_mapping))
+    #                        ]
+    #                      )
+    # )
+
+    bg_opts <- base_opts
+    bg_opts$size <- base_opts$size * bg_tree_scale
     tree_plot <- do.call(ggtree,
                          c(list(tr = base_tree,
                                 layout = layout),
-                           base_opts[setdiff(names(base_opts),
-                                             names(subtree_mapping))
-                           ]
+                           bg_opts
                          )
     )
+
+   #add background tip/node points if requested
+    if(show_tippoints %in% TRUE){
+      #scale size
+      bg_tippoint_opts <- tippoint_opts
+      bg_tippoint_opts$size <- bg_tippoint_opts$size * bg_tree_scale
+      tree_plot <- tree_plot +
+        do.call(geom_tippoint,
+                args = bg_tippoint_opts)
+    }
+
+    if(show_nodepoints %in% TRUE){
+      bg_nodepoint_opts <- nodepoint_opts
+      bg_nodepoint_opts$size <- bg_nodepoint_opts$size * bg_tree_scale
+      tree_plot <- tree_plot +
+        do.call(geom_nodepoint,
+                args = bg_nodepoint_opts
+                         )
+    }
+
 
    #Name the subtree_mapping items after the categories in cohort_data$list_presence
    subtree_mapping <- sapply(subtree_mapping,
@@ -933,10 +1033,19 @@ display_subtree <- function(base_tree = chemont_tree,
 # )
 #But the idea is to generate it programatically from argument `subtree_mapping`
 
+   #any aesthetics not scaled to data, set to their base values.
+   unscaled_aesthetics <- setdiff(names(base_opts),
+                                  names(scale_list))
+
 #add list presence highlighting to tree plot
    tree_plot <- tree_plot %<+% cohort_data +
-     do.call(aes, #this maps list presence to all aesthetics specified in `subtree_mapping`
-             subtree_aes) +
+     # do.call(aes, #this maps list presence to all aesthetics specified in `subtree_mapping`
+     #         subtree_aes) +
+     do.call(geom_tree,
+             args = c(
+               list(do.call(aes,
+                            subtree_aes)),
+               base_opts[unscaled_aesthetics])) +
       scale_list + #this applies all of the scales in scale_list to the aesthetics
      theme(legend.position = "top")
   } #end if(!is.null(data_1))
@@ -1191,6 +1300,9 @@ display_subtree <- function(base_tree = chemont_tree,
       } #end if data_1 and data_2 provided
     } #end if data_1 provided
 
+  #####################
+  # Background tree for overlap or similarity
+  #######################
 #plot a "background" tree with size a little bigger
 #this will create a "border" around the colored branches
 #useful when color is light and plot has a white background, for example
@@ -1202,8 +1314,8 @@ tree_plot <- do.call(ggtree,
                        bg_opts
                      )
 ) +
-  geom_tippoint(size = point_size * bg_tree_scale) +
-  geom_nodepoint(size = point_size * bg_tree_scale)
+  geom_tippoint(size = tippoint_opts$size * bg_tree_scale) +
+  geom_nodepoint(size = nodepoint_opts$size * bg_tree_scale)
 
 if(is.null(subtree_mapping)){
   #use a default color scale
@@ -1264,12 +1376,15 @@ if(is.null(subtree_mapping)){
   #   !isTRUE(bad_subtree_map))
 }
 
+subtree_aes <- list(color = quote(simil))
+
+##########
+# Overlay highlighted tree for overlap or similarity
+############
 tree_plot <- tree_plot %<+% cohort_data + #add the similarity data
-      geom_tree(aes(color = simil),
-                    size = base_opts$size) + #color branches by similarity
-      geom_nodepoint(aes(colour = simil),
-                     size = point_size) + #color nodes by similarity
-      geom_tippoint(aes(colour = simil), size = point_size) + #color tip points by similarity
+  #aes(colour = simil) +
+      geom_tree(size = base_opts$size,
+                do.call(aes, subtree_aes)) + #color branches by similarity
       scale_color_gradientn(colours = subtree_mapping$colour,
                             limits = c(0,1))
 
@@ -1288,31 +1403,55 @@ color_title <- ifelse(highlight_by %in% "overlap",
       color_title
     )
   )
-}#end else if(highlight_by %in% c("overlap", "sim"))
-
+}else if(highlight_by %in% "none"){
+  #draw the base tree only
+  tree_plot <- do.call(ggtree,
+                       c(list(tr = base_tree,
+                              layout = layout),
+                         base_opts
+                       )
+  )
+}else{
+stop("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'")
+}
 
 ######
 # Add tip labels (if requested)
 ######
-  if (show_tips %in% TRUE){
-    if(is.null(tiplab_size))
-      if (length(base_tree$tip.label) <= 200){
-        tiplab_size = 3
-      } else if (length(base_tree$tip.label) <= 500){
-        tiplab_size = 1.5
-      } else {
-        tiplab_size = .5
-      }
-
+  if (show_tiplabs %in% TRUE){
     tree_plot <- tree_plot +
       do.call(ggtree::geom_tiplab2,
-              args = c(list(size = tiplab_size),
-                          tiplab_opts))
+              args = c(list(do.call(aes, subtree_aes)),
+                       tiplab_opts))
+  }
+
+  ######
+  # Add tip points (if requested)
+  ######
+  if (show_tippoints %in% TRUE){
+
+
+    tree_plot <- tree_plot +
+      do.call(ggtree::geom_tippoint,
+              args = c(list(do.call(aes, subtree_aes)),
+                       tippoint_opts))
+  }
+
+  ######
+  # Add node points (if requested)
+  ######
+  if (show_nodepoints %in% TRUE){
+
+
+    tree_plot <- tree_plot +
+      do.call(ggtree::geom_nodepoint,
+              args = c(list(do.call(aes, subtree_aes)),
+                       nodepoint_opts))
   }
 
   #if clade labels have been selected, add them to the plot
-  # When show_tips = TRUE, do not display clade labels
-  if(show_tips %in% FALSE & !is.null(clade_level)){
+  # When show_tiplabs = TRUE, do not display clade labels
+  if(show_tiplabs %in% FALSE & !is.null(clade_level)){
     tree_plot <- add_cladelab(tree_plot = tree_plot,
                               tree = base_tree,
                               clade_level = clade_level,
