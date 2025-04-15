@@ -181,8 +181,26 @@ generate_heatmap <- function(
     log_trans = TRUE,
     colors = circlize::colorRamp2(
       breaks = seq(0, 1, len = 20),
-      colors = viridis::viridis(n=20,
-                       option = 'C')
+      colors = c('#440154FF',
+                 '#481568FF',
+                 '#482677FF',
+                 '#453781FF',
+                 '#3F4788FF',
+                 '#39558CFF',
+                 '#32648EFF',
+                 '#2D718EFF',
+                 '#287D8EFF',
+                 '#238A8DFF',
+                 '#1F968BFF',
+                 '#20A386FF',
+                 '#29AF7FFF',
+                 '#3CBC75FF',
+                 '#56C667FF',
+                 '#74D055FF',
+                 '#94D840FF',
+                 '#B8DE29FF',
+                 '#DCE318FF',
+                 '#FDE725FF')
     )) {
 
   if (!identical(unlist(names(row_data)), unlist(names(column_data))))
