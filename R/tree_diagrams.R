@@ -410,38 +410,76 @@ label_bars <- function(data = NULL,
 #' oh_tree <- prune_tree(tree = chemont_tree,
 #' prune_to = "Organohalogen compounds")
 #'
+#' #show this tree by itself
+#' display_subtree(base_tree = oh_tree)
+#'
 #' #one data set
-#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class)
+#' display_subtree(base_tree = oh_tree,
+#'  data_1 = biosolids_class,
+#'  highlight_by = "set")
 #'
 #' #two data sets
 #' display_subtree(base_tree = oh_tree,
 #'  data_1 = biosolids_class,
-#' data_2 = usgs_class)
+#' data_2 = usgs_class,
+#'  highlight_by = "set")
 #'
 #' #increasing line width
-#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
-#' data_2 = usgs_class, base_opts = list(size = 1))
+#' display_subtree(base_tree = oh_tree,
+#'  data_1 = biosolids_class,
+#' data_2 = usgs_class,
+#'  base_opts = list(size = 1),
+#'  highlight_by = "set")
 #'
 #' #different subtree color mapping
-#' display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
-#' data_2 = usgs_class, base_opts = list(size = 1),
-#'  subtree_mapping = list(color = c("black", "red", "blue", "purple")))
+#' display_subtree(base_tree = oh_tree,
+#'  data_1 = biosolids_class,
+#' data_2 = usgs_class,
+#' base_opts = list(size = 1),
+#'  subtree_mapping = list(color = c("black", "red", "blue", "purple")),
+#'  highlight_by = "set")
 #'
 #'  #clade level
 #'  display_subtree(base_tree = oh_tree,
 #'   data_1 = biosolids_class,
-#' data_2 = usgs_class, base_opts = list(size = 1),
-#' clade_level = 2)
+#' data_2 = usgs_class,
+#'  base_opts = list(size = 1),
+#' clade_level = 2,
+#'  highlight_by = "set")
 #'
-#' #prune to BIOSOLIDS2021 classes only
-#' #and color by overlap between BIOSOLIDS2021 and USGS Water
-#' display_subtree(prune_to = biosolids_class,
+#' #prune to the union of BIOSOLIDS2021 and USGSWATER classes only
+#' #and color by set membership
+#' display_subtree(prune_to = list(biosolids_class, usgs_class),
 #' data_1 = usgs_class,
-#' base_name = "Biosolids",
 #' name_1 = "USGS Water",
+#' data_2 = biosolids_class,
+#' name_2 = "Biosolids",
 #' base_opts = list(size = 1),
-#' color_overlap = TRUE,
+#' bg_tree_scale = 0, #suppress border drawing
+#' highlight_by = "set",
 #' show_tiplabs = FALSE,
+#' show_tippoints = TRUE,
+#' tippoint_opts = list(size = 2),
+#' clade_level = 2,
+#' clade_opts = list(offset = 3,
+#' offset.text = 1,
+#' fontsize = 4))
+#'
+#' #prune to the union of BIOSOLIDS2021 and USGSWATER classes only
+#' #and color by Jaccard similarity of classifications between BIOSOLIDS2021 and USGS Water.
+#' #compare this plot to the previous one!
+#' display_subtree(prune_to = list(biosolids_class, usgs_class),
+#' data_1 = usgs_class,
+#' name_1 = "USGS Water",
+#' data_2 = biosolids_class,
+#' name_2 = "Biosolids",
+#' base_opts = list(size = 1),
+#' bg_tree_scale = 0, #suppress border drawing
+#' highlight_by = "sim",
+#' sim_mat = chemont_jaccard,
+#' show_tiplabs = FALSE,
+#' show_tippoints = TRUE,
+#' tippoint_opts = list(size = 2),
 #' clade_level = 2,
 #' clade_opts = list(offset = 3,
 #' offset.text = 1,
@@ -476,7 +514,6 @@ display_subtree <- function(base_tree = chemont_tree,
                             show_nodepoints = FALSE,
                             nodepoint_opts = NULL,
                             sim_mat = chemont_jaccard,
-                            sim_metric = "jaccard",
                             clade_level = NULL,
                             clade_opts = list(wrap = 20,
                                               barsize = "alternate",
@@ -891,6 +928,13 @@ display_subtree <- function(base_tree = chemont_tree,
     if(is.null(data_1)){
       #ignore any subtree mapping
       subtree_mapping <- NULL
+        highlight_by <- "none"
+        tree_plot <- do.call(ggtree,
+                             c(list(tr = base_tree,
+                                    layout = layout),
+                               base_opts
+                             )
+        )
     }else{ #if data_1 supplied, check subtree mapping
 
       if(is.null(subtree_mapping)){
