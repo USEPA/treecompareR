@@ -489,6 +489,12 @@ display_subtree <- function(base_tree = chemont_tree,
   base_opts_default <- list("color" = "black",
                                         "size" = 0.5,
                                         "linetype" = 1)
+  #harmonize color/colour
+  if("colour" %in% names(base_opts)){
+    base_opts$color <- base_opts$colour
+    base_opts$colour <- NULL
+  }
+
   base_opts <- c(base_opts,
                  base_opts_default[setdiff(names(base_opts_default),
                                            names(base_opts))])
@@ -856,6 +862,8 @@ display_subtree <- function(base_tree = chemont_tree,
       }
     }
 
+
+
     #Check subtree mapping names
     #They need to be valid aesthetics for ggtree
     good_subtree_map <- any(c("color", "colour", "size", "linetype") %in%
@@ -882,6 +890,7 @@ display_subtree <- function(base_tree = chemont_tree,
                       "were provided but will be ignored,",
                       "since ggtree::geom_tree() does not understand them."))
       }
+
 
       #check lengths of subtree_mapping vs. number of datasets provided
       sm_length <- sapply(subtree_mapping,
@@ -921,6 +930,13 @@ display_subtree <- function(base_tree = chemont_tree,
                                             simplify = FALSE,
                                             USE.NAMES =  TRUE)
       }
+
+      #harmonize color/colour
+      if("colour" %in% names(subtree_mapping)){
+        subtree_mapping$color <- subtree_mapping$colour
+        subtree_mapping$colour <- NULL
+      }
+
     } #end if(!is.list(subtree_mapping) |
     # is.null(names(subtree_mapping)) |
     #   !isTRUE(bad_subtree_map))
@@ -1106,7 +1122,13 @@ display_subtree <- function(base_tree = chemont_tree,
   # Construct cohort_data for overlap or similarity
   ################
           if(highlight_by %in% "overlap"){
-          message("computing overlap in numbers of entities for each label of prune_to and data_1")
+          message(
+            paste(
+              "computing overlap in numbers of entities for each label of",
+              name_A,
+              "and",
+              name_B)
+          )
         overlap_dat <- lapply(tax_level_labels,
                               function(this_level) {
                                 calc_number_overlap(data_1 = dat_A,
@@ -1152,7 +1174,13 @@ display_subtree <- function(base_tree = chemont_tree,
                 stop("sim_mat needs row and column names that match the tree tip and node labels")
               }
 
-              message("looking up similarity of taxonomic ancestry from provided sim_mat for each pair of labels in prune_to and data_1")
+              message(
+                paste(
+                "looking up similarity of taxonomic ancestry from",
+                "provided sim_mat for each pair of labels in",
+                name_A,
+                "and",
+                name_B))
               #similarity matrix usually excludes the root node
               #add it back in
               root_label <- base_tree$node.label[1]
@@ -1245,7 +1273,7 @@ if(is.null(subtree_mapping)){
   #use a default color scale
   subtree_mapping <- list(
     #this is the result of viridis::viridis(n=20)
-    colour = c('#440154FF',
+    color = c('#440154FF',
     '#481568FF',
     '#482677FF',
     '#453781FF',
@@ -1292,8 +1320,9 @@ if(is.null(subtree_mapping)){
                     "were provided, but will be ignored."))
     }
 
-    if("color" %in% names(subtree_mapping)){
-      subtree_mapping$colour <- subtree_mapping$color
+    if("colour" %in% names(subtree_mapping)){
+      subtree_mapping$color <- subtree_mapping$colour
+      subtree_mapping$colour <- NULL
     }
   } #end if(!is.list(subtree_mapping) |
   # is.null(names(subtree_mapping)) |
@@ -1306,7 +1335,7 @@ if(is.null(subtree_mapping)){
 ############
 
 #Set up title for color legend
-colour_title <- ifelse(highlight_by %in% "overlap",
+color_title <- ifelse(highlight_by %in% "overlap",
                       paste0("Entity overlap % btw\n",
                              name_A,
                              "\nand\n",
@@ -1319,11 +1348,11 @@ colour_title <- ifelse(highlight_by %in% "overlap",
 
 tree_plot <- tree_plot %<+% cohort_data + #add the similarity data
       geom_tree(size = base_opts$size,
-                aes(colour = simil)) + #color branches by similarity
-      scale_color_gradientn(colours = subtree_mapping$colour,
+                aes(color = simil)) + #color branches by similarity
+      scale_color_gradientn(colors = subtree_mapping$color,
                             limits = c(0,1),
-                            guide = "colourbar",
-                            name = colour_title)
+                            guide = "colorbar",
+                            name = color_title)
 
   }else{ #if(is.null(dat_A)), just plot the base tree
     highlight_by <- "none"
@@ -1364,7 +1393,7 @@ message(paste("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'.
     tiplab_args <- c(list(do.call(aes, subtree_aes)),
                      tiplab_opts)
     }else if(highlight_by %in% c("overlap", "sim")){
-      tiplab_args <- c(list(aes(colour = simil)),
+      tiplab_args <- c(list(aes(color = simil)),
                        tiplab_opts)
     }else{
       #just use base options
@@ -1384,7 +1413,7 @@ message(paste("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'.
       tippoint_args <- c(list(do.call(aes, subtree_aes)),
                        tippoint_opts)
     }else if(highlight_by %in% c("overlap", "sim")){
-      tippoint_args <- c(list(aes(colour = simil)),
+      tippoint_args <- c(list(aes(color = simil)),
                        tippoint_opts)
     }else{
       #just use base options
@@ -1404,7 +1433,7 @@ message(paste("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'.
       nodepoint_args <- c(list(do.call(aes, subtree_aes)),
                        nodepoint_opts)
     }else if(highlight_by %in% c("overlap", "sim")){
-      nodepoint_args <- c(list(aes(colour = simil)),
+      nodepoint_args <- c(list(aes(color = simil)),
                        nodepoint_opts)
     }else{
       #just use base options
