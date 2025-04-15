@@ -274,7 +274,7 @@ label_bars <- function(data = NULL,
 #'  [prune_tree()]: What to *keep* from the base tree (everything else will be
 #'  pruned away). May be a `data.frame` of classified data; a character vector
 #'  of one or more labels in the tree (tip or internal node labels); an integer
-#'  vector od one or more node numbers in the tree (tip or internal nodes); or a
+#'  vector of one or more node numbers in the tree (tip or internal nodes); or a
 #'  character scalar giving the name of a taxonomy level (one of the items in
 #'  `tax_level_labels`).  See the help for [prune_tree()].
 #'@param prune_args A named list of additional arguments to be passed to
@@ -287,15 +287,20 @@ label_bars <- function(data = NULL,
 #'@param data_1 Optional: Highlight branches of the base tree according to their
 #'  membership in this data set. Default is `NULL`, to do no highlighting. If
 #'  not `NULL`, must be one of the following options: A `data.frame` of
-#'  classified entities; a vector of node numbers in the base tree; a vector of
-#'  node labels in the base tree; or a subtree of `base_tree` as a `phylo`-class
-#'  object. See Details.
+#'  classified entities; an integer vector of node numbers in the base tree; a
+#'  character vector of node labels in the base tree; or a subtree of
+#'  `base_tree` as a `phylo`-class object. `data_1` may also be a `list` of any
+#'  of the preceding items, in which case all list elements must be of the same
+#'  class, as they will be concatenated and the concatenation used as `data_1`.
+#'  See Details.
 #'@param data_2 Optional: Highlight branches of the base tree to compare
 #'  membership in this data set and `data_1`. Default is `NULL`, to do no
 #'  highlighting. If not `NULL`, one of the following options: A `data.frame` of
-#'  classified entities; a vector of node numbers in the base tree; a vector of
-#'  node labels in the base tree; or a subtree of `base_tree` as a `phylo`-class
-#'  object. See Details.
+#'  classified entities; an integer vector of node numbers in the base tree; a
+#'  character vector of node labels in the base tree; or a subtree of
+#'  `base_tree` as a `phylo`-class object. `data_2` may also be a `list` of any
+#'  of the preceding items, in which case all list elements must be of the same
+#'  class, as they will be concatenated and the concatenation used as `data_2`.See Details.
 #'@param name_1 Optional: Character string giving the name of `data_1` that
 #'  should be used in the plot legend. Default is `"Set 1"`.
 #'@param name_2 Optional: Character string giving the name of `data_2` (if
@@ -370,8 +375,8 @@ label_bars <- function(data = NULL,
 #'  specified, this function will attempt to auto-determine size based on the
 #'  number of tips (`size = 1.5` if fewer than 200 tips; `size = 1` if between
 #'  200 and 500 tips; if more than 500 tips, `size = 0.5`).
-#'@param show_nodepoints `TRUE`/`FALSE`: Whether to display (internal) node points. Default
-#'  `FALSE`.
+#'@param show_nodepoints `TRUE`/`FALSE`: Whether to display (internal) node
+#'  points. Default `FALSE`.
 #'@param nodepoint_opts A named list of additional arguments to
 #'  [ggtree::geom_nodepoint()]; see the documentation for that function for more
 #'  options. Default `NULL` to use defaults for that function. If `size` is not
@@ -505,10 +510,50 @@ display_subtree <- function(base_tree = chemont_tree,
 
   # Prune base tree if user specified pruning
   if(!is.null(prune_to)){
+    #concatenate prune_to here, since it will be used again later.
+    #If it is a list, look at the data type of the list elements,
+    #and concatenate them as appropriate
+    if(is(prune_to, "list")){ #will appropriately return FALSE if prune_to is a single data.frame
+      #use rapply to handle possible nested list
+      el_class <- unique(rapply(prune_to, class))
+      if(length(unique(el_class))>1){
+        stop(paste("Error in treecompareR::prune_tree(): prune_to is a list,",
+                   "but not all list elements are of the same class."))
+      }
+      if(all(el_class %in% "data.frame")){
+        #rbind the data.frames
+        prune_to <- as.data.frame(dplyr::bind_rows(prune_to))
+      }else if(all(el_class %in% c("character", "numeric"))){
+        #concatenate, recursively if necessary
+        prune_to <- unlist(prune_to, recursive = TRUE)
+      }else if(all(el_class %in% "phylo")){
+        #pull labels from each of the trees and combine
+        prune_to <- unlist(lapply(prune_to,
+                                  function(x){
+                                    c(x$tip.labels,
+                                      x$node.labels)
+                                  }))
+      }else{
+        stop(paste("prune_to is a list, but one or more elements are not one of",
+                   "the recognized classes: data.frame, numeric, character, or phylo."))
+      }
+      #and keep only the unique combined elements
+      prune_to <- unique(prune_to)
+    } #end if(is(prune_to, "list"))
+
     base_tree <- do.call(prune_tree,
                          args = c(list(tree = base_tree,
-                                       prune_to = prune_to),
-                                  prune_args)
+                                       prune_to = prune_to,
+                                       entity_id_col = entity_id_col,
+                                       tax_level_labels = tax_level_labels),
+                                  prune_args[setdiff(names(prune_args),
+                                                     c("tree",
+                                                       "prune_to",
+                                                       "entity_id_col",
+                                                       "tax_level_labels")
+                                                     )
+                                             ]
+                                  )
     )
   }
 
@@ -562,7 +607,7 @@ display_subtree <- function(base_tree = chemont_tree,
 
     #If it is a list, look at the data type of the list elements,
     #and concatenate them as appropriate
-    if(is(data_1, "list")){
+    if(is(data_1, "list")){ #this will appropriately return FALSE if it is a data.frame
       #use rapply to handle possible nested list
       el_class <- unique(rapply(data_1, class))
       if(length(unique(el_class))>1){
@@ -682,7 +727,7 @@ display_subtree <- function(base_tree = chemont_tree,
 
     #If it is a list, look at the data type of the list elements,
     #and concatenate them as appropriate
-    if(class(data_2) %in% "list"){
+    if(is(data_2, "list")){ #this will return FALSE if it is a data.frame
       #use rapply to handle possible nested list
       el_class <- unique(rapply(data_2, class))
       if(length(unique(el_class))>1){
@@ -707,7 +752,7 @@ display_subtree <- function(base_tree = chemont_tree,
       }
       #and keep only the unique combined elements
       data_2 <- unique(data_2)
-    } #end if(class(data_2) %in% "list")
+    } #end if(is.list(data_2))
 
     if(is.data.frame(data_2)){
       #Check formatting
@@ -1106,6 +1151,8 @@ display_subtree <- function(base_tree = chemont_tree,
           name_B <- name_1
           dat_A_labs <- cohort_data$Name
           dat_B_labs <- data_1_all_labs
+          dat_A_from <- "prune_to"
+          dat_B_from < "data_1"
         }
       }else{
         dat_A <- data_1
@@ -1114,14 +1161,57 @@ display_subtree <- function(base_tree = chemont_tree,
         name_B <- name_2
         dat_A_labs <- data_1_all_labs
         dat_B_labs <- data_2_all_labs
+        dat_A_from <- "data_1"
+        dat_B_from < "data_2"
       }
     }
 
-    if(!is.null(dat_A)){
+    if(!is.null(dat_A)){ #i.e., if we can proceed
       ##################
       # Construct cohort_data for overlap or similarity
       ################
       if(highlight_by %in% "overlap"){
+        #ensure that dat_A and dat_B are both data.frames of classified entities
+        if(!is.data.frame(dat_A)){
+          stop(paste("Error in treecompareR::display_subtree():",
+                     "to use highlight_by = 'overlap'",
+                     dat_A_from,
+                     "must be provided as a data.frame of classified entities."))
+        }else{
+          if(!all(c(tax_level_labels,
+                    entity_id_col) %in%
+                  names(dat_A))){
+            stop(paste("Error in treecompareR::display_subtree():",
+                       "to use highlight_by = 'overlap'",
+                       dat_A_from,
+                       "must be provided as a data.frame of classified entities",
+                       "whose variable names must include tax_level_labels = ",
+                       paste(tax_level_labels, collapse = ", "),
+                       "and entity_id_col = ",
+                       paste(entity_id_col, collapse = ", ")))
+          }
+        }
+
+        if(!is.data.frame(dat_B)){
+          stop(paste("Error in treecompareR::display_subtree():",
+                     "to use highlight_by = 'overlap'",
+                     dat_B_from,
+                     "must be provided as a data.frame of classified entities."))
+        }else{
+          if(!all(c(tax_level_labels,
+                    entity_id_col) %in%
+                  names(dat_B))){
+            stop(paste("Error in treecompareR::display_subtree():",
+                       "to use highlight_by = 'overlap'",
+                       dat_B_from,
+                       "must be provided as a data.frame of classified entities",
+                       "whose variable names must include tax_level_labels = ",
+                       paste(tax_level_labels, collapse = ", "),
+                       "and entity_id_col = ",
+                       paste(entity_id_col, collapse = ", ")))
+          }
+        }
+
         message(
           paste(
             "computing overlap in numbers of entities for each label of",
