@@ -464,6 +464,7 @@ get_labels <- function(data,
 get_terminal_labels <- function(data,
                                 entity_id_col = NULL,
                        tax_level_labels = chemont_tax_levels){
+  if(!("terminal_label" %in% names(data)))
   labels <- add_terminal_label(data = data,
                      entity_id_col = entity_id_col,
                      tax_level_labels = tax_level_labels)[["terminal_label"]]
@@ -579,6 +580,9 @@ count_labels <- function(data,
 #'   [ape::read.tree()] for description of this class). Default \code{\link{chemont_tree}}.
 #' @param tax_level_labels The set of taxonomy levels to use. Default
 #'   \code{\link{chemont_tax_levels}}.
+#' @param entity_id_col `NULL` (default) or character vector giving the name(s)
+#'   of variables in `data` that specify unique entities. If `NULL`, each row
+#'   will be treated as a unique entity.
 #' @param sim_matrix Optional: A pre-computed similarity matrix to use as a
 #'   lookup table. Default `NULL`, which will compute similarity from scratch
 #'   using the metric specified in `similarity`. If non-`NULL`, will override
@@ -616,6 +620,7 @@ calc_similarity_data <- function(data_1,
                                  terminal_label = "terminal_label",
                                  tree = chemont_tree,
                                  tax_level_labels = chemont_tax_levels,
+                                 entity_id_col = NULL,
                                  sim_matrix = NULL,
                                  similarity = NULL){
 
@@ -625,11 +630,13 @@ calc_similarity_data <- function(data_1,
   if(terminal_label == "terminal_label"){
     if(!(terminal_label %in% names(data_1))){
       data_1 <- add_terminal_label(data = data_1,
+                                   entity_id_col = entity_id_col,
                                    tax_level_labels = tax_level_labels)
     }
 
     if(!(terminal_label %in% names(data_2))){
       data_2 <- add_terminal_label(data = data_2,
+                                   entity_id_col = entity_id_col,
                                    tax_level_labels = tax_level_labels)
     }
   }

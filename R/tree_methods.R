@@ -121,11 +121,11 @@ get_tree_df <- function(tree){
   tree_df <- get_levels(tree)
   #get parents of each node
   tree_df$parent <- as.integer(unlist(phangorn::Ancestors(x = tree,
-                                        node = tree_df$node,
-                                        type = "parent")))
+                                                          node = tree_df$node,
+                                                          type = "parent")))
   #add labels
   tree_df$Name <- get_label_from_node(node = tree_df$node,
-                                     tree = tree)
+                                      tree = tree)
   #return
   return(tree_df)
 }
@@ -165,13 +165,13 @@ generate_information_content <- function(tree){
     }
   }
 
-    descendants <- sapply(phangorn::allDescendants(tree),
-                          length)
-    #tips will be listed as their own descendants -- remove these
-    descendants[seq_along(tree$tip.label)] <- 0
-    n_node <- length(descendants)
-    log_descendants <- 1 - (log(1 + descendants)/log(n_node))
-    return(log_descendants)
+  descendants <- sapply(phangorn::allDescendants(tree),
+                        length)
+  #tips will be listed as their own descendants -- remove these
+  descendants[seq_along(tree$tip.label)] <- 0
+  n_node <- length(descendants)
+  log_descendants <- 1 - (log(1 + descendants)/log(n_node))
+  return(log_descendants)
 
 }
 
@@ -242,7 +242,7 @@ attach_information_content <- function(tree, log_descendants = TRUE){
 #'   get_node_level(tree = tree, node = 't2') #specify node by name
 #'   get_node_level(tree = tree, node = 2) #specify node by number
 get_node_level <- function(tree,
-                          node){
+                           node){
 
   if(is.character(node)){
     get_node_from_label(label = node,
@@ -352,8 +352,8 @@ check_similarity_inputs <- function(tree = NULL,
 #' \code{\link{jiang_conrath_similarity}}, \code{\link{similarity_matrix}}
 
 jaccard_similarity <- function(tree = NULL,
-                              node_1 = NULL,
-                              node_2 = NULL){
+                               node_1 = NULL,
+                               node_2 = NULL){
 
   #even if node_1 and node_2 were given as labels,
   #they will be converted to node numbers in this step:
@@ -374,7 +374,7 @@ jaccard_similarity <- function(tree = NULL,
   tree_parents <- c(tree$edge[, 1], -1)
 
   jaccard <- get_jaccard(node1 = node1, node2 = node2, tree_nodes = tree_nodes,
-                       tree_parents = tree_parents)
+                         tree_parents = tree_parents)
   return(jaccard)
 
 }
@@ -475,7 +475,7 @@ resnik_similarity <- function(tree = NULL,
 #'
 
 lin_similarity <- function(tree = NULL,
-                              node_1 = NULL,
+                           node_1 = NULL,
                            node_2 = NULL){
 
   nodes <- check_similarity_inputs(tree = tree,
@@ -501,7 +501,7 @@ lin_similarity <- function(tree = NULL,
   lin <- get_lin(node1 = node1,
                  node2 = node2,
                  tree_nodes = tree_nodes,
-                       tree_parents = tree_parents,
+                 tree_parents = tree_parents,
                  information_content = information_content)
   return(lin)
 
@@ -537,8 +537,8 @@ lin_similarity <- function(tree = NULL,
 #' \insertRef{jiang1997semantic}{treecompareR}
 
 jiang_conrath_similarity <- function(tree = NULL,
-                              node_1 = NULL,
-                              node_2 = NULL){
+                                     node_1 = NULL,
+                                     node_2 = NULL){
 
   nodes <- check_similarity_inputs(tree = tree,
                                    node_1 = node_1,
@@ -559,8 +559,8 @@ jiang_conrath_similarity <- function(tree = NULL,
   jiang_conrath <- get_jiang_conrath(node1 = node1,
                                      node2 = node2,
                                      tree_nodes = tree_nodes,
-                       tree_parents = tree_parents,
-                       information_content = information_content)
+                                     tree_parents = tree_parents,
+                                     information_content = information_content)
   return(jiang_conrath)
 
 }
@@ -784,12 +784,12 @@ get_cutoffs <- function(mat,
                         cutoff = NA_real_,
                         labels = NULL,
                         counts = NULL){
-    counts_df <- count_entities_per_label(data = data,
-                                       tax_level_labels = tax_level_labels) %>%
-      dplyr::bind_rows()
+  counts_df <- count_entities_per_label(data = data,
+                                        tax_level_labels = tax_level_labels) %>%
+    dplyr::bind_rows()
 
-    labels <- counts_df[[1]]
-    counts <- counts_df[[2]]
+  labels <- counts_df[[1]]
+  counts <- counts_df[[2]]
 
   if (!is.numeric(neighbors)){
     warning('Setting `neighbors` to have value 3...')
@@ -831,12 +831,12 @@ get_cutoffs <- function(mat,
 
   percentages <- sapply(
     rev(unique_avgs),
-                        function(t) {
-                          sum(temp_counts[sort(average_val,
-                                               decreasing = TRUE) >= t]
-                              )/total
-                          }
-                        )
+    function(t) {
+      sum(temp_counts[sort(average_val,
+                           decreasing = TRUE) >= t]
+      )/total
+    }
+  )
 
   names(percentages) <- rev(unique_avgs)
 
@@ -846,7 +846,7 @@ get_cutoffs <- function(mat,
   } else {
     return(percentages)
   }
-  }
+}
 
 #' @title Drop tips and nodes
 #'
@@ -881,6 +881,9 @@ get_cutoffs <- function(mat,
 #' @param tax_level_labels Character vector naming the levels of the taxonomy in
 #'   order from most general to most specific (excluding root). Default
 #'   [chemont_tax_levels()].
+#' @param entity_id_col `NULL` (default) or character vector giving the name(s)
+#'   of variables in `data` that specify unique entities. If `NULL`, each row
+#'   will be treated as a unique entity.
 #' @return A `phylo`-class object representing the induced subtree of the data.
 #' @author Caroline Ring, Paul Kruse
 #'
@@ -897,7 +900,8 @@ drop_tips_nodes <- function(tree,
                             nodes = NULL,
                             level = NULL,
                             keep_descendants = NULL,
-                            tax_level_labels = chemont_tax_levels){
+                            tax_level_labels = chemont_tax_levels,
+                            entity_id_col = NULL){
   if (!is.null(data)){
     #get terminal labels for each item in this data set
     #these are the labels to keep
@@ -907,15 +911,18 @@ drop_tips_nodes <- function(tree,
     if (!"data.frame" %in% class(data)){
       stop("Input parameter `data` must be a data.table or a data.frame!")
     }
-    tip_node_labels <- get_terminal_labels(data = as.data.frame(data),
-                                  tax_level_labels = tax_level_labels)
+    if(!("terminal_label" %in% names(data))){
+      tip_node_labels <- get_terminal_labels(data = as.data.frame(data),
+                                             tax_level_labels = tax_level_labels,
+                                             entity_id_col = entity_id_col)
+    }
     if(isTRUE(keep_descendants)){
       input_nodes <- get_node_from_label(label = tip_node_labels,
                                          tree = tree)
       tip_nodes <- phangorn::Descendants(x = tree,
                                          node = input_nodes)
       tip_node_labels2 <- get_label_from_node(node = unlist(tip_nodes),
-                                             tree = tree)
+                                              tree = tree)
       tip_node_labels <- union(tip_node_labels,
                                tip_node_labels2)
     }
@@ -928,10 +935,10 @@ drop_tips_nodes <- function(tree,
     input_nodes <- get_node_from_label(label = labels,
                                        tree = tree)
     if(isTRUE(keep_descendants)){
-    tip_nodes <- phangorn::Descendants(x = tree,
-                                             node = input_nodes)
+      tip_nodes <- phangorn::Descendants(x = tree,
+                                         node = input_nodes)
     }else{
-    tip_nodes <- input_nodes
+      tip_nodes <- input_nodes
     }
     tip_node_labels <- get_label_from_node(node = unlist(tip_nodes),
                                            tree = tree)
@@ -986,10 +993,10 @@ drop_tips_nodes <- function(tree,
                    paste(tax_level_labels, collapse = ", ")))
       }
     }else if(is.character(level)){
-    #if it's a string, match it with tax_level_labels
+      #if it's a string, match it with tax_level_labels
       #check to make sure it's a valid level
       if(level %in% tax_level_labels){
-      level <- match(level, tax_level_labels)
+        level <- match(level, tax_level_labels)
       }else{
         stop(paste("'level' was provided as", level,
                    ", which is not one of the taxonomy level labels,",
@@ -1034,9 +1041,9 @@ drop_tips_nodes <- function(tree,
   max_depth <- max(get_levels(tree)$level)
   new_tree <- tree
 
-#do it this way to retain cases where the terminal label was an internal node
-#when we drop tips, newly-terminal internal nodes will be promoted to tip
-#then we'll need to drop them, too
+  #do it this way to retain cases where the terminal label was an internal node
+  #when we drop tips, newly-terminal internal nodes will be promoted to tip
+  #then we'll need to drop them, too
 
   for (i in 1:max_depth){
     labels_to_keep <- intersect(tip_node_labels,
@@ -1044,7 +1051,7 @@ drop_tips_nodes <- function(tree,
     labels_to_drop <- setdiff(new_tree$tip.label,
                               labels_to_keep)
     new_tree <- ape::drop.tip(new_tree,
-                             labels_to_drop,
+                              labels_to_drop,
                               trim.internal = FALSE,
                               collapse.singles = FALSE)
   }
@@ -1204,20 +1211,20 @@ compare_similarity_measures <- function(n){
                                               metric = "jiang")
 
   simulation <- data.frame("Name (number of tips)" = c(paste("Caterpillar", n),
-                                      paste("Star", 2*n),
-                                      paste("Balanced", n)),
+                                                       paste("Star", 2*n),
+                                                       paste("Balanced", n)),
                            "Jaccard" = c(mean(cat_Jaccard[upper.tri(cat_Jaccard, diag = TRUE)]),
-                           mean(star_Jaccard[upper.tri(star_Jaccard, diag = TRUE)]),
-                           mean(balanced_Jaccard[upper.tri(balanced_Jaccard, diag = TRUE)])),
-             "Resnik" = c(mean(cat_Resnik[upper.tri(cat_Resnik, diag = TRUE)]),
-                          mean(star_Resnik[upper.tri(star_Resnik, diag = TRUE)]),
-                          mean(balanced_Resnik[upper.tri(balanced_Resnik, diag = TRUE)])),
-             "Lin" = c(mean(cat_Lin[upper.tri(cat_Lin, diag = TRUE)]),
-                       mean(star_Lin[upper.tri(star_Lin, diag = TRUE)]),
-                       mean(balanced_Lin[upper.tri(balanced_Lin, diag = TRUE)])),
-             "JiangConrath" = c(mean(cat_JiangConrath[upper.tri(cat_JiangConrath, diag = TRUE)]),
-                                mean(star_JiangConrath[upper.tri(star_JiangConrath, diag = TRUE)]),
-                                mean(balanced_JiangConrath[upper.tri(balanced_JiangConrath, diag = TRUE)])))
+                                         mean(star_Jaccard[upper.tri(star_Jaccard, diag = TRUE)]),
+                                         mean(balanced_Jaccard[upper.tri(balanced_Jaccard, diag = TRUE)])),
+                           "Resnik" = c(mean(cat_Resnik[upper.tri(cat_Resnik, diag = TRUE)]),
+                                        mean(star_Resnik[upper.tri(star_Resnik, diag = TRUE)]),
+                                        mean(balanced_Resnik[upper.tri(balanced_Resnik, diag = TRUE)])),
+                           "Lin" = c(mean(cat_Lin[upper.tri(cat_Lin, diag = TRUE)]),
+                                     mean(star_Lin[upper.tri(star_Lin, diag = TRUE)]),
+                                     mean(balanced_Lin[upper.tri(balanced_Lin, diag = TRUE)])),
+                           "JiangConrath" = c(mean(cat_JiangConrath[upper.tri(cat_JiangConrath, diag = TRUE)]),
+                                              mean(star_JiangConrath[upper.tri(star_JiangConrath, diag = TRUE)]),
+                                              mean(balanced_JiangConrath[upper.tri(balanced_JiangConrath, diag = TRUE)])))
 
   return(simulation)
 }
@@ -1248,29 +1255,29 @@ get_clade <- function(node,
                       tree,
                       level = 2){
   #get ancestors back to root for each input node
-ancestors <- phangorn::Ancestors(x = tree,
-                                 node = node,
-                                 type = "all")
-if(!is.list(ancestors)){
-  ancestors <- list(ancestors)
-}
-#reverse the order in which ancestors are listed,
-#so that root is listed first
-ancestors <- lapply(ancestors, rev)
-#add the node itself
-ancestors <- lapply(seq_along(ancestors),
-                    function(i) c(ancestors[[i]], node[i]))
-#pull the ancestor at the specified taxonomy level (root = level 0)
-clades <- sapply(ancestors, function(x) {
-  if(length(x)>=(level+1)){
-    x[level+1]
-  }else{ #if there is no ancestor at that level, return NA
-    NA_real_
+  ancestors <- phangorn::Ancestors(x = tree,
+                                   node = node,
+                                   type = "all")
+  if(!is.list(ancestors)){
+    ancestors <- list(ancestors)
   }
-}
-)
+  #reverse the order in which ancestors are listed,
+  #so that root is listed first
+  ancestors <- lapply(ancestors, rev)
+  #add the node itself
+  ancestors <- lapply(seq_along(ancestors),
+                      function(i) c(ancestors[[i]], node[i]))
+  #pull the ancestor at the specified taxonomy level (root = level 0)
+  clades <- sapply(ancestors, function(x) {
+    if(length(x)>=(level+1)){
+      x[level+1]
+    }else{ #if there is no ancestor at that level, return NA
+      NA_real_
+    }
+  }
+  )
 
-return(clades)
+  return(clades)
 }
 
 #' @title Get all clades
@@ -1294,9 +1301,9 @@ return(clades)
 #'
 #' @export
 get_all_clades <- function(tree, level){
-tree_df <- get_tree_df(tree = tree)
-clade_df <- tree_df[tree_df$level %in% level, ]
-return(clade_df)
+  tree_df <- get_tree_df(tree = tree)
+  clade_df <- tree_df[tree_df$level %in% level, ]
+  return(clade_df)
 }
 
 #' @title Bind entities to a tree
@@ -1352,10 +1359,10 @@ bind_entities <- function(tree,
   #if a list of data frames is provided, rowbind it all together
   #this will be the "master list" of entities
   if(!is.data.frame(data)){
-  if(is.list(data) &
-     all(sapply(data, is.data.frame))){
-    data <- dplyr::bind_rows(data)
-  }
+    if(is.list(data) &
+       all(sapply(data, is.data.frame))){
+      data <- dplyr::bind_rows(data)
+    }
   }
 
   #if entity_id_col is NULL, then add a row ID
@@ -1388,7 +1395,7 @@ bind_entities <- function(tree,
   #get terminal labels for each entity
   #keep only unique entities & terminal labels
   term_labs <- unique(data[c(entity_id_col,
-                        "terminal_label")])
+                             "terminal_label")])
 
   #get node numbers corresponding to terminal labels
   term_labs$terminal_node <- get_node_from_label(label = term_labs$terminal_label,
@@ -1404,48 +1411,48 @@ bind_entities <- function(tree,
   #essentially, treat entity as a new level of classification
   tree_df <- get_tree_df(tree)
   new_df_list <- lapply(unique(term_labs$terminal_label),
-         function(label){
-          tmpdf <- term_labs[term_labs$terminal_label %in% label, ]
-          #add these as new nodes whose parent is the terminal label node
-          parent_node <- tree_df[tree_df$Name %in% label, "node"]
-          parent_level <- tree_df[tree_df$Name %in% label, "level"]
-          new_level <- parent_level + 1
-          label_df <- data.frame(level = rep(new_level,
-                                             nrow(tmpdf)),
-                                 parent = rep(parent_node,
-                                              nrow(tmpdf)),
-                                 Name = do.call(paste,
-                                                tmpdf[entity_id_col]
-                                                )
-          )
-  })
-#bind all the list of data.frames into one big one
+                        function(label){
+                          tmpdf <- term_labs[term_labs$terminal_label %in% label, ]
+                          #add these as new nodes whose parent is the terminal label node
+                          parent_node <- tree_df[tree_df$Name %in% label, "node"]
+                          parent_level <- tree_df[tree_df$Name %in% label, "level"]
+                          new_level <- parent_level + 1
+                          label_df <- data.frame(level = rep(new_level,
+                                                             nrow(tmpdf)),
+                                                 parent = rep(parent_node,
+                                                              nrow(tmpdf)),
+                                                 Name = do.call(paste,
+                                                                tmpdf[entity_id_col]
+                                                 )
+                          )
+                        })
+  #bind all the list of data.frames into one big one
   new_df <- dplyr::bind_rows(new_df_list)
 
   #find terminal nodes in original tree without any entities
   tips_no_ents <- setdiff(tree$tip.label, term_labs$terminal_label)
   if(length(tips_no_ents)>0){ #if any such entity-less tips
-  #create some placeholder entities -- these will be deleted later
-  term_fake <- data.frame(terminal_label = tips_no_ents,
-                          Name = paste0("fake_entity_",
-                                        tips_no_ents))
-  fake_df_list <- lapply(term_fake$terminal_label,
-                         function(label){
-                           tmpdf <- term_fake[term_fake$terminal_label %in% label, ]
-                           #add these as new nodes whose parent is the terminal label node
-                           parent_node <- tree_df[tree_df$Name %in% label, "node"]
-                           parent_level <- tree_df[tree_df$Name %in% label, "level"]
-                           new_level <- parent_level + 1
-                           label_df <- data.frame(level = rep(new_level,
-                                                              nrow(tmpdf)),
-                                                  parent = rep(parent_node,
-                                                               nrow(tmpdf)),
-                                                  Name = tmpdf$Name)
-                         })
+    #create some placeholder entities -- these will be deleted later
+    term_fake <- data.frame(terminal_label = tips_no_ents,
+                            Name = paste0("fake_entity_",
+                                          tips_no_ents))
+    fake_df_list <- lapply(term_fake$terminal_label,
+                           function(label){
+                             tmpdf <- term_fake[term_fake$terminal_label %in% label, ]
+                             #add these as new nodes whose parent is the terminal label node
+                             parent_node <- tree_df[tree_df$Name %in% label, "node"]
+                             parent_level <- tree_df[tree_df$Name %in% label, "level"]
+                             new_level <- parent_level + 1
+                             label_df <- data.frame(level = rep(new_level,
+                                                                nrow(tmpdf)),
+                                                    parent = rep(parent_node,
+                                                                 nrow(tmpdf)),
+                                                    Name = tmpdf$Name)
+                           })
 
-  fake_df <- dplyr::bind_rows(fake_df_list)
+    fake_df <- dplyr::bind_rows(fake_df_list)
 
-  new_df <- dplyr::bind_rows(new_df, fake_df)
+    new_df <- dplyr::bind_rows(new_df, fake_df)
   }
 
   #new node numbers
@@ -1456,18 +1463,18 @@ bind_entities <- function(tree,
 
   #make into a tree
   new_df <- setNames(new_df,
-           c("ID",
-             "level",
-             "Parent_ID",
-             "Name"))
+                     c("ID",
+                       "level",
+                       "Parent_ID",
+                       "Name"))
   new_tree <- generate_taxonomy_tree(new_df)
 
   if(length(tips_no_ents)>0){
-  #drop fake entities
-  new_tree <- ape::drop.tip(new_tree,
-                            term_fake$Name,
-                            trim.internal = FALSE,
-                            collapse.singles = FALSE)
+    #drop fake entities
+    new_tree <- ape::drop.tip(new_tree,
+                              term_fake$Name,
+                              trim.internal = FALSE,
+                              collapse.singles = FALSE)
   }
   return(new_tree)
 
@@ -1596,30 +1603,30 @@ prune_tree <- function(tree,
           keep_descendants <- FALSE
         }
         if(isTRUE(keep_descendants)){
-        warning(paste("'prune_to' =",
-                      paste0('\"', prune_to, '\"'),
-        " has been interpreted as a taxonomy level,",
-        "because it is in 'tax_level_labels' = ",
-        paste(tax_level_labels, collapse = ", "),
-        "But 'keep_descendants = TRUE'",
-                      "which will result in keeping the whole tree,",
-                      "and not pruning anything"))
+          warning(paste("'prune_to' =",
+                        paste0('\"', prune_to, '\"'),
+                        " has been interpreted as a taxonomy level,",
+                        "because it is in 'tax_level_labels' = ",
+                        paste(tax_level_labels, collapse = ", "),
+                        "But 'keep_descendants = TRUE'",
+                        "which will result in keeping the whole tree,",
+                        "and not pruning anything"))
         }
         pruned_tree <- drop_tips_nodes(tree = tree,
                                        level = prune_to,
                                        keep_descendants = keep_descendants)
       }else{ #if not a tax_level_label,
-      #interpret as node/tip labels
-      #prune to only the subtree with this label(s)
+        #interpret as node/tip labels
+        #prune to only the subtree with this label(s)
         #including the descendents of internal label(s) by default
-      if(is.null(keep_descendants)){
-        keep_descendants <- TRUE
+        if(is.null(keep_descendants)){
+          keep_descendants <- TRUE
+        }
+        pruned_tree <- drop_tips_nodes(tree = tree,
+                                       labels = prune_to,
+                                       keep_descendants = keep_descendants)
       }
-      pruned_tree <- drop_tips_nodes(tree = tree,
-                                     labels = prune_to,
-                                     keep_descendants = keep_descendants)
-    }
-      }else if(is.numeric(prune_to)){
+    }else if(is.numeric(prune_to)){
       #interpret as node numbers
       #prune to only the subtree with this node(s)
       #including the descendents of internal node(s) by default
@@ -1673,21 +1680,21 @@ as_classified.phylo <- function(tree,
 
   foo <- dplyr::bind_rows(
     lapply(1:(ape::Ntip(tree)),
-         function(tip_node){
-           ancestors <- phangorn::Ancestors(x= tree,
-                                            node = tip_node,
-                                            type = "all")
-           ancestors_rev <- rev(ancestors)[-1] #delete root node
-           ancestors_add_tip <- c(ancestors_rev, tip_node)
-           ancestors_labels <-  get_label_from_node(node = ancestors_add_tip,
-                                                    tree = tree)
-           ancestors_levels <- tax_level_labels[seq_along(ancestors_labels)]
-           return(data.frame(tip_label = tree$tip.label[tip_node],
-                             labels = ancestors_labels,
-                             levels = ancestors_levels))
-         }
-         )
-         )
+           function(tip_node){
+             ancestors <- phangorn::Ancestors(x= tree,
+                                              node = tip_node,
+                                              type = "all")
+             ancestors_rev <- rev(ancestors)[-1] #delete root node
+             ancestors_add_tip <- c(ancestors_rev, tip_node)
+             ancestors_labels <-  get_label_from_node(node = ancestors_add_tip,
+                                                      tree = tree)
+             ancestors_levels <- tax_level_labels[seq_along(ancestors_labels)]
+             return(data.frame(tip_label = tree$tip.label[tip_node],
+                               labels = ancestors_labels,
+                               levels = ancestors_levels))
+           }
+    )
+  )
 
   foo2 <- tidyr::pivot_wider(foo,
                              id_cols = tip_label,
@@ -1695,7 +1702,7 @@ as_classified.phylo <- function(tree,
                              values_from = labels)
 
 
-return(as.data.frame(foo2))
+  return(as.data.frame(foo2))
 
 }
 
