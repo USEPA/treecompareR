@@ -355,7 +355,7 @@ label_bars <- function(data = NULL,
 #'  suppressed (*i.e.*, arguments `clade_opts` and `clade_level` will be
 #'  ignored).
 #'@param tiplab_opts A named list of additional arguments to
-#'  [ggtree::geom_tiplab2()]; see the documentation for that function for more
+#'  [ggtree::geom_tiplab()]; see the documentation for that function for more
 #'  options. Default `NULL` to use defaults for that function. For example, you
 #'  could specify `tiplab_opts = list(offset = 3)` to increase the space between
 #'  tips and labels. If `size` is not specified, this function will attempt to
@@ -663,6 +663,10 @@ display_subtree <- function(base_tree = chemont_tree,
         )
       )
     )
+
+    #convert ancestors to labels
+    data_1_all_labs <- get_label_from_node(node = data_1_all,
+                                           tree = base_tree)
   } #end if(!is.null(data_1))
 
   ########################################
@@ -770,12 +774,17 @@ display_subtree <- function(base_tree = chemont_tree,
 
     #get ancestors of these nodes
     data_2_all <- unique(
-      c(data_2_nodes,
-                           unlist(phangorn::Ancestors(x = base_tree,
-                                                      node = data_2_nodes)
-                                  )
-                           )
-                         )
+      c(
+        data_2_nodes,
+        unlist(phangorn::Ancestors(x = base_tree,
+                                   node = data_2_nodes)
+        )
+      )
+    )
+
+    #convert all ancestors to labels
+    data_2_all_labs <- get_label_from_node(node = data_2_all,
+                                           tree = base_tree)
   } #end if(!is.null(data_2))
 
 
@@ -812,7 +821,7 @@ display_subtree <- function(base_tree = chemont_tree,
                                             labels = c("Neither set",
                                                        paste(name_1, "only"),
                                                        paste(name_2, "only"),
-                                                       paste(name_1, "and", name_2)))
+                                                       "Both sets"))
 
       }else{
         #Categorical column: Is each node in Data Set 1 or not?
@@ -1039,36 +1048,69 @@ display_subtree <- function(base_tree = chemont_tree,
 
 #add list presence highlighting to tree plot
    tree_plot <- tree_plot %<+% cohort_data +
-     # do.call(aes, #this maps list presence to all aesthetics specified in `subtree_mapping`
-     #         subtree_aes) +
      do.call(geom_tree,
              args = c(
                list(do.call(aes,
                             subtree_aes)),
                base_opts[unscaled_aesthetics])) +
-      scale_list + #this applies all of the scales in scale_list to the aesthetics
-     theme(legend.position = "top")
+      scale_list
   } #end if(!is.null(data_1))
   ### end if highlight_by %in% "set"#####
 }else if(highlight_by %in% c("overlap", "sim")){
-  #if coloring branches according to overlaps or similarity
+  ##############################
+  # HIGHLIGHTING BY OVERLAP OR SIMILARITY
+  ##############################
+
     #if neither data_1 nor data_2 were provided, then ignore with a warning
     if(is.null(data_1)){
       message(paste("To use highlight_by = ", paste0(highlight_by, ","),
                     "either data_1 and data_2 must be provided",
                     "or prune_to and data_1 must be provided.",
                     "Here, data_1 was not provided.",
-                    "Therefore, color_overlap will be ignored."))
+                    "Therefore, highlight_by will be ignored,",
+                    "and only the base tree will be plotted."))
+      dat_A <- NULL
     }else{ #if data_1 is provided
       if(is.null(data_2)){
         #if data_2 not provided, then prune_to must be provided
-        if(!is.null(prune_to)){
+        if(is.null(prune_to)){
+          #if data_2 not provided and prune_to also not provided,
+          #there is nothing to calculate overlap with
+          message(paste("To use highlight_by = ", paste0(highlight_by, ","),
+                        "either data_1 and data_2 must be provided",
+                        "or prune_to and data_1 must be provided.",
+                        "Here, only data_1 was provided (neither prune_to nor data_2 provided).",
+                        "Therefore, highlight_by will be ignored,",
+                        "and only the base tree will be plotted."))
+          dat_A <- NULL
+        }else{
+          dat_A <- prune_to
+          dat_B <- data_1
+          name_A <- base_name
+          name_B <- name_1
+          dat_A_labs <- cohort_data$Name
+          dat_B_labs <- data_1_all_labs
+        }
+      }else{
+        dat_A <- data_1
+        dat_B <- data_2
+        name_A <- name_1
+        name_B <- name_2
+        dat_A_labs <- data_1_all_labs
+        dat_B_labs <- data_2_all_labs
+      }
+    }
+
+  if(!is.null(dat_A)){
+  ##################
+  # Construct cohort_data for overlap or similarity
+  ################
           if(highlight_by %in% "overlap"){
           message("computing overlap in numbers of entities for each label of prune_to and data_1")
         overlap_dat <- lapply(tax_level_labels,
                               function(this_level) {
-                                calc_number_overlap(prune_to,
-                                                    data_1,
+                                calc_number_overlap(data_1 = dat_A,
+                                                    data_2 = dat_B,
                                                     entity_id_col = entity_id_col,
                                                     at_level = this_level,
                                                     tax_level_labels = tax_level_labels) %>%
@@ -1084,45 +1126,39 @@ display_subtree <- function(base_tree = chemont_tree,
             base_tree))
 
           }else if(highlight_by %in% "sim"){
-
             if(is.null(sim_mat)){
-              message("computing similarity of taxonomic ancestry for each pair of labels in prune_to and data_1")
-              data_1_all_labs <- get_label_from_node(node = data_1_all,
-                                                     tree = base_tree)
-            sim_mat <- similarity_matrix(tree = base_tree,
-                              nodes1 = cohort_data$Name,
-                              nodes2 = data_1_all_labs,
-                              metric = sim_metric,
-                              upper_tri = FALSE)
-
-            #similarity matrix usually excludes the root node
-            #add it back in
-            root_label <- base_tree$node.label[1]
-
-            if(!(root_label %in% colnames(sim_mat))){
-              sim_mat1 <- cbind(sim_mat,
-                                rep(NA_real_, nrow(sim_mat))
-              )
-              sim_mat1 <- rbind(sim_mat1,
-                                c(rep(NA_real_, ncol(sim_mat1)-1),
-                                  1.0))
-              sim_mat <- sim_mat[cohort_data$Name,
-                                 data_1_all_labs]
-            }
-
-            rownames(sim_mat1) <- c(rownames(sim_mat),
-                                    root_label)
-            colnames(sim_mat1) <- c(colnames(sim_mat),
-                                    root_label)
-
-            sim_mat <- sim_mat[data_1_all_labs,
-                               data_2_all_labs]
+              stop("Pre-computed similarity matrix required")
             }else{
+              #check that sim_mat is a numeric matrix
+              if(!is.matrix(sim_mat)){
+                stop("sim_mat must be a numeric matrix")
+              }else{
+                if(!is.numeric(sim_mat)){
+                #coerce to numeric
+                sim_mat <- apply(sim_mat,
+                                  2,
+                                  as.numeric)
+                }
+              }
+
+              #check that sim_mat has row/column names that match labels
+              tree_labels <- c(base_tree$tip.label,
+                               base_tree$node.label)
+              if(!(any(tree_labels %in% rownames(sim_mat)))){
+                stop("sim_mat needs row and column names that match the tree tip and node labels")
+              }
+
+              if(!(any(tree_labels %in% colnames(sim_mat)))){
+                stop("sim_mat needs row and column names that match the tree tip and node labels")
+              }
+
               message("looking up similarity of taxonomic ancestry from provided sim_mat for each pair of labels in prune_to and data_1")
               #similarity matrix usually excludes the root node
               #add it back in
               root_label <- base_tree$node.label[1]
 
+              if(root_label %in% c(dat_A_labs,
+                                   dat_B_labs)){
               if(!(root_label %in% colnames(sim_mat))){
                 sim_mat1 <- cbind(sim_mat,
                                   rep(NA_real_, nrow(sim_mat))
@@ -1136,8 +1172,14 @@ display_subtree <- function(base_tree = chemont_tree,
                                       root_label)
               colnames(sim_mat1) <- c(colnames(sim_mat),
                                       root_label)
-              sim_mat <- sim_mat[cohort_data$Name,
-                                 data_1_all_labs]
+              }
+
+              #use match() here so that labels not in the dimnames of sim_mat return NA,
+              #rather than stopping with an error about subscript out of bounds.
+              row_inds <- match(dat_A_labs, rownames(sim_mat))
+              col_inds <- match(dat_B_labs, colnames(sim_mat))
+              sim_mat <- sim_mat[row_inds,
+                                 col_inds]
             }
 
             #Each node in the tree is assigned its maximum similarity between the datasets,
@@ -1169,139 +1211,9 @@ display_subtree <- function(base_tree = chemont_tree,
                                          simil_row,
                                          na.rm = TRUE))
           }
-        }else{
-          #if data_2 not provided and prune_to also not provided,
-          #there is nothing to calculate overlap with
-          message(paste("To use highlight_by = ", paste0(highlight_by, ","),
-                        "either data_1 and data_2 must be provided",
-                        "or prune_to and data_1 must be provided.",
-                        "Here, only data_1 was provided (neither prune_to nor data_2 provided).",
-                        "Therefore, highlight_by will be ignored."))
-        }
-      }else{ #if data_1 and data_2 provided
-        if(highlight_by %in% "overlap"){
-        message("computing overlap in numbers of entities for each label of data_1 and data_2")
-        overlap_dat <- lapply(tax_level_labels,
-                              function(this_level) {
-                                calc_number_overlap(data_1,
-                                                    data_2,
-                                                    entity_id_col = entity_id_col,
-                                                    at_level = this_level,
-                                                    tax_level_labels = tax_level_labels) %>%
-                                  dplyr::rename(
-                                    label = dplyr::all_of(this_level))
-                              }
-        )
-
-        #calculate fractional overlaps of entities at each node
-        cohort_data <- overlap_dat  %>%
-          dplyr::bind_rows() %>%
-          dplyr::mutate(node = get_node_from_label(
-            label,
-            base_tree))
-        }else if(highlight_by %in% "sim"){
-
-          data_1_all_labs <- get_label_from_node(node = data_1_all,
-                                                 tree = base_tree)
-          data_2_all_labs <- get_label_from_node(node = data_2_all,
-                                                 tree = base_tree)
-          if(is.null(sim_mat)){
-            message("computing similarity of taxonomic ancestry for each pair of labels of data_1 and data_2")
-          sim_mat <- similarity_matrix(tree = base_tree,
-                                       nodes1 = data_1_all_labs,
-                                       nodes2 = data_2_all_labs,
-                                       metric = sim_metric,
-                                       upper_tri = FALSE)
-
-          #similarity matrix usually excludes the root node
-          #add it back in
-          root_label <- base_tree$node.label[1]
-
-          if(!(root_label %in% colnames(sim_mat))){
-            sim_mat1 <- cbind(sim_mat,
-                              rep(NA_real_, nrow(sim_mat))
-            )
-            sim_mat1 <- rbind(sim_mat1,
-                              c(rep(NA_real_, ncol(sim_mat1)-1),
-                                1.0))
-
-            rownames(sim_mat1) <- c(rownames(sim_mat),
-                                    root_label)
-            colnames(sim_mat1) <- c(colnames(sim_mat),
-                                    root_label)
-
-            sim_mat <- sim_mat[data_1_all_labs,
-                               data_2_all_labs]
-          }
-          }else{
-            message("looking up similarity of taxonomic ancestry from provided sim_mat for each label of data_1 and data_2")
-            #similarity matrix usually excludes the root node
-            #add it back in
-
-            root_label <- base_tree$node.label[1]
-
-            if(!(root_label %in% colnames(sim_mat))){
-              sim_mat1 <- cbind(sim_mat,
-                               rep(NA_real_, nrow(sim_mat))
-              )
-              sim_mat1 <- rbind(sim_mat1,
-                               c(rep(NA_real_, ncol(sim_mat1)-1),
-                                 1.0))
-            }
-
-            rownames(sim_mat1) <- c(rownames(sim_mat),
-                                    root_label)
-            colnames(sim_mat1) <- c(colnames(sim_mat),
-                                    root_label)
-            sim_mat <- sim_mat1[data_1_all_labs,
-                               data_2_all_labs]
-          }
-
-          #Each node in the tree is assigned its maximum similarity between the datasets,
-          #unless it does not appear in either dataset,
-          #in which case it is assigned NA.
-          #This means that if a node appears in both datasets it gets similarity 1.
-          #ned a function that returns a value if it's in the matrix bounds,
-          #and returns NA otherwise.
-
-          myfun <- function(matrix, name, margin = 1L){
-            if(name %in% dimnames(matrix)[[margin]]){
-              max(matrix[, name])
-            }else{
-              return(NA_real_)
-            }
-          }
-          cohort_data <- cohort_data %>%
-            dplyr::mutate(simil_col =   {
-              col_inds <- match(Name, colnames(sim_mat))
-                          apply(sim_mat[, col_inds],
-                                MARGIN = 2,
-                                #have to use pmax to return NA without throwing warnings
-                                FUN = function(x) do.call(pmax,
-                                                          args = c(as.list(x),
-                                                                   list(na.rm = TRUE)))
-                                )
-            }
-                          ) %>%
-            dplyr::mutate(simil_row = {
-              row_inds <- match(Name, rownames(sim_mat))
-              apply(sim_mat[row_inds, ],
-                    MARGIN = 1,
-                    #have to use pmax to return NA without throwing warnings
-                    FUN = function(x) do.call(pmax,
-                                              args = c(as.list(x),
-                                                       list(na.rm = TRUE))))
-            }
-            ) %>%
-            dplyr::mutate(simil = pmax(simil_col,
-                                       simil_row,
-                                       na.rm = TRUE))
-        }
-      } #end if data_1 and data_2 provided
-    } #end if data_1 provided
 
   #####################
-  # Background tree for overlap or similarity
+  # Plot background tree for overlap or similarity
   #######################
 #plot a "background" tree with size a little bigger
 #this will create a "border" around the colored branches
@@ -1313,34 +1225,46 @@ tree_plot <- do.call(ggtree,
                             layout = layout),
                        bg_opts
                      )
-) +
-  geom_tippoint(size = tippoint_opts$size * bg_tree_scale) +
-  geom_nodepoint(size = nodepoint_opts$size * bg_tree_scale)
+)
 
+if(show_tippoints %in% TRUE){
+  tree_plot <- tree_plot +
+    geom_tippoint(size = tippoint_opts$size * bg_tree_scale)
+}
+
+if(show_nodepoints %in% TRUE){
+  tree_plot <- tree_plot +
+    geom_nodepoint(size = nodepoint_opts$size * bg_tree_scale)
+}
+
+
+#####################
+# Set up color mapping for overlap/similarity highlighting
+######################
 if(is.null(subtree_mapping)){
   #use a default color scale
   subtree_mapping <- list(
-    #this is the result of viridis::inferno(n=20)
-    colour = c('#000004FF',
-  '#08051EFF',
-  '#190C3EFF',
-  '#300A5BFF',
-  '#460B6AFF',
-  '#5C126EFF',
-  '#711A6EFF',
-  '#87216BFF',
-  '#9C2964FF',
-  '#B1325AFF',
-  '#C43C4EFF',
-  '#D64B40FF',
-  '#E55C30FF',
-  '#F17020FF',
-  '#F8870EFF',
-  '#FCA007FF',
-  '#FBB91FFF',
-  '#F7D340FF',
-  '#F1ED6FFF',
-  '#FCFFA4FF')
+    #this is the result of viridis::viridis(n=20)
+    colour = c('#440154FF',
+    '#481568FF',
+    '#482677FF',
+    '#453781FF',
+    '#3F4788FF',
+    '#39558CFF',
+    '#32648EFF',
+    '#2D718EFF',
+    '#287D8EFF',
+    '#238A8DFF',
+    '#1F968BFF',
+    '#20A386FF',
+    '#29AF7FFF',
+    '#3CBC75FF',
+    '#56C667FF',
+    '#74D055FF',
+    '#94D840FF',
+    '#B8DE29FF',
+    '#DCE318FF',
+    '#FDE725FF')
   )
 }else{
   #Check subtree mapping names
@@ -1374,35 +1298,42 @@ if(is.null(subtree_mapping)){
   } #end if(!is.list(subtree_mapping) |
   # is.null(names(subtree_mapping)) |
   #   !isTRUE(bad_subtree_map))
-}
+} #end if !is.null(subtree_mapping)
 
-subtree_aes <- list(color = quote(simil))
 
 ##########
 # Overlay highlighted tree for overlap or similarity
 ############
-tree_plot <- tree_plot %<+% cohort_data + #add the similarity data
-  #aes(colour = simil) +
-      geom_tree(size = base_opts$size,
-                do.call(aes, subtree_aes)) + #color branches by similarity
-      scale_color_gradientn(colours = subtree_mapping$colour,
-                            limits = c(0,1))
 
 #Set up title for color legend
-color_title <- ifelse(highlight_by %in% "overlap",
-                      paste0("Overlap % with\n",
-                                    name_1),
-                      paste0("Max similarity btw\n",
-                             name_2,
+colour_title <- ifelse(highlight_by %in% "overlap",
+                      paste0("Entity overlap % btw\n",
+                             name_A,
                              "\nand\n",
-                             name_1)
-                      )
+                             name_B),
+                      paste0("Max similarity btw\n",
+                             name_A,
+                             "\nand\n",
+                             name_B)
+)
 
- tree_plot <- tree_plot +  guides(
-    colour = guide_legend(
-      color_title
+tree_plot <- tree_plot %<+% cohort_data + #add the similarity data
+      geom_tree(size = base_opts$size,
+                aes(colour = simil)) + #color branches by similarity
+      scale_color_gradientn(colours = subtree_mapping$colour,
+                            limits = c(0,1),
+                            guide = "colourbar",
+                            name = colour_title)
+
+  }else{ #if(is.null(dat_A)), just plot the base tree
+    highlight_by <- "none"
+    tree_plot <- do.call(ggtree,
+                         c(list(tr = base_tree,
+                                layout = layout),
+                           base_opts
+                         )
     )
-  )
+  }
 }else if(highlight_by %in% "none"){
   #draw the base tree only
   tree_plot <- do.call(ggtree,
@@ -1412,46 +1343,81 @@ color_title <- ifelse(highlight_by %in% "overlap",
                        )
   )
 }else{
-stop("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'")
-}
+message(paste("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'.",
+              paste0("highlight_by = ", highlight_by, "."),
+              "Treating it as 'none'."))
+  tree_plot <- do.call(ggtree,
+                       c(list(tr = base_tree,
+                              layout = layout),
+                         base_opts
+                       )
+  )
+} #end if/else statements for different highlight_by options
+
 
 ######
 # Add tip labels (if requested)
 ######
   if (show_tiplabs %in% TRUE){
+    if(highlight_by %in% c("set")){
+      #then use the specified subtree_aes
+    tiplab_args <- c(list(do.call(aes, subtree_aes)),
+                     tiplab_opts)
+    }else if(highlight_by %in% c("overlap", "sim")){
+      tiplab_args <- c(list(aes(colour = simil)),
+                       tiplab_opts)
+    }else{
+      #just use base options
+      tiplab_args <- tiplab_opts
+    }
     tree_plot <- tree_plot +
-      do.call(ggtree::geom_tiplab2,
-              args = c(list(do.call(aes, subtree_aes)),
-                       tiplab_opts))
+      do.call(ggtree::geom_tiplab,
+              args = tiplab_args)
   }
 
   ######
   # Add tip points (if requested)
   ######
   if (show_tippoints %in% TRUE){
-
-
+    if(highlight_by %in% c("set")){
+      #then use the specified subtree_aes
+      tippoint_args <- c(list(do.call(aes, subtree_aes)),
+                       tippoint_opts)
+    }else if(highlight_by %in% c("overlap", "sim")){
+      tippoint_args <- c(list(aes(colour = simil)),
+                       tippoint_opts)
+    }else{
+      #just use base options
+      tippoint_args <- tippoint_opts
+    }
     tree_plot <- tree_plot +
       do.call(ggtree::geom_tippoint,
-              args = c(list(do.call(aes, subtree_aes)),
-                       tippoint_opts))
+              args = tippoint_args)
   }
 
   ######
   # Add node points (if requested)
   ######
   if (show_nodepoints %in% TRUE){
-
+    if(highlight_by %in% c("set")){
+      #then use the specified subtree_aes
+      nodepoint_args <- c(list(do.call(aes, subtree_aes)),
+                       nodepoint_opts)
+    }else if(highlight_by %in% c("overlap", "sim")){
+      nodepoint_args <- c(list(aes(colour = simil)),
+                       nodepoint_opts)
+    }else{
+      #just use base options
+      nodepoint_args <- nodepoint_opts
+    }
 
     tree_plot <- tree_plot +
       do.call(ggtree::geom_nodepoint,
-              args = c(list(do.call(aes, subtree_aes)),
-                       nodepoint_opts))
+              args = nodepoint_args)
   }
 
   #if clade labels have been selected, add them to the plot
-  # When show_tiplabs = TRUE, do not display clade labels
-  if(show_tiplabs %in% FALSE & !is.null(clade_level)){
+  if(!is.null(clade_level)){
     tree_plot <- add_cladelab(tree_plot = tree_plot,
                               tree = base_tree,
                               clade_level = clade_level,
@@ -1463,66 +1429,69 @@ stop("highlight_by should be one of 'set', 'overlap', 'sim', or 'none'")
     tree_plot <- tree_plot + ggtitle(base_name)
   }
 
+  tree_plot <- tree_plot +
+    theme(legend.position = "left")
+
   return(tree_plot)
 
 }
 
 
-#' @title Display tree with overlap
+#'@title Display tree with overlap
 #'
-#' @description Display a tree with branches highlighted according to membership
-#'   in two classified data sets, annotated with numbers of entities and
-#'   fractional overlap between entities in the two data sets.
+#'@description Display a tree with branches highlighted according to membership
+#'  in two classified data sets, annotated with numbers of entities and
+#'  fractional overlap between entities in the two data sets.
 #'
-#' @details Given a base tree and two classified data sets: Display a tree with
-#' branches highlighted according to membership in neither set, `data_1` only,
-#' `data_2` only, or both sets (as for [display_subtree()] with both `data_1`
-#' and `data_2` provided). Add a heatmap annotation around the tips of the tree,
-#' indicating the number of entities at each tip in each dataset, and the
-#' fractional overlap in entities at each tip between datasets. Fractional
-#' overlap is calculated using [calc_number_overlap()].
+#'@details Given a base tree and two classified data sets: Display a tree with
+#'  branches highlighted according to membership in neither set, `data_1` only,
+#'  `data_2` only, or both sets (as for [display_subtree()] with both `data_1`
+#'  and `data_2` provided). Add a heatmap annotation around the tips of the
+#'  tree, indicating the number of entities at each tip in each dataset, and the
+#'  fractional overlap in entities at each tip between datasets. Fractional
+#'  overlap is calculated using [calc_number_overlap()].
 #'
 #'
-#' @param base_tree A `phylo`-class tree object to plot (see [ape::read.tree()]
-#'   for details on this class).
-#' @param base_name A name for the base tree (used for the plot title)
-#' @param data_1 A `data.frame` containing a classified list of entities
-#' @param name_1 A name for the list in `data_1`, used for the plot legend
-#' @param data_2 Another `data.frame` containing a classified list of
-#'   entities
-#' @param name_2 A name for the list in `data_2`, used for the plot legend
-#' @param entity_id_col The name of the variable identifying unique entities in
-#'   both `data_1` and `data_2`. Must be the same in both data sets.
-#' @param group_level Taxonomy level at which to aggregate entities. Default
-#'   `"terminal"`: Calculate number of entities and overlap for each tip
-#'   label. Can also be any element of `tax_level_labels`, or an integer
-#'   between 1 and `length(tax_level_labels)`. In this case, entities will
-#'   be grouped by unique labels at the specified taxonomic level, rather than
-#'   by terminal (tip) labels, for calculation and plotting of number of
-#'   chemicals and overlap.
-#' @param tax_level_labels Taxonomy level labels. By default, the
-#'   ClassyFire/ChemOnt levels: kingdom, superclass, class, subclass, level5,
-#'   ... level11.
-#' @param annot_angle Angle at which to plot the annotation text (names of
-#'   datasets).
-#' @param ... Additional arguments as for [display_subtree()].
-#' @return A [ggtree::ggtree()] plot object, branches highlighted by
-#'   list membership as in [display_subtree()], with three layers of
-#'   heatmap annotation at the tree tips. The innermost layer represents the
-#'   number of entities in each tip label (or group of tip labels) in list
-#'   `data_1`. The second (middle) layer represents the number of entities
-#'   in each tip label (or group of tip labels) for the list `data_2`. The
-#'   outermost layer represents the fraction of overlap between the entities at
-#'   each tip label (or group of tip labels), calculated as (size of
-#'   intersection)/(size of union).
-#' @import ggplot2
-#' @export
-display_overlap <- function(base_tree,
-                            base_name,
+#'@param base_tree A `phylo`-class tree object to plot (see [ape::read.tree()]
+#'  for details on this class). Default [chemont_tree].
+#'@param base_name A name for the base tree (used for the plot title). Default
+#'  `NULL` for no title.
+#'@param data_1 A `data.frame` containing a classified list of entities
+#'@param name_1 A name for `data_1`, used for the plot legend. Default `'Set1'`.
+#'@param data_2 Another `data.frame` containing a classified list of entities
+#'@param name_2 A name for `data_2`, used for the plot legend. Default `'Set2'`.
+#'@param entity_id_col Character: the name of the variable in `data_1` and
+#'  `data_2` that identifies entities. Must be the same in both data sets.
+#'  Default `NULL` to assume that each row is a unique entity.
+#'@param group_level Taxonomy level at which to aggregate entities. Default
+#'  `"terminal"`: Calculate number of entities and overlap for each tip label.
+#'  Can also be any element of `tax_level_labels` (i.e., a string), or an
+#'  integer between 1 and `length(tax_level_labels)`. In this case, entities
+#'  will be grouped by unique labels at the specified taxonomic level, rather
+#'  than by terminal (tip) labels, for calculation and plotting of number of
+#'  chemicals and overlap.
+#'@param tax_level_labels Taxonomy level labels. Default [chemont_tax_levels] to
+#'  use ChemOnt taxonomy levels.
+#'@param annot_angle Angle at which to plot the annotation text (names of
+#'  datasets). Default `'auto'` to automatically decide. Otherwise, a numeric.
+#'@param ... Additional arguments passed on to [display_subtree()].
+#'@return A [ggtree::ggtree()] plot object, branches highlighted as specified in
+#'  the `highlight_by` argument to [display_subtree()], with three layers of
+#'  heatmap annotation at the tree tips. The innermost layer represents the
+#'  number of entities in each tip label (or group of tip labels) in list
+#'  `data_1`. The second (middle) layer represents the number of entities in
+#'  each tip label (or group of tip labels) for the list `data_2`. The outermost
+#'  layer represents the fraction of overlap between the entities at each tip
+#'  label (or group of tip labels), calculated as (size of intersection)/(size
+#'  of union).
+#'@import ggplot2
+#'@export
+display_overlap <- function(base_tree = chemont_tree,
+                            base_name = NULL,
                             data_1,
-                            name_1,
+                            name_1 = 'Set1',
                             data_2,
-                            name_2,
+                            name_2 = 'Set2',
                             entity_id_col = NULL,
                             group_level = "terminal",
                             tax_level_labels = chemont_tax_levels,
@@ -1622,6 +1591,7 @@ out_obj <- do.call(display_subtree,
                 data_2 = data_2,
                 name_2 = name_2,
                 tax_level_labels = tax_level_labels,
+                entity_id_col = entity_id_col,
                 clade_level = NULL),
                 args[setdiff(names(args),
                              "clade_level")
