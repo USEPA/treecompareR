@@ -1325,16 +1325,17 @@ get_all_clades <- function(tree, level){
 #'   [ape::read.tree()] for description of this class). Tips will be bound to
 #'   this tree.
 #' @param data Either one `data.frame`, or a list of `data.frames`, containing
-#'   classified entities. The data.frames must include the column names
-#'   specifiedin `tax_level_labels` and `entity_id_col`.
-#' @param entity_id_col Character vector: One or more variable name(s) in
-#'   `data` that, together, uniquely identify the entities. Default `NULL`,
-#'   which treats each row in `data` as a unique entity named `entity1`,
-#'   `entity2`, ... for as many rows as there are in the data. If a vector of
-#'   variable names is provided, entities will be named by concatenating rows of
-#'   the specified variables.
-#' @param tax_level_labels Taxonomy levels used for classification in
-#'   `data`. Default is [chemont_tax_levels].
+#'   classified entities. If it is a list, then the list will be concatenated
+#'   using [dplyr::bind_rows()]. The `data.frame`s must include the variable
+#'   names specified in `tax_level_labels` and `entity_id_col`.
+#' @param entity_id_col Character vector: One or more variable name(s) in `data`
+#'   that, together, uniquely identify the entities. Default `NULL`, which
+#'   treats each row in `data` as a unique entity named `entity1`, `entity2`,
+#'   ... for as many rows as there are in the data. If a vector of variable
+#'   names is provided, entities will be named by concatenating rows of the
+#'   specified variables.
+#' @param tax_level_labels Taxonomy levels used for classification in `data`.
+#'   Default is [chemont_tax_levels].
 #' @return A \code{phylo}-class object.
 #' @author Caroline Ring, Paul Kruse
 #' @examples
@@ -1359,7 +1360,7 @@ bind_entities <- function(tree,
   #if a list of data frames is provided, rowbind it all together
   #this will be the "master list" of entities
   if(!is.data.frame(data)){
-    if(is.list(data) &
+    if(is(data, "list") &
        all(sapply(data, is.data.frame))){
       data <- dplyr::bind_rows(data)
     }
@@ -1480,79 +1481,97 @@ bind_entities <- function(tree,
 
 }
 
-#' @title Prune a tree
+#'@title Prune a tree
 #'
-#' @description Prune a tree to keep only a specified subtree.
+#'@description Prune a tree to keep only a specified subtree.
 #'
-#' @details
-#' # How to specify the subtree to keep
-#' `prune_to` defines the subtree to *keep* (everything else will be pruned
-#' away). It may be specified in several different ways.
+#'@details # How to specify the subtree to keep `prune_to` defines the subtree
+#'  to *keep* (everything else will be pruned away). It may be specified in
+#'  several different ways.
 #'
-#' ## As a data.frame
+#'  ## As a data.frame
 #'
-#' If `prune_to` is a `data.frame` of classified entities, it must have
-#' columns corresponding to, and named for, each of the taxonomy levels as
-#' defined in the argument `tax_level_labels`, containing the labels at the
-#' corresponding level for each entity. It must also have at least one more
-#' column, uniquely identifying the entities; the name of the additional column
-#' does not matter, as long as it is not the same as one of the taxonomy levels.
-#' The result will be to keep only the subtree induced by this classified data
-#' set, *i.e.*, only the branches of the tree that occur in this classified data
-#' set. By default, any descendants of the node labels in the `data.frame`
-#' that do not themselves appear in the `data.frame` will *not* be kept. If
-#' you want to keep descendants that do not themselves appear in the
-#' `data.frame`, specify \code{keep_descendants = TRUE}.
+#'  If `prune_to` is a `data.frame` of classified entities, it must have columns
+#'  corresponding to, and named for, each of the taxonomy levels as defined in
+#'  the argument `tax_level_labels`, containing the labels at the corresponding
+#'  level for each entity. It must also have at least one more column, uniquely
+#'  identifying the entities; the name of the additional column does not matter,
+#'  as long as it is not the same as one of the taxonomy levels. The result will
+#'  be to keep only the subtree induced by this classified data set, *i.e.*,
+#'  only the branches of the tree that occur in this classified data set. By
+#'  default, any descendants of the node labels in the `data.frame` that do not
+#'  themselves appear in the `data.frame` will *not* be kept. If you want to
+#'  keep descendants that do not themselves appear in the `data.frame`, specify
+#'  \code{keep_descendants = TRUE}.
 #'
-#' ## As the name of a taxonomy level
+#'  ## As the name of a taxonomy level
 #'
-#' If `prune_to` is the name of a taxonomy level (one of the levels defined
-#' in argument `tax_level_labels`), the result will be to keep only nodes at
-#' that taxonomic level or less-specific levels. (For example, for the ChemOnt
-#' taxonomy, specifying \code{prune_to = "class"} will keep only nodes at levels
-#' "kingdom", "superclass", and "class". Any nodes at level "subclass", "level5",
-#' "level6", ... "level11" will be dropped. (If you specify `prune_to` as
-#' the name of a taxonomy level, and also specify \code{keep_descendants = TRUE},
-#' the result will be to keep the whole tree.)
+#'  If `prune_to` is the name of a taxonomy level (one of the levels defined in
+#'  argument `tax_level_labels`), the result will be to keep only nodes at that
+#'  taxonomic level or less-specific levels. (For example, for the ChemOnt
+#'  taxonomy, specifying \code{prune_to = "class"} will keep only nodes at
+#'  levels "kingdom", "superclass", and "class". Any nodes at level "subclass",
+#'  "level5", "level6", ... "level11" will be dropped. (If you specify
+#'  `prune_to` as the name of a taxonomy level, and also specify
+#'  \code{keep_descendants = TRUE}, the result will be to keep the whole tree.)
 #'
-#' ## As a vector of node/tip labels or numbers
+#'  ## As a vector of node/tip labels or numbers
 #'
-#' If `prune_to` is a vector of node/tip labels (i.e., labels appearing in
-#' \code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers (i.e.
+#'  If `prune_to` is a vector of node/tip labels (i.e., labels appearing in
+#'  \code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers
+#'  (i.e.
 #' node/tip index numbers between 1 and \code{ape::Ntip(tree) +
 #' ape::Nnode(tree)}), the result will be to keep only the nodes/tips that are in
-#' that vector, keep their common ancestors, and (by default) also keep their
-#' descendants if any. The intention of keeping the descendants by default is to
-#' allow the user to prune to specified clades simply by specifying the labels or
-#' node numbers of the MRCAs of the clades. For example, using the ChemOnt
-#' taxonomy, you could prune to keep all branches in the superclass
+#'  that vector, keep their common ancestors, and (by default) also keep their
+#'  descendants if any. The intention of keeping the descendants by default is
+#'  to allow the user to prune to specified clades simply by specifying the
+#'  labels or node numbers of the MRCAs of the clades. For example, using the
+#'  ChemOnt taxonomy, you could prune to keep all branches in the superclass
 #' "Organohalogen compounds" by simply specifying \code{prune_to = "Organohalogen
 #' compounds"}.  If you do *not* wish to keep the descendants of the specified
-#' node labels/numbers, then specify \code{keep_descendants = FALSE}.
+#'  node labels/numbers, then specify \code{keep_descendants = FALSE}.
 #'
-#' @param tree The tree to be pruned, as a `phylo`-class object (see
-#'   [ape::read.tree()] for description of this class).
-#' @param prune_to What to *keep* from the base tree (everything else will be
-#'  pruned away). May be a `data.frame` of classified data; one or more
-#'  labels in the tree (tip or internal node labels); one or more node numbers
-#'  in the tree (tip or internal nodes); or the name of a taxonomy level (one of
-#'  the items in `tax_level_labels`). Default is NULL, which results in no
-#'  pruning being done (i.e., the base tree is returned as-is). See Details.
-#' @param keep_descendants Whether to keep descendants of what is specified in
+#'@param tree The tree to be pruned, as a `phylo`-class object (see
+#'  [ape::read.tree()] for description of this class).
+#'@param prune_to What to *keep* from the base tree (everything else will be
+#'  pruned away). May be a `data.frame` of classified data; a character vector
+#'  of one or more labels in the tree (tip or internal node labels); an integer
+#'  vector of one or more node numbers in the tree (tip or internal nodes); a
+#'  string giving the name of a taxonomy level (one of the items in
+#'  `tax_level_labels`); or a single integer giving a taxonomy level (e.g., 0 is
+#'  root; 1 is the direct children of root; etc.). If a single integer is given
+#'  and it is less than or equal to `length(tax_level_labels)`, it will be
+#'  interpreted as a taxonomy level; if it is greater than
+#'  `length(tax_level_labels)`, it will be interpreted as a node ID number.
+#'  `prune_to` may also be a `list` of any of the above types, but all list
+#'  elements must be of the same class (e.g., all `data.frame`, all `numeric`,
+#'  all `character`). If it is a `list`, then the elements will be concatenated,
+#'  and the result will be used as `prune_to`. If it is a `list` of integers
+#'  intended to represent taxonomy levels, then it will be interpreted instead as node ID
+#'  numbers. Default is `NULL`, which results in no pruning being done (i.e.,
+#'  the base tree is returned as-is). See Details.
+#'@param keep_descendants Whether to keep descendants of what is specified in
 #'  `prune_to`. Default NULL will choose the behavior based on the class of
-#'  `prune_to`: when `prune_to` is a `data.frame` or one of the
-#'  taxonomy level labels, \code{keep_descendants = FALSE} by default. When
-#'  `prune_to` is a vector of node/tip labels or numbers in the base
-#'  tree,\code{keep_descendants = TRUE} by default. See Details.
-#' @param adjust_branch_length Whether to adjust branch length so that all
+#'  `prune_to`: when `prune_to` is a `data.frame` or one of the taxonomy level
+#'  labels, \code{keep_descendants = FALSE} by default. When `prune_to` is a
+#'  vector of node/tip labels or numbers in the base tree,\code{keep_descendants
+#'  = TRUE} by default. See Details.
+#'@param adjust_branch_length Whether to adjust branch length so that all
 #'  newly-pruned terminal nodes appear at the same length as tips, even if they
 #'  were originally internal nodes. Default FALSE.
-#' @param tax_level_labels Vector of the possible taxonomy levels that can appear
-#'  as column names in `prune_to` if it is a `data.frame` of
-#'  classified data.
-#' @param ... Additional arguments, not currently used.
-#' @return A `phylo`-class object representing the pruned tree.
-#' @author Caroline Ring, Paul Kruse
+#'@param tax_level_labels Vector of the possible taxonomy levels that can appear
+#'  as column names in `prune_to` if it is a `data.frame` of classified data.
+#'@param entity_id_col Optional: if `prune_to` is provided as a `data.frame` of
+#'  classified entities, then `entity_id_col` may be a character vector of one
+#'  or more variable name(s) in `data` that, together, uniquely identify the
+#'  entities. Default `NULL`, which treats each row as a unique entity named
+#'  `entity1`, `entity2`, ... for as many rows as there are in the data. If a
+#'  vector of variable names is provided, entities will be named by
+#'  concatenating rows of the specified variables. If `prune_to` is not a
+#'  `data.frame` of classified entities, then `entity_id_col` is ignored.
+#'@param ... Additional arguments, not currently used.
+#'@return A `phylo`-class object representing the pruned tree.
+#'@author Caroline Ring, Paul Kruse
 #' @examples
 #'
 #' #prune_to as a data.frame of classified entities
@@ -1582,8 +1601,39 @@ prune_tree <- function(tree,
                        keep_descendants = NULL,
                        adjust_branch_length = FALSE,
                        tax_level_labels = chemont_tax_levels,
+                       entity_id_col = NULL,
                        ...){
   if(!is.null(prune_to)){ #if user has specified something to prune to
+    #If it is a list, look at the data type of the list elements,
+    #and concatenate them as appropriate
+    if(is(prune_to, "list")){ #will appropriately return FALSE if prune_to is a single data.frame
+      #use rapply to handle possible nested list
+      el_class <- unique(rapply(prune_to, class))
+      if(length(unique(el_class))>1){
+        stop(paste("Error in treecompareR::prune_tree(): prune_to is a list,",
+        "but not all list elements are of the same class."))
+      }
+      if(all(el_class %in% "data.frame")){
+        #rbind the data.frames
+        prune_to <- as.data.frame(dplyr::bind_rows(prune_to))
+      }else if(all(el_class %in% c("character", "numeric"))){
+        #concatenate, recursively if necessary
+        prune_to <- unlist(prune_to, recursive = TRUE)
+      }else if(all(el_class %in% "phylo")){
+        #pull labels from each of the trees and combine
+        prune_to <- unlist(lapply(prune_to,
+                                function(x){
+                                  c(x$tip.labels,
+                                    x$node.labels)
+                                }))
+      }else{
+        stop(paste("prune_to is a list, but one or more elements are not one of",
+                   "the recognized classes: data.frame, numeric, character, or phylo."))
+      }
+      #and keep only the unique combined elements
+      prune_to <- unique(prune_to)
+    } #end if(is(prune_to, "list"))
+
     if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
       #Prune the tree according to the specified dataset
       if(is.null(keep_descendants)){
@@ -1592,7 +1642,8 @@ prune_tree <- function(tree,
       pruned_tree <- drop_tips_nodes(tree = tree,
                                      data = prune_to,
                                      keep_descendants = keep_descendants,
-                                     tax_level_labels = tax_level_labels)
+                                     tax_level_labels = tax_level_labels,
+                                     entity_id_col = entity_id_col)
     }else if(is.character(prune_to)){
       #check if this is one of the tax_level_labels
       #if so, interpret it as a level to prune to
@@ -1627,6 +1678,18 @@ prune_tree <- function(tree,
                                        keep_descendants = keep_descendants)
       }
     }else if(is.numeric(prune_to)){
+      if(!all(is.wholenumber(prune_to))){
+          warning(paste("prune_to is numeric but not integer.",
+                        "Coercing to integer."))
+        prune_to <- as.integer(prune_to)
+      }
+
+      if(length(prune_to) > 1){
+        if(any(prune_to <= 0)){
+          stop(paste("Error in treecompareR::prune_to():",
+               "prune_to is an integer vector, but at least one element is",
+               "zero or negative (i.e. not a valid node ID)."))
+        }
       #interpret as node numbers
       #prune to only the subtree with this node(s)
       #including the descendents of internal node(s) by default
@@ -1636,6 +1699,54 @@ prune_tree <- function(tree,
       pruned_tree <- drop_tips_nodes(tree = tree,
                                      nodes = prune_to,
                                      keep_descendants = keep_descendants)
+      }else{ #if prune_to is a single integer, interpret it as a taxonomy level if possible
+        if(any(prune_to < 0)){
+          stop(paste("Error in treecompareR::prune_to():",
+                     "prune_to is a single integer,",
+                     "but at least one element is",
+                     "negative,",
+                     "so it is neither a valid taxonomy level",
+                     "nor a valid node ID number."))
+        }
+        if(prune_to <= length(tax_level_labels)){
+        message(paste("'prune_to' =",
+                      paste0('\"', prune_to, '\"'),
+                      " has been interpreted as a taxonomy level,",
+                      "because it is a single integer value",
+                      "less than or equal to length(tax_level_labels).",
+                      "The corresponding taxonomy level is",
+                      paste0(tax_level_labels[prune_to], "."),
+                      "Pruning to that level."))
+        #by default do NOT keep descendants
+        #since that would just result in keeping the whole tree
+        if(is.null(keep_descendants)){
+          keep_descendants <- FALSE
+        }
+        if(isTRUE(keep_descendants)){
+          warning(paste("Pruning to a taxonomy level, but 'keep_descendants = TRUE'",
+                        "which will result in keeping the whole tree,",
+                        "and not pruning anything"))
+        }
+        pruned_tree <- drop_tips_nodes(tree = tree,
+                                       level = tax_level_labels[prune_to],
+                                       keep_descendants = keep_descendants)
+        }else{
+          message(paste("'prune_to' =",
+                        paste0('\"', prune_to, '\"'),
+                        " has been interpreted as a node ID,",
+                        "because it is a single integer value",
+                        "greater than length(tax_level_labels)."))
+          #interpret as node number
+          #prune to only the subtree with this node
+          #including the descendents of internal node by default
+          if(is.null(keep_descendants)){
+            keep_descendants <- TRUE
+          }
+          pruned_tree <- drop_tips_nodes(tree = tree,
+                                         nodes = prune_to,
+                                         keep_descendants = keep_descendants)
+      }
+      }
     }
 
     if (adjust_branch_length) {
