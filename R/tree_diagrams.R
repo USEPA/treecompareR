@@ -416,18 +416,21 @@ label_bars <- function(data = NULL,
 #' #one data set
 #' display_subtree(base_tree = oh_tree,
 #'  data_1 = biosolids_class,
+#'  entity_id_col = "DTXSID",
 #'  highlight_by = "set")
 #'
 #' #two data sets
 #' display_subtree(base_tree = oh_tree,
 #'  data_1 = biosolids_class,
 #' data_2 = usgs_class,
+#' entity_id_col = "DTXSID",
 #'  highlight_by = "set")
 #'
 #' #increasing line width
 #' display_subtree(base_tree = oh_tree,
 #'  data_1 = biosolids_class,
 #' data_2 = usgs_class,
+#' entity_id_col = "DTXSID",
 #'  base_opts = list(size = 1),
 #'  highlight_by = "set")
 #'
@@ -435,25 +438,30 @@ label_bars <- function(data = NULL,
 #' display_subtree(base_tree = oh_tree,
 #'  data_1 = biosolids_class,
 #' data_2 = usgs_class,
+#' entity_id_col = "DTXSID",
 #' base_opts = list(size = 1),
 #'  subtree_mapping = list(color = c("black", "red", "blue", "purple")),
 #'  highlight_by = "set")
 #'
-#'  #clade level
+#'  #clade labels
 #'  display_subtree(base_tree = oh_tree,
 #'   data_1 = biosolids_class,
 #' data_2 = usgs_class,
+#' entity_id_col = "DTXSID",
 #'  base_opts = list(size = 1),
+#'  show_tiplabs = FALSE, #they'll clash with clade labels
 #' clade_level = 2,
 #'  highlight_by = "set")
 #'
-#' #prune to the union of BIOSOLIDS2021 and USGSWATER classes only
+#' #prune full ChemOnt tree to the union of BIOSOLIDS2021 and USGSWATER classes only
 #' #and color by set membership
-#' display_subtree(prune_to = list(biosolids_class, usgs_class),
+#' display_subtree(base_tree = chemont_tree,
+#' prune_to = list(biosolids_class, usgs_class),
 #' data_1 = usgs_class,
 #' name_1 = "USGS Water",
 #' data_2 = biosolids_class,
 #' name_2 = "Biosolids",
+#' entity_id_col = "DTXSID",
 #' base_opts = list(size = 1),
 #' bg_tree_scale = 0, #suppress border drawing
 #' highlight_by = "set",
@@ -468,11 +476,13 @@ label_bars <- function(data = NULL,
 #' #prune to the union of BIOSOLIDS2021 and USGSWATER classes only
 #' #and color by Jaccard similarity of classifications between BIOSOLIDS2021 and USGS Water.
 #' #compare this plot to the previous one!
-#' display_subtree(prune_to = list(biosolids_class, usgs_class),
+#' display_subtree(base_tree = chemont_tree,
+#' prune_to = list(biosolids_class, usgs_class),
 #' data_1 = usgs_class,
 #' name_1 = "USGS Water",
 #' data_2 = biosolids_class,
 #' name_2 = "Biosolids",
+#' entity_id_col = "DTXSID",
 #' base_opts = list(size = 1),
 #' bg_tree_scale = 0, #suppress border drawing
 #' highlight_by = "sim",
