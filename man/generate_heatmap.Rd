@@ -97,12 +97,6 @@ returns interpolated colors. Default \code{circlize::colorRamp2(breaks = seq(0, 
 \code{\link[viridis:reexports]{viridis::viridis()}} colormap.}
 
 \item{...}{Other arguments to be passed to \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.}
-
-\item{row_indices}{Integer vector: A subset of row indices of the similarity
-matrix to consider. Default \code{NULL} to include all rows.}
-
-\item{column_indices}{Integer vector: The column indices of the similarity
-matrix to consider. Default \code{NULL} to include all columns.}
 }
 \value{
 A \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}} object.
