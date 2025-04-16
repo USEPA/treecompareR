@@ -464,11 +464,13 @@ get_labels <- function(data,
 get_terminal_labels <- function(data,
                                 entity_id_col = NULL,
                                 tax_level_labels = chemont_tax_levels){
-  if(!("terminal_label" %in% names(data)))
-    labels <- add_terminal_label(data = data,
+  if(!("terminal_label" %in% names(data))){
+    data <- add_terminal_label(data = data,
                                  entity_id_col = entity_id_col,
-                                 tax_level_labels = tax_level_labels)[["terminal_label"]]
-  return(labels)
+                                 tax_level_labels = tax_level_labels)
+  }
+
+  return(data$terminal_label)
 }
 
 #' Count entities per label

@@ -558,36 +558,7 @@ display_subtree <- function(base_tree = chemont_tree,
   # Prune base tree if user specified pruning
   if(!is.null(prune_to)){
     #concatenate prune_to here, since it will be used again later.
-    #If it is a list, look at the data type of the list elements,
-    #and concatenate them as appropriate
-    if(is(prune_to, "list")){ #will appropriately return FALSE if prune_to is a single data.frame
-      #use rapply to handle possible nested list
-      el_class <- unique(rapply(prune_to, class))
-      if(length(unique(el_class))>1){
-        stop(paste("Error in treecompareR::prune_tree(): prune_to is a list,",
-                   "but not all list elements are of the same class."))
-      }
-      if(all(el_class %in% "data.frame")){
-        #rbind the data.frames
-        prune_to <- as.data.frame(dplyr::bind_rows(prune_to))
-      }else if(all(el_class %in% c("character", "numeric"))){
-        #concatenate, recursively if necessary
-        prune_to <- unlist(prune_to, recursive = TRUE)
-      }else if(all(el_class %in% "phylo")){
-        #pull labels from each of the trees and combine
-        prune_to <- unlist(lapply(prune_to,
-                                  function(x){
-                                    c(x$tip.labels,
-                                      x$node.labels)
-                                  }))
-      }else{
-        stop(paste("prune_to is a list, but one or more elements are not one of",
-                   "the recognized classes: data.frame, numeric, character, or phylo."))
-      }
-      #and keep only the unique combined elements
-      prune_to <- unique(prune_to)
-    } #end if(is(prune_to, "list"))
-
+    prune_to <- prune_c(prune_to = prune_to)
     base_tree <- do.call(prune_tree,
                          args = c(list(tree = base_tree,
                                        prune_to = prune_to,

@@ -911,11 +911,9 @@ drop_tips_nodes <- function(tree,
     if (!"data.frame" %in% class(data)){
       stop("Input parameter `data` must be a data.table or a data.frame!")
     }
-    if(!("terminal_label" %in% names(data))){
       tip_node_labels <- get_terminal_labels(data = as.data.frame(data),
                                              tax_level_labels = tax_level_labels,
                                              entity_id_col = entity_id_col)
-    }
     if(isTRUE(keep_descendants)){
       input_nodes <- get_node_from_label(label = tip_node_labels,
                                          tree = tree)
@@ -1604,36 +1602,7 @@ prune_tree <- function(tree,
                        entity_id_col = NULL,
                        ...){
   if(!is.null(prune_to)){ #if user has specified something to prune to
-    #If it is a list, look at the data type of the list elements,
-    #and concatenate them as appropriate
-    if(is(prune_to, "list")){ #will appropriately return FALSE if prune_to is a single data.frame
-      #use rapply to handle possible nested list
-      el_class <- unique(rapply(prune_to, class))
-      if(length(unique(el_class))>1){
-        stop(paste("Error in treecompareR::prune_tree(): prune_to is a list,",
-        "but not all list elements are of the same class."))
-      }
-      if(all(el_class %in% "data.frame")){
-        #rbind the data.frames
-        prune_to <- as.data.frame(dplyr::bind_rows(prune_to))
-      }else if(all(el_class %in% c("character", "numeric"))){
-        #concatenate, recursively if necessary
-        prune_to <- unlist(prune_to, recursive = TRUE)
-      }else if(all(el_class %in% "phylo")){
-        #pull labels from each of the trees and combine
-        prune_to <- unlist(lapply(prune_to,
-                                function(x){
-                                  c(x$tip.labels,
-                                    x$node.labels)
-                                }))
-      }else{
-        stop(paste("prune_to is a list, but one or more elements are not one of",
-                   "the recognized classes: data.frame, numeric, character, or phylo."))
-      }
-      #and keep only the unique combined elements
-      prune_to <- unique(prune_to)
-    } #end if(is(prune_to, "list"))
-
+    prune_to <- prune_c(prune_to = prune_to)
     if(is.data.frame(prune_to)){ #if user has specified a dataset to prune to
       #Prune the tree according to the specified dataset
       if(is.null(keep_descendants)){
@@ -1914,4 +1883,69 @@ get_node_from_label <- function(label, tree){
   nodes <- pmin(tip_nodes, internal_nodes, na.rm = TRUE)
   return(nodes)
 
+}
+
+#' @title Prune concatenate
+#'
+#' @description Concatenate a list of pruning specifications
+#'
+#' @details If pruning specification is supplied as a list item to
+#'   [prune_tree()], concatenate the list and return. This is a helper function
+#'   for [prune_tree()] and generally should not be called directly by the user.
+#'
+#' @return If `prune_to` was a list, returns an object of the same class as the
+#'   list elements, consisting of the concatenation of the list elements (with
+#'   [unique()] applied). If `prune_to` was not a list, then returns `prune_to`
+#'   unchanged.
+#' @author Caroline Ring
+#' @examples
+#' prune_c(prune_to = list(biosolids_class[1:10, ], usgs_class[1:10, ]))
+#'
+#'
+#'
+prune_c <- function(prune_to){
+# Prune base tree if user specified pruning
+if(!is.null(prune_to)){
+  #concatenate prune_to here, since it will be used again later.
+  #If it is a list, look at the data type of the list elements,
+  #and concatenate them as appropriate
+  if(is(prune_to, "list")){ #will appropriately return FALSE if prune_to is a single data.frame
+
+    el_class <- sapply(prune_to, class)
+    if(!all(el_class %in% "data.frame")){
+      #use rapply to handle possible nested list
+      el_class <- unique(rapply(prune_to, class))
+    }
+    if(length(unique(el_class))>1){
+      stop(paste("Error in treecompareR::prune_tree(): prune_to is a list,",
+                 "but not all list elements are of the same class."))
+    }
+
+    if(all(el_class %in% "data.frame")){
+      #rbind the data.frames
+      prune_cat <- as.data.frame(dplyr::bind_rows(prune_to))
+    }else if(all(el_class %in% c("character", "numeric"))){
+      #concatenate, recursively if necessary
+      prune_cat <- unlist(prune_to, recursive = TRUE)
+    }else if(all(el_class %in% "phylo")){
+      #pull labels from each of the trees and combine
+      prune_cat <- unlist(lapply(prune_to,
+                                function(x){
+                                  c(x$tip.labels,
+                                    x$node.labels)
+                                }))
+    }else{
+      stop(paste("prune_to is a list, but one or more elements are not one of",
+                 "the recognized classes: data.frame, numeric, character, or phylo."))
+    }
+    #and keep only the unique combined elements
+    prune_cat <- unique(prune_cat)
+  }else{ #if not a list and not NULL
+    prune_cat <- prune_to
+  }
+}else{
+  prune_cat <- prune_to
+}
+
+  return(prune_cat)
 }
