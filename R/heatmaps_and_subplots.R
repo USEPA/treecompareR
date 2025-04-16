@@ -1,5 +1,25 @@
-is.wholenumber <-
-  function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+#' @title Is whole number
+#'
+#' @description Checks whether a number is a whole number (i.e., an integer)
+#'
+#' @details Adapted from the example in the documentation for
+#'   [base::is.integer()].
+#'
+#' @examples
+#' is.wholenumber(5) #returns TRUE
+#' is.wholenumber(1.3) #returns FALSE
+#' is.wholenumber(NA_real_) #returns NA
+#' is.wholenumber(numeric(0)) #returns logical(0)
+
+is.wholenumber <- function(x, tol = .Machine$double.eps^0.5){
+  if(!is.numeric(x)){
+    message("x is non-numeric")
+    return(FALSE)
+  }else{
+    abs(x - round(x)) < tol
+  }
+
+}
 
 #' Label numbers
 #'
@@ -78,90 +98,223 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 }
 
 
-#' @title Generate similarity heatmap
+#'@title Generate similarity heatmap
 #'
-#' @description Generate a heatmap showing similarity of two classified data
-#'   sets.
+#'@description Generate a heatmap showing similarity of two classified data
+#'  sets.
 #'
-#' @details This function takes in two `data.frame`s of classified entities,
-#'   along with the taxonomy tree used to classify them, and a pre-computed
-#'   matrix of pairwise similarities between all nodes of that tree. It produces
-#'   a heatmap showing the pairwise similarities between the classifications of
-#'   the two data sets, one data set on the rows and the other on the columns,
-#'   annotated with bar graphs showing the number of occurrences of each label
-#'   in each data set. The heatmap will be automatically clustered on rows and
-#'   columns. Optionally, the user may specify that rows and columns should be
-#'   split according to these clusters for plotting. See [the ComplexHeatmap
-#'   reference](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html)
-#'   for more details.
-#'
+#'@details This function takes in two `data.frame`s of classified entities,
+#'  along with the taxonomy tree used to classify them, and a pre-computed
+#'  matrix of pairwise similarities between all nodes of that tree. It produces
+#'  a heatmap showing the pairwise similarities between the classifications of
+#'  the two data sets, one data set on the rows and the other on the columns,
+#'  annotated with bar graphs showing the number of occurrences of each label in
+#'  each data set. The heatmap will be automatically clustered on rows and
+#'  columns. See [the ComplexHeatmap
+#'  reference](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html)
+#'  for more details.
 #'
 #'
-#' @param row_data A `data.frame` object of classified entities. Typically, each
-#'   row represents one entity. Must include variables with names matching
-#'   everything in `tax_level_labels`, containing the classification at each
-#'   taxonomy level. May include a variable with unique identifiers for
-#'   entities; if so, this must be the same variable name in both `row_data` and
-#'   `column_data`, and it should be supplied in `entity_id_col`.
-#' @param column_data A `data.frame` object of classified entities.  Typically,
-#'   each row represents one entity. Must include variables with names matching
-#'   everything in `tax_level_labels`, containing the classification at each
-#'   taxonomy level. May include a variable with unique identifiers for
-#'   entities; if so, this must be the same variable name in both `row_data` and
-#'   `column_data`, and it should be supplied in `entity_id_col`.
-#' @param terminal_only `TRUE`/`FALSE`: Whether to show only terminal
-#'   classifications of row/column data in the heatmap (`TRUE`, default) or
-#'   whether to include classifications at all levels (`FALSE`).
-#' @param tree_object A `phylo`-class object representing a rooted tree. Default
-#'   [chemont_tree].
-#' @param matrix A matrix of pairwise similarity measure values derived from
-#'   `tree_object`. Default [chemont_jaccard], to plot Jaccard similarity of
-#'   taxonomic classification. Other pre-built option include
-#'   [chemont_resnik_IC_SVH] (to plot Resnik similarity), [chemont_lin_IC_SVH]
-#'   (to plot Lin similarity), and [chemont_jiangconrath_IC_SVH] (to plot
-#'   Jiang-Conrath similarity).
-#' @param row_indices Integer vector: A subset of row indices of the similarity
-#'   matrix to consider. Default `NULL` to include all rows.
-#' @param column_indices Integer vector: The column indices of the similarity
-#'   matrix to consider. Default `NULL` to include all columns.
-#' @param entity_id_col Character: the variable name(s) in `row_data` and
-#'   `column_data` that uniquely identifies entities. Must be the same name(s)
-#'   in each `data.frame`. Default `NULL` to assume each row is its own entity.
-#' @param tax_level_labels Character: levels of the taxonomy in `tree_object`.
-#'   Default [chemont_tax_levels].
-#' @param name Name of the heatmap similarity measure for legend title. Default
-#'   `'Similarity'`.
-#' @param row_split Positive integer: Number of clusters to split rows into.
-#'   Default `NULL`, to do no row splitting.
-#' @param column_split Positive integer: Number of clusters to split columns
-#'   into. Default `NULL`, to do no column splitting.
-#' @param row_title Character: Title for rows. Default `'Row title'`.
-#' @param column_title Character: Title for columns. Default `'Column title'`.
-#' @param log_trans `TRUE`/`FALSE`: Whether to log-transform numbers of label
-#'   occurrence for labels present in each data set before plotting them as bar
-#'   chart annotations on the heatmap. Default `TRUE`.
-#' @param colors A colormap used for the heatmap. Should be a function produced
-#'   by [circlize::colorRamp2()], which accepts a vector of numeric values and
-#'   returns interpolated colors. Default `circlize::colorRamp2(breaks = seq(0,
-#'   1, len = 20), viridis::viridis(n=20, option = 'C'))` to use the
-#'   [viridis::viridis()] colormap.
-#' @return A [ComplexHeatmap::Heatmap()] object.
+#'  # Row and column splitting
+#'
+#'  Arguments `row_split` and `column_split` control row and column splitting,
+#'  respectively, of the clustered heatmap. They may be provided in one of
+#'  several ways.
+#'
+#'   - Integer of length 1: As for [ComplexHeatmap::Heatmap()]; `cutree()` will be applied to the row/column dendrogram resulting from clustering the matrix, with `k` equal to the supplied value.
+#'   - A vector of categorical variables, or a `data.frame` of categorical variables: As for [ComplexHeatmap::Heatmap()]. The length of the vector, or the number of rows of the `data.frame`, must match the corresponding dimension of `matrix` (i.e., `nrow(matrix)` for `row_split`, and `ncol(matrix)` for `column_split`).
+#'   - One of the taxonomy levels (i.e., one of `tax_level_labels`): Create a a character vector containing the label of the ancestor at the specified taxonomy level for each label in the row/column of `matrix`. Then this vector will be used as a vector of categorical variables for splitting, as described in [ComplexHeatmap::Heatmap()].
+#'   - The string `"level"`: Create a character vector the same length as the corresponding dimension of `matrix`, containing the taxonomy level of each label in the row/column of `matrix`. Then this vector will be used as a vector of categorical variables for splitting, as described in [ComplexHeatmap::Heatmap()].
+#'
+#'  # Extracting matrix
+#'
+#'  You can access the matrix that was ultimately plotted in the heatmap.
+#'
+#' ```
+#' #generate a heatmap
+#' my_htmap <- generate_heatmap(
+#'    tree_object = chemont_tree,
+#'    matrix = chemont_jaccard,
+#'    row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'    terminal_only = TRUE)
+#'
+#' #extract the heatmap matrix
+#' my_matrix <- my_htmap@ht_list[[1]]@matrix
+#' #compare this to chemont_jaccard!
+#' ```
+#'
+#'  # How to add more annotations after the fact
+#'
+#'  If you would like to add your own annotations after the fact, you may want
+#'  to use the option `draw = FALSE`. This returns a
+#'  [ComplexHeatmap::HeatmapList()] object that has not had the
+#'  [ComplexHeatmap::`draw,HeatmapList-method`] applied to it yet. This means
+#'  you can still concatenate it with other heatmaps and heatmap annotations
+#'  using `+` and `%v%`. (If you use `draw =
+#'  TRUE`, you won't be able to concatenate the result with any other heatmaps
+#'  or annotations!)
+#'
+#' ```
+#'   my_htmap <- generate_heatmap(
+#'    tree_object = chemont_tree,
+#'    matrix = chemont_jaccard,
+#'    row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'    terminal_only = TRUE,
+#'    row_split = "superclass",
+#'    column_split = "superclass",
+#'     draw = FALSE,
+#'      row_title_rot = 0,
+#'      column_title_rot = 90,
+#'       row_title_gp = grid::gpar(fontsize = 6),
+#'        column_title_gp = grid::gpar(fontsize = 6),
+#'         row_gap = unit(0.1, "mm"),
+#'         column_gap = unit(0.1, "mm"))
+#'
+#'     #extract matrix
+#'     #notice difference in syntax from above, now that draw = FALSE!
+#'     my_matrix <- my_htmap@matrix
+#'
+#'     #construct a row annotation using information from my_matrix
+#'     #this is just 1:nrow(my_matrix) in order
+#'     my_row_ann <- ComplexHeatmap::rowAnnotation(foo = 1:nrow(my_matrix))
+#'
+#'     #add the new row annotation
+#'     my_row_ann + my_htmap
+#'     #note that the row annotation is automatically reordered
+#'     # to match the clustering of the matrix!
+#' ```
+#'
+#'@param row_data A `data.frame` object of classified entities. Typically, each
+#'  row represents one entity. Must include variables with names matching
+#'  everything in `tax_level_labels`, containing the classification at each
+#'  taxonomy level. May include a variable with unique identifiers for entities;
+#'  if so, this must be the same variable name in both `row_data` and
+#'  `column_data`, and it should be supplied in `entity_id_col`.
+#'@param column_data A `data.frame` object of classified entities.  Typically,
+#'  each row represents one entity. Must include variables with names matching
+#'  everything in `tax_level_labels`, containing the classification at each
+#'  taxonomy level. May include a variable with unique identifiers for entities;
+#'  if so, this must be the same variable name in both `row_data` and
+#'  `column_data`, and it should be supplied in `entity_id_col`.
+#'@param terminal_only `TRUE`/`FALSE`: Whether to show only terminal
+#'  classifications of row/column data in the heatmap (`TRUE`, default) or
+#'  whether to include classifications at all levels (`FALSE`).
+#'@param tree_object A `phylo`-class object representing a rooted tree. Default
+#'  [chemont_tree].
+#'@param matrix A matrix of pairwise similarity measure values derived from
+#'  `tree_object`. Default [chemont_jaccard], to plot Jaccard similarity of
+#'  taxonomic classification. Other pre-built option include
+#'  [chemont_resnik_IC_SVH] (to plot Resnik similarity), [chemont_lin_IC_SVH]
+#'  (to plot Lin similarity), and [chemont_jiangconrath_IC_SVH] (to plot
+#'  Jiang-Conrath similarity).
+#'@param prune_to Optional: A pruning specification, as for [prune_tree()] (see
+#'  the documentation for that function for acceptable pruning specifications).
+#'  Default `NULL` to do no pruning. If `prune_to` is non-`NULL`, then the
+#'  heatmap will include only labels that are in the pruned tree.
+#'@param row_indices Integer vector: A subset of row indices of the similarity
+#'  matrix to consider. Default `NULL` to include all rows.
+#'@param column_indices Integer vector: The column indices of the similarity
+#'  matrix to consider. Default `NULL` to include all columns.
+#'@param entity_id_col Character: the variable name(s) in `row_data` and
+#'  `column_data` that uniquely identifies entities. Must be the same name(s) in
+#'  each `data.frame`. Default `NULL` to assume each row is its own entity.
+#'@param tax_level_labels Character: levels of the taxonomy in `tree_object`.
+#'  Default [chemont_tax_levels].
+#'@param name Name of the heatmap similarity measure for legend title. Default
+#'  `'Similarity'`.
+#'@param row_split A specification for row splitting; see Details. Default
+#'  `NULL`, to do no row splitting.
+#'@param column_split A specification for column splitting; see Details. Default
+#'  `NULL`, to do no column splitting.
+#'@param row_title Character: Title for rows. Default `'Row title'`.
+#'@param column_title Character: Title for columns. Default `'Column title'`.
+#'@param annotation_count `TRUE`/`FALSE`: Whether to add row and column
+#'  annotations containing bar charts of the count of entities for each label.
+#'  Default `TRUE`.
+#'@param log_trans `TRUE`/`FALSE`: Whether to log-transform numbers of label
+#'  occurrence for labels present in each data set before plotting them as bar
+#'  chart annotations on the heatmap. Default `FALSE`.
+#'@param colors A colormap used for the heatmap. Should be a function produced
+#'  by [circlize::colorRamp2()], which accepts a vector of numeric values and
+#'  returns interpolated colors. Default `circlize::colorRamp2(breaks = seq(0,
+#'  1, len = 20), viridis::viridis(n=20, option = 'C'))` to use the
+#'  [viridis::viridis()] colormap.
+#'@param ... Other arguments to be passed to [ComplexHeatmap::Heatmap()].
+#'@return A [ComplexHeatmap::Heatmap()] object.
 #' @examples
+#' #heatmap of biosolids vs. USGS water terminal labels
 #' generate_heatmap(tree_object = chemont_tree,
 #'  matrix = chemont_jaccard,
 #'   row_data = biosolids_class,
 #'    column_data = usgs_class,
-#'    row_split = 5L,
-#'    column_split = 5L,
+#'    terminal_only = TRUE,
+#'    #split rows/columns by superclasses
+#'    row_split = "superclass",
+#'    column_split = "superclass",
 #'     row_title = "Biosolids",
 #'      column_title = "USGS Water",
-#'    name = "Jaccard")
+#'    name = "Jaccard",
+#'    #ComplexHeatmap::Heatmap() args follow
+#'     row_title_rot = 0,
+#'      column_title_rot = 90,
+#'       row_title_gp = grid::gpar(fontsize = 6),
+#'        column_title_gp = grid::gpar(fontsize = 6),
+#'         row_gap = unit(0.1, "mm"),
+#'         column_gap = unit(0.1, "mm")
+#'         )
 #'
-#' @export
-#' @import ComplexHeatmap
-#' @importFrom magrittr `%>%`
+#' #an example of pruning:
+#' #the following plots only the block of the previous heatmap
+#' # labeled "Organoheterocyclic compounds" on both row and column
+#' generate_heatmap(tree_object = chemont_tree,
+#'  matrix = chemont_jaccard,
+#'  prune_to = "Organoheterocyclic compounds",
+#'   row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'    terminal_only = TRUE,
+#'    #since all are in the same superclass, split by class this time
+#'    row_split = "class",
+#'    column_split = "class",
+#'    row_title = "Biosolids",
+#'    column_title = "USGS Water",
+#'    name = "Jaccard",
+#'    #ComplexHeatmap::Heatmap() args follow
+#'    row_title_rot = 0,
+#'    column_title_rot = 90,
+#'    row_title_gp = grid::gpar(fontsize = 6),
+#'    column_title_gp = grid::gpar(fontsize = 6),
+#'    row_gap = unit(0.1, "mm"),
+#'    column_gap = unit(0.1, "mm"))
 #'
-#' @seealso \code{\link{generate_tree_cluster}}
+#' #heatmap of similarity at all levels of classification
+#' #with rows/column split by taxonomic level
+#' generate_heatmap(tree_object = chemont_tree,
+#'  matrix = chemont_jaccard,
+#'  prune_to = "Organoheterocyclic compounds",
+#'   row_data = biosolids_class,
+#'    column_data = usgs_class,
+#'    #include labels at all levels of classification
+#'    terminal_only = FALSE,
+#'    row_split = "level",
+#'    column_split = "level",
+#'    row_title = "Biosolids",
+#'    column_title = "USGS Water",
+#'    name = "Jaccard",
+#'    #ComplexHeatmap::Heatmap() args follow
+#'    row_title_rot = 0,
+#'    column_title_rot = 90,
+#'    row_title_gp = grid::gpar(fontsize = 10),
+#'    column_title_gp = grid::gpar(fontsize = 10),
+#'    row_gap = unit(0.1, "mm"),
+#'    column_gap = unit(0.1, "mm"))
+#'
+#'@export
+#'@import ComplexHeatmap
+#'@importFrom magrittr `%>%`
+#'
+#'@seealso \code{\link{generate_tree_cluster}}
 #'
 generate_heatmap <- function(
     row_data,
@@ -169,8 +322,7 @@ generate_heatmap <- function(
     terminal_only = TRUE,
     tree_object = chemont_tree,
     matrix = chemont_jaccard,
-    row_indices = NULL,
-    column_indices = NULL,
+    prune_to = NULL,
     entity_id_col = NULL,
     tax_level_labels = chemont_tax_levels,
     name = 'Similarity',
@@ -178,7 +330,9 @@ generate_heatmap <- function(
     column_split = NULL,
     row_title = 'Row title',
     column_title = 'Column title',
-    log_trans = TRUE,
+    annotation_count = TRUE,
+    log_trans = FALSE,
+    draw = TRUE,
     colors = circlize::colorRamp2(
       breaks = seq(0, 1, len = 20),
       colors = c('#440154FF',
@@ -201,82 +355,57 @@ generate_heatmap <- function(
                  '#B8DE29FF',
                  '#DCE318FF',
                  '#FDE725FF')
-    )) {
+    ),
+    ...) {
 
-  if (!identical(unlist(names(row_data)), unlist(names(column_data))))
-      stop('The classification levels for the row data and column data do not match!')
+  #row_split and column_split may be any of the following:
+  #
+  #a single integer -- in which case it will be treated as cuttree with that
+  #argument
+  #
+  #the name of a taxonomy level -- in which case the dimension will be assigned
+  #its values for that taxonomy level and split accordingly
+  #
+  #the special value "level" -- in which case each label in rows/cols of matrix
+  #will be assigned its taxonomy level and split accordingly (e.g. all kingdoms
+  #together, all superclasses together, etc.)
+  #
+  #some vector of categorical variable the same length and order as the
+  #corresponding dimension of `matrix` -- in which case it will be subset the
+  #same way as `matrix` and used accordingly.
+  #
+  #a data.frame with the same number of rows as the corresponding dimension of
+  #`matrix`, where the variables are categorical and combinations of them
+  #uniquely define groups for splitting.
 
-  if (is.null(row_indices)){
     row_indices <- 1:dim(matrix)[[1]]
-  }
-
-  if (is.null(column_indices)){
     column_indices <- 1:dim(matrix)[[2]]
+
+
+  ##################################
+  # Prune tree & matrix if requested
+  ###################################
+  if(!is.null(prune_to)){
+    tree_object <- prune_tree(tree = tree_object,
+                              prune_to = prune_to,
+                              tax_level_labels = tax_level_labels,
+                              entity_id_col = entity_id_col)
+    #subset the matrix to keep only the labels in the pruned tree
+    tree_labels <- c(tree_object$tip.label,
+                     tree_object$node.label)
+    #get row and column indices of matrix that are in the pruned tree
+    #but don't actually subset matrix yet --
+    #that will be done later
+    row_indices <- which(rownames(matrix) %in% tree_labels)
+    column_indices <- which(colnames(matrix) %in% tree_labels)
   }
 
-  if(!is.null(row_split)){
-    if(!is.numeric(row_split)){
-      stop("row_split must be a positive integer")
-    }
-    if(length(row_split)>1){
-      row_split <- row_split[1]
-      warning("row_split of length > 1; taking the first element")
-    }
-    if(!is.finite(row_split)){
-      stop("row_split is NA/NaN/Inf; it must be a positive integer")
-    }
-    if(row_split < 1){
-      stop("row_split is zero or negative; it must be a positive integer")
-    }
-    if(!is.integer(row_split)){
-    #attempt to coerce to integer
-    #with a warning if necessary
-      if(is.na(as.integer(row_split))){
-        stop("row_split could not be coerced to integer")
-      }
-      if(!is.wholenumber(row_split)){
-        warning(paste("non-integer row_split = ",
-                      row_split,
-                      "will be coerced to integer row_split = ",
-                      as.integer(row_split)))
-      }
-    row_split <- as.integer(row_split)
-    }
-  }
 
-  if(!is.null(column_split)){
-    if(!is.numeric(column_split)){
-      stop("column_split must be a positive integer")
-    }
-    if(length(column_split)>1){
-      column_split <- column_split[1]
-      warning("column_split of length > 1; taking the first element")
-    }
-    if(!is.finite(column_split)){
-      stop("column_split is NA/NaN/Inf; it must be a positive integer")
-    }
-    if(column_split < 1){
-      stop("column_split is zero or negative; it must be a positive integer")
-    }
-    if(!is.integer(column_split)){
-      #attempt to coerce to integer
-      #with a warning if necessary
-      if(is.na(as.integer(column_split))){
-        stop("column_split could not be coerced to integer")
-      }
-      if(!is.wholenumber(column_split)){
-        warning(paste("non-integer column_split = ",
-                      column_split,
-                      "will be coerced to integer column_split = ",
-                      as.integer(column_split)))
-      }
-      column_split <- as.integer(column_split)
-    }
-  }
 
-  taxonomy_names <- names(row_data)
-  # COLLECT LABEL NUMBERS FOR ROW DATA AND FOR COLUMN DATA
 
+  ######################
+  # Set up row indexes
+  #######################
   if(terminal_only %in% TRUE){
     #check whether row data already has terminal labels
     if(!("terminal_label" %in% names(row_data))){
@@ -318,7 +447,9 @@ generate_heatmap <- function(
     row_anno_indices <- row_anno_indices[-row_na_indices]
   }
 
-
+  ######################
+  # Set up column indexes
+  #######################
   if(terminal_only %in% TRUE){
     #check whether column data already has terminal labels
     if(!("terminal_label" %in% names(column_data))){
@@ -359,7 +490,9 @@ generate_heatmap <- function(
     column_anno_indices <- column_anno_indices[-column_na_indices]
   }
 
-
+  ######################
+  # Get matrix row and column indexes
+  #######################
   matrix_row_indices <- intersect(
     which(dimnames(matrix)[[1]] %in% row_labels),
     row_indices)
@@ -375,17 +508,57 @@ generate_heatmap <- function(
     col_anno_label <- 'col count bars'
   }
 
-  heatmap <- ComplexHeatmap::Heatmap(
-    matrix = matrix[
-      matrix_row_indices,
-      matrix_column_indices
-    ],
-    name = name,
-    col = colors,
 
-    # NEED TO ADD HELPER FUNCTIONS FOR THIS
-    top_annotation = ComplexHeatmap::HeatmapAnnotation(
-      col_log_count_bar = anno_barplot(
+
+  #handle row splitting
+  row_split_err <- paste(
+    "row_split should be a single integer,",
+    "the name of a taxonomy level (one of tax_level_labels),",
+    "a vector the same length as nrow(matrix)",
+    "that can be coerced to a factor,",
+    "or a data.frame with the same number of rows as",
+    "nrow(matrix) containing categorical variables",
+    "(that can be coerced to factor)",
+    "whose combinations define groups for splitting the rows."
+  )
+
+row_split <- htmap_split_check(htmap_split = row_split,
+                               matrix_dim = nrow(matrix),
+                               matrix_inds = matrix_row_indices,
+                               matrix_names = rownames(matrix),
+                               tree_object = tree_object,
+                               tax_level_labels = tax_level_labels,
+                               err_msg = row_split_err)
+
+column_split_err <- paste(
+  "column_split should be a single integer,",
+  "the name of a taxonomy level (one of tax_level_labels),",
+  "a vector the same length as ncol(matrix)",
+  "that can be coerced to a factor,",
+  "or a data.frame with the same number of rows as",
+  "ncol(matrix) containing categorical variables",
+  "(that can be coerced to factor)",
+  "whose combinations define groups for splitting the columns."
+)
+column_split <- htmap_split_check(htmap_split = column_split,
+                               matrix_dim = ncol(matrix),
+                               matrix_inds = matrix_column_indices,
+                               matrix_names = colnames(matrix),
+                               tree_object = tree_object,
+                               tax_level_labels = tax_level_labels,
+                               err_msg = column_split_err)
+
+  ######################
+  # Create Heatmap
+  #######################
+
+
+if(annotation_count %in% TRUE){
+    ######################
+    # Add top (column) annotation
+    #######################
+    top_annotation <- ComplexHeatmap::HeatmapAnnotation(
+      col_log_count_bar = ComplexHeatmap::anno_barplot(
         column_label_numbers[
           column_labels[
             column_anno_indices
@@ -395,9 +568,13 @@ generate_heatmap <- function(
       annotation_name_rot = 45,
       annotation_label = col_anno_label,
       annotation_name_gp = grid::gpar(fontsize = 8)
-    ),
-    left_annotation = ComplexHeatmap::rowAnnotation(
-      row_log_count_bar = anno_barplot(
+    )
+
+    ######################
+    # Add left (row) annotation
+    #######################
+    left_annotation <- ComplexHeatmap::rowAnnotation(
+      row_log_count_bar = ComplexHeatmap::anno_barplot(
         row_label_numbers[
           row_labels[
             row_anno_indices
@@ -407,12 +584,47 @@ generate_heatmap <- function(
       annotation_name_rot = 45,
       annotation_label = row_anno_label,
       annotation_name_gp = grid::gpar(fontsize = 8)
-    ),
+    )
+
+    #heatmap with annotations
+    heatmap <- ComplexHeatmap::Heatmap(
+      matrix = matrix[
+        matrix_row_indices,
+        matrix_column_indices
+      ],
+      name = name,
+      col = colors,
+      show_row_names = FALSE,
+      show_column_names = FALSE,
+      row_split = row_split,
+      column_split = column_split,
+      top_annotation = top_annotation,
+      left_annotation = left_annotation,
+      ...
+    )
+}else{
+  #heatmap without annotations
+  heatmap <- ComplexHeatmap::Heatmap(
+    matrix = matrix[
+      matrix_row_indices,
+      matrix_column_indices
+    ],
+    name = name,
+    col = colors,
     show_row_names = FALSE,
     show_column_names = FALSE,
     row_split = row_split,
-    column_split = column_split
+    column_split = column_split,
+    ...
   )
+}
+
+
+  ######################
+  # Draw heatmap to lock in row/column ordering
+  # See https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html#get-orders-and-dendrograms-from-heatmap
+  #######################
+if(draw %in% TRUE){
   heatmap <- draw(heatmap,
                   row_title = row_title,
                   row_title_gp = grid::gpar(fontsize = 10,
@@ -420,6 +632,9 @@ generate_heatmap <- function(
                   column_title = column_title,
                   column_title_gp = grid::gpar(fontsize = 10,
                                                fontface = 'bold'))
+}
+
+  return(heatmap)
 }
 
 
@@ -474,7 +689,7 @@ cluster_analysis <- function(htmap,
     subtree_labels <- c(subtree$tip.label, subtree$node.label)
   }
 
-  # get row levels for row cluster (restrict to subtree if subtree is given)
+  # get row levels for row cluster
   row_names <- dimnames(htmap@ht_list[[1]]@matrix)[[1]][
     stats::order.dendrogram(
       ComplexHeatmap::row_dend(htmap)[[row_cluster]]
@@ -522,7 +737,6 @@ cluster_analysis <- function(htmap,
               'column_class' = column_clades))
 
 }
-
 
 
 #' @title Handle missing node show clade
@@ -1285,5 +1499,112 @@ generate_tree_cluster <- function(subtree,
   return(tree_visual)
 
 }
+
+#' @title Heatmap split check
+#'
+#' @description A helper function for [generate_heatmap()] to check the
+#'   row/column split specifications.
+#'
+#' @details See [generate_heatmap()] for possible heatmap split specifications.
+#'
+#' @param htmap_split The split specification (either `row_split` or
+#'   `column_split` as provided to [generate_heatmap()]).
+#' @param matrix_dim Integer: The size of the appropriate dimension of the full
+#'   matrix to be heatmapped (i.e., argument `matrix` as supplied to
+#'   [generate_heatmap()]): `nrow(matrix)` for `row_split`, `ncol(matrix)` for
+#'   `column_split`.
+#' @param matrix_inds Integer vector: The row or column indices of the full
+#'   matrix to be heatmapped (i.e., argument `matrix` as supplied to
+#'   [generate_heatmap()]).
+#' @param matrix_names Character vector: The row or column names of the full
+#'   matrix (i.e., argument `matrix` as supplied to [generate_heatmap()]).
+#' @param tree_object The tree object from which the matrix was derived (i.e.,
+#'   argument `tree_object` as supplied to [generate_heatmap()]). May be a
+#'   pruned subset of the original tree (i.e., if [generate_heatmap()] was
+#'   called with a non-`NULL` value for argument `prune_to`, then this will be
+#'   `prune_tree(tree = tree_obj, prune_to = prune_to)`).
+#' @param tax_level_labels Character vector of taxonomy level labels, as
+#'   supplied to [generate_heatmap()].
+#' @param err_msg Character: An error message to be thrown if the `htmap_split`
+#'   specification is not one of the accepted types. Default `"Invalid heatmap
+#'   split specification."`, but [generate_heatmap()] internally supplies its
+#'   own, more-informative error messages.
+#' @return If it does not stop with an error, returns the final row/column split
+#'   specification. If split specification was `"level"` or the name of a
+#'   taxonomy level, then the returned object will be a character vector the
+#'   same length as `matrix_inds`. Otherwise, it will be the same class as
+#'   `htmap_split`, but with the same length or number of rows as `matrix_inds`,
+#'   unless `htmap_split` was a single integer, in which case the returned
+#'   object is the same single integer.
+#' @examples
+#' #No examples. See ?generate_heatmap for acceptable split specifications.
+#' @author Caroline Ring
+#'
+htmap_split_check <- function(htmap_split,
+                              matrix_dim,
+                              matrix_inds,
+                              matrix_names,
+                              tree_object,
+                              tax_level_labels,
+                              err_msg = "Invalid heatmap split specification."){
+
+  if(!is.null(htmap_split)){
+    if(is.data.frame(htmap_split)){
+      if(!(nrow(htmap_split) %in% matrix_dim)){
+        stop(err_msg)
+      }else{
+        #reorder/subset to match the matrix
+        htmap_split <- htmap_split[matrix_inds, ]
+      }
+    }else{ #if it's not a data.frame
+      if(length(htmap_split) %in% 1){ #if it's length 1
+        if(is.numeric(htmap_split)){ #if numeric
+          if(!is.wholenumber(htmap_split)){ #if not integer
+            stop(err_msg)
+          }
+        }else{ #if length 1 but not numeric
+          if(!is.character(htmap_split)){ #if not character either
+            stop(err_msg) #then stop
+          }else{ #if length 1 and character
+            if(htmap_split %in% tax_level_labels){
+              #get the corresponding ancestor for rows of matrix
+              nodes_row <- get_node_from_label(
+                label = matrix_names[matrix_inds],
+                tree = tree_object)
+              htmap_split <- get_label_from_node(
+                node = get_clade(node = nodes_row,
+                                 tree = tree_object,
+                                 level = match(htmap_split, tax_level_labels)
+                ),
+                tree = tree_object)
+            }else{ #if character, but not in tax_level_labels
+              if(htmap_split %in% "level"){
+                #get taxonomic level of each row label in matrix
+                htmap_split <- tax_level_labels[
+                  get_node_level(tree = tree_object,
+                                 node = matrix_names[matrix_inds])
+                ]
+              }else{
+                #if single character, but neither one of the taxonomy levels nor
+                #the word "level"
+                stop(err_msg)
+              }
+            } #end if character, but not in tax_level_labels
+          } #end if length 1 and character
+        } #end if length 1 but not numeric
+      }else{ #if length(htmap_split) > 1
+        #check and make sure it's the same length as matrix_dim
+        if(!(length(htmap_split) %in% matrix_dim)){
+          stop(err_msg)
+        }else{
+          htmap_split <- htmap_split[matrix_inds]
+        }
+      }
+    }
+  }
+
+  return(htmap_split)
+}
+
 
 
