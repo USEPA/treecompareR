@@ -922,13 +922,14 @@ display_subtree <- function(base_tree = chemont_tree,
         if(!is.null(data_2)){
           #If no aesthetic mapping for list presence specified,
           #then default to color only
-          subtree_mapping <- list(color = c("gray70",
-                                            "#66C2A5",
-                                            "#8DA0CB",
-                                            "#FC8D62"))
+          #see RColorBrewer::brewer.pal(n=3, name = "Dark2")[c(1,3,2)]
+          subtree_mapping <- list(color = c("gray80",
+                                            "#1B9E77",
+                                            "#7570B3",
+                                            "#D95F02"))
         }else{
-          subtree_mapping <- list(color = c("gray70",
-                                            "#66C2A5"))
+          subtree_mapping <- list(color = c("gray80",
+                                            "#1B9E77"))
         }
       }
 
