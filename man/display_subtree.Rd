@@ -15,15 +15,19 @@ display_subtree(
   name_1 = "Set 1",
   name_2 = "Set 2",
   tax_level_labels = chemont_tax_levels,
-  layout = "circular",
-  show_tips = TRUE,
-  tiplab_opts = NULL,
-  tiplab_size = NULL,
-  base_opts = list(color = "black", size = 0.5, linetype = 1),
-  subtree_mapping = list(color = c("gray70", "#66C2A5", "#8DA0CB", "#FC8D62")),
-  color_overlap = FALSE,
   entity_id_col = NULL,
-  point_size = 3,
+  layout = "circular",
+  base_opts = list(color = "black", size = 0.5, linetype = 1),
+  bg_tree_scale = 1.8,
+  highlight_by = "set",
+  subtree_mapping = NULL,
+  show_tiplabs = TRUE,
+  tiplab_opts = NULL,
+  show_tippoints = FALSE,
+  tippoint_opts = NULL,
+  show_nodepoints = FALSE,
+  nodepoint_opts = NULL,
+  sim_mat = chemont_jaccard,
   clade_level = NULL,
   clade_opts = list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7,
     default_to_tip = TRUE, draw_text = TRUE)
@@ -39,7 +43,7 @@ before plotting. Default is \code{NULL}, which results in no pruning being done
 \code{\link[=prune_tree]{prune_tree()}}: What to \emph{keep} from the base tree (everything else will be
 pruned away). May be a \code{data.frame} of classified data; a character vector
 of one or more labels in the tree (tip or internal node labels); an integer
-vector od one or more node numbers in the tree (tip or internal nodes); or a
+vector of one or more node numbers in the tree (tip or internal nodes); or a
 character scalar giving the name of a taxonomy level (one of the items in
 \code{tax_level_labels}).  See the help for \code{\link[=prune_tree]{prune_tree()}}.}
 
@@ -54,16 +58,21 @@ should name or describe the base tree (or the pruned base tree). Default
 \item{data_1}{Optional: Highlight branches of the base tree according to their
 membership in this data set. Default is \code{NULL}, to do no highlighting. If
 not \code{NULL}, must be one of the following options: A \code{data.frame} of
-classified entities; a vector of node numbers in the base tree; a vector of
-node labels in the base tree; or a subtree of \code{base_tree} as a \code{phylo}-class
-object. See Details.}
+classified entities; an integer vector of node numbers in the base tree; a
+character vector of node labels in the base tree; or a subtree of
+\code{base_tree} as a \code{phylo}-class object. \code{data_1} may also be a \code{list} of any
+of the preceding items, in which case all list elements must be of the same
+class, as they will be concatenated and the concatenation used as \code{data_1}.
+See Details.}
 
 \item{data_2}{Optional: Highlight branches of the base tree to compare
 membership in this data set and \code{data_1}. Default is \code{NULL}, to do no
 highlighting. If not \code{NULL}, one of the following options: A \code{data.frame} of
-classified entities; a vector of node numbers in the base tree; a vector of
-node labels in the base tree; or a subtree of \code{base_tree} as a \code{phylo}-class
-object. See Details.}
+classified entities; an integer vector of node numbers in the base tree; a
+character vector of node labels in the base tree; or a subtree of
+\code{base_tree} as a \code{phylo}-class object. \code{data_2} may also be a \code{list} of any
+of the preceding items, in which case all list elements must be of the same
+class, as they will be concatenated and the concatenation used as \code{data_2}.See Details.}
 
 \item{name_1}{Optional: Character string giving the name of \code{data_1} that
 should be used in the plot legend. Default is \code{"Set 1"}.}
@@ -75,24 +84,12 @@ should be used in the plot legend. Default is \code{"Set 1"}.}
 \item{tax_level_labels}{Optional: a vector of the taxonomy level labels to be
 used. Default value:\link{chemont_tax_levels}.}
 
+\item{entity_id_col}{Character: the name of the variable in \code{prune_to},
+\code{data_1}, and/or \code{data_2} that identifies entities, if those arguments are
+provided as \code{data.frame}s of classified entities. Default \code{NULL} to assume
+that each row is a unique entity.}
+
 \item{layout}{\code{\link[ggtree:ggtree]{ggtree::ggtree()}} tree layout option. Default \code{"circular."}}
-
-\item{show_tips}{\code{TRUE}/\code{FALSE}: Whether to display the tip labels. Default
-\code{TRUE}. Note that when \code{show_tips = TRUE}, clade labels will be suppressed
-(\emph{i.e.}, arguments \code{clade_opts} and \code{clade_level} will b}
-
-\item{tiplab_opts}{A named list of additional arguments to
-\code{\link[ggtree:geom_tiplab2]{ggtree::geom_tiplab2()}}; see the documentation for that function for more
-options. Default \code{NULL} to use defaults for that function. For example, you
-could specify \code{tiplab_opts = list(offset = 3)} to increase the space between
-tips and labels.}
-
-\item{tiplab_size}{Numeric: size to use for tip labels (if \code{show_tips = TRUE}). Default \code{NULL}, to attempt auto-scaling based on the number of tips
-(\code{tiplab_size = 3} if fewer than 200 tips; \code{tiplab_size = 1.5} if between
-200 and 500 tips; otherwise \code{tiplab_size = 0.5}). Make it larger for bigger
-text, smaller for smaller text. You can change this after the fact by taking
-the output of this function and adding \code{+ ggtree::geom_tiplab(size = N)}
-where \code{N} is replaced by your desired size.}
 
 \item{base_opts}{List of parameters to control color, size, and linetype of
 the base tree diagram. Default \code{list(color = "black", size = 0.5, linetype = 1)}. Should be a named list with one or more of \code{color}, \code{size}, and
@@ -104,44 +101,89 @@ their value from the default list will be substituted. For example, if you
 provide \code{base_opts = list(color = "red")}, it will be the same as if you
 provided \code{base_opts = list(color = "red", size = 0.5, linetype = 1)}.}
 
-\item{subtree_mapping}{List of aesthetics used to control branch highlighting
-according to membership in the provided data set(s). Must be a named list
-with one or more of the following named elements: \code{color} (or \code{colour}),
-\code{size}, and/or \code{linetype}. Default is \code{list(color = c("gray70", "#66C2A5", "#8DA0CB", "#FC8D62"))}. See Details.}
+\item{bg_tree_scale}{Numeric: The factor by which to increase or decrease the
+size (linewidth) of the base tree (as specified in \code{base_opts$size}), on
+which the highlighted tree will be overlaid. Default \code{1.8}. In short, a tree
+is first drawn using the \code{base_opts}, but with a slightly thicker line
+weight. Then, the highlighted tree is drawn on top of it. This is a way of
+drawing an outline or border around the highlighted tree, using the base
+color. The larger \code{bg_scale} is, the wider the border will be.}
 
-\item{color_overlap}{\code{TRUE}/\code{FALSE}: Whether to color branches according to
+\item{highlight_by}{One of \code{"set"} (default), \code{"overlap"}, \code{"simil"}, or
+\code{"none"}. \code{"set"} highlights branches by their membership in \code{data_1} and/or
+\code{data_2} if provided. \code{"overlap"} highlights branches according to
 fractional overlap in number of entities, if two data sets were provided.
-Default \code{FALSE}, to color branches according to subtree membership instead.
-If \code{TRUE}, \code{subtree_mapping} will be ignored. To use this option, either
-\code{prune_to} and \code{data_1} must both be provided as \code{data.frame}s of classified
-entities (in which case the overlap in number of entities will be computed
-between \code{prune_to} and \code{data_1}), or \code{data_1} and \code{data_2} must both be
-provided as \code{data.frame}s of classified entities (in which case the overlap
-in number of entities will be computed between \code{data_1} and \code{data_2}). If
-all three of \code{prune_to}, \code{data_1}, and \code{data_2} are provided as
-\code{data.frame}s of classified entities, then the overlap will be computed
-between \code{data_1} and \code{data_2}.}
+\code{"sim"} highlights branches according to their maximum similarity of
+taxonomic ancestry between two data sets, if provided. \code{"none"} does not
+highlight branches. To use \code{highlight_by = "set"}, \code{data_1} must be provided
+(and \code{data_2} may be provided). To use \code{"overlap"}, either \code{prune_to} and
+\code{data_1} must both be provided as \code{data.frame}s of classified entities (in
+which case the overlap in number of entities will be computed between
+\code{prune_to} and \code{data_1}), or \code{data_1} and \code{data_2} must both be provided as
+\code{data.frame}s of classified entities (in which case the overlap in number of
+entities will be computed between \code{data_1} and \code{data_2}). If all three of
+\code{prune_to}, \code{data_1}, and \code{data_2} are provided as \code{data.frame}s of
+classified entities, then the overlap will be computed between \code{data_1} and
+\code{data_2}. To use \code{"simil"}, either \code{prune_to} and \code{data_1} must be provided,
+or \code{data_1} and \code{data_2} must be provided, although they may be provided in
+any of the allowable formats (unlike \code{highlight_by = "overlap"}, they need
+not be provided as \code{data.frame}s of classified entities).}
 
-\item{entity_id_col}{Character: the name of the variable in \code{prune_to},
-\code{data_1}, and/or \code{data_2} that identifies entities, if those arguments are
-provided as \code{data.frame}s of classified entities. Used only if
-\code{color_overlap = TRUE} (because it's used by \code{\link[=calc_number_overlap]{calc_number_overlap()}} to
-calculate the overlap in entities). Default \code{NULL} to assume that entities
-are uniquely identified by the combination of all variables other than those
-in \code{tax_level_labels}.}
+\item{subtree_mapping}{List of aesthetics used to control branch highlighting.
+Must be a named list with one or more of the following named elements:
+\code{color} (or \code{colour}), \code{size}, and/or \code{linetype}. Default \code{NULL} to choose a
+default color mapping based on \code{highlight_by}. If \code{highlight_by \%in\% c("overlap", "simil")}, then elements \code{size} or \code{linetype} in
+\code{subtree_mapping} will be ignored.}
 
-\item{point_size}{Numeric: the size at which to draw node and tip points,
-which are only drawn if \code{color_overlap = TRUE}. Default 3.}
+\item{show_tiplabs}{\code{TRUE}/\code{FALSE}: Whether to display the tip labels. Default
+\code{TRUE}. Note that when \code{show_tiplabs = TRUE}, clade labels will be
+suppressed (\emph{i.e.}, arguments \code{clade_opts} and \code{clade_level} will be
+ignored).}
+
+\item{tiplab_opts}{A named list of additional arguments to
+\code{\link[ggtree:geom_tiplab]{ggtree::geom_tiplab()}}; see the documentation for that function for more
+options. Default \code{NULL} to use defaults for that function. For example, you
+could specify \code{tiplab_opts = list(offset = 3)} to increase the space between
+tips and labels. If \code{size} is not specified, this function will attempt to
+auto-determine size based on the number of tips (\code{size = 3} if fewer than
+200 tips; \code{size = 1.5} if between 200 and 500 tips; if more than 500 tips,
+\code{size = 0.5}).}
+
+\item{show_tippoints}{\code{TRUE}/\code{FALSE}: Whether to display tip points. Default
+\code{FALSE}.}
+
+\item{tippoint_opts}{A named list of additional arguments to
+\code{\link[ggtree:geom_tippoint]{ggtree::geom_tippoint()}}; see the documentation for that function for more
+options. Default \code{NULL} to use defaults for that function. If \code{size} is not
+specified, this function will attempt to auto-determine size based on the
+number of tips (\code{size = 1.5} if fewer than 200 tips; \code{size = 1} if between
+200 and 500 tips; if more than 500 tips, \code{size = 0.5}).}
+
+\item{show_nodepoints}{\code{TRUE}/\code{FALSE}: Whether to display (internal) node
+points. Default \code{FALSE}.}
+
+\item{nodepoint_opts}{A named list of additional arguments to
+\code{\link[ggtree:geom_nodepoint]{ggtree::geom_nodepoint()}}; see the documentation for that function for more
+options. Default \code{NULL} to use defaults for that function. If \code{size} is not
+specified, this function will attempt to auto-determine size based on the
+number of tips (\code{size = 1.5} if fewer than 200 tips; \code{size = 1} if between
+200 and 500 tips; if more than 500 tips, \code{size = 0.5}).}
+
+\item{sim_mat}{Optional: A numeric matrix of pairwise similarities including
+all the nodes in the base tree (or just the pruned tree, if \code{prune_to} is
+non-\code{NULL}), as produced by \code{\link[=similarity_matrix]{similarity_matrix()}}. Default
+\code{chemont_jaccard}. Used only if \code{highlight_by = "sim"}. If \code{NULL}, then
+similarity highlighting will not be performed.}
 
 \item{clade_level}{Integer or character: The taxonomy level at which to draw
 clade labels, if any. Default is \code{NULL}, which will suppress clade labels
 altogether. \code{clade_level = "auto"} is a special value that automatically
 selects the taxonomy level of the MRCA of the tips plus one, or level 2,
-whichever is the greater number. See \code{\link[=add_cladelabels]{add_cladelabels()}}. If \code{show_tips = TRUE}, \code{clade_level} will be ignored and clade labels will not be drawn.}
+whichever is the greater number. See \code{\link[=add_cladelabels]{add_cladelabels()}}. If \code{show_tiplabs = TRUE}, \code{clade_level} will be ignored and clade labels will not be drawn.}
 
 \item{clade_opts}{List of parameters defining aesthetic options for labeling
 clades. See \code{\link[=add_cladelabels]{add_cladelabels()}} for options.  Default is \code{list(wrap = 20, barsize = "alternate", fontsize = 3, lineheight = 0.7, default_to_tip = TRUE, draw_text = TRUE)}. You can provide any of the additional parameters
-of \code{\link[ggtree:geom_cladelab]{ggtree::geom_cladelab()}}. If \code{show_tips = TRUE}, \code{clade_opts} will be
+of \code{\link[ggtree:geom_cladelab]{ggtree::geom_cladelab()}}. If \code{show_tiplabs = TRUE}, \code{clade_opts} will be
 ignored and clade labels will not be drawn.}
 }
 \value{
@@ -298,14 +340,14 @@ ignored (with a warning).
 }
 
 \section{Helpful hints}{
-If you supply \code{show_tips = TRUE} and some of the tip labels are cut off, you
-can enlarge the margin using \code{\link[ggplot2:lims]{ggplot2::xlim()}}. For example:
+If you supply \code{show_tiplabs = TRUE} and some of the tip labels are cut off,
+you can enlarge the margin using \code{\link[ggplot2:lims]{ggplot2::xlim()}}. For example:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{my_tree <- display_subtree(prune_to = biosolids_class,
 base_name = "Biosolids",
 data_1 = usgs_class,
 name_1 = "USGS",
-show_tips = TRUE)
+show_tiplabs = TRUE)
 
 my_tree #labels are cut off
 
@@ -319,38 +361,86 @@ my_tree + xlim(c(0, max(my_tree$data$x) + 50) #add extra space
 oh_tree <- prune_tree(tree = chemont_tree,
 prune_to = "Organohalogen compounds")
 
+#show this tree by itself
+display_subtree(base_tree = oh_tree)
+
 #one data set
-display_subtree(base_tree = oh_tree, data_1 = biosolids_class)
+display_subtree(base_tree = oh_tree,
+ data_1 = biosolids_class,
+ entity_id_col = "DTXSID",
+ highlight_by = "set")
 
 #two data sets
 display_subtree(base_tree = oh_tree,
  data_1 = biosolids_class,
-data_2 = usgs_class)
+data_2 = usgs_class,
+entity_id_col = "DTXSID",
+ highlight_by = "set")
 
 #increasing line width
-display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
-data_2 = usgs_class, base_opts = list(size = 1))
+display_subtree(base_tree = oh_tree,
+ data_1 = biosolids_class,
+data_2 = usgs_class,
+entity_id_col = "DTXSID",
+ base_opts = list(size = 1),
+ highlight_by = "set")
 
 #different subtree color mapping
-display_subtree(base_tree = oh_tree, data_1 = biosolids_class,
-data_2 = usgs_class, base_opts = list(size = 1),
- subtree_mapping = list(color = c("black", "red", "blue", "purple")))
+display_subtree(base_tree = oh_tree,
+ data_1 = biosolids_class,
+data_2 = usgs_class,
+entity_id_col = "DTXSID",
+base_opts = list(size = 1),
+ subtree_mapping = list(color = c("black", "red", "blue", "purple")),
+ highlight_by = "set")
 
- #clade level
+ #clade labels
  display_subtree(base_tree = oh_tree,
   data_1 = biosolids_class,
-data_2 = usgs_class, base_opts = list(size = 1),
-clade_level = 2)
+data_2 = usgs_class,
+entity_id_col = "DTXSID",
+ base_opts = list(size = 1),
+ show_tiplabs = FALSE, #they'll clash with clade labels
+clade_level = 2,
+ highlight_by = "set")
 
-#prune to BIOSOLIDS2021 classes only
-#and color by overlap between BIOSOLIDS2021 and USGS Water
-display_subtree(prune_to = biosolids_class,
+#prune full ChemOnt tree to the union of BIOSOLIDS2021 and USGSWATER classes only
+#and color by set membership
+display_subtree(base_tree = chemont_tree,
+prune_to = list(biosolids_class, usgs_class),
 data_1 = usgs_class,
-base_name = "Biosolids",
 name_1 = "USGS Water",
+data_2 = biosolids_class,
+name_2 = "Biosolids",
+entity_id_col = "DTXSID",
 base_opts = list(size = 1),
-color_overlap = TRUE,
-show_tips = FALSE,
+bg_tree_scale = 0, #suppress border drawing
+highlight_by = "set",
+show_tiplabs = FALSE,
+show_tippoints = TRUE,
+tippoint_opts = list(size = 2),
+clade_level = 2,
+clade_opts = list(offset = 3,
+offset.text = 1,
+fontsize = 4))
+
+#prune to the union of BIOSOLIDS2021 and USGSWATER classes only
+#and color by Jaccard similarity of classifications between BIOSOLIDS2021 and USGS Water.
+#compare this plot to the previous one!
+display_subtree(base_tree = chemont_tree,
+prune_to = list(biosolids_class, usgs_class),
+data_1 = usgs_class,
+name_1 = "USGS Water",
+data_2 = biosolids_class,
+name_2 = "Biosolids",
+entity_id_col = "DTXSID",
+base_opts = list(size = 1),
+bg_tree_scale = 0, #suppress border drawing
+highlight_by = "sim",
+sim_mat = chemont_jaccard,
+show_tiplabs = FALSE,
+show_tippoints = TRUE,
+tippoint_opts = list(size = 2),
 clade_level = 2,
 clade_opts = list(offset = 3,
 offset.text = 1,

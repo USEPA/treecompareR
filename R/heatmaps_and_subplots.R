@@ -110,7 +110,9 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #'  the two data sets, one data set on the rows and the other on the columns,
 #'  annotated with bar graphs showing the number of occurrences of each label in
 #'  each data set. The heatmap will be automatically clustered on rows and
-#'  columns. See [the ComplexHeatmap
+#'  columns.
+#'
+#'   See [the ComplexHeatmap
 #'  reference](https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html)
 #'  for more details.
 #'
@@ -149,7 +151,7 @@ label_numbers <- function(datatable, chemont = TRUE, log = TRUE) {
 #'  If you would like to add your own annotations after the fact, you may want
 #'  to use the option `draw = FALSE`. This returns a
 #'  [ComplexHeatmap::HeatmapList()] object that has not had the
-#'  [ComplexHeatmap::`draw,HeatmapList-method`] applied to it yet. This means
+#'  `draw()` method applied to it yet. This means
 #'  you can still concatenate it with other heatmaps and heatmap annotations
 #'  using `+` and `%v%`. (If you use `draw =
 #'  TRUE`, you won't be able to concatenate the result with any other heatmaps

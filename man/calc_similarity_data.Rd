@@ -10,6 +10,7 @@ calc_similarity_data(
   terminal_label = "terminal_label",
   tree = chemont_tree,
   tax_level_labels = chemont_tax_levels,
+  entity_id_col = NULL,
   sim_matrix = NULL,
   similarity = NULL
 )
@@ -27,6 +28,10 @@ the terminal label of the classification. Default \code{"terminal_label"}.}
 
 \item{tax_level_labels}{The set of taxonomy levels to use. Default
 \code{\link{chemont_tax_levels}}.}
+
+\item{entity_id_col}{\code{NULL} (default) or character vector giving the name(s)
+of variables in \code{data} that specify unique entities. If \code{NULL}, each row
+will be treated as a unique entity.}
 
 \item{sim_matrix}{Optional: A pre-computed similarity matrix to use as a
 lookup table. Default \code{NULL}, which will compute similarity from scratch

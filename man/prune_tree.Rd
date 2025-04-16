@@ -10,6 +10,7 @@ prune_tree(
   keep_descendants = NULL,
   adjust_branch_length = FALSE,
   tax_level_labels = chemont_tax_levels,
+  entity_id_col = NULL,
   ...
 )
 }
@@ -18,26 +19,45 @@ prune_tree(
 \code{\link[ape:read.tree]{ape::read.tree()}} for description of this class).}
 
 \item{prune_to}{What to \emph{keep} from the base tree (everything else will be
-pruned away). May be a \code{data.frame} of classified data; one or more
-labels in the tree (tip or internal node labels); one or more node numbers
-in the tree (tip or internal nodes); or the name of a taxonomy level (one of
-the items in \code{tax_level_labels}). Default is NULL, which results in no
-pruning being done (i.e., the base tree is returned as-is). See Details.}
+pruned away). May be a \code{data.frame} of classified data; a character vector
+of one or more labels in the tree (tip or internal node labels); an integer
+vector of one or more node numbers in the tree (tip or internal nodes); a
+string giving the name of a taxonomy level (one of the items in
+\code{tax_level_labels}); or a single integer giving a taxonomy level (e.g., 0 is
+root; 1 is the direct children of root; etc.). If a single integer is given
+and it is less than or equal to \code{length(tax_level_labels)}, it will be
+interpreted as a taxonomy level; if it is greater than
+\code{length(tax_level_labels)}, it will be interpreted as a node ID number.
+\code{prune_to} may also be a \code{list} of any of the above types, but all list
+elements must be of the same class (e.g., all \code{data.frame}, all \code{numeric},
+all \code{character}). If it is a \code{list}, then the elements will be concatenated,
+and the result will be used as \code{prune_to}. If it is a \code{list} of integers
+intended to represent taxonomy levels, then it will be interpreted instead as node ID
+numbers. Default is \code{NULL}, which results in no pruning being done (i.e.,
+the base tree is returned as-is). See Details.}
 
 \item{keep_descendants}{Whether to keep descendants of what is specified in
 \code{prune_to}. Default NULL will choose the behavior based on the class of
-\code{prune_to}: when \code{prune_to} is a \code{data.frame} or one of the
-taxonomy level labels, \code{keep_descendants = FALSE} by default. When
-\code{prune_to} is a vector of node/tip labels or numbers in the base
-tree,\code{keep_descendants = TRUE} by default. See Details.}
+\code{prune_to}: when \code{prune_to} is a \code{data.frame} or one of the taxonomy level
+labels, \code{keep_descendants = FALSE} by default. When \code{prune_to} is a
+vector of node/tip labels or numbers in the base tree,\code{keep_descendants
+ = TRUE} by default. See Details.}
 
 \item{adjust_branch_length}{Whether to adjust branch length so that all
 newly-pruned terminal nodes appear at the same length as tips, even if they
 were originally internal nodes. Default FALSE.}
 
 \item{tax_level_labels}{Vector of the possible taxonomy levels that can appear
-as column names in \code{prune_to} if it is a \code{data.frame} of
-classified data.}
+as column names in \code{prune_to} if it is a \code{data.frame} of classified data.}
+
+\item{entity_id_col}{Optional: if \code{prune_to} is provided as a \code{data.frame} of
+classified entities, then \code{entity_id_col} may be a character vector of one
+or more variable name(s) in \code{data} that, together, uniquely identify the
+entities. Default \code{NULL}, which treats each row as a unique entity named
+\code{entity1}, \code{entity2}, ... for as many rows as there are in the data. If a
+vector of variable names is provided, entities will be named by
+concatenating rows of the specified variables. If \code{prune_to} is not a
+\code{data.frame} of classified entities, then \code{entity_id_col} is ignored.}
 
 \item{...}{Additional arguments, not currently used.}
 }
@@ -47,48 +67,49 @@ A \code{phylo}-class object representing the pruned tree.
 \description{
 Prune a tree to keep only a specified subtree.
 }
-\section{How to specify the subtree to keep}{
-\code{prune_to} defines the subtree to \emph{keep} (everything else will be pruned
-away). It may be specified in several different ways.
+\section{How to specify the subtree to keep \code{prune_to} defines the subtree}{
+to \emph{keep} (everything else will be pruned away). It may be specified in
+several different ways.
 \subsection{As a data.frame}{
 
-If \code{prune_to} is a \code{data.frame} of classified entities, it must have
-columns corresponding to, and named for, each of the taxonomy levels as
-defined in the argument \code{tax_level_labels}, containing the labels at the
-corresponding level for each entity. It must also have at least one more
-column, uniquely identifying the entities; the name of the additional column
-does not matter, as long as it is not the same as one of the taxonomy levels.
-The result will be to keep only the subtree induced by this classified data
-set, \emph{i.e.}, only the branches of the tree that occur in this classified data
-set. By default, any descendants of the node labels in the \code{data.frame}
-that do not themselves appear in the \code{data.frame} will \emph{not} be kept. If
-you want to keep descendants that do not themselves appear in the
-\code{data.frame}, specify \code{keep_descendants = TRUE}.
+If \code{prune_to} is a \code{data.frame} of classified entities, it must have columns
+corresponding to, and named for, each of the taxonomy levels as defined in
+the argument \code{tax_level_labels}, containing the labels at the corresponding
+level for each entity. It must also have at least one more column, uniquely
+identifying the entities; the name of the additional column does not matter,
+as long as it is not the same as one of the taxonomy levels. The result will
+be to keep only the subtree induced by this classified data set, \emph{i.e.},
+only the branches of the tree that occur in this classified data set. By
+default, any descendants of the node labels in the \code{data.frame} that do not
+themselves appear in the \code{data.frame} will \emph{not} be kept. If you want to
+keep descendants that do not themselves appear in the \code{data.frame}, specify
+\code{keep_descendants = TRUE}.
 }
 
 \subsection{As the name of a taxonomy level}{
 
-If \code{prune_to} is the name of a taxonomy level (one of the levels defined
-in argument \code{tax_level_labels}), the result will be to keep only nodes at
-that taxonomic level or less-specific levels. (For example, for the ChemOnt
-taxonomy, specifying \code{prune_to = "class"} will keep only nodes at levels
-"kingdom", "superclass", and "class". Any nodes at level "subclass", "level5",
-"level6", ... "level11" will be dropped. (If you specify \code{prune_to} as
-the name of a taxonomy level, and also specify \code{keep_descendants = TRUE},
-the result will be to keep the whole tree.)
+If \code{prune_to} is the name of a taxonomy level (one of the levels defined in
+argument \code{tax_level_labels}), the result will be to keep only nodes at that
+taxonomic level or less-specific levels. (For example, for the ChemOnt
+taxonomy, specifying \code{prune_to = "class"} will keep only nodes at
+levels "kingdom", "superclass", and "class". Any nodes at level "subclass",
+"level5", "level6", ... "level11" will be dropped. (If you specify
+\code{prune_to} as the name of a taxonomy level, and also specify
+\code{keep_descendants = TRUE}, the result will be to keep the whole tree.)
 }
 
 \subsection{As a vector of node/tip labels or numbers}{
 
 If \code{prune_to} is a vector of node/tip labels (i.e., labels appearing in
-\code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers (i.e.
+\code{tree$node.label} and/or \code{tree$tip.label}) or node/tip numbers
+(i.e.
 node/tip index numbers between 1 and \code{ape::Ntip(tree) +
 ape::Nnode(tree)}), the result will be to keep only the nodes/tips that are in
 that vector, keep their common ancestors, and (by default) also keep their
-descendants if any. The intention of keeping the descendants by default is to
-allow the user to prune to specified clades simply by specifying the labels or
-node numbers of the MRCAs of the clades. For example, using the ChemOnt
-taxonomy, you could prune to keep all branches in the superclass
+descendants if any. The intention of keeping the descendants by default is
+to allow the user to prune to specified clades simply by specifying the
+labels or node numbers of the MRCAs of the clades. For example, using the
+ChemOnt taxonomy, you could prune to keep all branches in the superclass
 "Organohalogen compounds" by simply specifying \code{prune_to = "Organohalogen
 compounds"}.  If you do \emph{not} wish to keep the descendants of the specified
 node labels/numbers, then specify \code{keep_descendants = FALSE}.

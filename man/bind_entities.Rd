@@ -17,18 +17,19 @@ bind_entities(
 this tree.}
 
 \item{data}{Either one \code{data.frame}, or a list of \code{data.frames}, containing
-classified entities. The data.frames must include the column names
-specifiedin \code{tax_level_labels} and \code{entity_id_col}.}
+classified entities. If it is a list, then the list will be concatenated
+using \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}. The \code{data.frame}s must include the variable
+names specified in \code{tax_level_labels} and \code{entity_id_col}.}
 
-\item{entity_id_col}{Character vector: One or more variable name(s) in
-\code{data} that, together, uniquely identify the entities. Default \code{NULL},
-which treats each row in \code{data} as a unique entity named \code{entity1},
-\code{entity2}, ... for as many rows as there are in the data. If a vector of
-variable names is provided, entities will be named by concatenating rows of
-the specified variables.}
+\item{entity_id_col}{Character vector: One or more variable name(s) in \code{data}
+that, together, uniquely identify the entities. Default \code{NULL}, which
+treats each row in \code{data} as a unique entity named \code{entity1}, \code{entity2},
+... for as many rows as there are in the data. If a vector of variable
+names is provided, entities will be named by concatenating rows of the
+specified variables.}
 
-\item{tax_level_labels}{Taxonomy levels used for classification in
-\code{data}. Default is \link{chemont_tax_levels}.}
+\item{tax_level_labels}{Taxonomy levels used for classification in \code{data}.
+Default is \link{chemont_tax_levels}.}
 }
 \value{
 A \code{phylo}-class object.

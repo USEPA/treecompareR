@@ -5,12 +5,12 @@
 \title{Display tree with overlap}
 \usage{
 display_overlap(
-  base_tree,
-  base_name,
+  base_tree = chemont_tree,
+  base_name = NULL,
   data_1,
-  name_1,
+  name_1 = "Set1",
   data_2,
-  name_2,
+  name_2 = "Set2",
   entity_id_col = NULL,
   group_level = "terminal",
   tax_level_labels = chemont_tax_levels,
@@ -20,49 +20,49 @@ display_overlap(
 }
 \arguments{
 \item{base_tree}{A \code{phylo}-class tree object to plot (see \code{\link[ape:read.tree]{ape::read.tree()}}
-for details on this class).}
+for details on this class). Default \link{chemont_tree}.}
 
-\item{base_name}{A name for the base tree (used for the plot title)}
+\item{base_name}{A name for the base tree (used for the plot title). Default
+\code{NULL} for no title.}
 
 \item{data_1}{A \code{data.frame} containing a classified list of entities}
 
-\item{name_1}{A name for the list in \code{data_1}, used for the plot legend}
+\item{name_1}{A name for \code{data_1}, used for the plot legend. Default \code{'Set1'}.}
 
-\item{data_2}{Another \code{data.frame} containing a classified list of
-entities}
+\item{data_2}{Another \code{data.frame} containing a classified list of entities}
 
-\item{name_2}{A name for the list in \code{data_2}, used for the plot legend}
+\item{name_2}{A name for \code{data_2}, used for the plot legend. Default \code{'Set2'}.}
 
-\item{entity_id_col}{The name of the variable identifying unique entities in
-both \code{data_1} and \code{data_2}. Must be the same in both data sets.}
+\item{entity_id_col}{Character: the name of the variable in \code{data_1} and
+\code{data_2} that identifies entities. Must be the same in both data sets.
+Default \code{NULL} to assume that each row is a unique entity.}
 
 \item{group_level}{Taxonomy level at which to aggregate entities. Default
-\code{"terminal"}: Calculate number of entities and overlap for each tip
-label. Can also be any element of \code{tax_level_labels}, or an integer
-between 1 and \code{length(tax_level_labels)}. In this case, entities will
-be grouped by unique labels at the specified taxonomic level, rather than
-by terminal (tip) labels, for calculation and plotting of number of
+\code{"terminal"}: Calculate number of entities and overlap for each tip label.
+Can also be any element of \code{tax_level_labels} (i.e., a string), or an
+integer between 1 and \code{length(tax_level_labels)}. In this case, entities
+will be grouped by unique labels at the specified taxonomic level, rather
+than by terminal (tip) labels, for calculation and plotting of number of
 chemicals and overlap.}
 
-\item{tax_level_labels}{Taxonomy level labels. By default, the
-ClassyFire/ChemOnt levels: kingdom, superclass, class, subclass, level5,
-... level11.}
+\item{tax_level_labels}{Taxonomy level labels. Default \link{chemont_tax_levels} to
+use ChemOnt taxonomy levels.}
 
 \item{annot_angle}{Angle at which to plot the annotation text (names of
-datasets).}
+datasets). Default \code{'auto'} to automatically decide. Otherwise, a numeric.}
 
-\item{...}{Additional arguments as for \code{\link[=display_subtree]{display_subtree()}}.}
+\item{...}{Additional arguments passed on to \code{\link[=display_subtree]{display_subtree()}}.}
 }
 \value{
-A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} plot object, branches highlighted by
-list membership as in \code{\link[=display_subtree]{display_subtree()}}, with three layers of
+A \code{\link[ggtree:ggtree]{ggtree::ggtree()}} plot object, branches highlighted as specified in
+the \code{highlight_by} argument to \code{\link[=display_subtree]{display_subtree()}}, with three layers of
 heatmap annotation at the tree tips. The innermost layer represents the
 number of entities in each tip label (or group of tip labels) in list
-\code{data_1}. The second (middle) layer represents the number of entities
-in each tip label (or group of tip labels) for the list \code{data_2}. The
-outermost layer represents the fraction of overlap between the entities at
-each tip label (or group of tip labels), calculated as (size of
-intersection)/(size of union).
+\code{data_1}. The second (middle) layer represents the number of entities in
+each tip label (or group of tip labels) for the list \code{data_2}. The outermost
+layer represents the fraction of overlap between the entities at each tip
+label (or group of tip labels), calculated as (size of intersection)/(size
+of union).
 }
 \description{
 Display a tree with branches highlighted according to membership
@@ -73,8 +73,8 @@ fractional overlap between entities in the two data sets.
 Given a base tree and two classified data sets: Display a tree with
 branches highlighted according to membership in neither set, \code{data_1} only,
 \code{data_2} only, or both sets (as for \code{\link[=display_subtree]{display_subtree()}} with both \code{data_1}
-and \code{data_2} provided). Add a heatmap annotation around the tips of the tree,
-indicating the number of entities at each tip in each dataset, and the
+and \code{data_2} provided). Add a heatmap annotation around the tips of the
+tree, indicating the number of entities at each tip in each dataset, and the
 fractional overlap in entities at each tip between datasets. Fractional
 overlap is calculated using \code{\link[=calc_number_overlap]{calc_number_overlap()}}.
 }

@@ -10,8 +10,7 @@ generate_heatmap(
   terminal_only = TRUE,
   tree_object = chemont_tree,
   matrix = chemont_jaccard,
-  row_indices = NULL,
-  column_indices = NULL,
+  prune_to = NULL,
   entity_id_col = NULL,
   tax_level_labels = chemont_tax_levels,
   name = "Similarity",
@@ -19,24 +18,30 @@ generate_heatmap(
   column_split = NULL,
   row_title = "Row title",
   column_title = "Column title",
-  log_trans = TRUE,
-  colors = circlize::colorRamp2(breaks = seq(0, 1, len = 20), colors = viridis::viridis(n
-    = 20, option = "C"))
+  annotation_count = TRUE,
+  log_trans = FALSE,
+  draw = TRUE,
+  colors = circlize::colorRamp2(breaks = seq(0, 1, len = 20), colors = c("#440154FF",
+    "#481568FF", "#482677FF", "#453781FF", "#3F4788FF", "#39558CFF", "#32648EFF",
+    "#2D718EFF", "#287D8EFF", "#238A8DFF", "#1F968BFF", "#20A386FF", "#29AF7FFF",
+    "#3CBC75FF", "#56C667FF", "#74D055FF", "#94D840FF", "#B8DE29FF", "#DCE318FF",
+    "#FDE725FF")),
+  ...
 )
 }
 \arguments{
 \item{row_data}{A \code{data.frame} object of classified entities. Typically, each
 row represents one entity. Must include variables with names matching
 everything in \code{tax_level_labels}, containing the classification at each
-taxonomy level. May include a variable with unique identifiers for
-entities; if so, this must be the same variable name in both \code{row_data} and
+taxonomy level. May include a variable with unique identifiers for entities;
+if so, this must be the same variable name in both \code{row_data} and
 \code{column_data}, and it should be supplied in \code{entity_id_col}.}
 
 \item{column_data}{A \code{data.frame} object of classified entities.  Typically,
 each row represents one entity. Must include variables with names matching
 everything in \code{tax_level_labels}, containing the classification at each
-taxonomy level. May include a variable with unique identifiers for
-entities; if so, this must be the same variable name in both \code{row_data} and
+taxonomy level. May include a variable with unique identifiers for entities;
+if so, this must be the same variable name in both \code{row_data} and
 \code{column_data}, and it should be supplied in \code{entity_id_col}.}
 
 \item{terminal_only}{\code{TRUE}/\code{FALSE}: Whether to show only terminal
@@ -53,15 +58,14 @@ taxonomic classification. Other pre-built option include
 (to plot Lin similarity), and \link{chemont_jiangconrath_IC_SVH} (to plot
 Jiang-Conrath similarity).}
 
-\item{row_indices}{Integer vector: A subset of row indices of the similarity
-matrix to consider. Default \code{NULL} to include all rows.}
-
-\item{column_indices}{Integer vector: The column indices of the similarity
-matrix to consider. Default \code{NULL} to include all columns.}
+\item{prune_to}{Optional: A pruning specification, as for \code{\link[=prune_tree]{prune_tree()}} (see
+the documentation for that function for acceptable pruning specifications).
+Default \code{NULL} to do no pruning. If \code{prune_to} is non-\code{NULL}, then the
+heatmap will include only labels that are in the pruned tree.}
 
 \item{entity_id_col}{Character: the variable name(s) in \code{row_data} and
-\code{column_data} that uniquely identifies entities. Must be the same name(s)
-in each \code{data.frame}. Default \code{NULL} to assume each row is its own entity.}
+\code{column_data} that uniquely identifies entities. Must be the same name(s) in
+each \code{data.frame}. Default \code{NULL} to assume each row is its own entity.}
 
 \item{tax_level_labels}{Character: levels of the taxonomy in \code{tree_object}.
 Default \link{chemont_tax_levels}.}
@@ -69,24 +73,36 @@ Default \link{chemont_tax_levels}.}
 \item{name}{Name of the heatmap similarity measure for legend title. Default
 \code{'Similarity'}.}
 
-\item{row_split}{Positive integer: Number of clusters to split rows into.
-Default \code{NULL}, to do no row splitting.}
+\item{row_split}{A specification for row splitting; see Details. Default
+\code{NULL}, to do no row splitting.}
 
-\item{column_split}{Positive integer: Number of clusters to split columns
-into. Default \code{NULL}, to do no column splitting.}
+\item{column_split}{A specification for column splitting; see Details. Default
+\code{NULL}, to do no column splitting.}
 
 \item{row_title}{Character: Title for rows. Default \code{'Row title'}.}
 
 \item{column_title}{Character: Title for columns. Default \code{'Column title'}.}
 
+\item{annotation_count}{\code{TRUE}/\code{FALSE}: Whether to add row and column
+annotations containing bar charts of the count of entities for each label.
+Default \code{TRUE}.}
+
 \item{log_trans}{\code{TRUE}/\code{FALSE}: Whether to log-transform numbers of label
 occurrence for labels present in each data set before plotting them as bar
-chart annotations on the heatmap. Default \code{TRUE}.}
+chart annotations on the heatmap. Default \code{FALSE}.}
 
 \item{colors}{A colormap used for the heatmap. Should be a function produced
 by \code{\link[circlize:colorRamp2]{circlize::colorRamp2()}}, which accepts a vector of numeric values and
 returns interpolated colors. Default \code{circlize::colorRamp2(breaks = seq(0, 1, len = 20), viridis::viridis(n=20, option = 'C'))} to use the
 \code{\link[viridis:reexports]{viridis::viridis()}} colormap.}
+
+\item{...}{Other arguments to be passed to \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.}
+
+\item{row_indices}{Integer vector: A subset of row indices of the similarity
+matrix to consider. Default \code{NULL} to include all rows.}
+
+\item{column_indices}{Integer vector: The column indices of the similarity
+matrix to consider. Default \code{NULL} to include all columns.}
 }
 \value{
 A \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}} object.
@@ -101,22 +117,148 @@ along with the taxonomy tree used to classify them, and a pre-computed
 matrix of pairwise similarities between all nodes of that tree. It produces
 a heatmap showing the pairwise similarities between the classifications of
 the two data sets, one data set on the rows and the other on the columns,
-annotated with bar graphs showing the number of occurrences of each label
-in each data set. The heatmap will be automatically clustered on rows and
-columns. Optionally, the user may specify that rows and columns should be
-split according to these clusters for plotting. See \href{https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html}{the ComplexHeatmap reference}
+annotated with bar graphs showing the number of occurrences of each label in
+each data set. The heatmap will be automatically clustered on rows and
+columns.
+
+See \href{https://jokergoo.github.io/ComplexHeatmap-reference/book/a-single-heatmap.html}{the ComplexHeatmap reference}
 for more details.
 }
+\section{Row and column splitting}{
+Arguments \code{row_split} and \code{column_split} control row and column splitting,
+respectively, of the clustered heatmap. They may be provided in one of
+several ways.
+\itemize{
+\item Integer of length 1: As for \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}; \code{cutree()} will be applied to the row/column dendrogram resulting from clustering the matrix, with \code{k} equal to the supplied value.
+\item A vector of categorical variables, or a \code{data.frame} of categorical variables: As for \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}. The length of the vector, or the number of rows of the \code{data.frame}, must match the corresponding dimension of \code{matrix} (i.e., \code{nrow(matrix)} for \code{row_split}, and \code{ncol(matrix)} for \code{column_split}).
+\item One of the taxonomy levels (i.e., one of \code{tax_level_labels}): Create a a character vector containing the label of the ancestor at the specified taxonomy level for each label in the row/column of \code{matrix}. Then this vector will be used as a vector of categorical variables for splitting, as described in \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.
+\item The string \code{"level"}: Create a character vector the same length as the corresponding dimension of \code{matrix}, containing the taxonomy level of each label in the row/column of \code{matrix}. Then this vector will be used as a vector of categorical variables for splitting, as described in \code{\link[ComplexHeatmap:Heatmap]{ComplexHeatmap::Heatmap()}}.
+}
+}
+
+\section{Extracting matrix}{
+You can access the matrix that was ultimately plotted in the heatmap.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#generate a heatmap
+my_htmap <- generate_heatmap(
+   tree_object = chemont_tree,
+   matrix = chemont_jaccard,
+   row_data = biosolids_class,
+   column_data = usgs_class,
+   terminal_only = TRUE)
+
+#extract the heatmap matrix
+my_matrix <- my_htmap@ht_list[[1]]@matrix
+#compare this to chemont_jaccard!
+}\if{html}{\out{</div>}}
+}
+
+\section{How to add more annotations after the fact}{
+If you would like to add your own annotations after the fact, you may want
+to use the option \code{draw = FALSE}. This returns a
+\code{\link[ComplexHeatmap:HeatmapList]{ComplexHeatmap::HeatmapList()}} object that has not had the
+\code{draw()} method applied to it yet. This means
+you can still concatenate it with other heatmaps and heatmap annotations
+using \code{+} and \verb{\%v\%}. (If you use \code{draw = TRUE}, you won't be able to concatenate the result with any other heatmaps
+or annotations!)
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  my_htmap <- generate_heatmap(
+   tree_object = chemont_tree,
+   matrix = chemont_jaccard,
+   row_data = biosolids_class,
+   column_data = usgs_class,
+   terminal_only = TRUE,
+   row_split = "superclass",
+   column_split = "superclass",
+    draw = FALSE,
+     row_title_rot = 0,
+     column_title_rot = 90,
+      row_title_gp = grid::gpar(fontsize = 6),
+       column_title_gp = grid::gpar(fontsize = 6),
+        row_gap = unit(0.1, "mm"),
+        column_gap = unit(0.1, "mm"))
+
+    #extract matrix
+    #notice difference in syntax from above, now that draw = FALSE!
+    my_matrix <- my_htmap@matrix
+
+    #construct a row annotation using information from my_matrix
+    #this is just 1:nrow(my_matrix) in order
+    my_row_ann <- ComplexHeatmap::rowAnnotation(foo = 1:nrow(my_matrix))
+
+    #add the new row annotation
+    my_row_ann + my_htmap
+    #note that the row annotation is automatically reordered
+    # to match the clustering of the matrix!
+}\if{html}{\out{</div>}}
+}
+
 \examples{
+#heatmap of biosolids vs. USGS water terminal labels
 generate_heatmap(tree_object = chemont_tree,
  matrix = chemont_jaccard,
   row_data = biosolids_class,
    column_data = usgs_class,
-   row_split = 5L,
-   column_split = 5L,
+   terminal_only = TRUE,
+   #split rows/columns by superclasses
+   row_split = "superclass",
+   column_split = "superclass",
     row_title = "Biosolids",
      column_title = "USGS Water",
-   name = "Jaccard")
+   name = "Jaccard",
+   #ComplexHeatmap::Heatmap() args follow
+    row_title_rot = 0,
+     column_title_rot = 90,
+      row_title_gp = grid::gpar(fontsize = 6),
+       column_title_gp = grid::gpar(fontsize = 6),
+        row_gap = unit(0.1, "mm"),
+        column_gap = unit(0.1, "mm")
+        )
+
+#an example of pruning:
+#the following plots only the block of the previous heatmap
+# labeled "Organoheterocyclic compounds" on both row and column
+generate_heatmap(tree_object = chemont_tree,
+ matrix = chemont_jaccard,
+ prune_to = "Organoheterocyclic compounds",
+  row_data = biosolids_class,
+   column_data = usgs_class,
+   terminal_only = TRUE,
+   #since all are in the same superclass, split by class this time
+   row_split = "class",
+   column_split = "class",
+   row_title = "Biosolids",
+   column_title = "USGS Water",
+   name = "Jaccard",
+   #ComplexHeatmap::Heatmap() args follow
+   row_title_rot = 0,
+   column_title_rot = 90,
+   row_title_gp = grid::gpar(fontsize = 6),
+   column_title_gp = grid::gpar(fontsize = 6),
+   row_gap = unit(0.1, "mm"),
+   column_gap = unit(0.1, "mm"))
+
+#heatmap of similarity at all levels of classification
+#with rows/column split by taxonomic level
+generate_heatmap(tree_object = chemont_tree,
+ matrix = chemont_jaccard,
+ prune_to = "Organoheterocyclic compounds",
+  row_data = biosolids_class,
+   column_data = usgs_class,
+   #include labels at all levels of classification
+   terminal_only = FALSE,
+   row_split = "level",
+   column_split = "level",
+   row_title = "Biosolids",
+   column_title = "USGS Water",
+   name = "Jaccard",
+   #ComplexHeatmap::Heatmap() args follow
+   row_title_rot = 0,
+   column_title_rot = 90,
+   row_title_gp = grid::gpar(fontsize = 10),
+   column_title_gp = grid::gpar(fontsize = 10),
+   row_gap = unit(0.1, "mm"),
+   column_gap = unit(0.1, "mm"))
 
 }
 \seealso{

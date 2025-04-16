@@ -11,7 +11,8 @@ drop_tips_nodes(
   nodes = NULL,
   level = NULL,
   keep_descendants = NULL,
-  tax_level_labels = chemont_tax_levels
+  tax_level_labels = chemont_tax_levels,
+  entity_id_col = NULL
 )
 }
 \arguments{
@@ -36,6 +37,10 @@ on whether \code{data}, \code{labels}, \code{nodes}, or \code{level} was provide
 \item{tax_level_labels}{Character vector naming the levels of the taxonomy in
 order from most general to most specific (excluding root). Default
 \code{\link[=chemont_tax_levels]{chemont_tax_levels()}}.}
+
+\item{entity_id_col}{\code{NULL} (default) or character vector giving the name(s)
+of variables in \code{data} that specify unique entities. If \code{NULL}, each row
+will be treated as a unique entity.}
 }
 \value{
 A \code{phylo}-class object representing the induced subtree of the data.
