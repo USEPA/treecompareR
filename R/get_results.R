@@ -140,7 +140,7 @@ get_results <- function(url,
           )
           json_res <- NULL
         }else{ #if request successful
-          json_res <- httr::content(resp, "text")
+          json_res <- httr::content(x = resp, as = "text", encoding = "UTF-8")
 
         }
       } #end else (if resp was not "simpleError")
@@ -192,7 +192,7 @@ json_parse_default <- list(
   "label" = label,
   "classification_status" = "Failed",
   "number_of_elements" = NA_real_,
-  "number_of_pages" = 1,
+  "number_of_pages" = NA_real_,
   "invalid_entities" = list(),
   "entities" = data.frame("identifier" = character(0),
                           "smiles" = character(0),
@@ -218,6 +218,14 @@ json_parse_default <- list(
                                                        "description" = character(0),
                                                        "chemont_id" = character(0),
                                                        "url" = character(0)),
+                          "alternative_parents" = list(),
+                          "molecular_framework" = character(0),
+                          "substituents" = list(),
+                          "description" = character(0),
+                          "external_descriptors" = list(),
+                          "ancestors" = list(),
+                          "predicted_chebi_terms" = list(),
+                          "predicted_lipidmaps_terms" = list(),
                           "classification_version" = character(0))
 )
 
