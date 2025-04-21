@@ -666,9 +666,6 @@ classify_datatable <- function(data) {
 #'    and `report`.
 parse_classified_entities <- function(entities,
                                       tax_level_labels = chemont_tax_levels){
-  identifier <- NULL
-  level <- NULL
-  name <- NULL
 
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
@@ -710,6 +707,9 @@ parse_classified_entities <- function(entities,
     #get identifiers, smiles, inchikey
     #these will be character vectors identifying entities
 
+    #convert from data.frame to list
+    entities <- as.list(entities)
+
     #note that some of these may be character(0) -- handle
     #by filling with NAs
     for(item in c("identifier",
@@ -721,7 +721,7 @@ parse_classified_entities <- function(entities,
       }
     }
 
-    cf <- as.data.frame(entities[c("identifier",
+    cf <- data.frame(entities[c("identifier",
                          "smiles",
                          "inchikey",
                          "classification_version")])
@@ -735,36 +735,38 @@ parse_classified_entities <- function(entities,
     #etc.)
     #rowbind these
 
-    #note: if no classification for one of these four levels, the item may be NULL.
+    #note: if no classification for one of these four levels, the item may be NA or NULL.
     #handle accordingly.
     for(item in c("kingdom",
                   "superclass",
                   "class",
                   "subclass")){
-      #check if NULL
-      if(is.null(entities[[item]])){
-        #replace with list with NAs
-        entities[[item]] <- list(name = NA_character_,
-                                 description = NA_character_,
-                                 chemont_id = NA_character_,
-                                 url = NA_character_)
+      #check if non-data-frame
+      if(!is.data.frame(entities[[item]])){
+        #replace with empty data.frame
+        entities[[item]] <- data.frame(name = character(0),
+                                 description = character(0),
+                                 chemont_id = character(0),
+                                 url = character(0))
+      }
+
+      #add variable with identifiers
+      if(nrow(entities[[item]])>0){
+      entities[[item]][["identifier"]] <- entities$identifier
       }
 
       #check if character(0) and replace with NA
-      for (subitem in names(entities[[item]])){
-        if(length(entities[[item]][[subitem]])==0){
-          entities[[item]][[subitem]] <- NA_character_
-        }
-      }
+      # for (subitem in names(entities[[item]])){
+      #   if(length(entities[[item]][[subitem]])==0){
+      #     entities[[item]][[subitem]] <- NA_character_
+      #   }
+      # }
     }
 
-    cf_class1 <- dplyr::bind_rows(as.list(entities[c("kingdom",
+    cf_class1 <- dplyr::bind_rows(entities[c("kingdom",
                                                        "superclass",
                                                        "class",
-                                                       "subclass")]))
-    #add a column for the identifiers -- repeat for each taxonomy level
-    cf_class1$identifier <- rep(entities$identifier,
-                                4)
+                                                       "subclass")])
 
     #"intermediate_nodes"
     #is a list with one element for each item in "input",
@@ -861,6 +863,7 @@ parse_classified_entities <- function(entities,
 
   return(classified_entities)
 }
+
 
 
 #' Query ClassyFire InChIKey
