@@ -141,6 +141,7 @@ get_results <- function(url,
           json_res <- NULL
         }else{ #if request successful
           json_res <- httr::content(resp, "text")
+
         }
       } #end else (if resp was not "simpleError")
 
@@ -150,8 +151,12 @@ get_results <- function(url,
       if(!is.null(json_res)){
         #if json_res is not parseable,
         #then just return the request status and the JSON parse error
-        json_parse <- tryCatch(
-          jsonlite::fromJSON(json_res),
+        json_parse <- tryCatch({
+          tmp <- jsonlite::fromJSON(json_res)
+          tmp$status <- request_status$message
+          tmp
+        }
+          ,
           error = function(err){
             list("status" = paste(request_status,
                                   ". JSON parsing failed with error:",
