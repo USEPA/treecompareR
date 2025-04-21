@@ -24,7 +24,8 @@ Suggests:
     kableExtra,
     knitr,
     partitions,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Imports: 
     ape,
@@ -58,3 +59,4 @@ Imports:
 RdMacros: Rdpack
 LinkingTo: 
     Rcpp
+Config/testthat/edition: 3
