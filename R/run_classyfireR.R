@@ -11,7 +11,7 @@
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'  level11}.
-#'@param wait_min Numeric: A parameter controlling how many seconds between qqueries sent
+#'@param wait_sec Numeric: A parameter controlling how many seconds between qqueries sent
 #'  to the ClassyFire API server. Default 5, to respect the limit of 12 requests
 #'  per second. Setting it any lower than 5 will result in failed queries.
 #'@return A `data.frame with the following variables`: \itemize{
@@ -72,7 +72,7 @@
 
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = chemont_tax_levels,
-                               wait_min = 5){
+                               wait_sec = 5){
 
 
   INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
@@ -91,9 +91,9 @@ classify_inchikeys <- function(inchikeys,
         #placeholder blank output list with all expected elements
         output <- list()
       }else{ #if inchikey is valid, query ClassyFire API
-        Sys.sleep(wait_min) #pause minimum number of seconds before querying again
+        Sys.sleep(wait_sec) #pause minimum number of seconds before querying again
         output <- query_classyfire_inchikey(inchikey = this_inchikey,
-                                            wait_min = wait_min)
+                                            wait_sec = wait_sec)
         output$identifier <- this_inchikey
       }
       return(output)
@@ -305,7 +305,12 @@ classify_datatable <- function(data) {
         #first pull list of invalid entities, if any.
         #this will be the same for all pages, so just pull from the first.
     #This will be a data.frame or list.
-        invalid <- json_parse[[1]]$invalid_entities
+        invalid <- tryCatch(
+          json_parse[[1]]$invalid_entities,
+          error = function(err){
+            return(list())
+          }
+        )
         if(length(invalid)==0){ #if no invalid entities
           #return empty data.frame but with the expected variables
           invalid <- data.frame(identifier = character(0),
@@ -394,38 +399,41 @@ classify_datatable <- function(data) {
 #'   \code{"query"}.
 #' @param type String giving ClassyFire query type. Default \code{"STRUCTURE"}.
 #' @param retry_get_times Max number of times to retry GET command to ClassyFire
-#'   API to get status of query. Default 10.
-#' @param wait_min Minimum time to wait before retrying any GET command or
-#'   query. Default 5 seconds (because ClassyFire requests that POST requests be
-#'   limited to 12 per second). Highly recommend not changing this to be less
-#'   than 5 seconds, to be respectful of the ClassyFire server. All wait times
-#'   use exponential backoff with full jitter (\code{wait time = runif(1,
-#'   wait_min, wait_min * 2^(attempt number)}).
+#'   API to get status of query (with wait time in between tries). Default 10.
+#' @param wait_sec Minimum number of seconds to wait before retrying any GET
+#'   command or query. Default 5 seconds (because ClassyFire requests that POST
+#'   requests be limited to 12 per second). If less than 5 seconds, will be
+#'   reset to 5 seconds, with a warning. Wait times for multiple retries
+#'   use exponential backoff with full jitter (wait time is \code{runif(1,
+#'   wait_sec, wait_sec * 2^(attempt_number)}).
 #' @param retry_query_times Max number of attempts to retry an "In Queue" or
-#'   "Processing" query (with wait time in between tries). Default 3.
-#' @param processing_wait_per_input Minimum number of seconds to wait per input
-#'   string before retrying to retrieve results for a query whose status is
-#'   "Processing." Default NULL results in \code{wait_min/length(input)}. Uses
+#'   "Processing" query (with wait time in between tries). Default 10.
+#' @param processing_wait_per_input Minimum number of seconds to wait *per input
+#'   string* before retrying to retrieve results for a query whose status is
+#'   "Processing." Default NULL results in \code{wait_sec/length(input)}. Uses
 #'   exponential backoff: effective wait time per input =
 #'   \code{processing_wait_per_input * 2^(attempt number)}. Total wait time is
 #'   either the effective wait time per input times the number of input
-#'   structures, or \code{wait_min} seconds, whichever is greater.
+#'   structures, or \code{wait_sec} seconds, whichever is greater.
+#' #'@param terminate_on Integer vector: List of HTTP status codes which will
+  #'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
+  #'  421:428, 431, 451, 500:511)`
 #' @return A list of lists. The outer list has one element for each page of the
 #'   JSON output from the ClassyFire query (there is one page for every ten
 #'   entities). If the ClassyFire query failed or timed out, the list will have
 #'   one element. Each list element is itself a list, consisting of the parsed
 #'   JSON result for each page. A completed query will have named elements `id`,
-#'   `url`, `status_code`, `label`, `classification_status`,
+#'   `url`, `status`, `label`, `classification_status`,
 #'   `number_of_elements`, `number_of_pages`, `invalid_entities`, and
 #'   `entities`. A failed query will have named elements `id`, `url`,
-#'   `status_code`, `label`, `classification_status`, and `number_of_pages`.
+#'   `status`, `label`, `classification_status`, and `number_of_pages`.
 #'   `id` gives the numerical query ID (assigned by ClassyFire). `url` gives the
-#'   queried URL. `label` gives the user-supplied query label. `status_code`
+#'   queried URL. `label` gives the user-supplied query label. `status`
 #'   gives the HTTP status of the request (200 means successful).
 #'   `classification_status` reports the ClassyFire status: "Done" means
 #'   classification was successfully completed; "In Queue" means the query timed
 #'   out while it was still queued; "In Progress" means the query timed out
-#'   while it was still processing; "No classification" means the query failed
+#'   while it was still processing; "Failed" means the query failed
 #'   before ClassyFire could report a status (e.g. HTTP status code other than
 #'   200, or ClassyFire returned some content that did not include a
 #'   classification status). `number_of_elements` gives the number of classified
@@ -433,11 +441,11 @@ classify_datatable <- function(data) {
 #'   `invalid_entities`, if present, is a data.frame listing queried entity
 #'   identifiers that ClassyFire found invalid. `entities`, if present, is a
 #'   nested data.frame giving classifications. Use function
-#'   \code{\link{parse_classified_entities}} to parse these results into a data.frame
-#'   of classified entities, suitable for use with the tree visualization,
-#'   similarity analysis, or similarity visualization functions. Or call
-#'   \code{\link{classify_structures}} which is a wrapper for this function and
-#'   \code{\link{parse_classified_entities}}.
+#'   \code{\link{parse_classified_entities}} to parse these results into a
+#'   data.frame of classified entities, suitable for use with the tree
+#'   visualization, similarity analysis, or similarity visualization functions.
+#'   Or call \code{\link{classify_structures}} which is a wrapper for this
+#'   function and \code{\link{parse_classified_entities}}.
 #' @export
 #'
  query_classyfire <- function(input = NULL,
@@ -445,9 +453,14 @@ classify_datatable <- function(data) {
                               label = "query",
                               type = "STRUCTURE",
                               retry_get_times = 10,
-                              wait_min = 5,
-                              retry_query_times = 3,
-                              processing_wait_per_input = NULL){
+                              wait_sec = 5,
+                              retry_query_times = 10,
+                              processing_wait_per_input = NULL,
+                              terminate_on = c(400:407, #but not 408
+                                               409:418,
+                                               421:428, #but not 429
+                                               431, 451,
+                                               500:511)){
 
    base_url <- "http://classyfire.wishartlab.com/queries"
    #if both input and url are NULL, throw error
@@ -461,10 +474,17 @@ classify_datatable <- function(data) {
      stop("Either `input` or `url` must be provided, but not both. You provided both.")
    }
 
+   if(wait_sec < 5){
+     warning(paste("ClassyFire rate-limits requests to 12 per minute.",
+                   "You supplied wait_sec =", wait_sec,
+                   "; it will be reset to 5 seconds."))
+     wait_sec <- 5
+   }
+
  #if input provided, construct new query
    if(!is.null(input)){
      if(is.null(processing_wait_per_input)){
-       processing_wait_per_input <- wait_min/length(input)
+       processing_wait_per_input <- wait_sec/length(input)
      }
 
      if(is.null(names(input))){
@@ -494,10 +514,20 @@ classify_datatable <- function(data) {
    } #end if(!is.null(input))
 
    #check url format (whether newly constructed or user-provided)
-   url_good <- grepl(x = url,
-                     pattern = paste0(base_url, "/", "\\d+", ".json"))
-   if(!url_good){
-     stop(paste0("URL is not of valid format. ",
+   if(length(url) %in% 1){
+     if(is.character(url)){
+     url_good <- grepl(x = url,
+                       pattern = paste0(base_url, "/", "\\d+", ".json"))
+     }else{
+       url_good <- FALSE
+     }
+   }else{
+      url_good <- FALSE
+   }
+
+   if(!(url_good %in% TRUE)){
+     stop(paste0("Error in treecompareR::query_classyfire():",
+     "URL is not of valid format. ",
                  "URL is ", url,
                  " and expected format is ",
                  base_url,
@@ -505,83 +535,22 @@ classify_datatable <- function(data) {
                  " where NNNNN are one or more digits 0-9 denoting a query ID number."))
    }
 
-   #try getting results for query
-   resp <- httr::RETRY(verb = "GET",
-                       url = url,
-                       encode = "json",
-                       times = retry_get_times,
-                       pause_min = wait_min,
-                       terminate_on = c(404))
+  json_parse <- get_results(url = url,
+                            label = label,
+              retry_get_times = retry_get_times,
+              wait_sec = wait_sec,
+              terminate_on = terminate_on)
 
-   json_res <- httr::content(resp, "text")
-   #json_res will be NULL if no content was returned
-   if(!is.null(json_res)){
-     json_parse <- jsonlite::fromJSON(json_res)
-   }else{
-     json_parse <- NULL
-   }
-
-   #initialize a placeholder json_parse in case everything else fails
-   m <- regexec(text=url, pattern = "(\\d+)\\.json")
-   query_id <- regmatches(x = url, m = m)[[1]][2]
-   json_parse_default <- list("id" = query_id,
-        "url" = url,
-        "status_code" = resp$status_code,
-        "label" = label,
-        "classification_status" = "No classification",
-        "number_of_elements" = NA_real_,
-        "number_of_pages" = 1,
-        "invalid_entities" = list(),
-        "entities" = data.frame("identifier" = character(0),
-                                "smiles" = character(0),
-                                "inchikey" = character(0),
-                                "kingdom" = data.frame("name" = character(0),
-                                                       "description" = character(0),
-                                                       "chemont_id" = character(0),
-                                                       "url" = character(0)),
-                                "superclass" = data.frame("name" = character(0),
-                                                       "description" = character(0),
-                                                       "chemont_id" = character(0),
-                                                       "url" = character(0)),
-                                "class" = data.frame("name" = character(0),
-                                                       "description" = character(0),
-                                                       "chemont_id" = character(0),
-                                                       "url" = character(0)),
-                                "subclass" = data.frame("name" = character(0),
-                                                       "description" = character(0),
-                                                       "chemont_id" = character(0),
-                                                       "url" = character(0)),
-                                "intermediate_nodes" = list(),
-                                "direct_parent" = data.frame("name" = character(0),
-                                                             "description" = character(0),
-                                                             "chemont_id" = character(0),
-                                                             "url" = character(0)),
-                                "classification_version" = character(0))
-   )
-   if(!is.null(input)){
-     json_parse_default$number_of_elements <- length(input)
-   }
-   #fill in any elements in json_parse_default not in json_parse
-   #otherwise, keep elements in json_parse
-   json_parse <- c(
-     json_parse,
-     json_parse_default[
-       setdiff(
-         names(json_parse_default),
-         names(json_parse)
-       )
-     ]
-   )
-
-   #retry until Done or until max number of retries is reached
+   #retry until Done, Failed, or until max number of retries is reached
      retry_count <- 0
-     while(!(json_parse$classification_status %in% "Done") &
+     while(!(json_parse$classification_status %in% c("Done",
+                                                     "Failed")) &
            retry_count < retry_query_times){
        if(json_parse$classification_status %in% "In Queue"){
          #wait for query to come out of queue
          #this does not depend on size of input
          #calculate exponential backoff wait time
-         wait_time <- runif(1, wait_min, wait_min*2^(retry_count))
+         wait_time <- runif(1, wait_sec, wait_sec*2^(retry_count))
          message(paste0("Query status is In Queue",
                         "; waiting ",
                         round(wait_time, digits = 2),
@@ -589,18 +558,18 @@ classify_datatable <- function(data) {
        }else{ #query is processing
          #processing time *does* depend on size of input
          #calculate exponential backoff wait time
-         proc_eff <- ceiling(runif(1,
-                                   wait_min/length(input),
+         proc_eff <- runif(1,
+                                   processing_wait_per_input,
                                    processing_wait_per_input * 2^(retry_count)
                                    )
-                             )
-         wait_time <- ceiling(max(wait_min,  proc_eff*length(input)))
+         #wait_time at least 5 seconds
+         wait_time <- ceiling(max(wait_sec,  proc_eff*length(input)))
          message(paste0("Query status is ",
                         json_parse$classification_status,
                         "; waiting ",
                         round(wait_time, digits = 2),
                         " seconds (greater of ",
-                        wait_min,
+                        wait_sec,
                         " seconds, or ",
                         proc_eff,
                         " seconds per input, with ",
@@ -608,37 +577,19 @@ classify_datatable <- function(data) {
                         " inputs) ",
                         "and retrying"))
        } #end if/else to check classification status
-
        #wait and retry
        Sys.sleep(wait_time)
-       resp <- httr::RETRY(verb = "GET",
-                           url = url,
-                           encode = "json",
-                           times = retry_get_times,
-                           pause_min = wait_min,
-                           terminate_on = c(404))
-       json_res <- httr::content(resp, "text")
-       #json_res will be NULL if no content was returned
-       if(!is.null(json_res)){
-         json_parse <- jsonlite::fromJSON(json_res)
-       }else{
-         json_parse <- NULL
-       }
-       json_parse_default$status_code <- resp$status_code
-       #fill in any elements in json_parse_default not in json_parse
-       #otherwise, keep elements in json_parse
-       json_parse <- c(
-         json_parse,
-         json_parse_default[
-           setdiff(
-             names(json_parse_default),
-             names(json_parse)
-           )
-         ]
-       )
+      json_parse <- get_results(url = url,
+                                label = label,
+                                                retry_get_times = retry_get_times,
+                                                wait_sec = wait_sec,
+                                                terminate_on = terminate_on)
        retry_count <- retry_count + 1
      } #end while loop
+
      #If classification was done, then results will be paginated
+     if(json_parse$classification_status %in% "Done"){
+
      #Each page = 10 entities
      #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
 
@@ -646,29 +597,57 @@ classify_datatable <- function(data) {
      #if so, return the parsed JSON for this page
      url_onepage <- grepl(pattern = "?page=\\d+$",
                           x = url)
-     if(url_onepage){
+     if(url_onepage %in% TRUE){
      output <- json_parse
      }else{ #if this is not a specific page, but an overall query,
        #recursively call this function to get results for each individual page
        #get vector of individual page URLs
+       message("Classification done!")
+       if(json_parse$number_of_pages > 0){
        url_pages <- paste0(url,
                            "?page=",
                            seq(from = 1,
                                to = json_parse$number_of_pages,
                                by = 1))
-       output <- lapply(url_pages,
+       output <- sapply(url_pages,
                         function(url_pg){
+                          #wait between querying pages
+                          Sys.sleep(wait_sec)
+                          message(paste("Getting page",
+                                        url_pg,
+                                        "of",
+                                        json_parse$number_of_pages,
+                                        "..."))
                           query_classyfire(input = NULL,
                                            url = url_pg,
                                            label = label,
                                            type = type,
                                            retry_get_times = retry_get_times,
-                                           wait_min = wait_min,
+                                           wait_sec = wait_sec,
                                            retry_query_times = retry_query_times,
                                            processing_wait_per_input = processing_wait_per_input)
-                        }
+                        },
+                        simplify = FALSE,
+                        USE.NAMES = TRUE
        )
+       }else{ #if there were zero pages, it failed
+         #in which case it will return not a list of lists parsed json,
+         #but only one list (the placeholder).
+         #pack it into a nested list as expected by classify_structures.
+       json_parse <- list(json_parse)
+       output <- json_parse
+       }
      }
+     }else{ #I think this should only be if it failed
+       #in which case it will return not a list of lists parsed json,
+       #but only one list (the placeholder).
+       #pack it into a nested list as expected by classify_structures.
+       # if(!grepl(pattern = "\\?page\\=",
+       #           x = names(json_parse)[1])){
+         json_parse <- list(json_parse)
+         output <- json_parse
+       }
+     # }
        return(output)
      }
 
@@ -690,6 +669,7 @@ parse_classified_entities <- function(entities,
   identifier <- NULL
   level <- NULL
   name <- NULL
+
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
@@ -892,13 +872,13 @@ parse_classified_entities <- function(entities,
 #'   under query.
 #' @param retry_get_times The number of times to retry the query, a positive
 #'   integer with default value 3.
-#' @param wait_min The number of seconds to pause in between attempts, used in
+#' @param wait_sec The number of seconds to pause in between attempts, used in
 #'   the \code{\link{httr}{RETRY}} function.
 #'
 #' @return A JSON file with the classification data.
 query_classyfire_inchikey <- function(inchikey,
                                       retry_get_times = 3,
-                                      wait_min = 0.5){
+                                      wait_sec = 0.5){
 
   base_url <- "http://classyfire.wishartlab.com/entities"
   url <- paste0(base_url,
@@ -910,8 +890,8 @@ query_classyfire_inchikey <- function(inchikey,
                       url = url,
                       encode = "json",
                       times = retry_get_times,
-                      pause_base = wait_min,
-                      pause_min = wait_min,
+                      pause_base = wait_sec,
+                      pause_min = wait_sec,
                       terminate_on = c(404))
 
   json_res <- httr::content(resp, "text")
