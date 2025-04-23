@@ -191,7 +191,7 @@ classify_inchikeys <- function(inchikeys,
 #' @param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
-#' @param ... Other arguments as for \code{\link{query_classyfire}}.
+#' @param ... Other arguments as for \code{\link{query_structure}}.
 #' @return A list of `data.frame`s with ClassyFire classification results for each input
 #'   structural identifier.
 #'
@@ -283,7 +283,7 @@ classify_structures <- function (input = NULL,
       #select inputs in this batch
       this_batch_input <- input[batch_id %in% this_batch_id]
       #Now, query ClassyFire with these structures.
-      json_parse <- do.call(query_classyfire,
+      json_parse <- do.call(query_structure,
                             args = c(list(input = this_batch_input,
                                           url = NULL),
                                      ...)
@@ -608,10 +608,10 @@ query_inchikey <- function(inchikey,
 #'   nested `data.frame` giving classifications.
 #'
 #'   @examples
-#'      query_classyfire(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
+#'      query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #'
 #'
-query_classyfire <- function(input = NULL,
+query_structure <- function(input = NULL,
                              url = NULL,
                              label = "query",
                              type = "STRUCTURE",
@@ -689,7 +689,7 @@ query_classyfire <- function(input = NULL,
   }
 
   if(!(url_good %in% TRUE)){
-    stop(paste0("Error in treecompareR::query_classyfire():",
+    stop(paste0("Error in treecompareR::query_structure():",
                 "URL is not of valid format. ",
                 "URL is ", url,
                 " and expected format is ",
@@ -819,7 +819,7 @@ query_classyfire <- function(input = NULL,
 #' user.
 #'
 #' @param entities JSON element of classified entities as returned by ClassyFire
-#'   API query (e.g, from the results of [query_classyfire()])
+#'   API query (e.g, from the results of [query_structure()])
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
 #' @return A data.frame consisting of rows corresponding to each classified
@@ -829,7 +829,7 @@ query_classyfire <- function(input = NULL,
 #'   `classification_version`, and `report`.
 #' @examples
 #' #get a set of results to parse
-#' my_results <- query_classyfire(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
+#' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #parse classifications
 #' parse_classified_entities(entities = my_results[[1]]$entities)
 #'
@@ -927,7 +927,7 @@ parse_classified_entities <- function(entities,
 #'
 #' @param entities A `data.frame` of classified entities from one page of
 #'   ClassyFire results, e.g, the `entities` element of one element of the list
-#'   output by [query_classyfire()].
+#'   output by [query_structure()].
 #' @param item Character: The name of an item in `entities`. One of `'alternative_parents'`,
 #'   `'molecular_framework'`, `'substituents'`, `'description'`,
 #'   `'external_descriptors'`, `'ancestors'`, `'predicted_chebi_terms'`,
@@ -949,7 +949,7 @@ parse_classified_entities <- function(entities,
 #'   returned (zero rows and no variables).
 #' @examples
 #' #get a set of results to parse
-#' my_results <- query_classyfire(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
+#' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #get alternative parents
 #' parse_list_item(entities = my_results[[1]]$entities, item = "alternative_parents")
 #' #get molecular framework
