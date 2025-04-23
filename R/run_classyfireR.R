@@ -90,7 +90,7 @@ classify_inchikeys <- function(inchikeys,
                            is_inchikey(INCHIKEYS) #remove any non-validly-formatted inchikeys
   ]
 
-  #get classifications as a list of data.tables, one for each INCHIKEY
+  #get classification results as a list, one for each INCHIKEY
   entities_list <- lapply(
     INCHIKEYS,
     function(this_inchikey){
@@ -112,18 +112,25 @@ classify_inchikeys <- function(inchikeys,
 
   #get any input inchikeys that were excluded
   #or are otherwise missing from the classified output
-  missing <- output |>
-    dplyr::anti_join(inchi_class, by = "identifier")
+  #Get any input structures not handled by ClassyFire
+  #e.g. any duplicates, or batches that failed, etc.
+  #keep their placeholder values.
+  if("identifier" %in% names(this_item_df)){
+    handled_id <- inchi_class$identifier
+  }else{
+    handled_id <- character(0)
+  }
+  missing_entities <- output |>
+    dplyr::filter(!(identifier %in% handled_id)) |>
+    dplyr::mutate(entity_type = "not handled by ClassyFire")
+
+  #Output: bind things handled by ClassyFire and things not handled
+  inchi_class <- dplyr::bind_rows(missing_entities,
+                                 inchi_class) |>
+    as.data.frame()  #convert from tibble to data.frame
 
   inchi_class <- dplyr::bind_rows(inchi_class,
                                   missing)
-
-  #now order as for input -- re-inserting any duplicates, blanks, invalid, etc.
-  inchi_out <- data.frame(identifier = inchikeys)
-  inchi_out <- inchi_out |>
-    dplyr::left_join(inchi_class,
-                     by = "identifier") |>
-    as.data.frame()
 
   return(inchi_out)
 }
@@ -508,11 +515,6 @@ classify_structures <- function (input = NULL,
       tmp_output <- dplyr::bind_rows(missing_entities,
                                      this_item_df) |>
         as.data.frame()  #convert from tibble to data.frame
-
-      #order as for original input
-      tmp_df <- data.frame(identifier = names(input_orig))
-      tmp_df |>
-        dplyr::left_join(tmp_output, by = "identifier")
 
     },
     simplify = FALSE,
@@ -1137,11 +1139,7 @@ parse_list_item <- function(entities,
                                   "inchikey",
                                   "classification_version")])
 
-      browser()
-
     if(!(item %in% names(entities))){
-      # message(paste("Item", paste0("'", item, "'"), "not found in `entities`.",
-      #               "Returning NULL."))
       item_out <- NULL
     }else{
       #check to see if the specified item is a list (not a single data.frame)
@@ -1194,12 +1192,16 @@ parse_list_item <- function(entities,
                             inchikey,
                             classification_version) |>
             as.data.frame()
-        }else{
-          #if the item is a list a different length from identifiers,
+        }else if(length(entities[[item]]) == 0){
+          #if the item is an empty list,
+          #return an empty data.frame
+          item_out <- data.frame()
+          }else{
+          #if the item is a non-empty list a different length from identifiers,
           #then something has probably gone wrong
           #just return it as-is
           warning(paste("Item", paste0("'", item, "'"), "in `entities`",
-                        "doesn't seem to be the same length as 'identifiers'.",
+                        "is a list, but doesn't seem to be the same length as 'identifier'.",
                         "This probably means something has gone wrong.",
                         "Row-binding it into a single data.frame."))
           item_out <- dplyr::bind_rows(entities[[item]])
@@ -1207,8 +1209,10 @@ parse_list_item <- function(entities,
       }else if(is.data.frame(entities[[item]])){
         #if it is a single data.frame, rather than a list of data.frames,
         #then if it has the same number of rows as identifiers,
-        #just add the identifier
-        if(nrow(entities[[item]]) %in% length(entities$identifier)){
+        #or if there is only one identifier,
+        #just add the identifiers.
+        if(nrow(entities[[item]]) %in% length(entities$identifier) |
+           length(entities$identifier) == 1){
           item_out <- entities[[item]] |>
             dplyr::mutate(identifier = entities$identifier) |>
             dplyr::left_join(base_dat,
@@ -1218,7 +1222,9 @@ parse_list_item <- function(entities,
                             inchikey,
                             classification_version) |>
             as.data.frame()
-        }else{
+        }else if(nrow(entities[[item]]) == 0){
+          item_out <- entities[[item]]
+          }else{ #if it's non-empty but has a different number of rows from identifiers
           #just return it as-is
           message(paste("Item", paste0("'", item, "'"), "in `entities`",
                         "is a data.frame but doesn't seem to have",
@@ -1226,7 +1232,7 @@ parse_list_item <- function(entities,
                         "This probably means something has gone wrong."))
           item_out <- entities[[item]]
         }
-      }else{
+      }else{ #if neither a list nor a data.frame
         #try to coerce it to a data.frame
         item_out <- as.data.frame(entities[[item]])
         if(length(item_out)==1){
@@ -1234,7 +1240,9 @@ parse_list_item <- function(entities,
           item_out <- setNames(item_out,
                           item)
         }
-        if(nrow(item_out) %in% length(entities$identifier)){
+        if(nrow(item_out) > 0){
+        if(nrow(item_out) %in% length(entities$identifier) |
+           length(entities$identifier) == 1){
           item_out$identifier <- entities$identifier
           #move identifier column to the front
           item_out <- item_out |>
@@ -1250,6 +1258,7 @@ parse_list_item <- function(entities,
                         "could be coerced to a data.frame, but it doesn't seem to have",
                         "the same number of rows as 'identifiers'.",
                         "This probably means something has gone wrong."))
+        }
         }
       } #end if/else for type of item: list, data.frame, or other
     } #end if/else item in names(entities)
