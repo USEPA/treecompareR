@@ -9,7 +9,7 @@
 #'
 #'  - `id`: Character: the string giving the ClassyFire query id. This is parsed from function argument `url`. If `url` is not of the expected structure, `id` will be `NA_character_`.
 #'  - `url`: Character: The URL of the request, as provided in function argument `url`.
-#'  - `status`: Character: The HTTP status message of the GET request (if one was available), or the error message if no HTTP status was available.
+#'  - `query_status`: Character: The HTTP status message of the GET request (if one was available), or the error message if no HTTP status was available.
 #'  - `label`: Character: The text label assigned to the query, if any.
 #'  - `classification_status`: Character: the status of the ClassyFire classification. One of `'Done'`, `'In Queue'`, `'Processing'`, or `'Failed'`.
 #'  - `number_of_elements`: Integer: the number of elements returned. If something went wrong, the placeholder value is `NA_integer_`.
@@ -67,7 +67,7 @@
 #'  421:428, 431, 451, 500:511)`
 #'@return A list containing the parsed JSON results (if query was successful),
 #'  or placeholder values for the expected elements of the parsed JSON results.
-#'  Will contain the following named elements: `id`, `url`, `status`, `label`,
+#'  Will contain the following named elements: `id`, `query_url`, `query_status`, `label`,
 #'  `classification_status`, `number_of_elements`, `number_of_pages`,
 #'  `invalid_entities`, and `entities`. See Details.
 #'@author Caroline Ring, Paul Kruse
@@ -83,7 +83,8 @@ get_results <- function(url,
                                          409:418,
                                          421:428, #but not 429
                                          431, 451,
-                                         500:511)
+                                         500:511),
+                        type = "structure" #or "inchikey"
                         ){
 
   json_parse <- tryCatch(
@@ -153,44 +154,50 @@ get_results <- function(url,
         #then just return the request status and the JSON parse error
         json_parse <- tryCatch({
           tmp <- jsonlite::fromJSON(json_res)
-          tmp$status <- request_status$message
+          tmp$query_status <- request_status$message
           tmp
         }
           ,
           error = function(err){
-            list("status" = paste(request_status,
+            list("query_status" = paste(request_status$message,
                                   ". JSON parsing failed with error:",
-                                  err$message))
+                                  err$message),
+                 "classification_status" = "Failed")
           }
         )
 
       }else{
         #if json_res is NULL, something failed
         #just record the status (error message)
-        json_parse <- list("status" = request_status)
+        json_parse <- list("query_status" = request_status$message,
+                           "classification_status" = "Failed")
       }
       json_parse
     }, #end main try/catch expression to try
     error = function(err){
       #if all else fails, just return whatever error was thrown
-      list("status" = paste0("Error:",
-                             err$message))
+      list("query_status" = paste0("Error:",
+                             err$message),
+           "classification_status" = "Failed")
     }
   ) #end tryCatch
 
 #initialize a placeholder json_parse in case everything else fails
+
+  #For type = "structure",
 #the following items are expected:
 # [1] "id"                    "label"                 "classification_status"
 # [4] "number_of_elements"    "number_of_pages"       "invalid_entities"
 # [7] "entities"
+  if(type %in% "structure"){
 m <- regexec(text=url, pattern = "(\\d+)\\.json")
 query_id <- regmatches(x = url, m = m)[[1]][2]
 json_parse_default <- list(
   "id" = query_id,
-  "url" = url,
-  "status" = NA_character_,
+  "query_url" = url,
+  "query_status" = NA_character_,
   "label" = label,
-  "classification_status" = "Failed",
+  "classification_status" = "Unknown",
   "number_of_elements" = NA_real_,
   "number_of_pages" = NA_real_,
   "invalid_entities" = list(),
@@ -228,6 +235,50 @@ json_parse_default <- list(
                           "predicted_lipidmaps_terms" = list(),
                           "classification_version" = character(0))
 )
+  }else if(type %in% "inchikey"){
+    #basically the same, except everything in "entities" is moved up one level,
+    #and there's no number of elements, number of pages, or invalid entities.
+    json_parse_default <- list(
+      "query_url" = url,
+      "query_status" = NA_character_,
+      "classification_status" = "Unknown",
+     "identifier" = character(0),
+                              "smiles" = character(0),
+                              "inchikey" = character(0),
+                              "kingdom" = data.frame("name" = character(0),
+                                                     "description" = character(0),
+                                                     "chemont_id" = character(0),
+                                                     "url" = character(0)),
+                              "superclass" = data.frame("name" = character(0),
+                                                        "description" = character(0),
+                                                        "chemont_id" = character(0),
+                                                        "url" = character(0)),
+                              "class" = data.frame("name" = character(0),
+                                                   "description" = character(0),
+                                                   "chemont_id" = character(0),
+                                                   "url" = character(0)),
+                              "subclass" = data.frame("name" = character(0),
+                                                      "description" = character(0),
+                                                      "chemont_id" = character(0),
+                                                      "url" = character(0)),
+                              "intermediate_nodes" = list(),
+                              "direct_parent" = data.frame("name" = character(0),
+                                                           "description" = character(0),
+                                                           "chemont_id" = character(0),
+                                                           "url" = character(0)),
+                              "alternative_parents" = list(),
+                              "molecular_framework" = character(0),
+                              "substituents" = list(),
+                              "description" = character(0),
+                              "external_descriptors" = list(),
+                              "ancestors" = list(),
+                              "predicted_chebi_terms" = list(),
+                              "predicted_lipidmaps_terms" = list(),
+                              "classification_version" = character(0)
+    )
+  }else{
+  stop("'type' must be either 'structure' or 'inchikey'")
+}
 
 #fill in any elements in json_parse_default not in json_parse
 #otherwise, keep elements in json_parse
