@@ -4,22 +4,38 @@
 \alias{parse_classified_entities}
 \title{Parse classified entities}
 \usage{
-parse_classified_entities(entities, tax_level_labels = chemont_tax_levels)
+parse_classified_entities(
+  entities,
+  query_type,
+  tax_level_labels = chemont_tax_levels
+)
 }
 \arguments{
 \item{entities}{JSON element of classified entities as returned by ClassyFire
-API query}
+API query (e.g, from the results of \code{\link[=query_structure]{query_structure()}})}
 
 \item{tax_level_labels}{ChemOnt taxonomy level labels (default
 \code{\link{chemont_tax_levels}})}
 }
 \value{
 A data.frame consisting of rows corresponding to each classified
-entry from the \code{entities} input. A data.frame with one row for each entity identifier, and variables
-\code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom}, \code{superclass}, \code{class},
-\code{subclass}, \code{level5}, \code{level6}, ... \code{level11}, \code{classification_version},
-and \code{report}.
+entry from the \code{entities} input. A data.frame with one row for each entity
+identifier, and variables \code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom},
+\code{superclass}, \code{class}, \code{subclass}, \code{level5}, \code{level6}, ... \code{level11},
+\code{classification_version}, and \code{report}.
 }
 \description{
-Parse classified entities
+Parse ClassyFire classification results to a data.frame.
+}
+\details{
+This is a helper function used by \code{\link[=classify_structures]{classify_structures()}} and
+\code{\link[=classify_inchikeys]{classify_inchikeys()}}. It should generally not be called directly by the
+user.
+}
+\examples{
+#get a set of results to parse
+my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
+#parse classifications
+parse_classified_entities(entities = my_results[[1]]$entities)
+
 }

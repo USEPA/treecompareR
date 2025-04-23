@@ -4,7 +4,13 @@
 \alias{classify_structures}
 \title{Query ClassyFire by structure}
 \usage{
-classify_structures(input = NULL, tax_level_labels = chemont_tax_levels, ...)
+classify_structures(
+  input = NULL,
+  tax_level_labels = chemont_tax_levels,
+  sizelim = 1000,
+  wait_sec = 5,
+  ...
+)
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
@@ -17,17 +23,21 @@ named, the vector itself will be returned as a column named
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
   level11}.}
 
-\item{...}{Other arguments as for \code{\link{query_classyfire}}.}
+\item{...}{Other arguments as for \code{\link{query_structure}}.}
 }
 \value{
-A data frame with ClassyFire classifications for each input
-structural identifier. Will contain columns \code{identifier}, \code{structure},
-\code{level} (with one row for each taxonomy level in \code{tax_level_labels}),
-\code{name} (containing the classification at each level), \code{smiles}, and then
-several columns with information about the ClassyFire query: \code{inchikey},
-\code{report}, \code{classification_version}, \code{id}, \code{label}, \code{url} and \code{status_code}.
-If classification could not be completed for one or more structures, they
-will be listed in the table with \code{NA_character_} in the \code{name} column.
+A list of \code{data.frame}s with ClassyFire classification results for each input
+structural identifier.
+
+Will contain variables \code{identifier}, \code{structure},
+one variable named for each taxonomy level in \code{tax_level_labels} containing
+the classification at each level), \code{smiles},  \code{inchikey}, and then several
+variables with information about the ClassyFire query: \code{report},
+\code{classification_version}, \code{id}, \code{label}, \code{classification_status}, \code{query_url} and
+\code{query_status}. If classification could not be completed for one or more
+structures, they will be listed in the \code{data.frame} with \code{NA_character_}
+for all taxonomy levels. Check variables \code{report} and \code{status} for more
+information about what may have gone wrong.
 }
 \description{
 This function takes a vector of structural identifiers (SMILES
@@ -35,30 +45,18 @@ strings or InChi strings) and queries the ClassyFire API to get
 classifications for each one.
 }
 \details{
-For use with \code{treecompareR} functions that expect a
-\code{data.frame} of classified entities, the \code{data.frame} returned by this
-function will need to be reshaped into wider format, with one row for each
-structure and one column for each level of
-classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
- names_from = "level", values_from = "name")} (where \code{dat} is the
-returned \code{data.frame}.) However, be on the lookout for pathological cases
-where a structure is listed with two different labels at the same level.
-These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
-throw a warning if this happens -- pay attention to it!
-
-Note also that the returned \code{data.frame} includes only unique, valid
-structures. Any duplicates, blanks, or NAs are not queried, and are not
-included in the output.
-
-If you have a source \code{data.frame} with duplicate, missing, or invalid
-structures, you can merge the returned \code{data.frame} with it (or pivot
-wider, then merge). For example, if your source \code{data.frame} is called
-\code{source_dat} with variable \code{"STRUCTURE"} containing the
-structures, and the returned \code{data.frame} is in variable \code{dat}, the
-following code
-will do the merge: \code{dplyr::left_join(source_dat, dat, by = "STRUCTURE" =
- "structure")}. In that case, classification columns will be filled with NA
-for any missing or invalid structures.
+This function returns a list of \code{data.frame}s with the following names.
+\itemize{
+\item \code{classification}: The main ClassyFire classification for the input structures.
+\item \code{alternative_parents}: Alternative parents for the input structures.
+\item \code{molecular_framework}: Molecular framework descriptors for the input structures.
+\item \code{substituents}: Substituents for the input structures.
+\item \code{description}: Descriptions for the input structures.
+\item \code{external_descriptors}: External descriptors for the input structures, if any.
+\item \code{ancestors}: All ancestors for the input structures.
+\item \code{predicted_chebi_terms}: Predicted ChEBI terms for the input structures.
+\item \code{predicted_lipidmaps_terms}: Predicted LipidMaps terms for the input structures.
+}
 }
 \seealso{
 \code{\link{classify_inchikeys}}

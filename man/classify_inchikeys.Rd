@@ -7,7 +7,7 @@
 classify_inchikeys(
   inchikeys,
   tax_level_labels = chemont_tax_levels,
-  wait_min = 5
+  wait_sec = 5
 )
 }
 \arguments{
@@ -17,12 +17,23 @@ classify_inchikeys(
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
  level11}.}
 
-\item{wait_min}{Numeric: A parameter controlling how many seconds between qqueries sent
-to the ClassyFire API server. Default 5, to respect the limit of 12 requests
-per second. Setting it any lower than 5 will result in failed queries.}
+\item{wait_sec}{Numeric: A parameter controlling how many seconds between
+qqueries sent to the ClassyFire API server. Default 5, to respect the limit
+of 12 requests per second. Setting it any lower than 5 will result in failed
+queries.}
 }
 \value{
-A \verb{data.frame with the following variables}: \itemize{
+A \code{data.frame}; see Details.
+}
+\description{
+This function uses the ClassyFire API to classify chemicals from
+an input data.table using the InChIKey chemical identifier.
+}
+\details{
+This function queries ClassyFire's lookup table of pre-classified
+InChiKeys to get classifications, using the ClassyFire API.
+
+\itemize{
 \item{identifier: The input InCHiKey that was queried. For example,
 "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
 \item{smiles: The corresponding SMILES returned by ClassyFire, if any}
@@ -56,28 +67,17 @@ returned \code{data.frame}.) However, be on the lookout for pathological cases
 where an InCHiKey is listed with two different labels at the same level.
 These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
 throw a warning if this happens -- pay attention to it!
-
-Note also that the returned data.frame includes only unique, valid
-InCHiKeys. Any duplicates, blanks, NAs, or anything that is not a valid
-InCHiKey according to \code{webchem::is.inchikey()}is not queried, and is not
-included in the output.
-
-If you have a source \code{data.frame} with duplicate, missing, or invalid
-InCHiKeys, you can merge the returned \code{data.frame} with it (or pivot wider,
-then merge). For example, if your source \code{data.frame} is called
-\code{source_dat} with variable \code{"INCHIKEY"} containing the InCHiKeys,
-and the returned \code{data.frame} is in variable \code{dat}, the following code
-will do the merge: \code{dplyr::left_join(source_dat, dat, by = "INCHIKEY" =
- "identifier")}. In that case, classification columns will be filled with NA
-for any missing or invalid InCHiKeys.
 }
-\description{
-This function uses the ClassyFire API to classify chemicals from
-an input data.table using the InChIKey chemical identifier.
-}
-\details{
-This function queries ClassyFire's lookup table of pre-classified
-InChiKeys to get classifications, using the ClassyFire API.
+\examples{
+#an example with good, bad, NA, and blank inputs
+classify_inchikeys(
+c("SEMRCUIXRUXGJX-UHFFFAOYSA-N",
+"PLDWAJLZAAHOGG-UHFFFAOYSA-N",
+"BAD-INCHIKEY-X",
+NA_character_,
+"    ")
+)
+
 }
 \references{
 \insertRef{djoumbou2016classyfire}{treecompareR}

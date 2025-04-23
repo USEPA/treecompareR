@@ -475,7 +475,7 @@ classify_structures <- function (input = NULL,
   return(all_output)
 }
 
-#'@title Query ClassyFire InChIKey
+#'@title Query ClassyFire by InChIKey
 #'
 #'@description Query ClassyFire API by InChIKey.
 #'
@@ -543,7 +543,7 @@ query_inchikey <- function(inchikey,
 }
 
 
-#' Send ClassyFire query
+#' Query ClassyFire by structure
 #'
 #' This function takes a vector of structural identifiers (SMILES strings or
 #' InChi strings) and queries the ClassyFire API to get classifications for each
@@ -563,26 +563,27 @@ query_inchikey <- function(inchikey,
 #' @param retry_get_times Max number of times to retry GET command to ClassyFire
 #'   API to get status of query (with wait time in between tries). Default 10.
 #' @param wait_sec Minimum number of seconds to wait before retrying any GET
-#'   command or query. Default 5 seconds (because ClassyFire requests that POST
-#'   requests be limited to 12 per second). If less than 5 seconds, will be
-#'   reset to 5 seconds, with a warning. Wait times for multiple retries
+#'   command or query. Default 5 seconds (because ClassyFire rate-limits
+#'   requests to 12 per minute). If less than 5 seconds, will be reset to 5
+#'   seconds, with a warning. Wait times for multiple retries
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #' @param retry_query_times Max number of attempts to retry an "In Queue" or
 #'   "Processing" query (with wait time in between tries). Default 10.
 #' @param processing_wait_per_input Minimum number of seconds to wait *per input
 #'   string* before retrying to retrieve results for a query whose status is
-#'   "Processing." Default NULL results in \code{wait_sec/length(input)}. Uses
-#'   exponential backoff: effective wait time per input =
-#'   \code{processing_wait_per_input * 2^(attempt number)}. Total wait time is
-#'   either the effective wait time per input times the number of input
-#'   structures, or \code{wait_sec} seconds, whichever is greater.
-#' #'@param terminate_on Integer vector: List of HTTP status codes which will
-#'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
-#'  421:428, 431, 451, 500:511)`
-#'@param base_url The base URL for ClassyFire API queries. Default
-#'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
-#'  is highly unlikely to work!
+#'   "Processing." Default 0.1. Uses exponential backoff: effective wait time
+#'   per input = \code{processing_wait_per_input * 2^(attempt number)}. Total
+#'   wait time is either the effective wait time per input times the number of
+#'   input structures, or \code{wait_sec} seconds, whichever is greater. (This
+#'   means `processing_wait_per_input` effectively can never be less than
+#'   `wait_sec/length(input)`, even if you set it to a smaller number.)
+#' @param terminate_on Integer vector: List of HTTP status codes which will
+#'   immediately terminate with no more retries. Default: ` c(400:407, 409:418,
+#'   421:428, 431, 451, 500:511)`
+#' @param base_url The base URL for ClassyFire API queries. Default
+#'   `"http://classyfire.wishartlab.com/entities"`. If you change this, the
+#'   query is highly unlikely to work!
 #' @return A list of lists. The outer list has one element for each page of the
 #'   JSON output from the ClassyFire query (there is one page for every ten
 #'   entities). If the ClassyFire query failed or timed out, the list will have
@@ -592,17 +593,17 @@ query_inchikey <- function(inchikey,
 #'   `number_of_elements`, `number_of_pages`, `invalid_entities`, and
 #'   `entities`. A failed query will have named elements `id`, `query_url`,
 #'   `query_status`, `label`, `classification_status`, and `number_of_pages`.
-#'   `id` gives the numerical query ID (assigned by ClassyFire). `query_url` gives the
-#'   queried URL. `label` gives the user-supplied query label. `query_status`
-#'   gives the HTTP status of the request (200 means successful).
+#'   `id` gives the numerical query ID (assigned by ClassyFire). `query_url`
+#'   gives the queried URL. `label` gives the user-supplied query label.
+#'   `query_status` gives the HTTP status of the request (200 means successful).
 #'   `classification_status` reports the ClassyFire status: "Done" means
 #'   classification was successfully completed; "In Queue" means the query timed
 #'   out while it was still queued; "In Progress" means the query timed out
-#'   while it was still processing; "Failed" means the query failed
-#'   before ClassyFire could report a status (e.g. HTTP status code other than
-#'   200, or ClassyFire returned some content that did not include a
-#'   classification status). `number_of_elements` gives the number of classified
-#'   entities. `number_of_pages` gives the total number of pages for this query.
+#'   while it was still processing; "Failed" means the query failed before
+#'   ClassyFire could report a status (e.g. HTTP status code other than 200, or
+#'   ClassyFire returned some content that did not include a classification
+#'   status). `number_of_elements` gives the number of classified entities.
+#'   `number_of_pages` gives the total number of pages for this query.
 #'   `invalid_entities`, if present, is a `data.frame` listing queried entity
 #'   identifiers that ClassyFire found invalid. `entities`, if present, is a
 #'   nested `data.frame` giving classifications.
@@ -618,7 +619,7 @@ query_structure <- function(input = NULL,
                              retry_get_times = 10,
                              wait_sec = 5,
                              retry_query_times = 10,
-                             processing_wait_per_input = NULL,
+                             processing_wait_per_input = 0.1,
                              terminate_on = c(400:407, #but not 408
                                               409:418,
                                               421:428, #but not 429
