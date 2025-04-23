@@ -7,14 +7,7 @@
 #'@details This function queries ClassyFire's lookup table of pre-classified
 #'  InChiKeys to get classifications, using the ClassyFire API.
 #'
-#'@param inchikeys Character: A vector of InCHiKeys to be classified
-#'@param tax_level_labels By default, the list of taxonomy levels for
-#'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
-#'  level11}.
-#'@param wait_sec Numeric: A parameter controlling how many seconds between qqueries sent
-#'  to the ClassyFire API server. Default 5, to respect the limit of 12 requests
-#'  per second. Setting it any lower than 5 will result in failed queries.
-#'@return A `data.frame with the following variables`: \itemize{
+#' \itemize{
 #'  \item{identifier: The input InCHiKey that was queried. For example,
 #'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
 #'  \item{smiles: The corresponding SMILES returned by ClassyFire, if any}
@@ -29,7 +22,7 @@
 #'  \item{report: A text string reporting the status of the classification,
 #'  "ClassyFire returned a classification" if successful; otherwise the report
 #'  returned by ClassyFire, or a report about an internal error.}
-#'  }
+#' }
 #'
 #'  Note that the data.frame is in "long" format, with multiple rows for each
 #'  InCHiKey. There is one row for each level of classification for each
@@ -49,19 +42,26 @@
 #'  These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
 #'  throw a warning if this happens -- pay attention to it!
 #'
-#'  Note also that the returned data.frame includes only unique, valid
-#'  InCHiKeys. Any duplicates, blanks, NAs, or anything that is not a valid
-#'  InCHiKey is not queried, and is not
-#'  included in the output.
+#'@param inchikeys Character: A vector of InCHiKeys to be classified
+#'@param tax_level_labels By default, the list of taxonomy levels for
+#'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
+#'  level11}.
+#'@param wait_sec Numeric: A parameter controlling how many seconds between
+#'  qqueries sent to the ClassyFire API server. Default 5, to respect the limit
+#'  of 12 requests per second. Setting it any lower than 5 will result in failed
+#'  queries.
+#'@return A `data.frame`; see Details.
 #'
-#'  If you have a source `data.frame` with duplicate, missing, or invalid
-#'  InCHiKeys, you can merge the returned `data.frame` with it (or pivot wider,
-#'  then merge). For example, if your source `data.frame` is called
-#'  \code{source_dat} with variable \code{"INCHIKEY"} containing the InCHiKeys,
-#'  and the returned `data.frame` is in variable \code{dat}, the following code
-#'  will do the merge: \code{dplyr::left_join(source_dat, dat, by = "INCHIKEY" =
-#'  "identifier")}. In that case, classification columns will be filled with NA
-#'  for any missing or invalid InCHiKeys.
+#'
+#' @examples
+#' #an example with good, bad, NA, and blank inputs
+#' classify_inchikeys(
+#' c("SEMRCUIXRUXGJX-UHFFFAOYSA-N",
+#' "PLDWAJLZAAHOGG-UHFFFAOYSA-N",
+#' "BAD-INCHIKEY-X",
+#' NA_character_,
+#' "    ")
+#' )
 #'
 #'@export
 #'@references \insertRef{djoumbou2016classyfire}{treecompareR}
@@ -158,8 +158,6 @@ classify_inchikeys <- function(inchikeys,
 
                       })
 
-
-
   return(inchi_out)
 }
 
@@ -204,6 +202,19 @@ classify_inchikeys <- function(inchikeys,
 #'   structures, they will be listed in the `data.frame` with `NA_character_`
 #'   for all taxonomy levels. Check variables `report` and `status` for more
 #'   information about what may have gone wrong.
+#'
+#' @examples
+#'  classify_structures(
+#'input = c("COC1=CC(Br)=CC=C1",
+#'          "SCCSCCS",
+#'          NA_character_,
+#'          "[K+].[K+].[O-]S(=O)(=O)OOS([O-])(=O)=O",
+#'          "  ",
+#'          "C*.CSC1=NC=CN=C1 |c:5,7,t:3,lp:3:2,5:1,8:1,m:1:9.7.6|",
+#'          "[Cl-].C*.CC(C)(C)CC(C)(C)C1=CC=C(OCCOCC[N+](C)(C)CC2=CC=CC=C2)C=C1 |c:25,27,30,t:9,11,23,lp:0:4,15:2,18:2,m:2:13.12|",
+#'          "[*]OC(=O)C=C |$_R1;;;;;$,lp:1:2,3:2,RG:_R1={CC(O)C* |$;;;;_AP1$,lp:2:2|},{CC(*)CO |$;;_AP1;;$,lp:4:2|}|")
+#')
+#'
 #'
 #' @export
 #' @seealso \code{\link{classify_inchikeys}}
@@ -1091,6 +1102,14 @@ parse_list_item <- function(entities,
           this_out <- data.frame()
         }
 
+        #if any list-columns (this happens for external_descriptors),
+        #then unnest.
+        list_cols <- names(this_out)[sapply(this_out, is.list)]
+        if(length(list_cols)>0){
+          this_out <- tidyr::unnest(this_out,
+                                    cols = tidyr::all_of(list_cols))
+        }
+
         this_out <- df_check(this_out = this_out,
                              item = item,
                              entities_identifier = entities$identifier)
@@ -1099,6 +1118,17 @@ parse_list_item <- function(entities,
      #it turns out the steps are the same no matter what the type of the item.
 
      this_out <- as.data.frame(this_item)
+
+     #if any list-columns (this happens for external_descriptors),
+     #then unnest.
+     if(length(this_out) > 0){
+     list_cols <- names(this_out)[sapply(this_out, is.list)]
+     if(length(list_cols)>0){
+       this_out <- tidyr::unnest(this_out,
+                                 cols = tidyr::all_of(list_cols))
+     }
+     }
+
      if(nrow(this_out)>0){
        #this_item should have as many rows as identifiers.
        #add the identifiers as a column.
