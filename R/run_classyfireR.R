@@ -96,7 +96,7 @@ classify_inchikeys <- function(inchikeys,
     function(this_inchikey){
       #if inchikey is valid, query ClassyFire API
       Sys.sleep(wait_sec) #pause minimum number of seconds before querying again
-      this_output <- query_classyfire_inchikey(inchikey = this_inchikey,
+      this_output <- query_inchikey(inchikey = this_inchikey,
                                                wait_sec = wait_sec)
       this_output$identifier <- this_inchikey
       return(this_output)
@@ -513,9 +513,9 @@ classify_structures <- function (input = NULL,
 #'  a nested `data.frame` giving classifications.
 #'
 #' @examples
-#' query_classyfire_inchikey(inchikey = "PLDWAJLZAAHOGG-UHFFFAOYSA-N")
+#' query_inchikey(inchikey = "PLDWAJLZAAHOGG-UHFFFAOYSA-N")
 #'
-query_classyfire_inchikey <- function(inchikey,
+query_inchikey <- function(inchikey,
                                       retry_get_times = 3,
                                       wait_sec = 5,
                                       terminate_on = c(400:407, #but not 408
