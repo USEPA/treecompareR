@@ -104,7 +104,7 @@ classify_inchikeys <- function(inchikeys,
   )
 
   class_list <- lapply(entities_list,
-                       parse_classified_entities,
+                       parse_classification,
                        query_type = "inchikey",
                        tax_level_labels = tax_level_labels)
 
@@ -122,7 +122,7 @@ classify_inchikeys <- function(inchikeys,
       "predicted_lipidmaps_terms"),
     function(this_item){
       lapply(entities_list,
-             function(ii) parse_list_item(entities = ii,
+             function(ii) parse_item(entities = ii,
                                           item = this_item,
                                           query_type = "inchikey")) |>
         dplyr::bind_rows() |>
@@ -315,10 +315,10 @@ classify_structures <- function (input = NULL,
       entities_list <- lapply(json_parse,
                               function(x) x$entities)
 
-      #Parse classified entities. If there were none, parse_classified_entities()
+      #Parse classified entities. If there were none, parse_classification()
       #will just return a data.frame with zero rows.
       classified <- lapply(entities_list,
-                           parse_classified_entities,
+                           parse_classification,
                            query_type = "structure") |>
         dplyr::bind_rows() |>
         dplyr::mutate(structure = this_batch_input[identifier])
@@ -338,7 +338,7 @@ classify_structures <- function (input = NULL,
           this_item_parsed_list <- lapply(entities_list,
                         function(this_page){
                           tryCatch({
-                            this_parse <- parse_list_item(
+                            this_parse <- parse_item(
                               entities = this_page,
                               item = this_item,
                               query_type = "structure",
@@ -843,9 +843,9 @@ query_structure <- function(input = NULL,
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #parse classifications
-#' parse_classified_entities(entities = my_results[[1]]$entities)
+#' parse_classification(entities = my_results[[1]]$entities)
 #'
-parse_classified_entities <- function(entities,
+parse_classification <- function(entities,
                                       query_type,
                                       tax_level_labels = chemont_tax_levels){
 
@@ -871,7 +871,7 @@ parse_classified_entities <- function(entities,
              "intermediate_nodes",
              "direct_parent"),
            function(this_item){
-             parse_list_item(entities = entities,
+             parse_item(entities = entities,
                              item = this_item,
                              query_type = query_type,
                              tax_level_labels = tax_level_labels)
@@ -912,7 +912,7 @@ parse_classified_entities <- function(entities,
 #'   [classify_inchikeys()]. It generally should not be called directly by the
 #'   user.
 #'
-#'   The main classification is parsed by [parse_classified_entities()], but
+#'   The main classification is parsed by [parse_classification()], but
 #'   ClassyFire returns several additional pieces of classification output.
 #'   These include:
 #'
@@ -963,17 +963,17 @@ parse_classified_entities <- function(entities,
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #get alternative parents
-#' parse_list_item(entities = my_results[[1]]$entities, item = "alternative_parents")
+#' parse_item(entities = my_results[[1]]$entities, item = "alternative_parents")
 #' #get molecular framework
-#' parse_list_item(entities = my_results[[1]]$entities, item = "molecular_framework")
+#' parse_item(entities = my_results[[1]]$entities, item = "molecular_framework")
 #' @author Caroline Ring
-parse_list_item <- function(entities,
+parse_item <- function(entities,
                             item,
                             query_type,
                             tax_level_labels = chemont_tax_levels){
 
   if(length(item) > 1){
-    stop(paste("Error in treecompareR::parse_list_item():",
+    stop(paste("Error in treecompareR::parse_item():",
          "`item` must be a single string"))
   }
 
@@ -1154,9 +1154,9 @@ parse_list_item <- function(entities,
 
 #' @title Parsed data frame check
 #'
-#' @description Helper function used by [parse_list_item()]
+#' @description Helper function used by [parse_item()]
 #'
-#' @details This is a helper function used by [parse_list_item()] and generally should not be called directly by the user.
+#' @details This is a helper function used by [parse_item()] and generally should not be called directly by the user.
 #'
 #' @param this_out A `data.frame` consisting of parsed output in one element of the ClassyFire JSON `entities` element
 #' @param item Character: the name of the element of the ClassyFire JSON `entities` element

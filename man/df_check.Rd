@@ -17,10 +17,10 @@ df_check(this_out, item, entities_identifier)
 A \code{data.frame} either the same as the original \code{this_out}, or renamed, or with NAs filled in if \code{this_out} was empty
 }
 \description{
-Helper function used by \code{\link[=parse_list_item]{parse_list_item()}}
+Helper function used by \code{\link[=parse_item]{parse_item()}}
 }
 \details{
-This is a helper function used by \code{\link[=parse_list_item]{parse_list_item()}} and generally should not be called directly by the user.
+This is a helper function used by \code{\link[=parse_item]{parse_item()}} and generally should not be called directly by the user.
 }
 \examples{
 # There is no example.
