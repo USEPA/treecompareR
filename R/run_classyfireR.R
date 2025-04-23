@@ -1077,6 +1077,7 @@ parse_classified_entities <- function(entities,
 #'   ClassyFire returns several additional pieces of classification output.
 #'   These include:
 #'
+#' - Levels of classification: `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`, `direct_parent`
 #' - Alternative parents (`alternative_parents`)
 #' - Molecular framework (`molecular_framework`)
 #' - Substituents (`substituents`)
@@ -1092,7 +1093,8 @@ parse_classified_entities <- function(entities,
 #'   `inchikey`, `classification_version`, and the following additional
 #'   variables depending on what item was requested:
 #'
-#' - `alternative_parents`: `name`, `description`, `chemont_id`, `url`
+#' - `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`, `direct_parent`, and `alternative_parents`: `name`, `description`, `chemont_id`, `url`
+#' - `external_descriptors`: If any entities had these, `source` (the external source, e.g. "CHEBI", "KEGG", or "LIPID MAPS"); `source_id` (the ID of the descriptor in the external source, e.g. "CHEBI:15756" from ChEBI, or "LMFA01010001" from LipidMaps); and `annotations`, the annotation of the external descriptor (e.g. "long-chain fatty acid" or "Straight chain fatty acids")
 #' - everything else: a single additional variable named after the requested item (i.e., `molecular_framework`, `substituents`, etc.)
 #'
 #'
@@ -1330,6 +1332,11 @@ df_check <- function(this_out, item, entities_identifier){
                              description = NA_character_,
                              chemont_id = NA_character_,
                              url = NA_character_)
+    }else if(item %in% "external_descriptors"){
+      this_out <- data.frame(identifier = entities_identifier,
+                             source = NA_character_,
+                             source_id = NA_character_,
+                             annotations = NA_character_)
     }else{
       this_out <- setNames(this_out, c("identifier", item))
     }
@@ -1354,6 +1361,11 @@ df_check <- function(this_out, item, entities_identifier){
                              description = NA_character_,
                              chemont_id = NA_character_,
                              url = NA_character_)
+    }else if(item %in% "external_descriptors"){
+      this_out <- data.frame(identifier = entities_identifier,
+                             source = NA_character_,
+                             source_id = NA_character_,
+                             annotations = NA_character_)
     }else{
       #Otherwise, fill in with a column named after item, set to NA for all identifiers.
       this_out <- data.frame(identifier = entities_identifier,
