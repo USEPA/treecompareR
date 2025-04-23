@@ -105,6 +105,7 @@ classify_inchikeys <- function(inchikeys,
 
   class_list <- lapply(entities_list,
                        parse_classified_entities,
+                       query_type = "inchikey",
                        tax_level_labels = tax_level_labels)
 
   #now rowbind the list of data.frames to get one big data.frame
@@ -122,7 +123,8 @@ classify_inchikeys <- function(inchikeys,
     function(this_item){
       lapply(entities_list,
              function(ii) parse_list_item(entities = ii,
-                                          item = this_item)) |>
+                                          item = this_item,
+                                          query_type = "inchikey")) |>
         dplyr::bind_rows() |>
         dplyr::mutate()
     },
@@ -150,97 +152,16 @@ classify_inchikeys <- function(inchikeys,
                           dplyr::mutate(entity_type = "not handled by ClassyFire")
 
                         #Output: bind things handled by ClassyFire and things not handled
-                        inchi_class <- dplyr::bind_rows(missing_entities,
-                                                        inchi_class) |>
+                        this_out <- dplyr::bind_rows(missing_entities,
+                                                        this_out) |>
                           as.data.frame()  #convert from tibble to data.frame
 
-                        inchi_class <- dplyr::bind_rows(inchi_class,
-                                                        missing)
                       })
 
 
 
   return(inchi_out)
 }
-
-#' Classify data.table
-#'
-#' @param data A data.table with rows corresponding to chemicals. A column named
-#' `INCHIKEY` containing the InChIKey for each chemical is required.
-#'
-#' @return A data.table containing the original data as well as the ClassyFire
-#' classification data for each chemical, when available.
-#' @export
-#'
-#' @examplesIf FALSE
-#' # Chemical information for Bisphenol A
-#' bpa <- data.table(PREFERRED_NAME = 'Bisphenol A',
-#'                   CASRN = '80-05-7',
-#'                   INCHIKEY = 'IISBACLAFKSPIT-UHFFFAOYSA-N')
-#' bpa_classified <- classify_datatable(bpa)
-#' bpa_classified
-classify_datatable <- function(data) {
-  INCHIKEY <- NULL
-  if (!is.data.frame(data)){
-    stop("Input data must be a data.table!")
-  }
-
-  if (!data.table::is.data.table(data)){
-    warning('Casting input data.frame to data.table')
-    datatable <- data.table::data.table(data)
-  } else {
-    datatable <- data.table::copy(data)
-  }
-
-  if (!('INCHIKEY' %in% names(datatable))){
-    stop('Input data must include a column of InChIKeys name `INCHIKEY`!')
-  }
-
-  # Grab unique inchikeys
-  inchikeys <- datatable[, unique(INCHIKEY)]
-
-  # Classify inchikeys
-  inchikeys_classified <- classify_inchikeys(inchikeys = inchikeys)
-
-  # Cast as a data.table
-  inchikeys_classified <- data.table::data.table(inchikeys_classified)
-
-  # Default format of ClassyFire results
-  default_table <- data.table::data.table(identifier = character(),
-                                          smiles = character(),
-                                          inchikey = character(),
-                                          report = character(),
-                                          level = character(),
-                                          name = character(),
-                                          description = character(),
-                                          chemont_id = character(),
-                                          url = character())
-  default_names <- names(default_table)
-
-  if (dim(inchikeys_classified)[[1]] == 0){
-    return(data)
-  }
-
-  # Convert from long to wide format
-  wide_classifications <- dcast(
-    inchikeys_classified,
-    formula = identifier + smiles + inchikey + report ~ level,
-    value.var = 'name'
-  )
-
-  # Bind with default results
-  temp_table <- rbindlist(list(default_table, wide_classifications),
-                          fill = TRUE)
-  setcolorder(temp_table, neworder = default_names)
-
-  final_table <- data.table::merge.data.table(x = datatable,
-                                              y = temp_table,
-                                              by.x = 'INCHIKEY',
-                                              by.y = 'identifier',
-                                              all = TRUE)
-  return(final_table)
-}
-
 
 #' @title Query ClassyFire by structure
 #'
@@ -386,7 +307,8 @@ classify_structures <- function (input = NULL,
       #Parse classified entities. If there were none, parse_classified_entities()
       #will just return a data.frame with zero rows.
       classified <- lapply(entities_list,
-                           parse_classified_entities) |>
+                           parse_classified_entities,
+                           query_type = "structure") |>
         dplyr::bind_rows() |>
         dplyr::mutate(structure = this_batch_input[identifier])
 
@@ -408,6 +330,7 @@ classify_structures <- function (input = NULL,
                             this_parse <- parse_list_item(
                               entities = this_page,
                               item = this_item,
+                              query_type = "structure",
                               tax_level_labels = tax_level_labels
                             )
                             if(length(this_parse)==0){
@@ -551,6 +474,74 @@ classify_structures <- function (input = NULL,
 
   return(all_output)
 }
+
+#'@title Query ClassyFire InChIKey
+#'
+#'@description Query ClassyFire API by InChIKey.
+#'
+#'@details This is a helper function that used by [classify_inchikeys()]. It
+#'  should generally not be called directly by the user.
+#'
+#'@param inchikey Character: one InChIKey to be queried.
+#'@param retry_get_times Integer: The number of times to retry the query before
+#'  giving up if it returns an HTTP error. Default 3.
+#'@param wait_sec Numeric: The number of seconds to pause between retry
+#'  attempts. Default 5, because ClassyFire rate-limits to 12 requests per
+#'  minute. If set to less than 5, it will be reset to 5, with a message.
+#'@param base_url The base URL for ClassyFire API queries. Default
+#'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
+#'  is highly unlikely to work!
+#'
+#'@return A list consisting of the parsed JSON for each page of results. A completed
+#'  query will have named elements `id`, `query_url`, `query_status`, `label`,
+#'  `classification_status`, `number_of_elements`, `number_of_pages`,
+#'  `invalid_entities`, and `entities`. A failed query will have named elements
+#'  `id`, `query_url`, `query_status`, `label`, `classification_status`, and
+#'  `number_of_pages`. `id` gives the numerical query ID (assigned by
+#'  ClassyFire). `query_url` gives the queried URL. `label` gives the
+#'  user-supplied query label. `query_status` gives the HTTP status of the
+#'  request (200 means successful). `classification_status` reports the
+#'  ClassyFire status: "Done" means classification was successfully completed;
+#'  "In Queue" means the query timed out while it was still queued; "In
+#'  Progress" means the query timed out while it was still processing; "Failed"
+#'  means the query failed before ClassyFire could report a status (e.g. HTTP
+#'  status code other than 200, or ClassyFire returned some content that did not
+#'  include a classification status). `number_of_elements` gives the number of
+#'  classified entities. `number_of_pages` gives the total number of pages for
+#'  this query. `invalid_entities`, if present, is a `data.frame` listing queried
+#'  entity identifiers that ClassyFire found invalid. `entities`, if present, is
+#'  a nested `data.frame` giving classifications.
+#'
+#' @examples
+#' query_classyfire_inchikey(inchikey = "PLDWAJLZAAHOGG-UHFFFAOYSA-N")
+#'
+query_classyfire_inchikey <- function(inchikey,
+                                      retry_get_times = 3,
+                                      wait_sec = 5,
+                                      terminate_on = c(400:407, #but not 408
+                                                       409:418,
+                                                       421:428, #but not 429
+                                                       431, 451,
+                                                       500:511),
+                                      base_url = "http://classyfire.wishartlab.com/entities"){
+
+  url <- paste0(base_url,
+                "/",
+                inchikey,
+                ".json")
+
+  json_parse <- get_results(url = url,
+                            retry_get_times = retry_get_times,
+                            wait_sec = wait_sec,
+                            terminate_on = terminate_on,
+                            type = "inchikey")
+
+  #assign identifier as inchikey
+  json_parse$identifier <- inchikey
+
+  return(json_parse)
+}
+
 
 #' Send ClassyFire query
 #'
@@ -843,13 +834,14 @@ query_classyfire <- function(input = NULL,
 #' parse_classified_entities(entities = my_results[[1]]$entities)
 #'
 parse_classified_entities <- function(entities,
+                                      query_type,
                                       tax_level_labels = chemont_tax_levels){
 
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
     #but with the expected variable names
-    classified_entities <- data.frame(identifier = character(0),
+    classifications <- data.frame(identifier = character(0),
                                       smiles = character(0),
                                       inchikey = character(0),
                                       classification_version = character(0),
@@ -860,209 +852,44 @@ parse_classified_entities <- function(entities,
                                       url = character(0)
                                       )
   }else{ #if length(entities)>0
-    #expected named items in entities and their expected classes:
-    # identifier                    smiles                  inchikey
-    # "character"               "character"               "character"
-    # kingdom                superclass                     class
-    # "data.frame"              "data.frame"              "data.frame"
-    # subclass        intermediate_nodes             direct_parent
-    # "data.frame"                    "list"              "data.frame"
-    # alternative_parents       molecular_framework              substituents
-    # "list"               "character"                    "list"
-    # description      external_descriptors                 ancestors
-    # "character"                    "list"                    "list"
-    # predicted_chebi_terms predicted_lipidmaps_terms    classification_version
-    # "list"                    "list"               "character"
+    classifications <- lapply(c("kingdom",
+             "superclass",
+             "class",
+             "subclass",
+             "intermediate_nodes",
+             "direct_parent"),
+           function(this_item){
+             parse_list_item(entities = entities,
+                             item = this_item,
+                             query_type = query_type,
+                             tax_level_labels = tax_level_labels)
+           }) |>
+      dplyr::bind_rows() |>
+      #remove any with NA names
+      dplyr::filter(!is.na(name))
 
-
-    #get identifiers, smiles, inchikey
-    #these will be character vectors identifying entities
-
-    #convert from data.frame to list, if not already
-    entities <- as.list(entities)
-
-    #note that some of these may be character(0) -- handle
-    #by filling with NAs
-    for(item in c("identifier",
-                  "smiles",
-                  "inchikey",
-                  "classification_version")){
-      if(length(entities[[item]])==0){
-        entities[[item]] <- NA_character_
-      }
-    }
-
-    cf <- data.frame(entities[c("identifier",
-                                "smiles",
-                                "inchikey",
-                                "classification_version")])
-
-    #kingdom, superclass, class, subclass are all data.frames
-    #with one row for each identifier,
-    #and variables name, description, chemont_id, url
-    #giving the relevant ChemOnt taxonomy label for each identifier
-    #(i.e., "name" in the "kingdom" element gives the kingdom for each identifier,
-    #"name" in the "superclass" element gives the superclass for each identifier,
-    #etc.)
-    #rowbind these
-
-    #note: if no classification for one of these four levels, the item may be NA or NULL.
-    #handle accordingly.
-    for(item in c("kingdom",
-                  "superclass",
-                  "class",
-                  "subclass")){
-      #check if NA, NULL, or length-0 -- indicates no classification
-      if(all(is.na(entities[[item]])) |
-         is.null(entities[[item]]) |
-         length(entities[[item]]) %in% 0){
-        #replace with empty data.frame with the required names
-        entities[[item]] <- data.frame(name = character(0),
-                                       description = character(0),
-                                       chemont_id = character(0),
-                                       url = character(0))
-      }else if(!is.data.frame(entities[[item]])){
-        #if not a data.frame --
-        #e.g. if the query was for an inchikey rather than a structure,
-        #kingdom/superclass/class/subclass are provided as lists --
-        #then coerce it to a data.frame.
-        entities[[item]] <- as.data.frame(entities[[item]])
-      }
-
-      #add variable with identifiers
-      if(nrow(entities[[item]])>0){
-        entities[[item]][["identifier"]] <- entities$identifier
-      }else{
-        entities[[item]]$identifier <- character(0)
-      }
-    }
-
-    cf_class1 <- dplyr::bind_rows(entities[c("kingdom",
-                                             "superclass",
-                                             "class",
-                                             "subclass")])
-
-    #"intermediate_nodes"
-    #is a list with one element for each item in "input",
-    #a 1-row data.frame with variables name, description, chemont_id, url
-    #giving more-specific levels of classification, if any.
-    #if no intermediate nodes for an entity,
-    #its corresponding element in "intermediate_nodes" is an empty data.frame.
-    #if it is an empty list (as happens for single-InChiKey queries without intermediate nodes)
-    #then substitute an empty data-frame
-    cf_class2 <- entities$intermediate_nodes
-    if(is.data.frame(cf_class2)){
-      #for an inchikey query, it will be a single data.frame, not a list of them.
-      #just add the identifier column.
-      cf_class2_df <- cf_class2
-      cf_class2_df$identifier <- entities$identifier
-    }else{
-      #for a structure query, it will be a list of data.frames
-      #(even if there was only one entity -- it'll be a one-element list)
-      if(length(cf_class2)>0){
-        names(cf_class2) <- entities$identifier
-        cf_class2_df <- dplyr::bind_rows(cf_class2, .id = "identifier")
-      }else{
-        cf_class2_df <- data.frame(name = character(0),
-                                   description = character(0),
-                                   chemont_id = character(0),
-                                   url = character(0),
-                                   identifier = character(0))
-      }
-    }
-    rm(cf_class2)
-
-    #rowbind the kingdom-thru-superclass labels,
-    #and the "intermediate nodes" labels.
-    cf_class <- dplyr::bind_rows(cf_class1,
-                                 cf_class2_df)
-
-    # element 'direct_parent' is a data.frame
-    #with one row for each identifier,
-    #and variables name, description, chemont_id, url
-    direct <- entities$direct_parent
-    if(!is.data.frame(direct)){
-      #for an inchikey query it'll be a list rather than a data.frame,
-      #so coerce it
-      direct <- as.data.frame(direct)
-    }
-    if(nrow(direct) > 0){
-      direct$identifier <- entities$identifier
-    }else{
-      direct$identifier <- character(0)
-    }
-    cf_class <- dplyr::bind_rows(cf_class, direct)
-
-    #"direct parent" is the terminal label,
-    #and may be a duplicate of kingdom, superclass, class, subclass,
-    #or something in "intermediate nodes".
 
     #To remove duplicates,
     #get level numbers for all labels in the ChemOnt tree,
-    #merge them into cf_class,
+    #merge them into classifications,
     #and take unique rows only.
     chemont_tree_df <- get_tree_df(chemont_tree)
 
-    cf_class <- dplyr::left_join(cf_class,
+    classifications <- dplyr::left_join(classifications,
                                  chemont_tree_df[,
                                                  c("Name",
                                                    "level")],
                                  by = c("name" = "Name")) |>
-      dplyr::select(identifier, level, name) |>
-      dplyr::distinct() #keep only unique rows
-
-    #Change the levels from numbers to taxonomy level names
-    #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
-    cf_class <- cf_class |>
+      #keep only unique rows
+      dplyr::distinct() |>
+      #arrange by entity and then by level
+      dplyr::arrange(identifier, level) |>
+      #Change the levels from numbers to taxonomy level names
+      #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
       dplyr::mutate(level = tax_level_labels[level])
 
-    #We have found at least one instance where the ChemOnt tree listed something at the wrong level
-    #(see data-raw/make_chemont_taxonomy.R).
-    #Though we manually fixed that instance, there may be others.
-    #If so, cf_class will have more than one "name" at a given "level."
-
-    # #find cases of multiple name at given level, if any
-    #
-    # dup_rows <- cf_class |>
-    #   dplyr::summarise(n = dplyr::n(), .by = c(identifier, level)) |>
-    #   dplyr::filter(n > 1L) |>
-    #   as.data.frame()
-    #
-    # if(nrow(dup_rows)>0){
-    #   warning(paste("There are multiple labels listed at the same level",
-    #                 "for one or more identifiers. Duplicates:\n",
-    #                 paste(capture.output(print(dup_rows)), collapse = "\n")
-    #   ))
-    #
-    #   #reshape wider
-    #   suppressWarnings(cf_class_wide <- cf_class |>
-    #                      tidyr::pivot_wider(id_cols = "identifier",
-    #                                         names_from = "level",
-    #                                         values_from = "name") |>
-    #                      tidyr::unnest(cols = dplyr::pick(
-    #                        tidyr::all_of(tax_level_labels)
-    #                      )
-    #                      )
-    #   )
-    # }else{
-    #   cf_class_wide <- cf_class |>
-    #     tidyr::pivot_wider(id_cols = "identifier",
-    #                        names_from = "level",
-    #                        values_from = "name")
-    # }
-    #
-    # classified_entities <- cf_class_wide
-
-    classified_entities <- cf_class
-
-    #merge in smiles and inchikey
-    classified_entities <- dplyr::left_join(cf,
-                                            classified_entities,
-                                            by = "identifier") |>
-      as.data.frame()
-  } #end if length(entities)>0
-
-  return(classified_entities)
+  return(classifications)
+  }
 }
 
 #' @title Parse list item
@@ -1101,12 +928,10 @@ parse_classified_entities <- function(entities,
 #' @param entities A `data.frame` of classified entities from one page of
 #'   ClassyFire results, e.g, the `entities` element of one element of the list
 #'   output by [query_classyfire()].
-#' @param item Character: The name of an item in `entities` that is a list the
-#'   same length as `entities$identifier`. One of `'alternative_parents'`,
+#' @param item Character: The name of an item in `entities`. One of `'alternative_parents'`,
 #'   `'molecular_framework'`, `'substituents'`, `'description'`,
 #'   `'external_descriptors'`, `'ancestors'`, `'predicted_chebi_terms'`,
-#'   `'predicted_lipidmaps_terms'`. See Details. If you provide
-#'   `'classification'`, this function will call [parse_classified_entities()].
+#'   `'predicted_lipidmaps_terms'`. See Details.
 #'   These are all the named items currently in `entities` as returned by
 #'   ClassyFire, so providing any other string here will result in an empty
 #'   `data.frame` being returned.
@@ -1115,11 +940,10 @@ parse_classified_entities <- function(entities,
 #'   `classification_version`, and other variables depending on what item was
 #'   specified. If `item = 'alternative_parents'`, additional variables are
 #'   `name`, `description`, `chemont_id`, `url`. For any of the other possible
-#'   values of `item` listed above (except `'classification'`), there will be
+#'   values of `item` listed above, there will be
 #'   one additional variable named for `item` (e.g., if `item =
 #'   'molecular_framework'`, the additional variable will be named
-#'   `molecular_framework`). If `item = 'classification'`, see
-#'   [parse_classified_entities()] for details on the returned `data.frame`. If
+#'   `molecular_framework`). If
 #'   `item` is some string other than those listed above, i.e., not matching any
 #'   of the named items in `entities`, then an empty `data.frame` will be
 #'   returned (zero rows and no variables).
@@ -1141,19 +965,19 @@ parse_list_item <- function(entities,
          "`item` must be a single string"))
   }
 
-  if(item %in% "classification"){
-    return(
-      parse_classified_entities(
-        entities = entities,
-        tax_level_labels = tax_level_labels
-      )
-    )
-  }
-
   if(length(entities) == 0){
     #if entities is empty, return an empty data.frame.
     return(data.frame())
   }else{
+
+    if(item %in% c("identifier",
+                   "smiles",
+                   "inchikey",
+                   "classification_version",
+                   "query_url",
+                   "query_status")){
+      return(entities[[item]])
+    }
 
       entities <- as.list(entities)
       for(ii in c("identifier",
@@ -1424,69 +1248,3 @@ is_inchikey <- function(x){
   }
 }
 
-#'@title Query ClassyFire InChIKey
-#'
-#'@description Query ClassyFire API by InChIKey.
-#'
-#'@details This is a helper function that used by [classify_inchikeys()]. It
-#'  should generally not be called directly by the user.
-#'
-#'@param inchikey Character: one InChIKey to be queried.
-#'@param retry_get_times Integer: The number of times to retry the query before
-#'  giving up if it returns an HTTP error. Default 3.
-#'@param wait_sec Numeric: The number of seconds to pause between retry
-#'  attempts. Default 5, because ClassyFire rate-limits to 12 requests per
-#'  minute. If set to less than 5, it will be reset to 5, with a message.
-#'@param base_url The base URL for ClassyFire API queries. Default
-#'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
-#'  is highly unlikely to work!
-#'
-#'@return A list consisting of the parsed JSON for each page of results. A completed
-#'  query will have named elements `id`, `query_url`, `query_status`, `label`,
-#'  `classification_status`, `number_of_elements`, `number_of_pages`,
-#'  `invalid_entities`, and `entities`. A failed query will have named elements
-#'  `id`, `query_url`, `query_status`, `label`, `classification_status`, and
-#'  `number_of_pages`. `id` gives the numerical query ID (assigned by
-#'  ClassyFire). `query_url` gives the queried URL. `label` gives the
-#'  user-supplied query label. `query_status` gives the HTTP status of the
-#'  request (200 means successful). `classification_status` reports the
-#'  ClassyFire status: "Done" means classification was successfully completed;
-#'  "In Queue" means the query timed out while it was still queued; "In
-#'  Progress" means the query timed out while it was still processing; "Failed"
-#'  means the query failed before ClassyFire could report a status (e.g. HTTP
-#'  status code other than 200, or ClassyFire returned some content that did not
-#'  include a classification status). `number_of_elements` gives the number of
-#'  classified entities. `number_of_pages` gives the total number of pages for
-#'  this query. `invalid_entities`, if present, is a `data.frame` listing queried
-#'  entity identifiers that ClassyFire found invalid. `entities`, if present, is
-#'  a nested `data.frame` giving classifications.
-#'
-#' @examples
-#' query_classyfire_inchikey(inchikey = "PLDWAJLZAAHOGG-UHFFFAOYSA-N")
-#'
-query_classyfire_inchikey <- function(inchikey,
-                                      retry_get_times = 3,
-                                      wait_sec = 5,
-                                      terminate_on = c(400:407, #but not 408
-                                                       409:418,
-                                                       421:428, #but not 429
-                                                       431, 451,
-                                                       500:511),
-                                      base_url = "http://classyfire.wishartlab.com/entities"){
-
-  url <- paste0(base_url,
-                "/",
-                inchikey,
-                ".json")
-
-  json_parse <- get_results(url = url,
-                            retry_get_times = retry_get_times,
-                            wait_sec = wait_sec,
-                            terminate_on = terminate_on,
-                            type = "inchikey")
-
-  #assign identifier as inchikey
-  json_parse$identifier <- inchikey
-
-  return(json_parse)
-}
