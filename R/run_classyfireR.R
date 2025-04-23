@@ -110,27 +110,55 @@ classify_inchikeys <- function(inchikeys,
   #now rowbind the list of data.frames to get one big data.frame
   inchi_class <- dplyr::bind_rows(class_list)
 
-  #get any input inchikeys that were excluded
-  #or are otherwise missing from the classified output
-  #Get any input structures not handled by ClassyFire
-  #e.g. any duplicates, or batches that failed, etc.
-  #keep their placeholder values.
-  if("identifier" %in% names(this_item_df)){
-    handled_id <- inchi_class$identifier
-  }else{
-    handled_id <- character(0)
-  }
-  missing_entities <- output |>
-    dplyr::filter(!(identifier %in% handled_id)) |>
-    dplyr::mutate(entity_type = "not handled by ClassyFire")
+  more_output <- sapply(
+    c("alternative_parents",
+      "molecular_framework",
+      "substituents",
+      "description",
+      "external_descriptors",
+      "ancestors",
+      "predicted_chebi_terms",
+      "predicted_lipidmaps_terms"),
+    function(this_item){
+      lapply(entities_list,
+             function(ii) parse_list_item(entities = ii,
+                                          item = this_item)) |>
+        dplyr::bind_rows() |>
+        dplyr::mutate()
+    },
+    simplify = FALSE,
+    USE.NAMES = TRUE)
 
-  #Output: bind things handled by ClassyFire and things not handled
-  inchi_class <- dplyr::bind_rows(missing_entities,
-                                 inchi_class) |>
-    as.data.frame()  #convert from tibble to data.frame
+  inchi_out <- c(list("classified" = inchi_class),
+                 more_output)
 
-  inchi_class <- dplyr::bind_rows(inchi_class,
-                                  missing)
+
+  inchi_out <- lapply(inchi_out,
+                      function(this_out){
+                        #get any input inchikeys that were excluded
+                        #or are otherwise missing from the classified output
+                        #Get any input structures not handled by ClassyFire
+                        #e.g. any duplicates, or batches that failed, etc.
+                        #keep their placeholder values.
+                        if("identifier" %in% names(this_out)){
+                          handled_id <- this_out$identifier
+                        }else{
+                          handled_id <- character(0)
+                        }
+                        missing_entities <- output |>
+                          dplyr::filter(!(identifier %in% handled_id)) |>
+                          dplyr::mutate(entity_type = "not handled by ClassyFire")
+
+                        #Output: bind things handled by ClassyFire and things not handled
+                        inchi_class <- dplyr::bind_rows(missing_entities,
+                                                        inchi_class) |>
+                          as.data.frame()  #convert from tibble to data.frame
+
+                        inchi_class <- dplyr::bind_rows(inchi_class,
+                                                        missing)
+                      })
+
+
 
   return(inchi_out)
 }
@@ -1103,6 +1131,7 @@ parse_classified_entities <- function(entities,
 #' @author Caroline Ring
 parse_list_item <- function(entities,
                             item,
+                            query_type,
                             tax_level_labels = chemont_tax_levels){
 
   if(length(item) > 1){
@@ -1139,131 +1168,248 @@ parse_list_item <- function(entities,
                                   "inchikey",
                                   "classification_version")])
 
-    if(!(item %in% names(entities))){
-      item_out <- NULL
-    }else{
-      #check to see if the specified item is a list (not a single data.frame)
-      if(is.list(entities[[item]]) &
-         !is.data.frame((entities[[item]]))){
-        #if a list, is it the same length as entities$identifier?
-        if(length(entities[[item]] %in% length(entities$identifier))){
-          entities[[item]] <- lapply(
-            entities[[item]],
-            function(this_element){
-              if(!is.data.frame(this_element)){
-                #if the elements of entities[[item]] are not themselves data frames,
-                #but are vectors, matrixes, or arrays,
-                #coerce them to data.frames.
-                tmp <- as.data.frame(this_element)
-                if(length(tmp)==1){
-                  #i.e. if data.frame with one variable
-                  tmp <- setNames(tmp,
-                           item)
-                }else if(length(tmp)==0){
-                  #if data.frame with no variables,
-                  #i.e. if elements were empty lists,
-                  #substitute placeholder NA
-                  tmp <- data.frame(NA_character_)
-                  tmp <- setNames(tmp,
-                           item)
-                }else{
-                  #if not a data.frame,
-                  #but neither a vector nor empty,
-                  #e.g. if element is a list, matrix, or array,
-                  #then coerce to a data.frame.
-                  as.data.frame(tmp)
-                }
-              }else{
-                #if the elements of entities[[item]] are data frames,
-                #just keep them
-                this_element
-              }
-            }
-          )
-           #entities[[item]] should now be a list of data.frames
-          names(entities[[item]]) <- entities$identifier
+      #each item may be one of several formats.
 
-          item_out <- dplyr::bind_rows(entities[[item]],
-                                       .id = "identifier") |>
-            dplyr::left_join(base_dat,
-                             by = "identifier") |>
-            dplyr::relocate(identifier,
-                            smiles,
-                            inchikey,
-                            classification_version) |>
-            as.data.frame()
-        }else if(length(entities[[item]]) == 0){
-          #if the item is an empty list,
-          #return an empty data.frame
-          item_out <- data.frame()
-          }else{
-          #if the item is a non-empty list a different length from identifiers,
-          #then something has probably gone wrong
-          #just return it as-is
-          warning(paste("Item", paste0("'", item, "'"), "in `entities`",
-                        "is a list, but doesn't seem to be the same length as 'identifier'.",
-                        "This probably means something has gone wrong.",
-                        "Row-binding it into a single data.frame."))
-          item_out <- dplyr::bind_rows(entities[[item]])
+      # For structure queries:
+
+      #it may be a list with one element for each identifier.
+      #if so, each list element may be a data.frame, or a vector.
+      #the data.frames may be empty, or not.
+
+      #lists of data frames are in: intermediate_nodes, alternative_parents
+      #for intermediate nodes, if some identifiers had them and other did not,
+      #the data.frames for the identifiers with no intermediate nodes will have 0 columns and 0 rows,
+      #and the data.frames for the identifiers with intermediate nodes will have 4 columns and 1 row.
+
+      #lists of vectors are in: substituents, ancestors,
+      #predicted_chebi_terms, predicted_lipidmaps_terms (if present)
+
+      #sometimes the list elements are themselves empty lists, if no entity had a value.
+      #This is the case for external_descriptors and predicted_lipidmaps_terms, for everything I've tried so far.
+      #It is also the case for intermediate nodes, if no entity had intermediate nodes.
+
+      #it may be a single data.frame with one row for each identifier.
+      #this is the case for kingdom, superclass, class, and subclass, and direct_parent.
+      #if one identifier has a value for these and another does not,
+      #then there will still be one row for each identifier, but it'll be filled with NA if necessary.
+
+      #for kingdom, superclass, class, and subclass, if no identifiers had a value,
+      #it will be a vector of NAs with one element for each identifier.
+
+      #it may be a vector with one element for each identifier. In this case,
+      #any identifier without a value should have NA inserted.
+
+      #For single-inchikey queries:
+
+      #kingdom, superclass, class, subclass, and direct_parent will be lists,
+      #unless that inchikey does not have a classification at that level,
+      #in which case the corresponding item will be NULL.
+
+      #intermediate_nodes will be a data.frame, unless that inchikey does not
+      #have intermediate nodes, in which case it wil be an empty list.
+
+      #alternative_parents is a data.frame with a varying number of rows.
+
+      #molecular_framework and description are 1-element vectors
+      #substituents is a vector of varying length
+      #ancestors is a vector of varying length
+      #predicted_chebi_terms is a vector of varying length
+      this_item <- entities[[item]]
+
+      if(query_type %in% "structure"){
+      if(is.list(this_item) &
+         !is.data.frame(this_item)){
+        #if a list and not a single data.frame:
+        #convert each list element to a data.frame
+        this_item <- lapply(this_item,
+                            as.data.frame)
+        #
+        #name the list elements after the identifiers
+        names(this_item) <- entities$identifier
+        #rowbind with identifiers as a new variable
+        this_out <- dplyr::bind_rows(this_item,
+                                     .id = "identifier")
+
+        #if any list-columns (this happens for external_descriptors),
+        #then unnest.
+        list_cols <- names(this_out)[sapply(this_out, is.list)]
+        if(length(list_cols)>0){
+          this_out <- tidyr::unnest(this_out,
+                                    cols = tidyr::all_of(list_cols))
         }
-      }else if(is.data.frame(entities[[item]])){
-        #if it is a single data.frame, rather than a list of data.frames,
-        #then if it has the same number of rows as identifiers,
-        #or if there is only one identifier,
-        #just add the identifiers.
-        if(nrow(entities[[item]]) %in% length(entities$identifier) |
-           length(entities$identifier) == 1){
-          item_out <- entities[[item]] |>
-            dplyr::mutate(identifier = entities$identifier) |>
-            dplyr::left_join(base_dat,
-                             by = "identifier") |>
-            dplyr::relocate(identifier,
-                            smiles,
-                            inchikey,
-                            classification_version) |>
-            as.data.frame()
-        }else if(nrow(entities[[item]]) == 0){
-          item_out <- entities[[item]]
-          }else{ #if it's non-empty but has a different number of rows from identifiers
-          #just return it as-is
-          message(paste("Item", paste0("'", item, "'"), "in `entities`",
-                        "is a data.frame but doesn't seem to have",
-                        "the same number of rows as 'identifiers'.",
-                        "This probably means something has gone wrong."))
-          item_out <- entities[[item]]
-        }
-      }else{ #if neither a list nor a data.frame
-        #try to coerce it to a data.frame
-        item_out <- as.data.frame(entities[[item]])
-        if(length(item_out)==1){
-          #i.e. if data.frame with one variable
-          item_out <- setNames(item_out,
-                          item)
-        }
-        if(nrow(item_out) > 0){
-        if(nrow(item_out) %in% length(entities$identifier) |
-           length(entities$identifier) == 1){
-          item_out$identifier <- entities$identifier
-          #move identifier column to the front
-          item_out <- item_out |>
-            dplyr::left_join(base_dat,
-                             by = "identifier") |>
-            dplyr::relocate(identifier,
-                            smiles,
-                            inchikey,
-                            classification_version) |>
-            as.data.frame()
+        #handle renaming if necessary
+        this_out <- df_check(this_out = this_out,
+                             item = item,
+                             entities_identifier = entities$identifier)
+      } else if(is.data.frame(this_item)){
+        if(nrow(this_item)>0){
+          #this_item should have as many rows as identifiers.
+          #add the identifiers as a column.
+          this_out <- cbind(data.frame(identifier = entities$identifier,
+                                       this_item))
         }else{
-          message(paste("Item", paste0("'", item, "'"), "in `entities`",
-                        "could be coerced to a data.frame, but it doesn't seem to have",
-                        "the same number of rows as 'identifiers'.",
-                        "This probably means something has gone wrong."))
+          this_out <- data.frame()
         }
+
+        this_out <- df_check(this_out)
+
+      }else{
+        #if it's not a list and not a data.frame
+        #convert it to a data.frame
+        #and add identifier as a new column, if possible
+        if(length(this_item)>0){
+        this_out <- cbind(data.frame(identifier = entities$identifier,
+                                      as.data.frame(this_item)))
+        }else{
+          this_out <- data.frame()
         }
-      } #end if/else for type of item: list, data.frame, or other
-    } #end if/else item in names(entities)
-    return(item_out)
-  } #end if/else length(entities)==0
+
+        this_out <- df_check(this_out = this_out,
+                             item = item,
+                             entities_identifier = entities$identifier)
+      }
+   }else if(query_type %in% "inchikey"){
+     #it turns out the steps are the same no matter what the type of the item.
+
+     this_out <- as.data.frame(this_item)
+     if(nrow(this_out)>0){
+       #this_item should have as many rows as identifiers.
+       #add the identifiers as a column.
+       this_out <- cbind(data.frame(identifier = entities$identifier,
+                                    this_out))
+     }else{
+       this_out <- data.frame()
+     }
+     this_out <- df_check(this_out = this_out,
+                          item = item,
+                          entities_identifier = entities$identifier)
+   }else{
+     stop("query_type should be either 'structure' or 'inchikey'")
+   }
+
+      this_out <- dplyr::left_join(base_dat,
+                                   this_out,
+                                   by = "identifier")
+
+      return(this_out)
+   } #end if/else length(entities)==0
+}
+
+#' @title Parsed data frame check
+#'
+#' @description Helper function used by [parse_list_item()]
+#'
+#' @details This is a helper function used by [parse_list_item()] and generally should not be called directly by the user.
+#'
+#' @param this_out A `data.frame` consisting of parsed output in one element of the ClassyFire JSON `entities` element
+#' @param item Character: the name of the element of the ClassyFire JSON `entities` element
+#' @param entities_identifier Character vector: all identifiers in `entities$identifier`
+#' @return A `data.frame` either the same as the original `this_out`, or renamed, or with NAs filled in if `this_out` was empty
+#' @author Caroline Ring
+#' @examples
+#' # There is no example.
+#'
+df_check <- function(this_out, item, entities_identifier){
+  non_id_names <- setdiff(names(this_out),
+                          "identifier")
+  #if the result has "identifier" and columns "name", "description",
+  #"chemont_id", and "url", then keep as-is.
+
+  #if the result has "identifier" and one other column, then name that other column after item,
+  #except if it should have "name", "description", "chemont_id", and "url"
+  if(length(non_id_names) == 1){
+    if(item %in% c("kingdom",
+                   "superclass",
+                   "class",
+                   "subclass",
+                   "intermediate_nodes",
+                   "direct_parent",
+                   "alternative_parents")){
+      this_out <- data.frame(identifier = entities_identifier,
+                             name = NA_character_,
+                             description = NA_character_,
+                             chemont_id = NA_character_,
+                             url = NA_character_)
+    }else{
+      this_out <- setNames(this_out, c("identifier", item))
+    }
+
+  }
+  #if the result has only the "identifier" column and zero rows,
+  #then it means all list elements were empty.
+  if(length(non_id_names) == 0 &
+     nrow(this_out) == 0){
+    #if this is for kingdom, superclass, class, subclass,
+    #intermediate_nodes, direct_parent, or alternative_parents,
+    #then fill in with "name", "description", "chemont_id", and "url" set to NA for all identifiers.
+    if(item %in% c("kingdom",
+                   "superclass",
+                   "class",
+                   "subclass",
+                   "intermediate_nodes",
+                   "direct_parent",
+                   "alternative_parents")){
+      this_out <- data.frame(identifier = entities_identifier,
+                             name = NA_character_,
+                             description = NA_character_,
+                             chemont_id = NA_character_,
+                             url = NA_character_)
+    }else{
+      #Otherwise, fill in with a column named after item, set to NA for all identifiers.
+      this_out <- data.frame(identifier = entities_identifier,
+                             NA_character_)
+      this_out <- setNames(this_out,
+                           c("identifier", item))
+    }
+  } #end if(length(non_id_names) == 0 & nrow(this_out) == 0)
+
+  return(this_out)
+}
+
+#' Is InChIKey
+#'
+#' Check if a string is a validly-formatted InChIKey
+#'
+#' @details The criteria are the following, as described in Heller et al. (2015)
+#'   (see References).
+#'
+#' - must have 27 characters
+#' - the first 14 characters must be uppercase letters
+#' - the 15th character must be a hyphen
+#' - the 16th-23rd characters must be uppercase letters
+#' - the 24th character must be either "S" or "N"
+#' - the 25th character must be "A"
+#' - the 26th character must be a hyphen
+#' - the 27th character must be an uppercase letter
+#'
+#'
+#' @param x Character: A vector of one or more strings to check for InChIKey
+#'   format.
+#' @return A logical vector the same length as `x`, containing `TRUE` if valid
+#'   InChIKey format, and `FALSE` otherwise.
+#' @examples
+#' is_inchikey("PLDWAJLZAAHOGG-UHFFFAOYSA-N") #returns TRUE
+#' is_inchikey("PLDWAJLZAAHOGG-UHFFFAOYSB-N") #returns FALSE
+#' is_inchikey("BAD-INCHIKEY-X") #returns FALSE
+#' is_inchikey(5.234) #returns FALSE
+#' is_inchikey(NA_character_) #returns FALSE
+#' is_inchikey(NULL) #returns FALSE
+#'
+#' @export
+#' @author Caroline Ring
+#' @references Heller, S.R., McNaught, A., Pletnev, I. et al. InChI, the IUPAC
+#'   International Chemical Identifier. J Cheminform 7, 23 (2015).
+#'   https://doi.org/10.1186/s13321-015-0068-4
+
+is_inchikey <- function(x){
+  if(is.character(x)){
+    return(
+      grepl(x=x,
+            pattern = "^[[:upper:]]{14}\\-[[:upper:]]{8}[SN]A\\-[[:upper:]]$")
+    )
+  }else{
+    return(rep(FALSE, length(x)))
+  }
 }
 
 #'@title Query ClassyFire InChIKey
