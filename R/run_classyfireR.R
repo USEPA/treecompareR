@@ -276,12 +276,14 @@ classify_structures <- function (input = NULL,
                          "identifier1" = names(input)) |>
     #remove duplicates
     dplyr::distinct() |>
+    #trim whitespace
+    dplyr::mutate(input2 = trimws(input1)) |>
     #remove NAs and blanks
-    dplyr::filter(!is.na(input1) &
-                    nzchar(trimws(input1)))
+    dplyr::filter(!is.na(input2) &
+                    nzchar(input2))
 
-  #use the filtered inputs
-  input <- input_df$input1
+  #use the filtered, cleaned inputs
+  input <- input_df$input2
   names(input) <- input_df$identifier1
 
 
