@@ -87,6 +87,7 @@
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = chemont_tax_levels,
                                wait_sec = 5,
+                               check_avail = TRUE,
                                network_check_url = "http://httpstat.us/200",
                                classyfire_check_url = "http://classyfire.wishartlab.com/",
                                ...){
@@ -107,9 +108,13 @@ classify_inchikeys <- function(inchikeys,
                            is_inchikey(INCHIKEYS) #remove any non-validly-formatted inchikeys
   ]
 
+  if(check_avail %in% TRUE){
   #Check network and ClassyFire API availability
   msg <- check_resource(network_check_url = network_check_url,
                         classyfire_check_url = classyfire_check_url)
+  }else{
+    msg <- NULL
+  }
   if(!is.null(msg)){
     #if either network or ClassyFire is down,
     #do not proceed:
@@ -128,6 +133,7 @@ classify_inchikeys <- function(inchikeys,
       Sys.sleep(wait_sec) #pause minimum number of seconds before querying again
       this_output <- query_inchikey(inchikey = this_inchikey,
                                     wait_sec = wait_sec,
+                                    check_avail = FALSE,
                                     network_check_url = network_check_url,
                                     classyfire_check_url = classyfire_check_url,
                                     ...)
@@ -258,7 +264,10 @@ classify_inchikeys <- function(inchikeys,
 classify_structures <- function (input = NULL,
                                  tax_level_labels = chemont_tax_levels,
                                  sizelim = 1000,
+                                 check_avail = TRUE,
                                  ...){
+
+
 
   if(!is.character(input)){
     stop("input must be a character vector of structures (SMILES and/or InChI strings)")
@@ -271,7 +280,7 @@ classify_structures <- function (input = NULL,
   }
 
   if(sizelim > 1000){
-    message(paste0("sizelim must be <=1000. You provided sizelim = ",
+   warning(paste0("sizelim must be <=1000. You provided sizelim = ",
             sizelim,
             ". Setting it to 1000."))
     sizelim <- 1000
@@ -328,6 +337,14 @@ classify_structures <- function (input = NULL,
     batch_id <- rep(1, length(input))
   }
 
+  #Check network and ClassyFire API availability
+  if(check_avail %in% TRUE){
+    msg <- check_resource(network_check_url = network_check_url,
+                          classyfire_check_url = classyfire_check_url)
+  }else{
+    msg <- NULL
+  }
+
 
   #loop over batches
   batch_output <- sapply(
@@ -342,9 +359,13 @@ classify_structures <- function (input = NULL,
       #select inputs in this batch
       this_batch_input <- input[batch_id %in% this_batch_id]
       #Now, query ClassyFire with these structures.
+      #unless check_resources() failed, in which case, pass the messsage to query_structure(),
+      #which will auto-return a placeholder.
       json_parse <- do.call(query_structure,
                             args = c(list(input = this_batch_input,
-                                          url = NULL),
+                                          url = NULL,
+                                          check_avail = FALSE,
+                                          msg = msg),
                                      list(...))
       )
       #json_parse will be a list, one element for each page of the results.
@@ -385,6 +406,11 @@ classify_structures <- function (input = NULL,
           #parse this item for each page
           this_item_parsed_list <- lapply(entities_list,
                                           function(this_page){
+                                            if("identifier" %in% names(this_page)){
+                                              this_id <- this_page$identifier
+                                            }else{
+                                              this_id <- character(0)
+                                            }
                                             tryCatch({
                                               this_parse <- parse_item(
                                                 entities = this_page,
@@ -394,17 +420,20 @@ classify_structures <- function (input = NULL,
                                               )
                                               if(length(this_parse)==0){
                                                 this_parse <-  data.frame(
-                                                  identifier = this_page$identifier
+                                                  identifier = this_id
                                                 )
                                               }
 
+                                              if(!("identifier" %in% names(this_parse))){
+                                                this_parse$identifier <- this_id
+                                              }
                                               this_parse
                                             },
                                             error = function(err){
                                               #if this item couldn't be parsed --
                                               #then just return the identifiers
                                               data.frame(
-                                                identifier = this_page$identifier
+                                                identifier = this_id
                                               )
                                             }
                                             ) #end tryCatch
@@ -577,13 +606,14 @@ classify_structures <- function (input = NULL,
 #'
 query_inchikey <- function(inchikey,
                            retry_get_times = 3,
-                           wait_sec_get = 0.1,
+                           wait_sec_get = 1,
                            terminate_on = c(400:407, #but not 408
                                             409:418,
                                             421:428, #but not 429
                                             431, 451,
                                             500:511),
                            base_url = "http://classyfire.wishartlab.com/entities",
+                           check_avail = TRUE,
                            ...){
 
   url <- paste0(base_url,
@@ -596,6 +626,7 @@ query_inchikey <- function(inchikey,
                             wait_sec_get = wait_sec_get,
                             terminate_on = terminate_on,
                             type = "inchikey",
+                            check_avail = check_avail,
                             ...)
 
   #assign identifier as inchikey
@@ -631,7 +662,7 @@ query_inchikey <- function(inchikey,
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #' @param wait_sec_get Minimum number of seconds to wait between GET commands.
-#'   Default 0.1 seconds (because ClassyFire rate-limits GET requests to 10 per
+#'   Default 1 seconds (because ClassyFire rate-limits GET requests to 10 per
 #'   second). If less than 0.1 seconds, will be reset to 0.1 seconds, with a
 #'   warning. Wait times for multiple retries
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
@@ -686,7 +717,7 @@ query_structure <- function(input = NULL,
                             type = "STRUCTURE",
                             retry_get_times = 10,
                             wait_sec = 5,
-                            wait_sec_get = 0.1,
+                            wait_sec_get = 1,
                             retry_query_times = 10,
                             processing_wait_per_input = 0.1,
                             terminate_on = c(400:407, #but not 408
@@ -695,6 +726,8 @@ query_structure <- function(input = NULL,
                                              431, 451,
                                              500:511),
                             base_url = "http://classyfire.wishartlab.com/queries",
+                            check_avail = TRUE,
+                            msg = NULL,
                             classyfire_check_url = "http://classyfire.wishartlab.com/",
                             network_check_url = "http://httpstat.us/200"){
 
@@ -717,8 +750,11 @@ query_structure <- function(input = NULL,
                                          label = NA_character_)
 
   #Check network and ClassyFire API availability
+  if(check_avail %in% TRUE){
   msg <- check_resource(network_check_url = network_check_url,
                         classyfire_check_url = classyfire_check_url)
+  }
+
   if(!is.null(msg)){
     #if either network or ClassyFire is down,
     #do not proceed:
@@ -822,6 +858,7 @@ if(post_err %in% FALSE){
                             wait_sec_get = wait_sec_get,
                             terminate_on = terminate_on,
                             query_type = "structure",
+                            check_avail = FALSE,
                             classyfire_check_url = classyfire_check_url,
                             network_check_url = network_check_url)
 
@@ -870,6 +907,7 @@ if(post_err %in% FALSE){
                               wait_sec_get = wait_sec_get,
                               terminate_on = terminate_on,
                               query_type = "structure",
+                              check_avail = FALSE,
                               classyfire_check_url = classyfire_check_url,
                               network_check_url = network_check_url)
     retry_count <- retry_count + 1
@@ -906,6 +944,7 @@ if(post_err %in% FALSE){
                                      wait_sec_get = wait_sec_get,
                                      terminate_on = terminate_on,
                                      query_type = "structure",
+                                     check_avail = FALSE,
                                      classyfire_check_url = classyfire_check_url,
                                      network_check_url = network_check_url)
                        },
@@ -1029,13 +1068,14 @@ if(post_err %in% FALSE){
 get_results <- function(url,
                         label = "query",
                         retry_get_times = 3,
-                        wait_sec_get = 0.1,
+                        wait_sec_get = 1,
                         terminate_on = c(400:407, #but not 408
                                          409:418,
                                          421:428, #but not 429
                                          431, 451,
                                          500:511),
                         query_type = "structure",
+                        check_avail = TRUE,
                         classyfire_check_url = "http://classyfire.wishartlab.com/",
                         network_check_url = "http://httpstat.us/200",
                         ...
@@ -1056,18 +1096,25 @@ get_results <- function(url,
                      url = url,
                      label = label)
 
-  msg <- check_resource(network_check_url = network_check_url,
-                        classyfire_check_url = classyfire_check_url)
+    if(check_avail %in% TRUE){
+      #recheck resource availability
+    msg <- check_resource(network_check_url = network_check_url,
+                          classyfire_check_url = classyfire_check_url)
+    }else{
+      msg <- NULL
+    }
     if(!is.null(msg)){
       message(msg)
 
       json_parse <- list("query_status" = msg,
                          "classification_status" = "Failed")
     }else{
+
       #if internet seems up and ClassyFire seems up
       json_parse <- tryCatch(
         {
           #try getting results for query
+          Sys.sleep(wait_sec_get)
           resp <- tryCatch(
             httr::RETRY(verb = "GET",
                         url = url,
@@ -1159,8 +1206,7 @@ get_results <- function(url,
                "classification_status" = "Failed")
         }
       ) #end tryCatch
-    } #end if/else network/classyfire is down
-
+    }
 
   #fill in any elements in json_parse_default not in json_parse
   #otherwise, keep elements in json_parse
@@ -1669,6 +1715,7 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
   msg <- NULL
 
   #test to see if a request that should always succeed, does
+  Sys.sleep(1)
   test_resp <- httr::HEAD(network_check_url)
   test_check <- httr::http_error(test_resp)
   #if that fails, then something is wrong with the user's network
@@ -1683,6 +1730,7 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
 
   }else{
     #test to see if ClassyFire is up
+    Sys.sleep(1)
     test_resp2 <- httr::HEAD(classyfire_check_url)
     test_check2 <- httr::http_error(test_resp2)
     if(test_check2 %in% TRUE){
