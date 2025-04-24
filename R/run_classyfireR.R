@@ -50,7 +50,18 @@
 #'  qqueries sent to the ClassyFire API server. Default 5, to respect the limit
 #'  of 12 requests per second. Setting it any lower than 5 will result in failed
 #'  queries.
-#' @param ... Other arguments as for [query_inchikey()].
+#'@param network_check_url Character: A URL to check that should never give an
+#'  HTTP error if the network is up. Default is
+#'  `"http://httpstat.us/200"`, which should always return status 200
+#'  (success). A `httr::HEAD()` request will be performed on this URL to check
+#'  whether the network is up.  If not, a message will be emitted and an empty
+#'  (placeholder) result will be returned.
+#'@param classyfire_check_url Character: the URL to check to see whether the
+#'  ClassyFire API is up. Default is `"http://classyfire.wishartlab.com/"`. A
+#'  `httr::HEAD()` request will be performed on this URL to check whether the
+#'  resource is up. If not, a message will be emitted and an empty (placeholder)
+#'  result will be returned.
+#'@param ... Other arguments as for [query_inchikey()].
 #'@return A `data.frame`; see Details.
 #'
 #'
@@ -68,7 +79,9 @@
 #'@references \insertRef{djoumbou2016classyfire}{treecompareR}
 #'
 #'
-#'@seealso \code{\link{classify_structures}}
+#'@seealso [classify_structures()] for getting classifications of SMILES and/or
+#'  InChI strings; [query_inchikey()] to get the parsed JSON from ClassyFire for
+#'  a single InChIKey query
 #'
 
 classify_inchikeys <- function(inchikeys,
@@ -182,15 +195,15 @@ classify_inchikeys <- function(inchikeys,
   return(inchi_out)
 }
 
-#' @title Query ClassyFire by structure
+#'@title Query ClassyFire by structure
 #'
-#' @description This function takes a vector of structural identifiers (SMILES
-#'   strings or InChi strings) and queries the ClassyFire API to get
-#'   classifications for each one.
+#'@description This function takes a vector of structural identifiers (SMILES
+#'  strings or InChi strings) and queries the ClassyFire API to get
+#'  classifications for each one.
 #'
-#' @details
+#'@details
 #'
-#' This function returns a list of `data.frame`s with the following names.
+#'This function returns a list of `data.frame`s with the following names.
 #'
 #' - `classification`: The main ClassyFire classification for the input structures.
 #' - `alternative_parents`: Alternative parents for the input structures.
@@ -202,27 +215,29 @@ classify_inchikeys <- function(inchikeys,
 #' - `predicted_chebi_terms`: Predicted ChEBI terms for the input structures.
 #' - `predicted_lipidmaps_terms`: Predicted LipidMaps terms for the input structures.
 #'
-#' @param input A character vector of structural identifiers: SMILES strings or
-#'   InChi strings. May optionally be named. If so, the names will be returned
-#'   as a column named  \code{identifier} in the output data.frame. If not
-#'   named, the vector itself will be returned as a column named
-#'   \code{identifier} in the output data.frame
-#' @param tax_level_labels By default, the list of taxonomy levels for
+#'@param input A character vector of structural identifiers: SMILES strings or
+#'  InChi strings. May optionally be named. If so, the names will be returned as
+#'  a column named  \code{identifier} in the output data.frame. If not named,
+#'  the vector itself will be returned as a column named \code{identifier} in
+#'  the output data.frame
+#'@param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
-#' @param ... Other arguments as for \code{\link{query_structure}}.
-#' @return A list of `data.frame`s with ClassyFire classification results for each input
-#'   structural identifier.
+#'@param sizelim Integer: The maximum number of structures that can be sent in a
+#'  single ClassyFire query. Default 1000, since this is the current limit.
+#'@param ... Other arguments as for \code{\link{query_structure}}.
+#'@return A list of `data.frame`s with ClassyFire classification results for
+#'  each input structural identifier.
 #'
-#'   Will contain variables `identifier`, `structure`,
-#'   one variable named for each taxonomy level in `tax_level_labels` containing
-#'   the classification at each level), `smiles`,  `inchikey`, and then several
-#'   variables with information about the ClassyFire query: `report`,
-#'   `classification_version`, `id`, `label`, `classification_status`, `query_url` and
-#'   `query_status`. If classification could not be completed for one or more
-#'   structures, they will be listed in the `data.frame` with `NA_character_`
-#'   for all taxonomy levels. Check variables `report` and `status` for more
-#'   information about what may have gone wrong.
+#'  Will contain variables `identifier`, `structure`, one variable named for
+#'  each taxonomy level in `tax_level_labels` containing the classification at
+#'  each level), `smiles`,  `inchikey`, and then several variables with
+#'  information about the ClassyFire query: `report`, `classification_version`,
+#'  `id`, `label`, `classification_status`, `query_url` and `query_status`. If
+#'  classification could not be completed for one or more structures, they will
+#'  be listed in the `data.frame` with `NA_character_` for all taxonomy levels.
+#'  Check variables `report` and `status` for more information about what may
+#'  have gone wrong.
 #'
 #' @examples
 #'  classify_structures(
@@ -237,13 +252,12 @@ classify_inchikeys <- function(inchikeys,
 #')
 #'
 #'
-#' @export
-#' @seealso \code{\link{classify_inchikeys}}
+#'@export
+#'@seealso \code{\link{classify_inchikeys}}
 #'
 classify_structures <- function (input = NULL,
                                  tax_level_labels = chemont_tax_levels,
                                  sizelim = 1000,
-                                 wait_sec = 5,
                                  ...){
 
   if(!is.character(input)){
@@ -254,6 +268,13 @@ classify_structures <- function (input = NULL,
     warning(paste("One or more input structures appear to be InChIKeys.",
                   "Please use `classify_inchikeys()` to query by InChIKey.")
     )
+  }
+
+  if(sizelim > 1000){
+    message(paste0("sizelim must be <=1000. You provided sizelim = ",
+            sizelim,
+            ". Setting it to 1000."))
+    sizelim <- 1000
   }
 
   #Names of input structures are their identifiers.
@@ -312,8 +333,12 @@ classify_structures <- function (input = NULL,
   batch_output <- sapply(
     unique(batch_id),
     function(this_batch_id){
-      #enforce waiting time between batches
-      Sys.sleep(wait_sec)
+      if(length(unique(batch_id))>1){
+        print(paste("Batch",
+                    this_batch_id,
+                    "of",
+                    max(batch_id)))
+      }
       #select inputs in this batch
       this_batch_input <- input[batch_id %in% this_batch_id]
       #Now, query ClassyFire with these structures.
@@ -552,7 +577,7 @@ classify_structures <- function (input = NULL,
 #'
 query_inchikey <- function(inchikey,
                            retry_get_times = 3,
-                           wait_sec = 5,
+                           wait_sec_get = 0.1,
                            terminate_on = c(400:407, #but not 408
                                             409:418,
                                             421:428, #but not 429
@@ -568,7 +593,7 @@ query_inchikey <- function(inchikey,
 
   json_parse <- get_results(url = url,
                             retry_get_times = retry_get_times,
-                            wait_sec = wait_sec,
+                            wait_sec_get = wait_sec_get,
                             terminate_on = terminate_on,
                             type = "inchikey",
                             ...)
@@ -599,10 +624,16 @@ query_inchikey <- function(inchikey,
 #' @param type String giving ClassyFire query type. Default \code{"structure"}.
 #' @param retry_get_times Max number of times to retry GET command to ClassyFire
 #'   API to get status of query (with wait time in between tries). Default 10.
-#' @param wait_sec Minimum number of seconds to wait before retrying any GET
-#'   command or query. Default 5 seconds (because ClassyFire rate-limits
-#'   requests to 12 per minute). If less than 5 seconds, will be reset to 5
-#'   seconds, with a warning. Wait times for multiple retries
+#' @param wait_sec Minimum number of seconds to wait between POST commands.
+#'   Default 5 seconds (because ClassyFire rate-limits POST requests to 12 per
+#'   minute). If less than 5 seconds, will be reset to 5 seconds, with a
+#'   warning. Wait times for multiple retries
+#'   use exponential backoff with full jitter (wait time is \code{runif(1,
+#'   wait_sec, wait_sec * 2^(attempt_number)}).
+#' @param wait_sec_get Minimum number of seconds to wait between GET commands.
+#'   Default 0.1 seconds (because ClassyFire rate-limits GET requests to 10 per
+#'   second). If less than 0.1 seconds, will be reset to 0.1 seconds, with a
+#'   warning. Wait times for multiple retries
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #' @param retry_query_times Max number of attempts to retry an "In Queue" or
@@ -655,6 +686,7 @@ query_structure <- function(input = NULL,
                             type = "STRUCTURE",
                             retry_get_times = 10,
                             wait_sec = 5,
+                            wait_sec_get = 0.1,
                             retry_query_times = 10,
                             processing_wait_per_input = 0.1,
                             terminate_on = c(400:407, #but not 408
@@ -699,12 +731,13 @@ query_structure <- function(input = NULL,
   }else{
   #if network and classyfire OK
   if(wait_sec < 5){
-    warning(paste("ClassyFire rate-limits requests to 12 per minute.",
+    warning(paste("ClassyFire rate-limits POST requests to 12 per minute.",
                   "You supplied wait_sec =", wait_sec,
                   "; it will be reset to 5 seconds."))
     wait_sec <- 5
   }
 
+    post_err <- FALSE
   #if input provided, construct new query
   if(!is.null(input)){
     if(is.null(processing_wait_per_input)){
@@ -726,17 +759,39 @@ query_structure <- function(input = NULL,
                             query_type = type)
     )
     #construct POST request
-    resp <- httr::POST(url = base_url,
-                       body = q,
-                       httr::content_type_json(),
-                       httr::accept_json(),
-                       httr::timeout(getOption("timeout"))
+    Sys.sleep(wait_sec) #wait required amount of time
+    #retry POST
+    resp <- httr::RETRY(
+      verb = "POST",
+      url = base_url,
+      body = q,
+      terminate_on = terminate_on,
+      times = retry_query_times,
+      pause_min = wait_sec,
+      httr::content_type_json(),
+      httr::accept_json(),
+      httr::timeout(getOption("timeout"))
     )
+
+    #check for HTTP error
+    if(httr::http_error(resp)){
+      post_status <- httr::http_status(resp)
+      json_parse$query_status <- paste("POST request failed",
+                                       paste0("(",
+                                              post_status$message,
+                                              ")"))
+      json_parse$classification_status <- "Failed"
+      output <- list(json_parse)
+      post_err <- TRUE #flag for POST error
+    }else{
     post_cont <- httr::content(resp)
     #get URL for query
     url <- paste0(base_url, "/", post_cont$id, ".json")
+    }
   } #end if(!is.null(input))
 
+
+if(post_err %in% FALSE){
   #check url format (whether newly constructed or user-provided)
   if(length(url) %in% 1){
     if(is.character(url)){
@@ -759,10 +814,12 @@ query_structure <- function(input = NULL,
                 " where NNNNN are one or more digits 0-9 denoting a query ID number."))
   }
 
+
+
   json_parse <- get_results(url = url,
                             label = label,
                             retry_get_times = retry_get_times,
-                            wait_sec = wait_sec,
+                            wait_sec_get = wait_sec_get,
                             terminate_on = terminate_on,
                             query_type = "structure",
                             classyfire_check_url = classyfire_check_url,
@@ -776,7 +833,7 @@ query_structure <- function(input = NULL,
         retry_count < retry_query_times){
     if(json_parse$classification_status %in% "In Queue"){
       #wait for query to come out of queue
-      #this does not depend on size of input
+      #this does *not* depend on size of input
       #calculate exponential backoff wait time
       wait_time <- runif(1, wait_sec, wait_sec*2^(retry_count))
       message(paste0("Classification status is In Queue",
@@ -799,7 +856,7 @@ query_structure <- function(input = NULL,
                      " seconds (greater of ",
                      wait_sec,
                      " seconds, or ",
-                     proc_eff,
+                     signif(proc_eff, 2),
                      " seconds per input, with ",
                      length(input),
                      " inputs) ",
@@ -810,7 +867,7 @@ query_structure <- function(input = NULL,
     json_parse <- get_results(url = url,
                               label = label,
                               retry_get_times = retry_get_times,
-                              wait_sec = wait_sec,
+                              wait_sec_get = wait_sec_get,
                               terminate_on = terminate_on,
                               query_type = "structure",
                               classyfire_check_url = classyfire_check_url,
@@ -836,7 +893,7 @@ query_structure <- function(input = NULL,
       output <- sapply(url_pages,
                        function(url_pg){
                          #wait between querying pages
-                         Sys.sleep(wait_sec)
+                         Sys.sleep(wait_sec_get)
                          message(paste("Getting page",
                                        url_pg,
                                        "of",
@@ -846,7 +903,7 @@ query_structure <- function(input = NULL,
                          get_results(url = url_pg,
                                      label = label,
                                      retry_get_times = retry_get_times,
-                                     wait_sec = wait_sec,
+                                     wait_sec_get = wait_sec_get,
                                      terminate_on = terminate_on,
                                      query_type = "structure",
                                      classyfire_check_url = classyfire_check_url,
@@ -872,6 +929,7 @@ query_structure <- function(input = NULL,
     json_parse <- list(json_parse)
     output <- json_parse
   }
+}
   }
   return(output)
 }
@@ -938,25 +996,25 @@ query_structure <- function(input = NULL,
 #'@param retry_get_times As for [query_classyfire()]. Integer: number of times
 #'  to retry GET query if HTTP error was returned (except for errors in
 #'  `terminate_on`, which will terminate immediately without retrying).
-#'@param wait_sec As for [query_classyfire()]. Integer: number of seconds to
-#'  wait between retries. Minimum 5.
+#'@param wait_sec_get As for [query_classyfire()]. Numeric: number of seconds to
+#'  wait between retries. Minimum 0.1.
 #'@param terminate_on Integer vector: List of HTTP status codes which will
 #'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
 #'  421:428, 431, 451, 500:511)`
 #'@param type Character: either `'structure'` or `'inchikey'`, depending on
 #'  whether the query is one or more structures, or whether it is a single
 #'  inchikey.
-#'@param classyfire_check_url Character: the URL to check to see whether the
-#'  ClassyFire API is up. Default is `"http://classyfire.wishartlab.com/"`. A
-#'  `httr::HEAD()` request will be performed on this URL to check whether the
-#'  resource is up. If not, a message will be emitted and an empty (placeholder)
-#'  result will be returned.
 #'@param network_check_url Character: A URL to check that should never give an
 #'  HTTP error if the network is up. Default is
 #'  `"http://httpstat.us/200"`, which should always return status 200
 #'  (success). A `httr::HEAD()` request will be performed on this URL to check
 #'  whether the network is up.  If not, a message will be emitted and an empty
 #'  (placeholder) result will be returned.
+#'@param classyfire_check_url Character: the URL to check to see whether the
+#'  ClassyFire API is up. Default is `"http://classyfire.wishartlab.com/"`. A
+#'  `httr::HEAD()` request will be performed on this URL to check whether the
+#'  resource is up. If not, a message will be emitted and an empty (placeholder)
+#'  result will be returned.
 #'@param ... Other arguments. Not currently used.
 #'@return A list containing the parsed JSON results (if query was successful),
 #'  or placeholder values for the expected elements of the parsed JSON results.
@@ -971,7 +1029,7 @@ query_structure <- function(input = NULL,
 get_results <- function(url,
                         label = "query",
                         retry_get_times = 3,
-                        wait_sec = 5,
+                        wait_sec_get = 0.1,
                         terminate_on = c(400:407, #but not 408
                                          409:418,
                                          421:428, #but not 429
@@ -983,6 +1041,12 @@ get_results <- function(url,
                         ...
 ){
 
+  if(wait_sec_get < 0.1){
+    warning(paste("ClassyFire rate-limits GET requests to 10 per second.",
+                  "You supplied wait_sec_get =", wait_sec_get,
+                  "; it will be reset to 0.1 seconds."))
+    wait_sec_get <- 0.1
+  }
   #initialize a placeholder json_parse in case everything else fails
 
     m <- regexec(text=url, pattern = "(\\d+)\\.json")
@@ -1009,7 +1073,7 @@ get_results <- function(url,
                         url = url,
                         encode = "json",
                         times = retry_get_times,
-                        pause_min = wait_sec,
+                        pause_min = wait_sec_get,
                         terminate_on = terminate_on
             ),
             error = function(err){
