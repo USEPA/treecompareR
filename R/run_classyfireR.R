@@ -422,6 +422,7 @@ classify_structures <- function (input = NULL,
       class_out <- c(list("classification" =  classified),
                      more_output)
 
+
       #For each piece of classification output,
       #row-bind the invalid entities.
       class_out <- sapply(class_out,
@@ -433,7 +434,6 @@ classify_structures <- function (input = NULL,
                               ),
                               .id = "entity_type"
                             )
-
                             #add informational columns
                             if(nrow(this_new)>0){
                               this_new[c("id",
@@ -1141,7 +1141,6 @@ get_results <- function(url,
 parse_classification <- function(entities,
                                  query_type,
                                  tax_level_labels = chemont_tax_levels){
-
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
@@ -1157,7 +1156,7 @@ parse_classification <- function(entities,
                                   url = character(0)
     )
   }else{ #if length(entities)>0
-    classifications <- lapply(c("kingdom",
+    classifications <- sapply(c("kingdom",
                                 "superclass",
                                 "class",
                                 "subclass",
@@ -1168,11 +1167,12 @@ parse_classification <- function(entities,
                                            item = this_item,
                                            query_type = query_type,
                                            tax_level_labels = tax_level_labels)
-                              }) |>
+                              },
+                              simplify = FALSE,
+                              USE.NAMES = TRUE) |>
       dplyr::bind_rows() |>
       #remove any with NA names
       dplyr::filter(!is.na(name))
-
 
     #To remove duplicates,
     #get level numbers for all labels in the ChemOnt tree,
@@ -1278,9 +1278,7 @@ parse_item <- function(entities,
     if(item %in% c("identifier",
                    "smiles",
                    "inchikey",
-                   "classification_version",
-                   "query_url",
-                   "query_status")){
+                   "classification_version")){
       return(entities[[item]])
     }
 
@@ -1290,7 +1288,7 @@ parse_item <- function(entities,
                 "inchikey",
                 "classification_version")){
       if(length(entities[[ii]])==0){
-        entities[[ii]] <- NA_character_
+        entities[[ii]] <- character(0)
       }
     }
 
@@ -1384,7 +1382,9 @@ parse_item <- function(entities,
           this_out <- data.frame()
         }
 
-        this_out <- df_check(this_out)
+        this_out <- df_check(this_out,
+                             item = item,
+                             entities_identifier = entities$identifier)
 
       }else{
         #if it's not a list and not a data.frame
@@ -1480,15 +1480,15 @@ df_check <- function(this_out, item, entities_identifier){
                    "direct_parent",
                    "alternative_parents")){
       this_out <- data.frame(identifier = entities_identifier,
-                             name = NA_character_,
-                             description = NA_character_,
-                             chemont_id = NA_character_,
-                             url = NA_character_)
+                             name = rep(NA_character_, length(entities_identifier)),
+                             description = rep(NA_character_, length(entities_identifier)),
+                             chemont_id = rep(NA_character_, length(entities_identifier)),
+                             url = rep(NA_character_, length(entities_identifier)))
     }else if(item %in% "external_descriptors"){
       this_out <- data.frame(identifier = entities_identifier,
-                             source = NA_character_,
-                             source_id = NA_character_,
-                             annotations = NA_character_)
+                             source = rep(NA_character_, length(entities_identifier)),
+                             source_id = rep(NA_character_, length(entities_identifier)),
+                             annotations = rep(NA_character_, length(entities_identifier)))
     }else{
       this_out <- setNames(this_out, c("identifier", item))
     }
@@ -1509,19 +1509,19 @@ df_check <- function(this_out, item, entities_identifier){
                    "direct_parent",
                    "alternative_parents")){
       this_out <- data.frame(identifier = entities_identifier,
-                             name = NA_character_,
-                             description = NA_character_,
-                             chemont_id = NA_character_,
-                             url = NA_character_)
+                             name = rep(rep(NA_character_, length(entities_identifier)), length(entities_identifier)),
+                             description = rep(NA_character_, length(entities_identifier)),
+                             chemont_id = rep(NA_character_, length(entities_identifier)),
+                             url = rep(NA_character_, length(entities_identifier)))
     }else if(item %in% "external_descriptors"){
       this_out <- data.frame(identifier = entities_identifier,
-                             source = NA_character_,
-                             source_id = NA_character_,
-                             annotations = NA_character_)
+                             source = rep(NA_character_, length(entities_identifier)),
+                             source_id = rep(NA_character_, length(entities_identifier)),
+                             annotations = rep(NA_character_, length(entities_identifier)))
     }else{
       #Otherwise, fill in with a column named after item, set to NA for all identifiers.
       this_out <- data.frame(identifier = entities_identifier,
-                             NA_character_)
+                             rep(NA_character_, length(entities_identifier)))
       this_out <- setNames(this_out,
                            c("identifier", item))
     }
