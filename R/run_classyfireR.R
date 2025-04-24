@@ -1619,12 +1619,14 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
     #test to see if ClassyFire is up
     test_resp2 <- httr::HEAD(classyfire_check_url)
     test_check2 <- httr::http_error(test_resp2)
+    if(test_check2 %in% TRUE){
     msg <-  paste("ClassyFire appears to be down:",
                    "can't reach",
                    classyfire_check_url,
                   paste0("(",
                          httr::http_status(test_resp2)$message,
                          ")"))
+    }
   }
 
   return(msg)
