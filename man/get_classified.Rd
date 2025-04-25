@@ -8,16 +8,18 @@ get_classified(entities, query_type, tax_level_labels = chemont_tax_levels)
 }
 \arguments{
 \item{entities}{JSON element of classified entities as returned by ClassyFire
-API query (e.g, from the results of \code{\link[=query_structure]{query_structure()}} or \code{\link[=query_inchikey]{query_inchikey()}})}
+API query (e.g, from the results of \code{\link[=query_structure]{query_structure()}} or
+\code{\link[=query_inchikey]{query_inchikey()}})}
 
 \item{tax_level_labels}{ChemOnt taxonomy level labels (default
 \code{\link{chemont_tax_levels}})}
 }
 \value{
 A data.frame consisting of rows corresponding to each classified
-entry from the \code{entities} input. One row for each entity
-identifier, and variables \code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom},
-\code{superclass}, \code{class}, \code{subclass}, \code{level5}, \code{level6}, ... \code{level11}.
+entry from the \code{entities} input. One row for each entity identifier, and
+variables \code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom}, \code{superclass},
+\code{class}, \code{subclass}, \code{level5}, \code{level6}, ... \code{level11}, and
+\code{terminal_label}.
 }
 \description{
 Get ClassyFire classification results as a data frame.

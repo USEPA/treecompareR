@@ -27,6 +27,7 @@
 #' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
 #'
 #'  All `data.frame`s contain the following variables:
+#'
 #' - `identifier`: Character. The InChIKey that was queried.
 #' - `entity_type`: Character. Either `queried` (if queried in ClassyFire) or `not queried` (if not queried in ClassyFire due to not being a valid InChIKey).
 #' - `smiles`: Character. The SMILES string returned by ClassyFire for this query.
@@ -36,6 +37,7 @@
 #' - `query_url`: Character. The URL used to get the JSON ClassyFire classification.
 #'
 #'  Data.frame `classified` contains the following additional variables:
+#'
 #' - `kingdom`: Character. The kingdom label for each input.
 #' - `superclass`: Character. The superclass label for each input.
 #' - `class`: Character. The class label for each input.
@@ -47,10 +49,12 @@
 #' - `level9`: Character. The level 9 label for each input.
 #' - `level10`: Character. The level 10 label for each input.
 #' - `level11`: Character. The level 11 label for each input.
+#' - `terminal_label`: Character. The most specific non-NA label available for each input.
 #'
 #'  Data.frames `kingdom`, `superclass`, `class`, `subclass`,
 #'  `intermediate_nodes`, `direct_parent`, `alternative_parents`, and
 #'  `ancestors` contain the following additional variables:
+#'
 #' - `name`: Character. The classification labels.
 #' - `description`: Character. Description of each classification label.
 #' - `chemont_id`: Character. The ChemOnt ID of each classification label.
@@ -58,6 +62,7 @@
 #'
 #'  Data frame `external_descriptors` contains the following additional
 #'  variables:
+#'
 #' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
@@ -298,6 +303,7 @@ classify_inchikeys <- function(inchikeys,
 #' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
 #'
 #'  All `data.frame`s contain the following variables:
+#'
 #'  - `identifier_orig`: Character. The original `input`, before any whitespace was trimmed.
 #'  - `identifier_name_orig`: Character. The names of the original `input`, if any. If `input` did not have names, will be the same as `identifier_orig`.
 #' - `identifier`: Character. An identifier for each structure. (The names of `input` if it had names. If not, it will be the same as `input`.)
@@ -313,6 +319,7 @@ classify_inchikeys <- function(inchikeys,
 #' - `query_status`: The HTTP status of the [httr::GET()] request from `query_url`. If `classification_status` is "Failed", this may help diagnose what went wrong.
 #'
 #'  Data.frame `classified` contains the following additional variables:
+#'
 #' - `kingdom`: Character. The kingdom label for each input.
 #' - `superclass`: Character. The superclass label for each input.
 #' - `class`: Character. The class label for each input.
@@ -324,10 +331,12 @@ classify_inchikeys <- function(inchikeys,
 #' - `level9`: Character. The level 9 label for each input.
 #' - `level10`: Character. The level 10 label for each input.
 #' - `level11`: Character. The level 11 label for each input.
+#' - `terminal_label`: Character. The most specific non-NA label available for each input.
 #'
 #'  Data.frames `kingdom`, `superclass`, `class`, `subclass`,
 #'  `intermediate_nodes`, `direct_parent`, `alternative_parents`, and
 #'  `ancestors` contain the following additional variables:
+#'
 #' - `name`: Character. The classification labels.
 #' - `description`: Character. Description of each classification label.
 #' - `chemont_id`: Character. The ChemOnt ID of each classification label.
@@ -335,6 +344,7 @@ classify_inchikeys <- function(inchikeys,
 #'
 #'  Data frame `external_descriptors` contains the following additional
 #'  variables:
+#'
 #' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
@@ -1368,13 +1378,15 @@ get_results <- function(url,
 #'   user.
 #'
 #' @param entities JSON element of classified entities as returned by ClassyFire
-#'   API query (e.g, from the results of [query_structure()] or [query_inchikey()])
+#'   API query (e.g, from the results of [query_structure()] or
+#'   [query_inchikey()])
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
 #' @return A data.frame consisting of rows corresponding to each classified
-#'   entry from the `entities` input. One row for each entity
-#'   identifier, and variables `identifier`, `smiles`, `inchikey`, `kingdom`,
-#'   `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`.
+#'   entry from the `entities` input. One row for each entity identifier, and
+#'   variables `identifier`, `smiles`, `inchikey`, `kingdom`, `superclass`,
+#'   `class`, `subclass`, `level5`, `level6`, ... `level11`, and
+#'   `terminal_label`.
 #' @examples
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
@@ -1436,7 +1448,11 @@ get_classified <- function(entities,
       dplyr::arrange(identifier, level) |>
       #Change the levels from numbers to taxonomy level names
       #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
-      dplyr::mutate(level = tax_level_labels[level])
+      dplyr::mutate(level = tax_level_labels[level]) |>
+      #get terminal labels
+      dplyr::group_by(identifier) |>
+      dplyr::mutate(terminal_label = name[dplyr::n()]) |>
+      dplyr::ungroup()
 
     #pivot wider
     #first check for any cases of multiple labels at the same level
@@ -1460,7 +1476,8 @@ get_classified <- function(entities,
   #if duplicates: pivot wider and then unnest list columns
       suppressWarnings(
         classifications <- classifications |>
-        tidyr::pivot_wider(id_cols = identifier,
+        tidyr::pivot_wider(id_cols = c(identifier,
+                                       terminal_label),
                            names_from = level,
                            values_from = name) |>
         tidyr::unnest(tidyr::any_of(tax_level_labels))
@@ -1469,7 +1486,8 @@ get_classified <- function(entities,
 
     }else{ #if no cases of multiple labels at the same level
       classifications <- classifications |>
-        tidyr::pivot_wider(id_cols = identifier,
+        tidyr::pivot_wider(id_cols = c(identifier,
+                                       terminal_label),
                            names_from = level,
                            values_from = name) |>
         as.data.frame()
@@ -1481,6 +1499,10 @@ get_classified <- function(entities,
    if(length(missing_levels)>0){
      classifications[missing_levels] <- NA_character_
    }
+
+    #put terminal label at the end
+    classifications <- classifications |>
+      dplyr::relocate(terminal_label, .after = dplyr::last_col())
 
     return(classifications)
   }

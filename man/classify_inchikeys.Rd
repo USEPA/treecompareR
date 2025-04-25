@@ -99,6 +99,7 @@ Data.frame \code{classified} contains the following additional variables:
 \item \code{level9}: Character. The level 9 label for each input.
 \item \code{level10}: Character. The level 10 label for each input.
 \item \code{level11}: Character. The level 11 label for each input.
+\item \code{terminal_label}: Character. The most specific non-NA label available for each input.
 }
 
 Data.frames \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
