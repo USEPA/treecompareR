@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_classyfireR.R
 \name{get_item}
 \alias{get_item}
-\title{Parse list item}
+\title{Get item}
 \usage{
 get_item(entities, item, query_type, tax_level_labels = chemont_tax_levels)
 }
@@ -11,13 +11,16 @@ get_item(entities, item, query_type, tax_level_labels = chemont_tax_levels)
 ClassyFire results, e.g, the \code{entities} element of one element of the list
 output by \code{\link[=query_structure]{query_structure()}}.}
 
-\item{item}{Character: The name of an item in \code{entities}. One of \code{'alternative_parents'},
-\code{'molecular_framework'}, \code{'substituents'}, \code{'description'},
-\code{'external_descriptors'}, \code{'ancestors'}, \code{'predicted_chebi_terms'},
-\code{'predicted_lipidmaps_terms'}. See Details.
-These are all the named items currently in \code{entities} as returned by
-ClassyFire, so providing any other string here will result in an empty
-\code{data.frame} being returned.}
+\item{item}{Character: The name of an item in \code{entities}. One of \code{'kingdom'},
+\code{'superclass'}, \code{'class'}, \code{'subclass'}, \code{'intermediate_nodes'},
+\code{'direct_parent'}, \code{'alternative_parents'}, \code{'molecular_framework'},
+\code{'substituents'}, \code{'description'}, \code{'external_descriptors'}, \code{'ancestors'},
+\code{'predicted_chebi_terms'}, \code{'predicted_lipidmaps_terms'}. See Details. You
+can also request \code{identifier}, \code{smiles}, \code{inchikey}, or
+\code{classification_version}, in which case you will get only a character
+vector back. These are all the named items currently in \code{entities} as
+returned by ClassyFire, so providing any other string here will result in
+an empty \code{data.frame} being returned.}
 }
 \value{
 A \code{data.frame} containing the information from the specified item.
@@ -25,24 +28,26 @@ Contains variables \code{identifier}, \code{smiles}, \code{inchikey},
 \code{classification_version}, and other variables depending on what item was
 specified. If \code{item = 'alternative_parents'}, additional variables are
 \code{name}, \code{description}, \code{chemont_id}, \code{url}. For any of the other possible
-values of \code{item} listed above, there will be
-one additional variable named for \code{item} (e.g., if \code{item = 'molecular_framework'}, the additional variable will be named
-\code{molecular_framework}). If
-\code{item} is some string other than those listed above, i.e., not matching any
-of the named items in \code{entities}, then an empty \code{data.frame} will be
-returned (zero rows and no variables).
+values of \code{item} listed above, there will be one additional variable named
+for \code{item} (e.g., if \code{item = 'molecular_framework'}, the additional
+variable will be named \code{molecular_framework}). If you requested
+\code{identifier}, \code{smiles}, \code{inchikey}, or \code{classification_version}, then the
+return value will be a character vector of identifiers, SMILES strings,
+inchikeys, or classification versions. If \code{item} is some string other than
+those listed above, i.e., not matching any of the named items in
+\code{entities}, then an empty \code{data.frame} will be returned (zero rows and no
+variables).
 }
 \description{
-Parse an item from a list of classified entities.
+Get one item from ClassyFire classification results
 }
 \details{
 This is a helper function used by \code{\link[=classify_structures]{classify_structures()}} and
 \code{\link[=classify_inchikeys]{classify_inchikeys()}}. It generally should not be called directly by the
 user.
 
-The main classification is parsed by \code{\link[=get_classes]{get_classes()}}, but
-ClassyFire returns several additional pieces of classification output.
-These include:
+The main classification is extracted by \code{\link[=get_classified]{get_classified()}}, but ClassyFire
+returns several additional pieces of classification output. These include:
 \itemize{
 \item Levels of classification: \code{kingdom}, \code{superclass}, \code{class}, \code{subclass}, \code{intermediate_nodes}, \code{direct_parent}
 \item Alternative parents (\code{alternative_parents})
@@ -59,9 +64,20 @@ This function parses any of these additional items into a \code{data.frame}.
 The resulting \code{data.frame} will have variables \code{identifier}, \code{smiles},
 \code{inchikey}, \code{classification_version}, and the following additional
 variables depending on what item was requested:
-\item \code{kingdom}, \code{superclass}, \code{class}, \code{subclass}, \code{intermediate_nodes}, \code{direct_parent}, and \code{alternative_parents}: \code{name}, \code{description}, \code{chemont_id}, \code{url}
-\item \code{external_descriptors}: If any entities had these, \code{source} (the external source, e.g. "CHEBI", "KEGG", or "LIPID MAPS"); \code{source_id} (the ID of the descriptor in the external source, e.g. "CHEBI:15756" from ChEBI, or "LMFA01010001" from LipidMaps); and \code{annotations}, the annotation of the external descriptor (e.g. "long-chain fatty acid" or "Straight chain fatty acids")
-\item everything else: a single additional variable named after the requested item (i.e., \code{molecular_framework}, \code{substituents}, etc.)
+
+\code{kingdom}, \code{superclass}, \code{class}, \code{subclass}, \code{intermediate_nodes},
+\code{direct_parent}, and \code{alternative_parents} will have additional variables
+\code{name}, \code{description}, \code{chemont_id}, \code{url}
+
+\code{external_descriptors} will have additional variables \code{source} (the
+external source, e.g. "CHEBI", "KEGG", or "LIPID MAPS"); \code{source_id} (the
+ID of the descriptor in the external source, e.g. "CHEBI:15756" from ChEBI,
+or "LMFA01010001" from LipidMaps); and \code{annotations}, the annotation of the
+external descriptor (e.g. "long-chain fatty acid" or "Straight chain fatty
+acids")
+
+Everything else will have a single additional variable named after the
+requested item (i.e., \code{molecular_framework}, \code{substituents}, etc.)
 }
 }
 \examples{

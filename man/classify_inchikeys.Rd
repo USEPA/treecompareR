@@ -82,6 +82,8 @@ All \code{data.frame}s contain the following variables:
 \item \code{smiles}: Character. The SMILES string returned by ClassyFire for this query.
 \item \code{inchikey}: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 \item \code{classification_version}: Character. The version of ClassyFire used for this classification.
+\item \code{query_status}: Character. The HTTP status of the \code{\link[httr:GET]{httr::GET()}} request for \code{query_url}.
+\item \code{query_url}: Character. The URL used to get the JSON ClassyFire classification.
 }
 
 Data.frame \code{classified} contains the following additional variables:

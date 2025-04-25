@@ -197,7 +197,7 @@ classify_inchikeys <- function(inchikeys,
     dplyr::bind_rows()
 
   class_list <- lapply(entities_list,
-                       get_classes,
+                       get_classified,
                        query_type = "inchikey",
                        tax_level_labels = tax_level_labels)
 
@@ -506,10 +506,10 @@ classify_structures <- function (input = NULL,
       entities_list <- lapply(json_parse,
                               function(x) x$entities)
 
-      #Parse classified entities. If there were none, get_classes()
+      #Parse classified entities. If there were none, get_classified()
       #will just return a data.frame with zero rows.
       classified <- lapply(entities_list,
-                           get_classes,
+                           get_classified,
                            query_type = "structure") |>
         dplyr::bind_rows() |>
         dplyr::mutate(structure = this_batch_input[identifier])
@@ -1379,9 +1379,9 @@ get_results <- function(url,
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #parse classifications
-#' get_classes(entities = my_results[[1]]$entities)
+#' get_classified(entities = my_results[[1]]$entities)
 #'
-get_classes <- function(entities,
+get_classified <- function(entities,
                                  query_type,
                                  tax_level_labels = chemont_tax_levels){
   #check to see whether classifications actually exist for these
@@ -1494,7 +1494,7 @@ get_classes <- function(entities,
 #'   [classify_inchikeys()]. It generally should not be called directly by the
 #'   user.
 #'
-#'   The main classification is extracted by [get_classes()], but ClassyFire
+#'   The main classification is extracted by [get_classified()], but ClassyFire
 #'   returns several additional pieces of classification output. These include:
 #'
 #' - Levels of classification: `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`, `direct_parent`

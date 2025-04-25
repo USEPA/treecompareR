@@ -15,9 +15,9 @@ classify_structures(
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
 InChi strings. InChI strings should begin with "InChI=". May optionally be
-named. If so, the names will be returned as a column named \code{identifier}
-in the output data.frame. If not named, the vector itself will be returned
-as a column named \code{identifier} in the output data.frame}
+named; if so, the names will be included in the output \code{data.frame}s as
+column \code{identifier_name_orig}. (This might be useful if you have your
+structural identifiers mapped to, e.g., chemical names or CASRNs.)}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
@@ -36,12 +36,15 @@ A list of \code{data.frame}s with ClassyFire classification results for
 each input structural identifier. See Details.
 }
 \description{
+Query ClassyFire by SMILES or InChI Strings
+}
+\details{
 This function takes a vector of structural identifiers (SMILES
 strings or InChi strings) and queries the ClassyFire API to get
 classifications for each one.
 }
-\section{Return value details This function returns a named \code{list} of \code{data.frame(s)}}{
-containing the various ClassyFire classification results.
+\section{Return value details This function returns a named \code{list} of}{
+\code{data.frame(s)} containing the various ClassyFire classification results.
 \itemize{
 \item \code{classified}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
 \item \code{kingdom}: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
@@ -62,6 +65,8 @@ containing the various ClassyFire classification results.
 
 All \code{data.frame}s contain the following variables:
 \itemize{
+\item \code{identifier_orig}: Character. The original \code{input}, before any whitespace was trimmed.
+\item \code{identifier_name_orig}: Character. The names of the original \code{input}, if any. If \code{input} did not have names, will be the same as \code{identifier_orig}.
 \item \code{identifier}: Character. An identifier for each structure. (The names of \code{input} if it had names. If not, it will be the same as \code{input}.)
 \item \code{structure}: Character. The structure itself (SMILES or InChI string).
 \item \code{entity_type}: Character. One of \code{valid} (if queried and ClassyFire found a classification), \code{invalid} (if queried but ClassyFire could not find a classification), or \verb{not queried} (if not queried in ClassyFire due to being NA or blank).
@@ -70,10 +75,8 @@ All \code{data.frame}s contain the following variables:
 \item \code{inchikey}: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 \item \code{classification_version}: Character. The version of ClassyFire used for this classification.
 \item \code{report}: Character. The report returned by ClassyFire. Will be NA unless \code{entity_type} was "invalid," in which case it will contain information on what went wrong.
-\item \code{id}: Integer. The ID number of the ClassyFire query. Should appear in \code{query_url}.
-\item \code{label}: Character. The label of the ClassyFire query. Generally this will just be "query."
 \item \code{classification_status}: Character. The status of the ClassyFire query: "Done", "Failed", "In Queue," or "Processing."
-\item \code{query_url}: The URL of the JSON output.
+\item \code{query_url}: The URL of the JSON output from ClassyFire.
 \item \code{query_status}: The HTTP status of the \code{\link[httr:GET]{httr::GET()}} request from \code{query_url}. If \code{classification_status} is "Failed", this may help diagnose what went wrong.
 }
 
@@ -93,8 +96,8 @@ Data.frame \code{classified} contains the following additional variables:
 }
 
 Data.frames \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
-\code{intermediate_nodes}, \code{direct_parent}, \code{alternative_parents}, and \code{ancestors}
-contain the following additional variables:
+\code{intermediate_nodes}, \code{direct_parent}, \code{alternative_parents}, and
+\code{ancestors} contain the following additional variables:
 \itemize{
 \item \code{name}: Character. The classification labels.
 \item \code{description}: Character. Description of each classification label.
@@ -102,7 +105,8 @@ contain the following additional variables:
 \item \code{url}: Character. The URL pointing to the ChemOnt information for each classification label.
 }
 
-Data frame \code{external_descriptors} contains the following additional variables:
+Data frame \code{external_descriptors} contains the following additional
+variables:
 \itemize{
 \item \code{source}: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 \item \code{source_id}: Character: The ID of the descriptor in the external ontology.
@@ -110,18 +114,25 @@ Data frame \code{external_descriptors} contains the following additional variabl
 }
 
 All other \code{data.frame}s in the output list contain one additional variable
-named the same thing as themselves: \code{molecular_framework} contains a variable
-named \code{molecular_framework}, \code{substituents} contains a variable named
-\code{substituents}, etc. All of these are of type character.
+named the same thing as themselves: \code{molecular_framework} contains a
+variable named \code{molecular_framework}, \code{substituents} contains a variable
+named \code{substituents}, etc. All of these are of type character.
 }
 
 \section{Data cleaning and filtering}{
-Before sending to ClassyFire, input structures will have leading and trailing
-white space trimmed. NAs and blanks will not be queried.
+Before querying ClassyFire, input structures will have leading and trailing
+white space trimmed. NAs and blanks will not be queried. Any duplicated
+structures will only be queried once, but the results will be repeated in
+each output \code{data.frame} as many times as that structure was repeated in the
+\code{input}.
 
-All input structures will be present in the output \code{data.frame}s, but any
-inputs not sent to ClassyFire will have NAs for all of the classification
-results, and will have \code{entity_type} set to \code{'not queried in ClassyFire'}.
+At this time it is not feasible to automatically validate SMILES or InChI
+strings before querying ClassyFire
+
+All input structures (including NAs and blanks) will be present in the
+output \code{data.frame}s, but any inputs not sent to ClassyFire will have NAs
+for all of the classification results, and will have \code{entity_type} set to
+\code{'not queried in ClassyFire'}.
 }
 
 \examples{
