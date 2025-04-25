@@ -32,6 +32,8 @@
 #' - `smiles`: Character. The SMILES string returned by ClassyFire for this query.
 #' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 #' - `classification_version`: Character. The version of ClassyFire used for this classification.
+#' - `query_status`: Character. The HTTP status of the [httr::GET()] request for `query_url`.
+#' - `query_url`: Character. The URL used to get the JSON ClassyFire classification.
 #'
 #'  Data.frame `classified` contains the following additional variables:
 #' - `kingdom`: Character. The kingdom label for each input.
@@ -76,6 +78,7 @@
 #'  All input InChIKeys will be present in the output `data.frame`s, but any
 #'  inputs not sent to ClassyFire will have NAs for all of the classification
 #'  results, and will have `entity_type` set to `'not queried in ClassyFire'`.
+#'
 #'
 #'@param inchikeys Character: A vector of InCHiKeys to be classified.
 #'@param tax_level_labels By default, the list of taxonomy levels for
@@ -181,6 +184,18 @@ classify_inchikeys <- function(inchikeys,
   )
   }
 
+  #rowbind informational columns
+  info_df <- lapply(entities_list,
+                    function(x){
+                      as.data.frame(x[c("identifier",
+                                        "smiles",
+                                        "inchikey",
+                                        "classification_version",
+                                        "query_status",
+                                        "query_url")])
+                    }) |>
+    dplyr::bind_rows()
+
   class_list <- lapply(entities_list,
                        get_classes,
                        query_type = "inchikey",
@@ -245,7 +260,10 @@ classify_inchikeys <- function(inchikeys,
                               entity_type
                             )
                           ) |>
-                          as.data.frame()  #convert from tibble to data.frame
+                          #merge informational columns
+                          dplyr::left_join(info_df,
+                                           by = "identifier") |>
+                          as.data.frame()
 
                       })
 
@@ -254,14 +272,14 @@ classify_inchikeys <- function(inchikeys,
 
 #'@title Query ClassyFire by structure
 #'
-#'@description This function takes a vector of structural identifiers (SMILES
+#'@description Query ClassyFire by SMILES or InChI Strings
+#'
+#'@details This function takes a vector of structural identifiers (SMILES
 #'  strings or InChi strings) and queries the ClassyFire API to get
 #'  classifications for each one.
 #'
-#'@details
-#'
-#'# Return value details This function returns a named `list` of `data.frame(s)`
-#'containing the various ClassyFire classification results.
+#'  # Return value details This function returns a named `list` of
+#'  `data.frame(s)` containing the various ClassyFire classification results.
 #'
 #' - `classified`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
 #' - `kingdom`: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
@@ -279,7 +297,9 @@ classify_inchikeys <- function(inchikeys,
 #' - `predicted_chebi_terms`: Predicted terms in ChEBI for each input. At least one row per input, but the number of rows per input will vary depending on the number of ChEBI terms for each input. If an input has no ChEBI terms, it will have one row filled with NAs.
 #' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
 #'
-#'All `data.frame`s contain the following variables:
+#'  All `data.frame`s contain the following variables:
+#'  - `identifier_orig`: Character. The original `input`, before any whitespace was trimmed.
+#'  - `identifier_name_orig`: Character. The names of the original `input`, if any. If `input` did not have names, will be the same as `identifier_orig`.
 #' - `identifier`: Character. An identifier for each structure. (The names of `input` if it had names. If not, it will be the same as `input`.)
 #' - `structure`: Character. The structure itself (SMILES or InChI string).
 #' - `entity_type`: Character. One of `valid` (if queried and ClassyFire found a classification), `invalid` (if queried but ClassyFire could not find a classification), or `not queried` (if not queried in ClassyFire due to being NA or blank).
@@ -288,13 +308,11 @@ classify_inchikeys <- function(inchikeys,
 #' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 #' - `classification_version`: Character. The version of ClassyFire used for this classification.
 #' - `report`: Character. The report returned by ClassyFire. Will be NA unless `entity_type` was "invalid," in which case it will contain information on what went wrong.
-#' - `id`: Integer. The ID number of the ClassyFire query. Should appear in `query_url`.
-#' - `label`: Character. The label of the ClassyFire query. Generally this will just be "query."
 #' - `classification_status`: Character. The status of the ClassyFire query: "Done", "Failed", "In Queue," or "Processing."
-#' - `query_url`: The URL of the JSON output.
+#' - `query_url`: The URL of the JSON output from ClassyFire.
 #' - `query_status`: The HTTP status of the [httr::GET()] request from `query_url`. If `classification_status` is "Failed", this may help diagnose what went wrong.
 #'
-#'Data.frame `classified` contains the following additional variables:
+#'  Data.frame `classified` contains the following additional variables:
 #' - `kingdom`: Character. The kingdom label for each input.
 #' - `superclass`: Character. The superclass label for each input.
 #' - `class`: Character. The class label for each input.
@@ -307,39 +325,47 @@ classify_inchikeys <- function(inchikeys,
 #' - `level10`: Character. The level 10 label for each input.
 #' - `level11`: Character. The level 11 label for each input.
 #'
-#'Data.frames `kingdom`, `superclass`, `class`, `subclass`,
-#'`intermediate_nodes`, `direct_parent`, `alternative_parents`, and `ancestors`
-#'contain the following additional variables:
+#'  Data.frames `kingdom`, `superclass`, `class`, `subclass`,
+#'  `intermediate_nodes`, `direct_parent`, `alternative_parents`, and
+#'  `ancestors` contain the following additional variables:
 #' - `name`: Character. The classification labels.
 #' - `description`: Character. Description of each classification label.
 #' - `chemont_id`: Character. The ChemOnt ID of each classification label.
 #' - `url`: Character. The URL pointing to the ChemOnt information for each classification label.
 #'
-#'Data frame `external_descriptors` contains the following additional variables:
+#'  Data frame `external_descriptors` contains the following additional
+#'  variables:
 #' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
 #'
-#'All other `data.frame`s in the output list contain one additional variable
-#'named the same thing as themselves: `molecular_framework` contains a variable
-#'named `molecular_framework`, `substituents` contains a variable named
-#'`substituents`, etc. All of these are of type character.
+#'  All other `data.frame`s in the output list contain one additional variable
+#'  named the same thing as themselves: `molecular_framework` contains a
+#'  variable named `molecular_framework`, `substituents` contains a variable
+#'  named `substituents`, etc. All of these are of type character.
 #'
 #'
-#'# Data cleaning and filtering
+#'  # Data cleaning and filtering
 #'
-#'Before sending to ClassyFire, input structures will have leading and trailing
-#'white space trimmed. NAs and blanks will not be queried.
+#'  Before querying ClassyFire, input structures will have leading and trailing
+#'  white space trimmed. NAs and blanks will not be queried. Any duplicated
+#'  structures will only be queried once, but the results will be repeated in
+#'  each output `data.frame` as many times as that structure was repeated in the
+#'  `input`.
 #'
-#'All input structures will be present in the output `data.frame`s, but any
-#'inputs not sent to ClassyFire will have NAs for all of the classification
-#'results, and will have `entity_type` set to `'not queried in ClassyFire'`.
+#'  At this time it is not feasible to automatically validate SMILES or InChI
+#'  strings before querying ClassyFire
+#'
+#'  All input structures (including NAs and blanks) will be present in the
+#'  output `data.frame`s, but any inputs not sent to ClassyFire will have NAs
+#'  for all of the classification results, and will have `entity_type` set to
+#'  `'not queried in ClassyFire'`.
 #'
 #'@param input A character vector of structural identifiers: SMILES strings or
 #'  InChi strings. InChI strings should begin with "InChI=". May optionally be
-#'  named. If so, the names will be returned as a column named \code{identifier}
-#'  in the output data.frame. If not named, the vector itself will be returned
-#'  as a column named \code{identifier} in the output data.frame
+#'  named; if so, the names will be included in the output `data.frame`s as
+#'  column `identifier_name_orig`. (This might be useful if you have your
+#'  structural identifiers mapped to, e.g., chemical names or CASRNs.)
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
@@ -393,35 +419,24 @@ classify_structures <- function (input = NULL,
     sizelim <- 1000
   }
 
-  #Names of input structures are their identifiers.
-  #If no names, use the structures themselves as identifiers.
-  if(is.null(names(input))){
-    names(input) <- ifelse(!is.na(input),
-                           input,
-                           "NA")
-  }
-
   #save original input
   input_orig <- input
 
   #placeholder output: identifier and structure for all original inputs
-  output <- data.frame("identifier" = names(input_orig))
-  output$structure <- input_orig[output$identifier]
+  output <- data.frame("identifier_orig" = input_orig,
+                       "identifier_name_orig" = names(input_orig)) |>
+    #trim leading/trailing white space
+    dplyr::mutate(identifier = trimws(identifier_orig)) |>
+    #mark NAs or blanks for exclusion
+    dplyr::mutate(exclude = is.na(identifier) |
+                    !nzchar(identifier))
 
-  #filter inputs
-  input_df <- data.frame("input1" = input,
-                         "identifier1" = names(input)) |>
-    #remove duplicates
-    dplyr::distinct() |>
-    #trim whitespace
-    dplyr::mutate(input2 = trimws(input1)) |>
-    #remove NAs and blanks
-    dplyr::filter(!is.na(input2) &
-                    nzchar(input2))
 
-  #use the filtered, cleaned inputs
-  input <- input_df$input2
-  names(input) <- input_df$identifier1
+  #use the unique, filtered, cleaned inputs
+  input <- output |>
+    dplyr::filter(exclude %in% FALSE) |>
+    dplyr::pull(identifier) |>
+    unique()
 
 
   #Can't send a query with more than sizelim structures.
@@ -583,7 +598,9 @@ classify_structures <- function (input = NULL,
 
         #Add identifier column:
         #(the names of the inputs that were invalid structures)
-        invalid$identifier <- names(this_batch_input)[this_batch_input %in% invalid$structure]
+        invalid$identifier <- names(this_batch_input)[
+          this_batch_input %in% invalid$structure
+          ]
       } # if(length(invalid)>0)
 
       #Pack all classification outputs into a list
@@ -605,13 +622,9 @@ classify_structures <- function (input = NULL,
                             )
                             #add informational columns
                             if(nrow(this_new)>0){
-                              this_new[c("id",
-                                         "label",
-                                         "classification_status",
+                              this_new[c("classification_status",
                                          "query_url",
-                                         "query_status")] <- json_parse[[1]][c("id",
-                                                                               "label",
-                                                                               "classification_status",
+                                         "query_status")] <- json_parse[[1]][c("classification_status",
                                                                                "query_url",
                                                                                "query_status")]
                             }
@@ -657,22 +670,17 @@ classify_structures <- function (input = NULL,
       #bind rows to combine all batches
       this_item_df <- dplyr::bind_rows(this_item_list, .id = "batch")
 
-      #Get any input structures not handled by ClassyFire
-      #e.g. any duplicates, or batches that failed, etc.
-      #keep their placeholder values.
-      if("identifier" %in% names(this_item_df)){
-        handled_id <- this_item_df$identifier
-      }else{
-        handled_id <- character(0)
-      }
-      missing_entities <- output |>
-        dplyr::filter(!(identifier %in% handled_id)) |>
-        dplyr::mutate(entity_type = "not queried")
-
-      #Output: bind things handled by ClassyFire and things not handled
-      tmp_output <- dplyr::bind_rows(missing_entities,
-                                     this_item_df) |>
-        as.data.frame()  #convert from tibble to data.frame
+      #merge with all originally input structures
+      this_item_df <- output |>
+        dplyr::left_join(this_item_df,
+                         by = "identifier") |>
+        dplyr::mutate(
+          entity_type = dplyr::if_else(
+            is.na(entity_type),
+            "not queried",
+            entity_type
+          )
+        )
 
     },
     simplify = FALSE,
@@ -931,7 +939,7 @@ query_structure <- function(input = NULL,
       body = q,
       terminate_on = terminate_on,
       times = retry_query_times,
-      pause_min = wait_sec,
+      pause_min = wait_sec, #pause at least wait_sec seconds between tries
       httr::content_type_json(),
       httr::accept_json(),
       httr::timeout(getOption("timeout"))
@@ -1351,22 +1359,20 @@ get_results <- function(url,
 
 
 
-#' @title Parse classified entities
+#' @title Get classes
 #'
-#' @description Parse ClassyFire classification results to a data.frame.
+#' @description Get ClassyFire classification results as a data frame.
 #'
-#' @details
-#'
-#' This is a helper function used by [classify_structures()] and
-#' [classify_inchikeys()]. It should generally not be called directly by the
-#' user.
+#' @details This is a helper function used by [classify_structures()] and
+#'   [classify_inchikeys()]. It should generally not be called directly by the
+#'   user.
 #'
 #' @param entities JSON element of classified entities as returned by ClassyFire
-#'   API query (e.g, from the results of [query_structure()])
+#'   API query (e.g, from the results of [query_structure()] or [query_inchikey()])
 #' @param tax_level_labels ChemOnt taxonomy level labels (default
 #'   \code{\link{chemont_tax_levels}})
 #' @return A data.frame consisting of rows corresponding to each classified
-#'   entry from the `entities` input. A data.frame with one row for each entity
+#'   entry from the `entities` input. One row for each entity
 #'   identifier, and variables `identifier`, `smiles`, `inchikey`, `kingdom`,
 #'   `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`.
 #' @examples
@@ -1480,17 +1486,16 @@ get_classes <- function(entities,
   }
 }
 
-#' @title Parse list item
+#' @title Get item
 #'
-#' @description Parse an item from a list of classified entities.
+#' @description Get one item from ClassyFire classification results
 #'
 #' @details This is a helper function used by [classify_structures()] and
 #'   [classify_inchikeys()]. It generally should not be called directly by the
 #'   user.
 #'
-#'   The main classification is parsed by [get_classes()], but
-#'   ClassyFire returns several additional pieces of classification output.
-#'   These include:
+#'   The main classification is extracted by [get_classes()], but ClassyFire
+#'   returns several additional pieces of classification output. These include:
 #'
 #' - Levels of classification: `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`, `direct_parent`
 #' - Alternative parents (`alternative_parents`)
@@ -1508,33 +1513,48 @@ get_classes <- function(entities,
 #'   `inchikey`, `classification_version`, and the following additional
 #'   variables depending on what item was requested:
 #'
-#' - `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`, `direct_parent`, and `alternative_parents`: `name`, `description`, `chemont_id`, `url`
-#' - `external_descriptors`: If any entities had these, `source` (the external source, e.g. "CHEBI", "KEGG", or "LIPID MAPS"); `source_id` (the ID of the descriptor in the external source, e.g. "CHEBI:15756" from ChEBI, or "LMFA01010001" from LipidMaps); and `annotations`, the annotation of the external descriptor (e.g. "long-chain fatty acid" or "Straight chain fatty acids")
-#' - everything else: a single additional variable named after the requested item (i.e., `molecular_framework`, `substituents`, etc.)
+#'   `kingdom`, `superclass`, `class`, `subclass`, `intermediate_nodes`,
+#'   `direct_parent`, and `alternative_parents` will have additional variables
+#'   `name`, `description`, `chemont_id`, `url`
+#'
+#'   `external_descriptors` will have additional variables `source` (the
+#'   external source, e.g. "CHEBI", "KEGG", or "LIPID MAPS"); `source_id` (the
+#'   ID of the descriptor in the external source, e.g. "CHEBI:15756" from ChEBI,
+#'   or "LMFA01010001" from LipidMaps); and `annotations`, the annotation of the
+#'   external descriptor (e.g. "long-chain fatty acid" or "Straight chain fatty
+#'   acids")
+#'
+#'   Everything else will have a single additional variable named after the
+#'   requested item (i.e., `molecular_framework`, `substituents`, etc.)
 #'
 #'
 #' @param entities A `data.frame` of classified entities from one page of
 #'   ClassyFire results, e.g, the `entities` element of one element of the list
 #'   output by [query_structure()].
-#' @param item Character: The name of an item in `entities`. One of `'alternative_parents'`,
-#'   `'molecular_framework'`, `'substituents'`, `'description'`,
-#'   `'external_descriptors'`, `'ancestors'`, `'predicted_chebi_terms'`,
-#'   `'predicted_lipidmaps_terms'`. See Details.
-#'   These are all the named items currently in `entities` as returned by
-#'   ClassyFire, so providing any other string here will result in an empty
-#'   `data.frame` being returned.
+#' @param item Character: The name of an item in `entities`. One of `'kingdom'`,
+#'   `'superclass'`, `'class'`, `'subclass'`, `'intermediate_nodes'`,
+#'   `'direct_parent'`, `'alternative_parents'`, `'molecular_framework'`,
+#'   `'substituents'`, `'description'`, `'external_descriptors'`, `'ancestors'`,
+#'   `'predicted_chebi_terms'`, `'predicted_lipidmaps_terms'`. See Details. You
+#'   can also request `identifier`, `smiles`, `inchikey`, or
+#'   `classification_version`, in which case you will get only a character
+#'   vector back. These are all the named items currently in `entities` as
+#'   returned by ClassyFire, so providing any other string here will result in
+#'   an empty `data.frame` being returned.
 #' @return A `data.frame` containing the information from the specified item.
 #'   Contains variables `identifier`, `smiles`, `inchikey`,
 #'   `classification_version`, and other variables depending on what item was
 #'   specified. If `item = 'alternative_parents'`, additional variables are
 #'   `name`, `description`, `chemont_id`, `url`. For any of the other possible
-#'   values of `item` listed above, there will be
-#'   one additional variable named for `item` (e.g., if `item =
-#'   'molecular_framework'`, the additional variable will be named
-#'   `molecular_framework`). If
-#'   `item` is some string other than those listed above, i.e., not matching any
-#'   of the named items in `entities`, then an empty `data.frame` will be
-#'   returned (zero rows and no variables).
+#'   values of `item` listed above, there will be one additional variable named
+#'   for `item` (e.g., if `item = 'molecular_framework'`, the additional
+#'   variable will be named `molecular_framework`). If you requested
+#'   `identifier`, `smiles`, `inchikey`, or `classification_version`, then the
+#'   return value will be a character vector of identifiers, SMILES strings,
+#'   inchikeys, or classification versions. If `item` is some string other than
+#'   those listed above, i.e., not matching any of the named items in
+#'   `entities`, then an empty `data.frame` will be returned (zero rows and no
+#'   variables).
 #' @examples
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
