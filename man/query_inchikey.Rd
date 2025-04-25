@@ -7,9 +7,9 @@
 query_inchikey(
   inchikey,
   retry_get_times = 3,
-  wait_sec = 5,
-  terminate_on = c(400:407, 409:418, 421:428, 431, 451, 500:511),
-  base_url = "http://classyfire.wishartlab.com/entities"
+  wait_sec_get = 0.1,
+  base_url = "http://classyfire.wishartlab.com/entities",
+  ...
 )
 }
 \arguments{
@@ -18,18 +18,20 @@ query_inchikey(
 \item{retry_get_times}{Integer: The number of times to retry the query before
 giving up if it returns an HTTP error. Default 3.}
 
-\item{wait_sec}{Numeric: The number of seconds to pause between retry
-attempts. Default 5, because ClassyFire rate-limits to 12 requests per
-minute. If set to less than 5, it will be reset to 5, with a message.}
+\item{wait_sec_get}{Numeric: The number of seconds to pause between retry
+attempts. Default 0.1, because ClassyFire rate-limits GET requests to 10 per
+second. If set to less than 0.1, it will be reset to 0.1, with a message.}
 
 \item{base_url}{The base URL for ClassyFire API queries. Default
 \code{"http://classyfire.wishartlab.com/entities"}. If you change this, the query
 is highly unlikely to work!}
+
+\item{...}{Other arguments as for \code{\link[=get_results]{get_results()}}.}
 }
 \value{
-A list consisting of the parsed JSON for each page of results. A completed
-query will have named elements \code{id}, \code{query_url}, \code{query_status}, \code{label},
-\code{classification_status}, \code{number_of_elements}, \code{number_of_pages},
+A list consisting of the parsed JSON for each page of results. A
+completed query will have named elements \code{id}, \code{query_url}, \code{query_status},
+\code{label}, \code{classification_status}, \code{number_of_elements}, \code{number_of_pages},
 \code{invalid_entities}, and \code{entities}. A failed query will have named elements
 \code{id}, \code{query_url}, \code{query_status}, \code{label}, \code{classification_status}, and
 \code{number_of_pages}. \code{id} gives the numerical query ID (assigned by
@@ -43,9 +45,9 @@ means the query failed before ClassyFire could report a status (e.g. HTTP
 status code other than 200, or ClassyFire returned some content that did not
 include a classification status). \code{number_of_elements} gives the number of
 classified entities. \code{number_of_pages} gives the total number of pages for
-this query. \code{invalid_entities}, if present, is a \code{data.frame} listing queried
-entity identifiers that ClassyFire found invalid. \code{entities}, if present, is
-a nested \code{data.frame} giving classifications.
+this query. \code{invalid_entities}, if present, is a \code{data.frame} listing
+queried entity identifiers that ClassyFire found invalid. \code{entities}, if
+present, is a nested \code{data.frame} giving classifications.
 }
 \description{
 Query ClassyFire API by InChIKey.

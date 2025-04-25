@@ -8,56 +8,111 @@ classify_structures(
   input = NULL,
   tax_level_labels = chemont_tax_levels,
   sizelim = 1000,
-  wait_sec = 5,
+  check_avail = TRUE,
   ...
 )
 }
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
-InChi strings. May optionally be named. If so, the names will be returned
-as a column named  \code{identifier} in the output data.frame. If not
-named, the vector itself will be returned as a column named
-\code{identifier} in the output data.frame}
+InChi strings. InChI strings should begin with "InChI=". May optionally be
+named. If so, the names will be returned as a column named
+\code{identifier} in the output data.frame. If not named, the vector itself
+will be returned as a column named \code{identifier} in the output
+data.frame}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
   level11}.}
 
+\item{sizelim}{Integer: The maximum number of structures that can be sent in a
+single ClassyFire query. Default 1000, since this is the current limit.}
+
+\item{check_avail}{Logical: Whether to check the availability of the
+ClassyFire API before proceeding. Default \code{TRUE}.}
+
 \item{...}{Other arguments as for \code{\link{query_structure}}.}
 }
 \value{
-A list of \code{data.frame}s with ClassyFire classification results for each input
-structural identifier.
-
-Will contain variables \code{identifier}, \code{structure},
-one variable named for each taxonomy level in \code{tax_level_labels} containing
-the classification at each level), \code{smiles},  \code{inchikey}, and then several
-variables with information about the ClassyFire query: \code{report},
-\code{classification_version}, \code{id}, \code{label}, \code{classification_status}, \code{query_url} and
-\code{query_status}. If classification could not be completed for one or more
-structures, they will be listed in the \code{data.frame} with \code{NA_character_}
-for all taxonomy levels. Check variables \code{report} and \code{status} for more
-information about what may have gone wrong.
+A list of \code{data.frame}s with ClassyFire classification results for
+each input structural identifier. See Details.
 }
 \description{
 This function takes a vector of structural identifiers (SMILES
 strings or InChi strings) and queries the ClassyFire API to get
 classifications for each one.
 }
-\details{
-This function returns a list of \code{data.frame}s with the following names.
+\section{Return value details}{
+This function returns a named \code{list} of \code{data.frame(s)} containing the various
+ClassyFire classification results.
 \itemize{
-\item \code{classification}: The main ClassyFire classification for the input structures.
-\item \code{alternative_parents}: Alternative parents for the input structures.
-\item \code{molecular_framework}: Molecular framework descriptors for the input structures.
-\item \code{substituents}: Substituents for the input structures.
-\item \code{description}: Descriptions for the input structures.
-\item \code{external_descriptors}: External descriptors for the input structures, if any.
-\item \code{ancestors}: All ancestors for the input structures.
-\item \code{predicted_chebi_terms}: Predicted ChEBI terms for the input structures.
-\item \code{predicted_lipidmaps_terms}: Predicted LipidMaps terms for the input structures.
+\item \code{classification}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
+\item \code{kingdom}: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
+\item \code{superclass}: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
+\item \code{class}: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
+\item \code{subclass}: The ChemOnt subclass for each input. One row per input. If no subclass for a given input, will have NA.
+\item \code{intermediate_nodes}: Any intermediate nodes in the ChemOnt ancestry for each input, between subclass and direct parent. One row per input. If no intermediate nodes for a given input, will have NAs for that input.
+\item \code{direct_parent}: The direct parent for each input (the most-specific classification available). One row for each input.
+\item \code{alternative_parents}: Alternative parents of each input. At least one row per input, but the number of rows per input will vary depending on the number of alternative parents of each input.
+\item \code{molecular_framework}: The molecular framework for each input. Has one row for each input.
+\item \code{substituents}: The substituents for each input. At least one row per input, but the number of rows for each input will vary depending on the number of substituents.
+\item \code{description}: The description for each input. Has one row per input.
+\item \code{external_descriptors}: Descriptors in external databases (e.g. ChEBI and/or LipidMaps) for each input (if any).
+\item \code{ancestors}: All ancestors for each input. At least one row per input, but the number of rows per input will vary depending on the number of ancestors for each input.
+\item \code{predicted_chebi_terms}: Predicted terms in ChEBI for each input. At least one row per input, but the number of rows per input will vary depending on the number of ChEBI terms for each input. If an input has no ChEBI terms, it will have one row filled with NAs.
+\item \code{predicted_lipidmaps_terms}: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
+}
+
+All \code{data.frame}s contain the following variables:
+\itemize{
+\item \code{identifier}: Character. The InChIKey that was queried.
+\item \code{entity_type}: Character. Either \code{queried} (if queried in ClassyFire) or \verb{not queried} (if not queried in ClassyFire due to not being a valid InChIKey).
+\item \code{smiles}: Character. The SMILES string returned by ClassyFire for this query.
+\item \code{inchikey}: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
+\item \code{classification_version}: Character. The version of ClassyFire used for this classification.
+}
+
+Data.frame \code{classification} contains the following additional labels:
+\itemize{
+\item \code{kingdom}: Character. The kingdom label for each input.
+\item \code{superclass}: Character. The superclass label for each input.
+\item \code{class}: Character. The class label for each input.
+\item \code{subclass}: Character. The subclass level for each input.
+\item \code{level5}: Character. The level 5 label for each input.
+\item \code{level6}: Character. The level 6 label for each input.
+\item \code{level7}: Character. The level 7 label for each input.
+\item \code{level8}: Character. The level 8 label for each input.
+\item \code{level9}: Character. The level 9 label for each input.
+\item \code{level10}: Character. The level 10 label for each input.
+\item \code{level11}: Character. The level 11 label for each input.
+}
+
+Data.frames \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
+\code{intermediate_nodes}, \code{direct_parent}, \code{alternative_parents}, and \code{ancestors}
+contain the following additional variables:
+\itemize{
+\item \code{name}: Character. The classification labels.
+\item \code{description}: Character. Description of each classification label.
+\item \code{chemont_id}: Character. The ChemOnt ID of each classification label.
+\item \code{url}: Character. The URL pointing to the ChemOnt information for each classification label.
+}
+
+Data frame \code{external_descriptors} contains the following additional variables:
+\itemize{
+\item \code{source}: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
+\item \code{source_id}: Character: The ID of the descriptor in the external ontology.
+\item \code{annotations}: Character. Any annotations associated with the external descriptor.
 }
 }
+
+\section{Data cleaning and filtering}{
+Before sending to ClassyFire, input structures will have leading and trailing
+white space trimmed. NAs and blanks will not be queried.
+
+All input structures will be present in the output \code{data.frame}s, but any
+inputs not sent to ClassyFire will have NAs for all of the classification
+results, and will have \code{entity_type} set to \code{'not queried in ClassyFire'}.
+}
+
 \examples{
  classify_structures(
 input = c("COC1=CC(Br)=CC=C1",

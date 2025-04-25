@@ -1,22 +1,16 @@
-test_that("classify_inchikeys fails gracefully with no error if network is down",{
+test_that("classify_inchikeys fails gracefully if network is down",{
   expect_no_error(
     classify_inchikeys(inchikeys = "",
                        network_check_url = "http://httpstat.us/503"),
     regexp = "No\\sinternet\\sconnection\\sor\\ssomething\\swrong\\swith\\sthe\\snetwork"
   )
-}
-)
 
-test_that("classify_inchikeys fails gracefully with no warning if network is down",{
   expect_no_warning(
     classify_inchikeys(inchikeys = "",
                        network_check_url = "http://httpstat.us/503"),
     regexp = "No\\sinternet\\sconnection\\sor\\ssomething\\swrong\\swith\\sthe\\snetwork"
   )
-}
-)
 
-test_that("classify_inchikeys fails gracefully with a message if network is down",{
   expect_message(
     classify_inchikeys(inchikeys = "",
                        network_check_url = "http://httpstat.us/503"),
@@ -24,7 +18,7 @@ test_that("classify_inchikeys fails gracefully with a message if network is down
   )
 }
 
-          )
+)
 
 test_that("classify_inchikeys fails gracefully with no error if ClassyFire is down",{
   expect_no_error(
@@ -85,7 +79,10 @@ test_that("classify_inchikeys handles a combination of good and bad inchikeys", 
     classify_inchikeys(
       inchikeys = c("SEMRCUIXRUXGJX-UHFFFAOYSA-N",
                     "PLDWAJLZAAHOGG-UHFFFAOYSA-N",
-                    "BAD-INCHIKEY-X")
+                    "BAD-INCHIKEY-X",
+                    NA_character_,
+                    "   ",
+                    "\t\r")
     )
   )
 }

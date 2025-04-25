@@ -11,10 +11,16 @@ query_structure(
   type = "STRUCTURE",
   retry_get_times = 10,
   wait_sec = 5,
+  wait_sec_get = 0.1,
   retry_query_times = 10,
   processing_wait_per_input = 0.1,
   terminate_on = c(400:407, 409:418, 421:428, 431, 451, 500:511),
-  base_url = "http://classyfire.wishartlab.com/queries"
+  base_url = "http://classyfire.wishartlab.com/queries",
+  check_avail = TRUE,
+  msg = NULL,
+  classyfire_check_url = "http://classyfire.wishartlab.com/",
+  network_check_url = "http://httpstat.us/200",
+  ...
 )
 }
 \arguments{
@@ -34,10 +40,17 @@ provided.}
 \item{retry_get_times}{Max number of times to retry GET command to ClassyFire
 API to get status of query (with wait time in between tries). Default 10.}
 
-\item{wait_sec}{Minimum number of seconds to wait before retrying any GET
-command or query. Default 5 seconds (because ClassyFire rate-limits
-requests to 12 per minute). If less than 5 seconds, will be reset to 5
-seconds, with a warning. Wait times for multiple retries
+\item{wait_sec}{Minimum number of seconds to wait between POST commands.
+Default 5 seconds (because ClassyFire rate-limits POST requests to 12 per
+minute). If less than 5 seconds, will be reset to 5 seconds, with a warning.
+Wait times for multiple retries
+use exponential backoff with full jitter (wait time is \code{runif(1,
+  wait_sec, wait_sec * 2^(attempt_number)}).}
+
+\item{wait_sec_get}{Minimum number of seconds to wait between GET commands.
+Default 0.1 seconds (because ClassyFire rate-limits GET requests to 10 per
+second). If less than 0.1 seconds, will be reset to 0.1 seconds, with a
+warning. Wait times for multiple retries
 use exponential backoff with full jitter (wait time is \code{runif(1,
   wait_sec, wait_sec * 2^(attempt_number)}).}
 
@@ -46,19 +59,42 @@ use exponential backoff with full jitter (wait time is \code{runif(1,
 
 \item{processing_wait_per_input}{Minimum number of seconds to wait \emph{per input
 string} before retrying to retrieve results for a query whose status is
-"Processing." Default 0.1. Uses exponential backoff: effective wait time
-per input = \code{processing_wait_per_input * 2^(attempt number)}. Total
-wait time is either the effective wait time per input times the number of
-input structures, or \code{wait_sec} seconds, whichever is greater. (This
-means \code{processing_wait_per_input} effectively can never be less than
+"Processing." Default 0.1. Uses exponential backoff: effective wait time per
+input = \code{processing_wait_per_input * 2^(attempt number)}. Total wait
+time is either the effective wait time per input times the number of input
+structures, or \code{wait_sec} seconds, whichever is greater. (This means
+\code{processing_wait_per_input} effectively can never be less than
 \code{wait_sec/length(input)}, even if you set it to a smaller number.)}
 
 \item{terminate_on}{Integer vector: List of HTTP status codes which will
 immediately terminate with no more retries. Default: \code{ c(400:407, 409:418, 421:428, 431, 451, 500:511)}}
 
 \item{base_url}{The base URL for ClassyFire API queries. Default
-\code{"http://classyfire.wishartlab.com/entities"}. If you change this, the
-query is highly unlikely to work!}
+\code{"http://classyfire.wishartlab.com/entities"}. If you change this, the query
+is highly unlikely to work!}
+
+\item{check_avail}{Logical: Whether to check availability of the ClassyFire
+API before proceeding. Default \code{TRUE}.}
+
+\item{msg}{Character or \code{NULL}: If called from a function that has already
+checked availablity of the ClassyFire API (as \code{\link[=classify_structures]{classify_structures()}} does),
+\code{msg} is used to pass the message resulting from that check. Default \code{NULL},
+meaning that the check passed. Will be ignored if \code{check_avail = TRUE},
+because the check will be performed inside this function.}
+
+\item{classyfire_check_url}{Character: the URL to check to see whether the
+ClassyFire API is up. Default is \code{"http://classyfire.wishartlab.com/"}. A
+\code{httr::HEAD()} request will be performed on this URL to check whether the
+resource is up. If not, a message will be emitted and an empty (placeholder)
+result will be returned.}
+
+\item{network_check_url}{Character: A URL to check that should never give an
+HTTP error if the network is up. Default is \code{"http://httpstat.us/200"},
+which should always return status 200 (success). A \code{httr::HEAD()} request
+will be performed on this URL to check whether the network is up.  If not, a
+message will be emitted and an empty (placeholder) result will be returned.}
+
+\item{...}{Other arguments. Not currently used.}
 }
 \value{
 A list of lists. The outer list has one element for each page of the
@@ -67,23 +103,22 @@ entities). If the ClassyFire query failed or timed out, the list will have
 one element. Each list element is itself a list, consisting of the parsed
 JSON result for each page. A completed query will have named elements \code{id},
 \code{query_url}, \code{query_status}, \code{label}, \code{classification_status},
-\code{number_of_elements}, \code{number_of_pages}, \code{invalid_entities}, and
-\code{entities}. A failed query will have named elements \code{id}, \code{query_url},
-\code{query_status}, \code{label}, \code{classification_status}, and \code{number_of_pages}.
-\code{id} gives the numerical query ID (assigned by ClassyFire). \code{query_url}
-gives the queried URL. \code{label} gives the user-supplied query label.
-\code{query_status} gives the HTTP status of the request (200 means successful).
-\code{classification_status} reports the ClassyFire status: "Done" means
-classification was successfully completed; "In Queue" means the query timed
-out while it was still queued; "In Progress" means the query timed out
-while it was still processing; "Failed" means the query failed before
-ClassyFire could report a status (e.g. HTTP status code other than 200, or
-ClassyFire returned some content that did not include a classification
-status). \code{number_of_elements} gives the number of classified entities.
-\code{number_of_pages} gives the total number of pages for this query.
-\code{invalid_entities}, if present, is a \code{data.frame} listing queried entity
-identifiers that ClassyFire found invalid. \code{entities}, if present, is a
-nested \code{data.frame} giving classifications.
+\code{number_of_elements}, \code{number_of_pages}, \code{invalid_entities}, and \code{entities}.
+A failed query will have named elements \code{id}, \code{query_url}, \code{query_status},
+\code{label}, \code{classification_status}, and \code{number_of_pages}. \code{id} gives the
+numerical query ID (assigned by ClassyFire). \code{query_url} gives the queried
+URL. \code{label} gives the user-supplied query label. \code{query_status} gives the
+HTTP status of the request (200 means successful). \code{classification_status}
+reports the ClassyFire status: "Done" means classification was successfully
+completed; "In Queue" means the query timed out while it was still queued;
+"In Progress" means the query timed out while it was still processing;
+"Failed" means the query failed before ClassyFire could report a status
+(e.g. HTTP status code other than 200, or ClassyFire returned some content
+that did not include a classification status). \code{number_of_elements} gives
+the number of classified entities. \code{number_of_pages} gives the total number
+of pages for this query. \code{invalid_entities}, if present, is a \code{data.frame}
+listing queried entity identifiers that ClassyFire found invalid.
+\code{entities}, if present, is a nested \code{data.frame} giving classifications.
 
 @examples
 query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))

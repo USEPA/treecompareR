@@ -7,23 +7,45 @@
 classify_inchikeys(
   inchikeys,
   tax_level_labels = chemont_tax_levels,
-  wait_sec = 5
+  wait_sec_get = 0.1,
+  check_avail = TRUE,
+  network_check_url = "http://httpstat.us/200",
+  classyfire_check_url = "http://classyfire.wishartlab.com/",
+  ...
 )
 }
 \arguments{
-\item{inchikeys}{Character: A vector of InCHiKeys to be classified}
+\item{inchikeys}{Character: A vector of InCHiKeys to be classified.}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
  level11}.}
 
-\item{wait_sec}{Numeric: A parameter controlling how many seconds between
-qqueries sent to the ClassyFire API server. Default 5, to respect the limit
-of 12 requests per second. Setting it any lower than 5 will result in failed
-queries.}
+\item{wait_sec_get}{Numeric: A parameter controlling how many seconds between
+requests sent to the ClassyFire API server. Default 0.1, to respect
+ClassyFire's rate limit of 10 GET requests per second. Setting it lower than
+0.1 will result in it being reset to 0.1, with a warning.}
+
+\item{check_avail}{Logical: Whether to check availability of the ClassyFire
+API before proceeding. Default \code{TRUE}.}
+
+\item{network_check_url}{Character: A URL to check that should never give an
+HTTP error if the network is up. Default is \code{"http://httpstat.us/200"},
+which should always return status 200 (success). A \code{httr::HEAD()} request
+will be performed on this URL to check whether the network is up.  If not, a
+message will be emitted and an empty (placeholder) result will be returned.}
+
+\item{classyfire_check_url}{Character: the URL to check to see whether the
+ClassyFire API is up. Default is \code{"http://classyfire.wishartlab.com/"}. A
+\code{httr::HEAD()} request will be performed on this URL to check whether the
+resource is up. If not, a message will be emitted and an empty (placeholder)
+result will be returned.}
+
+\item{...}{Other arguments as for \code{\link[=query_inchikey]{query_inchikey()}}.}
 }
 \value{
-A \code{data.frame}; see Details.
+A list of \code{data.frame}s with ClassyFire classification results for
+each input structural identifier. See Details.
 }
 \description{
 This function uses the ClassyFire API to classify chemicals from
@@ -33,41 +55,79 @@ an input data.table using the InChIKey chemical identifier.
 This function queries ClassyFire's lookup table of pre-classified
 InChiKeys to get classifications, using the ClassyFire API.
 
+This function returns a named \code{list} of \code{data.frame(s)} containing the
+various ClassyFire classification results.
 \itemize{
-\item{identifier: The input InCHiKey that was queried. For example,
-"XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
-\item{smiles: The corresponding SMILES returned by ClassyFire, if any}
-\item{inchikey: The InCHiKey returned by ClassyFire, if any. Will be of
-format "InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
-\item{classification_version: The version number returned by ClassyFire.
-For example, "2.1"}
-\item{level: The names of all levels in this InCHiKey's classification.
-Will be elements of \code{tax_level_labels}.}
-\item{name: The name or label of each level in this InCHiKey's
-classification.}
-\item{report: A text string reporting the status of the classification,
-"ClassyFire returned a classification" if successful; otherwise the report
-returned by ClassyFire, or a report about an internal error.}
+\item \code{classification}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
+\item \code{kingdom}: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
+\item \code{superclass}: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
+\item \code{class}: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
+\item \code{subclass}: The ChemOnt subclass for each input. One row per input. If no subclass for a given input, will have NA.
+\item \code{intermediate_nodes}: Any intermediate nodes in the ChemOnt ancestry for each input, between subclass and direct parent. One row per input. If no intermediate nodes for a given input, will have NAs for that input.
+\item \code{direct_parent}: The direct parent for each input (the most-specific classification available). One row for each input.
+\item \code{alternative_parents}: Alternative parents of each input. At least one row per input, but the number of rows per input will vary depending on the number of alternative parents of each input.
+\item \code{molecular_framework}: The molecular framework for each input. Has one row for each input.
+\item \code{substituents}: The substituents for each input. At least one row per input, but the number of rows for each input will vary depending on the number of substituents.
+\item \code{description}: The description for each input. Has one row per input.
+\item \code{external_descriptors}: Descriptors in external databases (e.g. ChEBI and/or LipidMaps) for each input (if any).
+\item \code{ancestors}: All ancestors for each input. At least one row per input, but the number of rows per input will vary depending on the number of ancestors for each input.
+\item \code{predicted_chebi_terms}: Predicted terms in ChEBI for each input. At least one row per input, but the number of rows per input will vary depending on the number of ChEBI terms for each input. If an input has no ChEBI terms, it will have one row filled with NAs.
+\item \code{predicted_lipidmaps_terms}: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
 }
 
-Note that the data.frame is in "long" format, with multiple rows for each
-InCHiKey. There is one row for each level of classification for each
-InCHiKey. For example, the classification for InCHiKey
-"XGQJGMGAMHFMAO-UHFFFAOYSA-N" terminates at level 5, so there will be five
-rows for that InCHiKey. The classification for InCHiKey
-"PZNXLZZWWBSQQK-UHFFFAOYSA-N" terminates at level 4 (subclass), so there
-will be four rows for that InCHiKey.
-
-For use with \code{treecompareR} functions that expect a \code{data.frame} of
-classified entities, this \code{data.frame} will need to be reshaped into wider
-format, with one row for each InCHiKey and one column for each level of
-classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
- names_from = "level", values_from = "name")} (where \code{dat} is the
-returned \code{data.frame}.) However, be on the lookout for pathological cases
-where an InCHiKey is listed with two different labels at the same level.
-These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
-throw a warning if this happens -- pay attention to it!
+All \code{data.frame}s contain the following variables:
+\itemize{
+\item \code{identifier}: Character. The InChIKey that was queried.
+\item \code{entity_type}: Character. Either \code{queried} (if queried in ClassyFire) or \verb{not queried} (if not queried in ClassyFire due to not being a valid InChIKey).
+\item \code{smiles}: Character. The SMILES string returned by ClassyFire for this query.
+\item \code{inchikey}: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
+\item \code{classification_version}: Character. The version of ClassyFire used for this classification.
 }
+
+Data.frame \code{classification} contains the following additional labels:
+\itemize{
+\item \code{kingdom}: Character. The kingdom label for each input.
+\item \code{superclass}: Character. The superclass label for each input.
+\item \code{class}: Character. The class label for each input.
+\item \code{subclass}: Character. The subclass level for each input.
+\item \code{level5}: Character. The level 5 label for each input.
+\item \code{level6}: Character. The level 6 label for each input.
+\item \code{level7}: Character. The level 7 label for each input.
+\item \code{level8}: Character. The level 8 label for each input.
+\item \code{level9}: Character. The level 9 label for each input.
+\item \code{level10}: Character. The level 10 label for each input.
+\item \code{level11}: Character. The level 11 label for each input.
+}
+
+Data.frames \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
+\code{intermediate_nodes}, \code{direct_parent}, \code{alternative_parents}, and
+\code{ancestors} contain the following additional variables:
+\itemize{
+\item \code{name}: Character. The classification labels.
+\item \code{description}: Character. Description of each classification label.
+\item \code{chemont_id}: Character. The ChemOnt ID of each classification label.
+\item \code{url}: Character. The URL pointing to the ChemOnt information for each classification label.
+}
+
+Data frame \code{external_descriptors} contains the following additional variables:
+\itemize{
+\item \code{source}: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
+\item \code{source_id}: Character: The ID of the descriptor in the external ontology.
+\item \code{annotations}: Character. Any annotations associated with the external descriptor.
+}
+}
+\section{Data cleaning and filtering}{
+Before sending to ClassyFire, input InChIKeys will have leading and trailing
+white space trimmed, and if present, leading "InChIKey=" will be stripped
+out. Then, InChIKeys will be checked for validity using \code{\link[=is_inchikey]{is_inchikey()}}. Any
+invalid InChIKeys will not be sent to ClassyFire (including NAs, blanks, and
+malformed InChIKeys).
+
+All input InChIKeys will be present in the output \code{data.frame}s, but any
+inputs not sent to ClassyFire will have NAs for all of the classification
+results, and will have \code{entity_type} set to \code{'not queried in ClassyFire'}.
+}
+
 \examples{
 #an example with good, bad, NA, and blank inputs
 classify_inchikeys(
@@ -83,5 +143,7 @@ NA_character_,
 \insertRef{djoumbou2016classyfire}{treecompareR}
 }
 \seealso{
-\code{\link{classify_structures}}
+\code{\link[=classify_structures]{classify_structures()}} for getting classifications of SMILES and/or
+InChI strings; \code{\link[=query_inchikey]{query_inchikey()}} to get the parsed JSON from ClassyFire for
+a single InChIKey query
 }
