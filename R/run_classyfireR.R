@@ -7,22 +7,40 @@
 #'@details This function queries ClassyFire's lookup table of pre-classified
 #'  InChiKeys to get classifications, using the ClassyFire API.
 #'
-#' \itemize{
-#'  \item{identifier: The input InCHiKey that was queried. For example,
-#'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
-#'  \item{smiles: The corresponding SMILES returned by ClassyFire, if any}
-#'  \item{inchikey: The InCHiKey returned by ClassyFire, if any. Will be of
-#'  format "InCHiKey=XGQJGMGAMHFMAO-UHFFFAOYSA-N"}
-#'  \item{classification_version: The version number returned by ClassyFire.
-#'  For example, "2.1"}
-#'  \item{level: The names of all levels in this InCHiKey's classification.
-#'  Will be elements of \code{tax_level_labels}.}
-#'  \item{name: The name or label of each level in this InCHiKey's
-#'  classification.}
-#'  \item{report: A text string reporting the status of the classification,
-#'  "ClassyFire returned a classification" if successful; otherwise the report
-#'  returned by ClassyFire, or a report about an internal error.}
-#' }
+#'  This function returns a named `list` of `data.frame(s)` containing the
+#'  various ClassyFire classification results.
+#'
+#' - `classification`: The full classification for each input. At least one row per input, but the number of rows per input will vary depending on the number of levels of classification available for each input (up to 11).
+#' - `alternative_parents`: Alternative parents of each input. At least one row per input, but the number of rows per input will vary depending on the number of alternative parents of each input.
+#' - `molecular_framework`: The molecular framework for each input. Has one row for each input.
+#' - `substituents`: The substituents for each input. At least one row per input, but the number of rows for each input will vary depending on the number of substituents.
+#' - `description`: The description for each input. Has one row per input.
+#' - `external_descriptors`: Descriptors in external databases (e.g. ChEBI and/or LipidMaps) for each input (if any).
+#' - `ancestors`: All ancestors for each input. At least one row per input, but the number of rows per input will vary depending on the number of ancestors for each input.
+#' - `predicted_chebi_terms`: Predicted terms in ChEBI for each input. At least one row per input, but the number of rows per input will vary depending on the number of ChEBI terms for each input. If an input has no ChEBI terms, it will have one row filled with NAs.
+#' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
+#'
+#'  All `data.frame`s contain the following variables:
+#' - `identifier`: Character. The InChIKey that was queried.
+#' - `entity_type`: Character. Either `queried` (if queried in ClassyFire) or `not queried` (if not queried in ClassyFire due to not being a valid InChIKey).
+#' - `smiles`: Character. The SMILES string returned by ClassyFire for this query.
+#' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
+#' - `classification_version`: Character. The version of ClassyFire used for this classification.
+#'
+#'  Data.frames `classification`, `alternative_parents`, and `ancestors`
+#'  additionally contain the following variables:
+#' - `name`: Character. The classification labels.
+#' - `description`: Character. Description of each classification label.
+#' - `chemont_id`: Character. The ChemOnt ID of each classification label.
+#' - `url`: Character. The URL pointing to the ChemOnt information for each classification label.
+#'
+#'  Data.frame `classification` additionally contains the following variable:
+#' - `level`: Character. The level of each classification label in the ChemOnt taxonomy. One of `kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`.
+#'
+#' Data frame `external_descriptors` contains the following variables:
+#' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
+#' - `source_id`: Character: The ID of the descriptor in the external ontology.
+#' - `annotations`: Character. Any annotations associated with the external descriptor.
 #'
 #'  Note that the data.frame is in "long" format, with multiple rows for each
 #'  InCHiKey. There is one row for each level of classification for each
@@ -33,7 +51,7 @@
 #'  will be four rows for that InCHiKey.
 #'
 #'  For use with \code{treecompareR} functions that expect a `data.frame` of
-#'  classified entities, this `data.frame` will need to be reshaped into wider
+#'  classified entities, the `classification` `data.frame` will need to be reshaped into wider
 #'  format, with one row for each InCHiKey and one column for each level of
 #'  classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
 #'  names_from = "level", values_from = "name")} (where \code{dat} is the
@@ -42,7 +60,19 @@
 #'  These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
 #'  throw a warning if this happens -- pay attention to it!
 #'
-#'@param inchikeys Character: A vector of InCHiKeys to be classified
+#'  # Data cleaning and filtering
+#'
+#'  Before sending to ClassyFire, input InChIKeys will have leading and trailing
+#'  white space trimmed, and if present, leading "InChIKey=" will be stripped
+#'  out. Then, InChIKeys will be checked for validity using [is_inchikey()]. Any
+#'  invalid InChIKeys will not be sent to ClassyFire (including NAs, blanks, and
+#'  malformed InChIKeys).
+#'
+#'  All input InChIKeys will be present in the output `data.frame`s, but any
+#'  inputs not sent to ClassyFire will have NAs for all of the classification
+#'  results, and will have `entity_type` set to `'not queried in ClassyFire'`.
+#'
+#'@param inchikeys Character: A vector of InCHiKeys to be classified.
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'  level11}.
@@ -93,15 +123,23 @@ classify_inchikeys <- function(inchikeys,
                                classyfire_check_url = "http://classyfire.wishartlab.com/",
                                ...){
 
-  #placeholder output for everything
-  #do this for all original inputs
-  output <- data.frame("identifier" = inchikeys)
+  #placeholder output: identifier and inchikeys for all original inputs
+  output <- data.frame("identifier_orig" = inchikeys) |>
+    #trim leading/trailing white space
+    dplyr::mutate(identifier = trimws(identifier_orig)) |>
+    #trim leading "InChIKey=" if present
+    dplyr::mutate(identifier = gsub(pattern = "^InChIKey\\=",
+                                    replacement = "",
+                                    x = identifier)) |>
+    #mark anything that's not a valid inchikey
+    #this will exclude NAs, blanks, as well as malformed inchikeys
+    dplyr::mutate(is_valid_inchikey = is_inchikey(identifier))
 
-  INCHIKEYS <- unique(inchikeys) #save time by removing duplicates
-  INCHIKEYS <- INCHIKEYS[!is.na(INCHIKEYS) & #remove NAs
-                           nzchar(trimws(INCHIKEYS)) & #remove blanks
-                           is_inchikey(INCHIKEYS) #remove any non-validly-formatted inchikeys
-  ]
+  #query only the unique, cleaned, valid inchikeys
+  INCHIKEYS <- output |>
+    dplyr::filter(is_valid_inchikey %in% TRUE) |>
+    dplyr::pull(identifier) |>
+    unique()
 
   if(check_avail %in% TRUE){
   #Check network and ClassyFire API availability
@@ -168,7 +206,7 @@ classify_inchikeys <- function(inchikeys,
   inchi_out <- c(list("classified" = inchi_class),
                  more_output)
 
-
+ #loop over the different list items in the output
   inchi_out <- lapply(inchi_out,
                       function(this_out){
                         #get any input inchikeys that were excluded
@@ -181,13 +219,20 @@ classify_inchikeys <- function(inchikeys,
                         }else{
                           handled_id <- character(0)
                         }
-                        missing_entities <- output |>
-                          dplyr::filter(!(identifier %in% handled_id)) |>
-                          dplyr::mutate(entity_type = "not handled by ClassyFire")
 
-                        #Output: bind things handled by ClassyFire and things not handled
-                        this_out <- dplyr::bind_rows(missing_entities,
-                                                     this_out) |>
+                        this_out$entity_type <- "queried"
+
+                        #merge with all originally input inchikeys
+                        this_out <- output |>
+                          dplyr::left_join(this_out,
+                                           by = "identifier") |>
+                          dplyr::mutate(
+                            entity_type = dplyr::if_else(
+                              is.na(entity_type),
+                              "not queried",
+                              entity_type
+                            )
+                          ) |>
                           as.data.frame()  #convert from tibble to data.frame
 
                       })
