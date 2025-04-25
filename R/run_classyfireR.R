@@ -10,7 +10,13 @@
 #'  This function returns a named `list` of `data.frame(s)` containing the
 #'  various ClassyFire classification results.
 #'
-#' - `classification`: The full classification for each input. At least one row per input, but the number of rows per input will vary depending on the number of levels of classification available for each input (up to 11).
+#' - `classification`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
+#' - `kingdom`: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
+#' - `superclass`: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
+#' - `class`: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
+#' - `subclass`: The ChemOnt subclass for each input. One row per input. If no subclass for a given input, will have NA.
+#' - `intermediate_nodes`: Any intermediate nodes in the ChemOnt ancestry for each input, between subclass and direct parent. One row per input. If no intermediate nodes for a given input, will have NAs for that input.
+#' - `direct_parent`: The direct parent for each input (the most-specific classification available). One row for each input.
 #' - `alternative_parents`: Alternative parents of each input. At least one row per input, but the number of rows per input will vary depending on the number of alternative parents of each input.
 #' - `molecular_framework`: The molecular framework for each input. Has one row for each input.
 #' - `substituents`: The substituents for each input. At least one row per input, but the number of rows for each input will vary depending on the number of substituents.
@@ -27,38 +33,32 @@
 #' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 #' - `classification_version`: Character. The version of ClassyFire used for this classification.
 #'
-#'  Data.frames `classification`, `alternative_parents`, and `ancestors`
-#'  additionally contain the following variables:
+#'  Data.frame `classification` contains the following additional labels:
+#' - `kingdom`: Character. The kingdom label for each input.
+#' - `superclass`: Character. The superclass label for each input.
+#' - `class`: Character. The class label for each input.
+#' - `subclass`: Character. The subclass level for each input.
+#' - `level5`: Character. The level 5 label for each input.
+#' - `level6`: Character. The level 6 label for each input.
+#' - `level7`: Character. The level 7 label for each input.
+#' - `level8`: Character. The level 8 label for each input.
+#' - `level9`: Character. The level 9 label for each input.
+#' - `level10`: Character. The level 10 label for each input.
+#' - `level11`: Character. The level 11 label for each input.
+#'
+#'  Data.frames `kingdom`, `superclass`, `class`, `subclass`,
+#'  `intermediate_nodes`, `direct_parent`, `alternative_parents`, and
+#'  `ancestors` contain the following additional variables:
 #' - `name`: Character. The classification labels.
 #' - `description`: Character. Description of each classification label.
 #' - `chemont_id`: Character. The ChemOnt ID of each classification label.
 #' - `url`: Character. The URL pointing to the ChemOnt information for each classification label.
 #'
-#'  Data.frame `classification` additionally contains the following variable:
-#' - `level`: Character. The level of each classification label in the ChemOnt taxonomy. One of `kingdom`, `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`.
-#'
-#' Data frame `external_descriptors` contains the following variables:
+#'  Data frame `external_descriptors` contains the following additional variables:
 #' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
 #'
-#'  Note that the data.frame is in "long" format, with multiple rows for each
-#'  InCHiKey. There is one row for each level of classification for each
-#'  InCHiKey. For example, the classification for InCHiKey
-#'  "XGQJGMGAMHFMAO-UHFFFAOYSA-N" terminates at level 5, so there will be five
-#'  rows for that InCHiKey. The classification for InCHiKey
-#'  "PZNXLZZWWBSQQK-UHFFFAOYSA-N" terminates at level 4 (subclass), so there
-#'  will be four rows for that InCHiKey.
-#'
-#'  For use with \code{treecompareR} functions that expect a `data.frame` of
-#'  classified entities, the `classification` `data.frame` will need to be reshaped into wider
-#'  format, with one row for each InCHiKey and one column for each level of
-#'  classification. This can be done, e.g., using \code{tidyr::pivot_wider(dat,
-#'  names_from = "level", values_from = "name")} (where \code{dat} is the
-#'  returned `data.frame`.) However, be on the lookout for pathological cases
-#'  where an InCHiKey is listed with two different labels at the same level.
-#'  These occur rarely, but they do occur. \code{tidyr::pivot_wider()} will
-#'  throw a warning if this happens -- pay attention to it!
 #'
 #'  # Data cleaning and filtering
 #'
@@ -93,7 +93,8 @@
 #'  resource is up. If not, a message will be emitted and an empty (placeholder)
 #'  result will be returned.
 #'@param ... Other arguments as for [query_inchikey()].
-#'@return A `data.frame`; see Details.
+#'@return A list of `data.frame`s with ClassyFire classification results for
+#'  each input structural identifier. See Details.
 #'
 #'
 #' @examples
@@ -176,7 +177,7 @@ classify_inchikeys <- function(inchikeys,
   }
 
   class_list <- lapply(entities_list,
-                       parse_classification,
+                       get_classes,
                        query_type = "inchikey",
                        tax_level_labels = tax_level_labels)
 
@@ -184,7 +185,13 @@ classify_inchikeys <- function(inchikeys,
   inchi_class <- dplyr::bind_rows(class_list)
 
   more_output <- sapply(
-    c("alternative_parents",
+    c("kingdom",
+      "superclass",
+      "class",
+      "subclass",
+      "intermediate_nodes",
+      "direct_parent",
+      "alternative_parents",
       "molecular_framework",
       "substituents",
       "description",
@@ -194,7 +201,7 @@ classify_inchikeys <- function(inchikeys,
       "predicted_lipidmaps_terms"),
     function(this_item){
       lapply(entities_list,
-             function(ii) parse_item(entities = ii,
+             function(ii) get_item(entities = ii,
                                      item = this_item,
                                      query_type = "inchikey")) |>
         dplyr::bind_rows() |>
@@ -248,23 +255,75 @@ classify_inchikeys <- function(inchikeys,
 #'
 #'@details
 #'
-#'This function returns a list of `data.frame`s with the following names.
+#' # Return value details
+#'This function returns a named `list` of `data.frame(s)` containing the various
+#'ClassyFire classification results.
 #'
-#' - `classification`: The main ClassyFire classification for the input structures.
-#' - `alternative_parents`: Alternative parents for the input structures.
-#' - `molecular_framework`: Molecular framework descriptors for the input structures.
-#' - `substituents`: Substituents for the input structures.
-#' - `description`: Descriptions for the input structures.
-#' - `external_descriptors`: External descriptors for the input structures, if any.
-#' - `ancestors`: All ancestors for the input structures.
-#' - `predicted_chebi_terms`: Predicted ChEBI terms for the input structures.
-#' - `predicted_lipidmaps_terms`: Predicted LipidMaps terms for the input structures.
+#' - `classification`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
+#' - `kingdom`: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
+#' - `superclass`: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
+#' - `class`: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
+#' - `subclass`: The ChemOnt subclass for each input. One row per input. If no subclass for a given input, will have NA.
+#' - `intermediate_nodes`: Any intermediate nodes in the ChemOnt ancestry for each input, between subclass and direct parent. One row per input. If no intermediate nodes for a given input, will have NAs for that input.
+#' - `direct_parent`: The direct parent for each input (the most-specific classification available). One row for each input.
+#' - `alternative_parents`: Alternative parents of each input. At least one row per input, but the number of rows per input will vary depending on the number of alternative parents of each input.
+#' - `molecular_framework`: The molecular framework for each input. Has one row for each input.
+#' - `substituents`: The substituents for each input. At least one row per input, but the number of rows for each input will vary depending on the number of substituents.
+#' - `description`: The description for each input. Has one row per input.
+#' - `external_descriptors`: Descriptors in external databases (e.g. ChEBI and/or LipidMaps) for each input (if any).
+#' - `ancestors`: All ancestors for each input. At least one row per input, but the number of rows per input will vary depending on the number of ancestors for each input.
+#' - `predicted_chebi_terms`: Predicted terms in ChEBI for each input. At least one row per input, but the number of rows per input will vary depending on the number of ChEBI terms for each input. If an input has no ChEBI terms, it will have one row filled with NAs.
+#' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
+#'
+#'All `data.frame`s contain the following variables:
+#' - `identifier`: Character. The InChIKey that was queried.
+#' - `entity_type`: Character. Either `queried` (if queried in ClassyFire) or `not queried` (if not queried in ClassyFire due to not being a valid InChIKey).
+#' - `smiles`: Character. The SMILES string returned by ClassyFire for this query.
+#' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
+#' - `classification_version`: Character. The version of ClassyFire used for this classification.
+#'
+#'Data.frame `classification` contains the following additional labels:
+#' - `kingdom`: Character. The kingdom label for each input.
+#' - `superclass`: Character. The superclass label for each input.
+#' - `class`: Character. The class label for each input.
+#' - `subclass`: Character. The subclass level for each input.
+#' - `level5`: Character. The level 5 label for each input.
+#' - `level6`: Character. The level 6 label for each input.
+#' - `level7`: Character. The level 7 label for each input.
+#' - `level8`: Character. The level 8 label for each input.
+#' - `level9`: Character. The level 9 label for each input.
+#' - `level10`: Character. The level 10 label for each input.
+#' - `level11`: Character. The level 11 label for each input.
+#'
+#'Data.frames `kingdom`, `superclass`, `class`, `subclass`,
+#'`intermediate_nodes`, `direct_parent`, `alternative_parents`, and `ancestors`
+#'contain the following additional variables:
+#' - `name`: Character. The classification labels.
+#' - `description`: Character. Description of each classification label.
+#' - `chemont_id`: Character. The ChemOnt ID of each classification label.
+#' - `url`: Character. The URL pointing to the ChemOnt information for each classification label.
+#'
+#'Data frame `external_descriptors` contains the following additional variables:
+#' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
+#' - `source_id`: Character: The ID of the descriptor in the external ontology.
+#' - `annotations`: Character. Any annotations associated with the external descriptor.
+#'
+#'
+#'# Data cleaning and filtering
+#'
+#'Before sending to ClassyFire, input structures will have leading and trailing
+#'white space trimmed. NAs and blanks will not be queried.
+#'
+#'All input structures will be present in the output `data.frame`s, but any
+#'inputs not sent to ClassyFire will have NAs for all of the classification
+#'results, and will have `entity_type` set to `'not queried in ClassyFire'`.
 #'
 #'@param input A character vector of structural identifiers: SMILES strings or
-#'  InChi strings. May optionally be named. If so, the names will be returned as
-#'  a column named  \code{identifier} in the output data.frame. If not named,
-#'  the vector itself will be returned as a column named \code{identifier} in
-#'  the output data.frame
+#'  InChi strings. InChI strings should begin with "InChI=". May optionally be
+#'  named. If so, the names will be returned as a column named
+#'  \code{identifier} in the output data.frame. If not named, the vector itself
+#'  will be returned as a column named \code{identifier} in the output
+#'  data.frame
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
@@ -274,7 +333,7 @@ classify_inchikeys <- function(inchikeys,
 #'  ClassyFire API before proceeding. Default `TRUE`.
 #'@param ... Other arguments as for \code{\link{query_structure}}.
 #'@return A list of `data.frame`s with ClassyFire classification results for
-#'  each input structural identifier.
+#'  each input structural identifier. See Details.
 #'
 #'
 #' @examples
@@ -416,17 +475,23 @@ classify_structures <- function (input = NULL,
       entities_list <- lapply(json_parse,
                               function(x) x$entities)
 
-      #Parse classified entities. If there were none, parse_classification()
+      #Parse classified entities. If there were none, get_classes()
       #will just return a data.frame with zero rows.
       classified <- lapply(entities_list,
-                           parse_classification,
+                           get_classes,
                            query_type = "structure") |>
         dplyr::bind_rows() |>
         dplyr::mutate(structure = this_batch_input[identifier])
 
       #Get the additional pieces of the classification output.
       more_output <- sapply(
-        c("alternative_parents",
+        c("kingdom",
+          "superclass",
+          "class",
+          "subclass",
+          "intermediate_nodes",
+          "direct_parent",
+          "alternative_parents",
           "molecular_framework",
           "substituents",
           "description",
@@ -436,7 +501,7 @@ classify_structures <- function (input = NULL,
           "predicted_lipidmaps_terms"),
         function(this_item){
           #parse this item for each page
-          this_item_parsed_list <- lapply(entities_list,
+          this_item_df_list <- lapply(entities_list,
                                           function(this_page){
                                             if("identifier" %in% names(this_page)){
                                               this_id <- this_page$identifier
@@ -444,22 +509,22 @@ classify_structures <- function (input = NULL,
                                               this_id <- character(0)
                                             }
                                             tryCatch({
-                                              this_parse <- parse_item(
+                                              this_item_df <- get_item(
                                                 entities = this_page,
                                                 item = this_item,
                                                 query_type = "structure",
                                                 tax_level_labels = tax_level_labels
                                               )
-                                              if(length(this_parse)==0){
-                                                this_parse <-  data.frame(
+                                              if(length(this_item_df)==0){
+                                                this_item_df <-  data.frame(
                                                   identifier = this_id
                                                 )
                                               }
 
-                                              if(!("identifier" %in% names(this_parse))){
-                                                this_parse$identifier <- this_id
+                                              if(!("identifier" %in% names(this_item_df))){
+                                                this_item_df$identifier <- this_id
                                               }
-                                              this_parse
+                                              this_item_df
                                             },
                                             error = function(err){
                                               #if this item couldn't be parsed --
@@ -473,7 +538,7 @@ classify_structures <- function (input = NULL,
           ) #end lapply over entities_list
 
           #rowbind all the pages for this item
-          dplyr::bind_rows(this_item_parsed_list) |>
+          dplyr::bind_rows(this_item_df_list) |>
             #add in structures
             dplyr::mutate(structure = this_batch_input[identifier])
         },
@@ -551,14 +616,20 @@ classify_structures <- function (input = NULL,
   #combine the output from batches
   all_output <- sapply(
     c("classification",
-      "alternative_parents",
-      "molecular_framework",
-      "substituents",
-      "description",
-      "external_descriptors",
-      "ancestors",
-      "predicted_chebi_terms",
-      "predicted_lipidmaps_terms"),
+      "kingdom",
+        "superclass",
+        "class",
+        "subclass",
+        "intermediate_nodes",
+        "direct_parent",
+        "alternative_parents",
+        "molecular_framework",
+        "substituents",
+        "description",
+        "external_descriptors",
+        "ancestors",
+        "predicted_chebi_terms",
+        "predicted_lipidmaps_terms"),
     function(this_item){
       #extract this element from all items in batch output
       #the result will be a list of data.frames,
@@ -580,7 +651,7 @@ classify_structures <- function (input = NULL,
       }
       missing_entities <- output |>
         dplyr::filter(!(identifier %in% handled_id)) |>
-        dplyr::mutate(entity_type = "not handled by ClassyFire")
+        dplyr::mutate(entity_type = "not queried")
 
       #Output: bind things handled by ClassyFire and things not handled
       tmp_output <- dplyr::bind_rows(missing_entities,
@@ -1287,9 +1358,9 @@ get_results <- function(url,
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #parse classifications
-#' parse_classification(entities = my_results[[1]]$entities)
+#' get_classes(entities = my_results[[1]]$entities)
 #'
-parse_classification <- function(entities,
+get_classes <- function(entities,
                                  query_type,
                                  tax_level_labels = chemont_tax_levels){
   #check to see whether classifications actually exist for these
@@ -1314,7 +1385,7 @@ parse_classification <- function(entities,
                                 "intermediate_nodes",
                                 "direct_parent"),
                               function(this_item){
-                                parse_item(entities = entities,
+                                get_item(entities = entities,
                                            item = this_item,
                                            query_type = query_type,
                                            tax_level_labels = tax_level_labels)
@@ -1344,6 +1415,41 @@ parse_classification <- function(entities,
       #e.g. 1, 2, 3, 4 -> kingdom, superclass, class, subclass
       dplyr::mutate(level = tax_level_labels[level])
 
+    #pivot wider
+    #first check for any cases of multiple labels at the same level
+    dups <- classifications  |>
+    dplyr::summarise(n = dplyr::n(),
+                     .by = c(identifier, name, level)) |>
+    dplyr::filter(n > 1L)
+
+    if(nrow(dups)>0){
+      warning(
+        paste(
+          "There were multiple labels at the same level! Here are the duplicates:",
+          paste(
+            capture.output(dups),
+            collapse = "\n"
+          ),
+          "The result will have multiple rows for these identifiers!",
+          sep = "\n"
+          )
+      )
+  #if duplicates: pivot wider and then unnest list columns
+      suppressWarnings(
+        classifications <- classifications |>
+        tidyr::pivot_wider(id_cols = identifier,
+                           names_from = level,
+                           values_from = name) |>
+        tidyr::unnest(tidyr::any_of(tax_level_labels))
+        )
+
+    }else{ #if no cases of multiple labels at the same level
+      classifications <- classifications |>
+        tidyr::pivot_wider(id_cols = identifier,
+                           names_from = level,
+                           values_from = name)
+    }
+
     return(classifications)
   }
 }
@@ -1356,7 +1462,7 @@ parse_classification <- function(entities,
 #'   [classify_inchikeys()]. It generally should not be called directly by the
 #'   user.
 #'
-#'   The main classification is parsed by [parse_classification()], but
+#'   The main classification is parsed by [get_classes()], but
 #'   ClassyFire returns several additional pieces of classification output.
 #'   These include:
 #'
@@ -1407,17 +1513,17 @@ parse_classification <- function(entities,
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
 #' #get alternative parents
-#' parse_item(entities = my_results[[1]]$entities, item = "alternative_parents")
+#' get_item(entities = my_results[[1]]$entities, item = "alternative_parents")
 #' #get molecular framework
-#' parse_item(entities = my_results[[1]]$entities, item = "molecular_framework")
+#' get_item(entities = my_results[[1]]$entities, item = "molecular_framework")
 #' @author Caroline Ring
-parse_item <- function(entities,
+get_item <- function(entities,
                        item,
                        query_type,
                        tax_level_labels = chemont_tax_levels){
 
   if(length(item) > 1){
-    stop(paste("Error in treecompareR::parse_item():",
+    stop(paste("Error in treecompareR::get_item():",
                "`item` must be a single string"))
   }
 
@@ -1602,9 +1708,9 @@ parse_item <- function(entities,
 
 #' @title Parsed data frame check
 #'
-#' @description Helper function used by [parse_item()]
+#' @description Helper function used by [get_item()]
 #'
-#' @details This is a helper function used by [parse_item()] and generally should not be called directly by the user.
+#' @details This is a helper function used by [get_item()] and generally should not be called directly by the user.
 #'
 #' @param this_out A `data.frame` consisting of parsed output in one element of the ClassyFire JSON `entities` element
 #' @param item Character: the name of the element of the ClassyFire JSON `entities` element
