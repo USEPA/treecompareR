@@ -1352,8 +1352,7 @@ get_results <- function(url,
 #' @return A data.frame consisting of rows corresponding to each classified
 #'   entry from the `entities` input. A data.frame with one row for each entity
 #'   identifier, and variables `identifier`, `smiles`, `inchikey`, `kingdom`,
-#'   `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`,
-#'   `classification_version`, and `report`.
+#'   `superclass`, `class`, `subclass`, `level5`, `level6`, ... `level11`.
 #' @examples
 #' #get a set of results to parse
 #' my_results <- query_structure(input = c("COC1=CC(Br)=CC=C1", "SCCSCCS"))
@@ -1367,16 +1366,18 @@ get_classes <- function(entities,
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
     #but with the expected variable names
-    classifications <- data.frame(identifier = character(0),
-                                  smiles = character(0),
-                                  inchikey = character(0),
-                                  classification_version = character(0),
-                                  level = character(0),
-                                  name = character(0),
-                                  description = character(0),
-                                  chemont_id = character(0),
-                                  url = character(0)
-    )
+    items <- c("identifier",
+               "smiles",
+               "inchikey",
+               "classification_version",
+               tax_level_labels)
+    args <- rep(character(0),
+                length(items))
+    names(args) <- items
+
+    classifications <- do.call(data.frame,
+                               args = args)
+
   }else{ #if length(entities)>0
     classifications <- sapply(c("kingdom",
                                 "superclass",
@@ -1441,14 +1442,23 @@ get_classes <- function(entities,
                            names_from = level,
                            values_from = name) |>
         tidyr::unnest(tidyr::any_of(tax_level_labels))
-        )
+        ) |>
+        as.data.frame()
 
     }else{ #if no cases of multiple labels at the same level
       classifications <- classifications |>
         tidyr::pivot_wider(id_cols = identifier,
                            names_from = level,
-                           values_from = name)
+                           values_from = name) |>
+        as.data.frame()
     }
+
+    #insert any missing levels
+    missing_levels <- setdiff(tax_level_labels,
+                              names(classifications))
+   if(length(missing_levels)>0){
+     classifications[missing_levels] <- NA_character_
+   }
 
     return(classifications)
   }
