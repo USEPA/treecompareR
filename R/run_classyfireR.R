@@ -90,9 +90,9 @@
 #'  ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'  level11}.
 #'@param wait_sec_get Numeric: A parameter controlling how many seconds between
-#'  requests sent to the ClassyFire API server. Default 0.1, to respect
+#'  requests sent to the ClassyFire API server. Default 1, to respect
 #'  ClassyFire's rate limit of 10 GET requests per second. Setting it lower than
-#'  0.1 will result in it being reset to 0.1, with a warning.
+#'  1 will result in it being reset to 1, with a warning.
 #'@param check_avail Logical: Whether to check availability of the ClassyFire
 #'  API before proceeding. Default `TRUE`.
 #'@param network_check_url Character: A URL to check that should never give an
@@ -131,7 +131,7 @@
 
 classify_inchikeys <- function(inchikeys,
                                tax_level_labels = chemont_tax_levels,
-                               wait_sec_get = 0.1,
+                               wait_sec_get = 1,
                                check_avail = TRUE,
                                network_check_url = "http://httpstat.us/200",
                                classyfire_check_url = "http://classyfire.wishartlab.com/",
@@ -156,9 +156,9 @@ classify_inchikeys <- function(inchikeys,
     unique()
 
   if(check_avail %in% TRUE){
-  #Check network and ClassyFire API availability
-  msg <- check_resource(network_check_url = network_check_url,
-                        classyfire_check_url = classyfire_check_url)
+    #Check network and ClassyFire API availability
+    msg <- check_resource(network_check_url = network_check_url,
+                          classyfire_check_url = classyfire_check_url)
   }else{
     msg <- NULL
   }
@@ -172,21 +172,21 @@ classify_inchikeys <- function(inchikeys,
   }else{
     #if network and classyfire OK
 
-  #get classification results as a list, one for each INCHIKEY
-  entities_list <- lapply(
-    INCHIKEYS,
-    function(this_inchikey){
-      #if inchikey is valid, query ClassyFire API
-      this_output <- query_inchikey(inchikey = this_inchikey,
-                                    wait_sec_get = wait_sec_get,
-                                    check_avail = FALSE,
-                                    network_check_url = network_check_url,
-                                    classyfire_check_url = classyfire_check_url,
-                                    ...)
-      this_output$identifier <- this_inchikey
-      return(this_output)
-    } #end function to apply to each INCHIKEY
-  )
+    #get classification results as a list, one for each INCHIKEY
+    entities_list <- lapply(
+      INCHIKEYS,
+      function(this_inchikey){
+        #if inchikey is valid, query ClassyFire API
+        this_output <- query_inchikey(inchikey = this_inchikey,
+                                      wait_sec_get = wait_sec_get,
+                                      check_avail = FALSE,
+                                      network_check_url = network_check_url,
+                                      classyfire_check_url = classyfire_check_url,
+                                      ...)
+        this_output$identifier <- this_inchikey
+        return(this_output)
+      } #end function to apply to each INCHIKEY
+    )
   }
 
   #rowbind informational columns
@@ -227,8 +227,8 @@ classify_inchikeys <- function(inchikeys,
     function(this_item){
       lapply(entities_list,
              function(ii) get_item(entities = ii,
-                                     item = this_item,
-                                     query_type = "inchikey")) |>
+                                   item = this_item,
+                                   query_type = "inchikey")) |>
         dplyr::bind_rows() |>
         dplyr::mutate()
     },
@@ -238,7 +238,7 @@ classify_inchikeys <- function(inchikeys,
   inchi_out <- c(list("classified" = inchi_class),
                  more_output)
 
- #loop over the different list items in the output
+  #loop over the different list items in the output
   inchi_out <- lapply(inchi_out,
                       function(this_out){
                         #get any input inchikeys that were excluded
@@ -408,6 +408,8 @@ classify_structures <- function (input = NULL,
                                  tax_level_labels = chemont_tax_levels,
                                  sizelim = 1000,
                                  check_avail = TRUE,
+                                 network_check_url = "http://httpstat.us/200",
+                                 classyfire_check_url = "http://classyfire.wishartlab.com/",
                                  ...){
 
 
@@ -423,14 +425,19 @@ classify_structures <- function (input = NULL,
   }
 
   if(sizelim > 1000){
-   warning(paste0("sizelim must be <=1000. You provided sizelim = ",
-            sizelim,
-            ". Setting it to 1000."))
+    warning(paste0("sizelim must be <=1000. You provided sizelim = ",
+                   sizelim,
+                   ". Setting it to 1000."))
     sizelim <- 1000
   }
 
   #save original input
   input_orig <- input
+  if(is.null(names(input_orig))){
+    input_names <- input_orig
+    input_names[is.na(input_names)] <- "NA"
+    names(input_orig) <- input_names
+  }
 
   #placeholder output: identifier and structure for all original inputs
   output <- data.frame("identifier_orig" = input_orig,
@@ -516,17 +523,10 @@ classify_structures <- function (input = NULL,
       entities_list <- lapply(json_parse,
                               function(x) x$entities)
 
-      #Parse classified entities. If there were none, get_classified()
-      #will just return a data.frame with zero rows.
-      classified <- lapply(entities_list,
-                           get_classified,
-                           query_type = "structure") |>
-        dplyr::bind_rows() |>
-        dplyr::mutate(structure = this_batch_input[identifier])
-
-      #Get the additional pieces of the classification output.
+      #Get the pieces of the classification output.
       more_output <- sapply(
-        c("kingdom",
+        c("classified",
+        "kingdom",
           "superclass",
           "class",
           "subclass",
@@ -541,41 +541,79 @@ classify_structures <- function (input = NULL,
           "predicted_chebi_terms",
           "predicted_lipidmaps_terms"),
         function(this_item){
-          #parse this item for each page
-          this_item_df_list <- lapply(entities_list,
-                                          function(this_page){
-                                            if("identifier" %in% names(this_page)){
-                                              this_id <- this_page$identifier
-                                            }else{
-                                              this_id <- character(0)
-                                            }
-                                            tryCatch({
-                                              this_item_df <- get_item(
-                                                entities = this_page,
-                                                item = this_item,
-                                                query_type = "structure",
-                                                tax_level_labels = tax_level_labels
-                                              )
-                                              if(length(this_item_df)==0){
-                                                this_item_df <-  data.frame(
-                                                  identifier = this_id
-                                                )
-                                              }
+          #get this item for each page
+          this_item_df_list <- lapply(
+            seq_along(entities_list),
+            function(this_page_num){
+              this_page <- entities_list[[this_page_num]]
+              if("identifier" %in% names(this_page)){
+                this_id <- this_page$identifier
+              }else{
+                this_id <- character(0)
+              }
+              tryCatch({
+                if(this_item %in% "classified"){
+                  this_item_df <- get_classified(
+                    entities = this_page,
+                    query_type = "structure",
+                    tax_level_labels = tax_level_labels
+                  )
+                }else{
+                this_item_df <- get_item(
+                  entities = this_page,
+                  item = this_item,
+                  query_type = "structure",
+                  tax_level_labels = tax_level_labels
+                )
+                }
+                if(length(this_item_df)==0){
+                  this_item_df <-  data.frame(
+                    identifier = this_id
+                  )
+                }
 
-                                              if(!("identifier" %in% names(this_item_df))){
-                                                this_item_df$identifier <- this_id
-                                              }
-                                              this_item_df
-                                            },
-                                            error = function(err){
-                                              #if this item couldn't be parsed --
-                                              #then just return the identifiers
-                                              data.frame(
-                                                identifier = this_id
-                                              )
-                                            }
-                                            ) #end tryCatch
-                                          }
+                if(!("identifier" %in% names(this_item_df))){
+                  this_item_df$identifier <- this_id
+                }
+
+                if(nrow(this_item_df)>0){
+                #insert informational cols
+                #from the json_parse item enclosing this entities page
+                this_item_df[
+                  c("classification_status",
+                    "query_url",
+                    "query_status")
+                ] <- json_parse[[this_page_num]][
+                  c("classification_status",
+                    "query_url",
+                    "query_status")
+                ]
+                }
+
+                this_item_df
+              },
+              error = function(err){
+                #if this item couldn't be parsed --
+                #then just return the identifiers
+                this_item_df <- data.frame(
+                  identifier = this_id
+                )
+                if(nrow(this_item_df)>0){
+                this_item_df[
+                  c("classification_status",
+                    "query_url",
+                    "query_status")
+                ] <- json_parse[[this_page]][
+                  c("classification_status",
+                    "query_url",
+                    "query_status")
+                ]
+                }
+
+                  this_item_df
+              }
+              ) #end tryCatch
+            }
           ) #end lapply over entities_list
 
           #rowbind all the pages for this item
@@ -610,7 +648,7 @@ classify_structures <- function (input = NULL,
         #(the names of the inputs that were invalid structures)
         invalid$identifier <- names(this_batch_input)[
           this_batch_input %in% invalid$structure
-          ]
+        ]
       } # if(length(invalid)>0)
 
       #Pack all classification outputs into a list
@@ -630,14 +668,6 @@ classify_structures <- function (input = NULL,
                               ),
                               .id = "entity_type"
                             )
-                            #add informational columns
-                            if(nrow(this_new)>0){
-                              this_new[c("classification_status",
-                                         "query_url",
-                                         "query_status")] <- json_parse[[1]][c("classification_status",
-                                                                               "query_url",
-                                                                               "query_status")]
-                            }
 
                             return(this_new)
                           },
@@ -656,19 +686,19 @@ classify_structures <- function (input = NULL,
   all_output <- sapply(
     c("classified",
       "kingdom",
-        "superclass",
-        "class",
-        "subclass",
-        "intermediate_nodes",
-        "direct_parent",
-        "alternative_parents",
-        "molecular_framework",
-        "substituents",
-        "description",
-        "external_descriptors",
-        "ancestors",
-        "predicted_chebi_terms",
-        "predicted_lipidmaps_terms"),
+      "superclass",
+      "class",
+      "subclass",
+      "intermediate_nodes",
+      "direct_parent",
+      "alternative_parents",
+      "molecular_framework",
+      "substituents",
+      "description",
+      "external_descriptors",
+      "ancestors",
+      "predicted_chebi_terms",
+      "predicted_lipidmaps_terms"),
     function(this_item){
       #extract this element from all items in batch output
       #the result will be a list of data.frames,
@@ -711,8 +741,8 @@ classify_structures <- function (input = NULL,
 #'@param retry_get_times Integer: The number of times to retry the query before
 #'  giving up if it returns an HTTP error. Default 3.
 #'@param wait_sec_get Numeric: The number of seconds to pause between retry
-#'  attempts. Default 0.1, because ClassyFire rate-limits GET requests to 10 per
-#'  second. If set to less than 0.1, it will be reset to 0.1, with a message.
+#'  attempts. Default 1, because ClassyFire rate-limits GET requests to 10 per
+#'  second. If set to less than 1, it will be reset to 1, with a message.
 #'@param base_url The base URL for ClassyFire API queries. Default
 #'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
 #'  is highly unlikely to work!
@@ -743,7 +773,7 @@ classify_structures <- function (input = NULL,
 #'
 query_inchikey <- function(inchikey,
                            retry_get_times = 3,
-                           wait_sec_get = 0.1,
+                           wait_sec_get = 1,
                            base_url = "http://classyfire.wishartlab.com/entities",
                            ...){
 
@@ -791,8 +821,8 @@ query_inchikey <- function(inchikey,
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #'@param wait_sec_get Minimum number of seconds to wait between GET commands.
-#'  Default 0.1 seconds (because ClassyFire rate-limits GET requests to 10 per
-#'  second). If less than 0.1 seconds, will be reset to 0.1 seconds, with a
+#'  Default 1 seconds (because ClassyFire rate-limits GET requests to 10 per
+#'  second). If less than 1 seconds, will be reset to 1 seconds, with a
 #'  warning. Wait times for multiple retries
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
@@ -863,7 +893,7 @@ query_structure <- function(input = NULL,
                             type = "STRUCTURE",
                             retry_get_times = 10,
                             wait_sec = 5,
-                            wait_sec_get = 0.1,
+                            wait_sec_get = 1,
                             retry_query_times = 10,
                             processing_wait_per_input = 0.1,
                             terminate_on = c(400:407, #but not 408
@@ -892,14 +922,14 @@ query_structure <- function(input = NULL,
   #initialize a placeholder json_parse in case everything else fails
 
   json_parse <- make_placeholder(query_type = "structure",
-                                         query_id = NA_character_,
-                                         url = NA_character_,
-                                         label = NA_character_)
+                                 query_id = NA_character_,
+                                 url = NA_character_,
+                                 label = NA_character_)
 
   #Check network and ClassyFire API availability
   if(check_avail %in% TRUE){
-  msg <- check_resource(network_check_url = network_check_url,
-                        classyfire_check_url = classyfire_check_url)
+    msg <- check_resource(network_check_url = network_check_url,
+                          classyfire_check_url = classyfire_check_url)
   }
 
   if(!is.null(msg)){
@@ -911,208 +941,208 @@ query_structure <- function(input = NULL,
     json_parse$classification_status <- "Failed"
     output <- list(json_parse)
   }else{
-  #if network and classyfire OK
-  if(wait_sec < 5){
-    warning(paste("ClassyFire rate-limits POST requests to 12 per minute.",
-                  "You supplied wait_sec =", wait_sec,
-                  "; it will be reset to 5 seconds."))
-    wait_sec <- 5
-  }
+    #if network and classyfire OK
+    if(wait_sec < 5){
+      warning(paste("ClassyFire rate-limits POST requests to 12 per minute.",
+                    "You supplied wait_sec =", wait_sec,
+                    "; it will be reset to 5 seconds."))
+      wait_sec <- 5
+    }
 
     post_err <- FALSE
-  #if input provided, construct new query
-  if(!is.null(input)){
-    if(is.null(processing_wait_per_input)){
-      processing_wait_per_input <- wait_sec/length(input)
-    }
+    #if input provided, construct new query
+    if(!is.null(input)){
+      if(is.null(processing_wait_per_input)){
+        processing_wait_per_input <- wait_sec/length(input)
+      }
 
-    if(is.null(names(input))){
-      names(input) <- input
-    }
+      if(is.null(names(input))){
+        names(input) <- input
+      }
 
-    #create tab-separated input
-    query_input <- paste(names(input),
-                         input,
-                         sep = "\t",
-                         collapse = "\n")
-    #convert to JSON
-    q <- rjson::toJSON(list(label = label,
-                            query_input = query_input,
-                            query_type = type)
-    )
-    #construct POST request
-    Sys.sleep(wait_sec) #wait required amount of time
-    #retry POST
-    resp <- httr::RETRY(
-      verb = "POST",
-      url = base_url,
-      body = q,
-      terminate_on = terminate_on,
-      times = retry_query_times,
-      pause_min = wait_sec, #pause at least wait_sec seconds between tries
-      httr::content_type_json(),
-      httr::accept_json(),
-      httr::timeout(getOption("timeout"))
-    )
-
-    #check for HTTP error
-    if(httr::http_error(resp)){
-      post_status <- httr::http_status(resp)
-      json_parse$query_status <- paste("POST request failed",
-                                       paste0("(",
-                                              post_status$message,
-                                              ")"))
-      json_parse$classification_status <- "Failed"
-      output <- list(json_parse)
-      post_err <- TRUE #flag for POST error
-    }else{
-    post_cont <- httr::content(resp)
-    #get URL for query
-    url <- paste0(base_url, "/", post_cont$id, ".json")
-    }
-  } #end if(!is.null(input))
-
-
-if(post_err %in% FALSE){
-  #check url format (whether newly constructed or user-provided)
-  if(length(url) %in% 1){
-    if(is.character(url)){
-      url_good <- grepl(x = url,
-                        pattern = paste0(base_url, "/", "\\d+", ".json"))
-    }else{
-      url_good <- FALSE
-    }
-  }else{
-    url_good <- FALSE
-  }
-
-  if(!(url_good %in% TRUE)){
-    stop(paste0("Error in treecompareR::query_structure():",
-                "URL is not of valid format. ",
-                "URL is ", url,
-                " and expected format is ",
-                base_url,
-                "/", "NNNNN.json",
-                " where NNNNN are one or more digits 0-9 denoting a query ID number."))
-  }
-
-  json_parse <- get_results(url = url,
-                            label = label,
-                            retry_get_times = retry_get_times,
-                            wait_sec_get = wait_sec_get,
-                            terminate_on = terminate_on,
-                            query_type = "structure",
-                            check_avail = FALSE,
-                            classyfire_check_url = classyfire_check_url,
-                            network_check_url = network_check_url)
-
-  #retry until no longer in queue or processing,
-  #or until max number of retries is reached
-  retry_count <- 0
-  while((json_parse$classification_status %in% c("In Queue",
-                                                 "Processing")) &
-        retry_count < retry_query_times){
-    if(json_parse$classification_status %in% "In Queue"){
-      #wait for query to come out of queue
-      #this does *not* depend on size of input
-      #calculate exponential backoff wait time
-      wait_time <- runif(1, wait_sec, wait_sec*2^(retry_count))
-      message(paste0("Classification status is In Queue",
-                     "; waiting ",
-                     round(wait_time, digits = 2),
-                     " seconds and retrying"))
-    }else{ #query is processing
-      #processing time *does* depend on size of input
-      #calculate exponential backoff wait time
-      proc_eff <- runif(1,
-                        processing_wait_per_input,
-                        processing_wait_per_input * 2^(retry_count)
+      #create tab-separated input
+      query_input <- paste(names(input),
+                           input,
+                           sep = "\t",
+                           collapse = "\n")
+      #convert to JSON
+      q <- rjson::toJSON(list(label = label,
+                              query_input = query_input,
+                              query_type = type)
       )
-      #wait_time at least 5 seconds
-      wait_time <- ceiling(max(wait_sec,  proc_eff*length(input)))
-      message(paste0("Classification status is ",
-                     json_parse$classification_status,
-                     "; waiting ",
-                     round(wait_time, digits = 2),
-                     " seconds (greater of ",
-                     wait_sec,
-                     " seconds, or ",
-                     signif(proc_eff, 2),
-                     " seconds per input, with ",
-                     length(input),
-                     " inputs) ",
-                     "and retrying"))
-    } #end if/else to check classification status
-    #wait and retry
-    Sys.sleep(wait_time)
-    json_parse <- get_results(url = url,
-                              label = label,
-                              retry_get_times = retry_get_times,
-                              wait_sec_get = wait_sec_get,
-                              terminate_on = terminate_on,
-                              query_type = "structure",
-                              check_avail = FALSE,
-                              classyfire_check_url = classyfire_check_url,
-                              network_check_url = network_check_url)
-    retry_count <- retry_count + 1
-  } #end while loop
-
-  #If classification was done, then results will be paginated
-  if(json_parse$classification_status %in% "Done"){
-
-    #Each page = 10 entities
-    #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
-    #get results for each individual page
-
-    message("Classification done!")
-    if(json_parse$number_of_pages > 0){
-      #get vector of individual page URLs
-      url_pages <- paste0(url,
-                          "?page=",
-                          seq(from = 1,
-                              to = json_parse$number_of_pages,
-                              by = 1))
-      output <- sapply(url_pages,
-                       function(url_pg){
-                         #wait between querying pages
-                         Sys.sleep(wait_sec_get)
-                         message(paste("Getting page",
-                                       url_pg,
-                                       "of",
-                                       json_parse$number_of_pages,
-                                       "..."))
-                         #grab the results for this page.
-                         get_results(url = url_pg,
-                                     label = label,
-                                     retry_get_times = retry_get_times,
-                                     wait_sec_get = wait_sec_get,
-                                     terminate_on = terminate_on,
-                                     query_type = "structure",
-                                     check_avail = FALSE,
-                                     classyfire_check_url = classyfire_check_url,
-                                     network_check_url = network_check_url)
-                       },
-                       simplify = FALSE,
-                       USE.NAMES = TRUE
+      #construct POST request
+      Sys.sleep(wait_sec) #wait required amount of time
+      #retry POST
+      resp <- httr::RETRY(
+        verb = "POST",
+        url = base_url,
+        body = q,
+        terminate_on = terminate_on,
+        times = retry_query_times,
+        pause_min = wait_sec, #pause at least wait_sec seconds between tries
+        httr::content_type_json(),
+        httr::accept_json(),
+        httr::timeout(getOption("timeout"))
       )
-    }else{
-      #if classification status was Done but there were zero pages, then it
-      #means all entities were invalid, in which case it will return not a
-      #list of lists of parsed json, but only one list. Pack it into a nested
-      #list as expected by classify_structures().
-      json_parse <- list(json_parse)
-      output <- json_parse
-    }
 
-  }else{
-    #this block should only occur if it either failed, or status was still "In
-    #Queue" or "Processing" when the max number of retries was reached. In which
-    #case it will return not a list of lists of parsed json, but only one list.
-    #Pack it into a nested list as expected by classify_structures.
-    json_parse <- list(json_parse)
-    output <- json_parse
-  }
-}
+      #check for HTTP error
+      if(httr::http_error(resp)){
+        post_status <- httr::http_status(resp)
+        json_parse$query_status <- paste("POST request failed",
+                                         paste0("(",
+                                                post_status$message,
+                                                ")"))
+        json_parse$classification_status <- "Failed"
+        output <- list(json_parse)
+        post_err <- TRUE #flag for POST error
+      }else{
+        post_cont <- httr::content(resp)
+        #get URL for query
+        url <- paste0(base_url, "/", post_cont$id, ".json")
+      }
+    } #end if(!is.null(input))
+
+
+    if(post_err %in% FALSE){
+      #check url format (whether newly constructed or user-provided)
+      if(length(url) %in% 1){
+        if(is.character(url)){
+          url_good <- grepl(x = url,
+                            pattern = paste0(base_url, "/", "\\d+", ".json"))
+        }else{
+          url_good <- FALSE
+        }
+      }else{
+        url_good <- FALSE
+      }
+
+      if(!(url_good %in% TRUE)){
+        stop(paste0("Error in treecompareR::query_structure():",
+                    "URL is not of valid format. ",
+                    "URL is ", url,
+                    " and expected format is ",
+                    base_url,
+                    "/", "NNNNN.json",
+                    " where NNNNN are one or more digits 0-9 denoting a query ID number."))
+      }
+
+      json_parse <- get_results(url = url,
+                                label = label,
+                                retry_get_times = retry_get_times,
+                                wait_sec_get = wait_sec_get,
+                                terminate_on = terminate_on,
+                                query_type = "structure",
+                                check_avail = FALSE,
+                                classyfire_check_url = classyfire_check_url,
+                                network_check_url = network_check_url)
+
+      #retry until no longer in queue or processing,
+      #or until max number of retries is reached
+      retry_count <- 0
+      while((json_parse$classification_status %in% c("In Queue",
+                                                     "Processing")) &
+            retry_count < retry_query_times){
+        if(json_parse$classification_status %in% "In Queue"){
+          #wait for query to come out of queue
+          #this does *not* depend on size of input
+          #calculate exponential backoff wait time
+          wait_time <- runif(1, wait_sec, wait_sec*2^(retry_count))
+          message(paste0("Classification status is In Queue",
+                         "; waiting ",
+                         round(wait_time, digits = 2),
+                         " seconds and retrying"))
+        }else{ #query is processing
+          #processing time *does* depend on size of input
+          #calculate exponential backoff wait time
+          proc_eff <- runif(1,
+                            processing_wait_per_input,
+                            processing_wait_per_input * 2^(retry_count)
+          )
+          #wait_time at least 5 seconds
+          wait_time <- ceiling(max(wait_sec,  proc_eff*length(input)))
+          message(paste0("Classification status is ",
+                         json_parse$classification_status,
+                         "; waiting ",
+                         round(wait_time, digits = 2),
+                         " seconds (greater of ",
+                         wait_sec,
+                         " seconds, or ",
+                         signif(proc_eff, 2),
+                         " seconds per input, with ",
+                         length(input),
+                         " inputs) ",
+                         "and retrying"))
+        } #end if/else to check classification status
+        #wait and retry
+        Sys.sleep(wait_time)
+        json_parse <- get_results(url = url,
+                                  label = label,
+                                  retry_get_times = retry_get_times,
+                                  wait_sec_get = wait_sec_get,
+                                  terminate_on = terminate_on,
+                                  query_type = "structure",
+                                  check_avail = FALSE,
+                                  classyfire_check_url = classyfire_check_url,
+                                  network_check_url = network_check_url)
+        retry_count <- retry_count + 1
+      } #end while loop
+
+      #If classification was done, then results will be paginated
+      if(json_parse$classification_status %in% "Done"){
+
+        #Each page = 10 entities
+        #Page URLs are constructed like http://classyfire.wishartlab.com/queries/XXX.json?page=1
+        #get results for each individual page
+
+        message("Classification done!")
+        if(json_parse$number_of_pages > 0){
+          #get vector of individual page URLs
+          url_pages <- paste0(url,
+                              "?page=",
+                              seq(from = 1,
+                                  to = json_parse$number_of_pages,
+                                  by = 1))
+          output <- sapply(url_pages,
+                           function(url_pg){
+                             #wait between querying pages
+                             Sys.sleep(wait_sec_get)
+                             message(paste("Getting page",
+                                           url_pg,
+                                           "of",
+                                           json_parse$number_of_pages,
+                                           "..."))
+                             #grab the results for this page.
+                             get_results(url = url_pg,
+                                         label = label,
+                                         retry_get_times = retry_get_times,
+                                         wait_sec_get = wait_sec_get,
+                                         terminate_on = terminate_on,
+                                         query_type = "structure",
+                                         check_avail = FALSE,
+                                         classyfire_check_url = classyfire_check_url,
+                                         network_check_url = network_check_url)
+                           },
+                           simplify = FALSE,
+                           USE.NAMES = TRUE
+          )
+        }else{
+          #if classification status was Done but there were zero pages, then it
+          #means all entities were invalid, in which case it will return not a
+          #list of lists of parsed json, but only one list. Pack it into a nested
+          #list as expected by classify_structures().
+          json_parse <- list(json_parse)
+          output <- json_parse
+        }
+
+      }else{
+        #this block should only occur if it either failed, or status was still "In
+        #Queue" or "Processing" when the max number of retries was reached. In which
+        #case it will return not a list of lists of parsed json, but only one list.
+        #Pack it into a nested list as expected by classify_structures.
+        json_parse <- list(json_parse)
+        output <- json_parse
+      }
+    }
   }
   return(output)
 }
@@ -1180,7 +1210,7 @@ if(post_err %in% FALSE){
 #'  to retry GET query if HTTP error was returned (except for errors in
 #'  `terminate_on`, which will terminate immediately without retrying).
 #'@param wait_sec_get As for [query_classyfire()]. Numeric: number of seconds to
-#'  wait between retries. Minimum 0.1.
+#'  wait between retries. Minimum 1.
 #'@param terminate_on Integer vector: List of HTTP status codes which will
 #'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
 #'  421:428, 431, 451, 500:511)`
@@ -1212,7 +1242,7 @@ if(post_err %in% FALSE){
 get_results <- function(url,
                         label = "query",
                         retry_get_times = 3,
-                        wait_sec_get = 0.1,
+                        wait_sec_get = 1,
                         terminate_on = c(400:407, #but not 408
                                          409:418,
                                          421:428, #but not 429
@@ -1225,132 +1255,132 @@ get_results <- function(url,
                         ...
 ){
 
-  if(wait_sec_get < 0.1){
+  if(wait_sec_get < 1){
     warning(paste("ClassyFire rate-limits GET requests to 10 per second.",
                   "You supplied wait_sec_get =", wait_sec_get,
-                  "; it will be reset to 0.1 seconds."))
-    wait_sec_get <- 0.1
+                  "; it will be reset to 1 seconds."))
+    wait_sec_get <- 1
   }
   #initialize a placeholder json_parse in case everything else fails
 
-    m <- regexec(text=url, pattern = "(\\d+)\\.json")
-    query_id <- regmatches(x = url, m = m)[[1]][2]
-    json_parse_default <- make_placeholder(query_type = query_type,
-                     query_id = query_id,
-                     url = url,
-                     label = label)
+  m <- regexec(text=url, pattern = "(\\d+)\\.json")
+  query_id <- regmatches(x = url, m = m)[[1]][2]
+  json_parse_default <- make_placeholder(query_type = query_type,
+                                         query_id = query_id,
+                                         url = url,
+                                         label = label)
 
-    if(check_avail %in% TRUE){
-      #recheck resource availability
+  if(check_avail %in% TRUE){
+    #recheck resource availability
     msg <- check_resource(network_check_url = network_check_url,
                           classyfire_check_url = classyfire_check_url)
-    }else{
-      msg <- NULL
-    }
-    if(!is.null(msg)){
-      message(msg)
+  }else{
+    msg <- NULL
+  }
+  if(!is.null(msg)){
+    message(msg)
 
-      json_parse <- list("query_status" = msg,
-                         "classification_status" = "Failed")
-    }else{
+    json_parse <- list("query_status" = msg,
+                       "classification_status" = "Failed")
+  }else{
 
-      #if internet seems up and ClassyFire seems up
-      json_parse <- tryCatch(
-        {
-          #try getting results for query
-          Sys.sleep(wait_sec_get)
-          resp <- tryCatch(
-            httr::RETRY(verb = "GET",
-                        url = url,
-                        encode = "json",
-                        times = retry_get_times,
-                        pause_min = wait_sec_get,
-                        terminate_on = terminate_on
-            ),
+    #if internet seems up and ClassyFire seems up
+    json_parse <- tryCatch(
+      {
+        #try getting results for query
+        Sys.sleep(wait_sec_get)
+        resp <- tryCatch(
+          httr::RETRY(verb = "GET",
+                      url = url,
+                      encode = "json",
+                      times = retry_get_times,
+                      pause_min = wait_sec_get,
+                      terminate_on = terminate_on
+          ),
+          error = function(err){
+            err
+          }
+        )
+
+        #if httr::RETRY() itself threw an error, then resp will be of class "simpleError"
+        #otherwise, resp will be of class "response"
+        if("simpleError" %in% class(resp)){
+          message(paste("ClassyFire query failed. Error message:",
+                        paste0(resp$message, "."),
+          ))
+          json_res <- NULL
+        }else{
+          #check for http error
+          had_error <- tryCatch(
+            #will throw error if resp isn't a reasonable http response
+            httr::http_error(resp),
+            error = function(err){
+              #if httr::http_error itself throws an error,
+              #then set had_error to TRUE
+              TRUE
+            }
+          )
+
+          #get http status
+          request_status <- tryCatch(
+            #will throw error if resp has unknown status code
+            #or is generally not something reasonable
+            httr::http_status(resp),
             error = function(err){
               err
             }
           )
 
-          #if httr::RETRY() itself threw an error, then resp will be of class "simpleError"
-          #otherwise, resp will be of class "response"
-          if("simpleError" %in% class(resp)){
-            message(paste("ClassyFire query failed. Error message:",
-                          paste0(resp$message, "."),
-            ))
+          if(had_error %in% TRUE){
+            #the following will work whether httr::http_status() returned a status or
+            #an error:
+            message(
+              paste("ClassyFire query failed. HTTP error status:\n",
+                    request_status$message)
+            )
             json_res <- NULL
-          }else{
-            #check for http error
-            had_error <- tryCatch(
-              #will throw error if resp isn't a reasonable http response
-              httr::http_error(resp),
-              error = function(err){
-                #if httr::http_error itself throws an error,
-                #then set had_error to TRUE
-                TRUE
-              }
-            )
+          }else{ #if request successful
+            json_res <- httr::content(x = resp, as = "text", encoding = "UTF-8")
 
-            #get http status
-            request_status <- tryCatch(
-              #will throw error if resp has unknown status code
-              #or is generally not something reasonable
-              httr::http_status(resp),
-              error = function(err){
-                err
-              }
-            )
-
-            if(had_error %in% TRUE){
-              #the following will work whether httr::http_status() returned a status or
-              #an error:
-              message(
-                paste("ClassyFire query failed. HTTP error status:\n",
-                      request_status$message)
-              )
-              json_res <- NULL
-            }else{ #if request successful
-              json_res <- httr::content(x = resp, as = "text", encoding = "UTF-8")
-
-            }
-          } #end else (if resp was not "simpleError")
-
-
-          #json_res should be NULL if anything failed
-          #if it's non-NULL, try to parse it
-          if(!is.null(json_res)){
-            #if json_res is not parseable,
-            #then just return the request status and the JSON parse error
-            json_parse <- tryCatch({
-              tmp <- jsonlite::fromJSON(json_res)
-              tmp$query_status <- request_status$message
-              tmp
-            }
-            ,
-            error = function(err){
-              list("query_status" = paste(request_status$message,
-                                          ". JSON parsing failed with error:",
-                                          err$message),
-                   "classification_status" = "Failed")
-            }
-            )
-
-          }else{
-            #if json_res is NULL, something failed
-            #just record the status (error message)
-            json_parse <- list("query_status" = request_status$message,
-                               "classification_status" = "Failed")
           }
-          json_parse
-        }, #end main try/catch expression to try
-        error = function(err){
-          #if all else fails, just return whatever error was thrown
-          list("query_status" = paste0("Error:",
-                                       err$message),
-               "classification_status" = "Failed")
+        } #end else (if resp was not "simpleError")
+
+
+        #json_res should be NULL if anything failed
+        #if it's non-NULL, try to parse it
+        if(!is.null(json_res)){
+          #if json_res is not parseable,
+          #then just return the request status and the JSON parse error
+          json_parse <- tryCatch({
+            tmp <- jsonlite::fromJSON(json_res)
+            tmp$query_status <- request_status$message
+            tmp
+          }
+          ,
+          error = function(err){
+            list("query_status" = paste(request_status$message,
+                                        ". JSON parsing failed with error:",
+                                        err$message),
+                 "classification_status" = "Failed")
+          }
+          )
+
+        }else{
+          #if json_res is NULL, something failed
+          #just record the status (error message)
+          json_parse <- list("query_status" = request_status$message,
+                             "classification_status" = "Failed")
         }
-      ) #end tryCatch
-    }
+        json_parse
+      }, #end main try/catch expression to try
+      error = function(err){
+        #if all else fails, just return whatever error was thrown
+        list("query_status" = paste0("Error:",
+                                     err$message),
+             "classification_status" = "Failed")
+      }
+    ) #end tryCatch
+  }
 
   #fill in any elements in json_parse_default not in json_parse
   #otherwise, keep elements in json_parse
@@ -1394,8 +1424,8 @@ get_results <- function(url,
 #' get_classified(entities = my_results[[1]]$entities)
 #'
 get_classified <- function(entities,
-                                 query_type,
-                                 tax_level_labels = chemont_tax_levels){
+                           query_type,
+                           tax_level_labels = chemont_tax_levels){
   #check to see whether classifications actually exist for these
   if(length(entities)==0){
     #if no classifications, return empty data.frame,
@@ -1404,9 +1434,10 @@ get_classified <- function(entities,
                "smiles",
                "inchikey",
                "classification_version",
-               tax_level_labels)
-    args <- rep(character(0),
-                length(items))
+               tax_level_labels,
+               "terminal_label")
+    args <- replicate(length(items),
+                      character(0))
     names(args) <- items
 
     classifications <- do.call(data.frame,
@@ -1421,9 +1452,9 @@ get_classified <- function(entities,
                                 "direct_parent"),
                               function(this_item){
                                 get_item(entities = entities,
-                                           item = this_item,
-                                           query_type = query_type,
-                                           tax_level_labels = tax_level_labels)
+                                         item = this_item,
+                                         query_type = query_type,
+                                         tax_level_labels = tax_level_labels)
                               },
                               simplify = FALSE,
                               USE.NAMES = TRUE) |>
@@ -1457,9 +1488,9 @@ get_classified <- function(entities,
     #pivot wider
     #first check for any cases of multiple labels at the same level
     dups <- classifications  |>
-    dplyr::summarise(n = dplyr::n(),
-                     .by = c(identifier, name, level)) |>
-    dplyr::filter(n > 1L)
+      dplyr::summarise(n = dplyr::n(),
+                       .by = c(identifier, name, level)) |>
+      dplyr::filter(n > 1L)
 
     if(nrow(dups)>0){
       warning(
@@ -1471,17 +1502,17 @@ get_classified <- function(entities,
           ),
           "The result will have multiple rows for these identifiers!",
           sep = "\n"
-          )
+        )
       )
-  #if duplicates: pivot wider and then unnest list columns
+      #if duplicates: pivot wider and then unnest list columns
       suppressWarnings(
         classifications <- classifications |>
-        tidyr::pivot_wider(id_cols = c(identifier,
-                                       terminal_label),
-                           names_from = level,
-                           values_from = name) |>
-        tidyr::unnest(tidyr::any_of(tax_level_labels))
-        ) |>
+          tidyr::pivot_wider(id_cols = c(identifier,
+                                         terminal_label),
+                             names_from = level,
+                             values_from = name) |>
+          tidyr::unnest(tidyr::any_of(tax_level_labels))
+      ) |>
         as.data.frame()
 
     }else{ #if no cases of multiple labels at the same level
@@ -1492,13 +1523,12 @@ get_classified <- function(entities,
                            values_from = name) |>
         as.data.frame()
     }
-
     #insert any missing levels
     missing_levels <- setdiff(tax_level_labels,
                               names(classifications))
-   if(length(missing_levels)>0){
-     classifications[missing_levels] <- NA_character_
-   }
+    if(length(missing_levels)>0){
+      classifications[missing_levels] <- NA_character_
+    }
 
     #put terminal label at the end
     classifications <- classifications |>
@@ -1586,9 +1616,9 @@ get_classified <- function(entities,
 #' get_item(entities = my_results[[1]]$entities, item = "molecular_framework")
 #' @author Caroline Ring
 get_item <- function(entities,
-                       item,
-                       query_type,
-                       tax_level_labels = chemont_tax_levels){
+                     item,
+                     query_type,
+                     tax_level_labels = chemont_tax_levels){
 
   if(length(item) > 1){
     stop(paste("Error in treecompareR::get_item():",
@@ -1596,154 +1626,147 @@ get_item <- function(entities,
   }
 
   if(length(entities) == 0){
-    #if entities is empty, return an empty data.frame.
-    return(data.frame())
-  }else{
+    #if entities is empty,
+    #fill in the expected items
+    items <- c("identifier",
+               "smiles",
+               "inchikey",
+               "classification_version",
+               tax_level_labels)
+    args <- replicate(length(items),
+                      character(0))
+    names(args) <- items
 
-    if(item %in% c("identifier",
-                   "smiles",
-                   "inchikey",
-                   "classification_version")){
-      return(entities[[item]])
+    entities <- do.call(data.frame,
+                        args = args)
+
+  }
+
+  if(item %in% c("identifier",
+                 "smiles",
+                 "inchikey",
+                 "classification_version")){
+    return(entities[[item]])
+  }
+
+  entities <- as.list(entities)
+  for(ii in c("identifier",
+              "smiles",
+              "inchikey",
+              "classification_version")){
+    if(length(entities[[ii]])==0){
+      entities[[ii]] <- character(0)
     }
+  }
 
-    entities <- as.list(entities)
-    for(ii in c("identifier",
-                "smiles",
-                "inchikey",
-                "classification_version")){
-      if(length(entities[[ii]])==0){
-        entities[[ii]] <- character(0)
-      }
-    }
+  base_dat <- data.frame(entities[c("identifier",
+                                    "smiles",
+                                    "inchikey",
+                                    "classification_version")])
 
-    base_dat <- data.frame(entities[c("identifier",
-                                      "smiles",
-                                      "inchikey",
-                                      "classification_version")])
+  #each item may be one of several formats.
 
-    #each item may be one of several formats.
+  # For structure queries:
 
-    # For structure queries:
+  #it may be a list with one element for each identifier.
+  #if so, each list element may be a data.frame, or a vector.
+  #the data.frames may be empty, or not.
 
-    #it may be a list with one element for each identifier.
-    #if so, each list element may be a data.frame, or a vector.
-    #the data.frames may be empty, or not.
+  #lists of data frames are in: intermediate_nodes, alternative_parents
+  #for intermediate nodes, if some identifiers had them and other did not,
+  #the data.frames for the identifiers with no intermediate nodes will have 0 columns and 0 rows,
+  #and the data.frames for the identifiers with intermediate nodes will have 4 columns and 1 row.
 
-    #lists of data frames are in: intermediate_nodes, alternative_parents
-    #for intermediate nodes, if some identifiers had them and other did not,
-    #the data.frames for the identifiers with no intermediate nodes will have 0 columns and 0 rows,
-    #and the data.frames for the identifiers with intermediate nodes will have 4 columns and 1 row.
+  #lists of vectors are in: substituents, ancestors,
+  #predicted_chebi_terms, predicted_lipidmaps_terms (if present)
 
-    #lists of vectors are in: substituents, ancestors,
-    #predicted_chebi_terms, predicted_lipidmaps_terms (if present)
+  #sometimes the list elements are themselves empty lists, if no entity had a value.
+  #This is the case for external_descriptors and predicted_lipidmaps_terms, for everything I've tried so far.
+  #It is also the case for intermediate nodes, if no entity had intermediate nodes.
 
-    #sometimes the list elements are themselves empty lists, if no entity had a value.
-    #This is the case for external_descriptors and predicted_lipidmaps_terms, for everything I've tried so far.
-    #It is also the case for intermediate nodes, if no entity had intermediate nodes.
+  #it may be a single data.frame with one row for each identifier.
+  #this is the case for kingdom, superclass, class, and subclass, and direct_parent.
+  #if one identifier has a value for these and another does not,
+  #then there will still be one row for each identifier, but it'll be filled with NA if necessary.
 
-    #it may be a single data.frame with one row for each identifier.
-    #this is the case for kingdom, superclass, class, and subclass, and direct_parent.
-    #if one identifier has a value for these and another does not,
-    #then there will still be one row for each identifier, but it'll be filled with NA if necessary.
+  #for kingdom, superclass, class, and subclass, if no identifiers had a value,
+  #it will be a vector of NAs with one element for each identifier.
 
-    #for kingdom, superclass, class, and subclass, if no identifiers had a value,
-    #it will be a vector of NAs with one element for each identifier.
+  #it may be a vector with one element for each identifier. In this case,
+  #any identifier without a value should have NA inserted.
 
-    #it may be a vector with one element for each identifier. In this case,
-    #any identifier without a value should have NA inserted.
+  #For single-inchikey queries:
 
-    #For single-inchikey queries:
+  #kingdom, superclass, class, subclass, and direct_parent will be lists,
+  #unless that inchikey does not have a classification at that level,
+  #in which case the corresponding item will be NULL.
 
-    #kingdom, superclass, class, subclass, and direct_parent will be lists,
-    #unless that inchikey does not have a classification at that level,
-    #in which case the corresponding item will be NULL.
+  #intermediate_nodes will be a data.frame, unless that inchikey does not
+  #have intermediate nodes, in which case it wil be an empty list.
 
-    #intermediate_nodes will be a data.frame, unless that inchikey does not
-    #have intermediate nodes, in which case it wil be an empty list.
+  #alternative_parents is a data.frame with a varying number of rows.
 
-    #alternative_parents is a data.frame with a varying number of rows.
+  #molecular_framework and description are 1-element vectors
+  #substituents is a vector of varying length
+  #ancestors is a vector of varying length
+  #predicted_chebi_terms is a vector of varying length
+  this_item <- entities[[item]]
 
-    #molecular_framework and description are 1-element vectors
-    #substituents is a vector of varying length
-    #ancestors is a vector of varying length
-    #predicted_chebi_terms is a vector of varying length
-    this_item <- entities[[item]]
-
-    if(query_type %in% "structure"){
-      if(is.list(this_item) &
-         !is.data.frame(this_item)){
-        #if a list and not a single data.frame:
-        #convert each list element to a data.frame
-        this_item <- lapply(this_item,
-                            as.data.frame)
-        #
-        #name the list elements after the identifiers
-        names(this_item) <- entities$identifier
-        #rowbind with identifiers as a new variable
-        this_out <- dplyr::bind_rows(this_item,
-                                     .id = "identifier")
-
-        #if any list-columns (this happens for external_descriptors),
-        #then unnest.
-        if(length(this_out)>0){
-        list_cols <- names(this_out)[sapply(this_out, is.list)]
-        if(length(list_cols)>0){
-          this_out <- tidyr::unnest(this_out,
-                                    cols = tidyr::all_of(list_cols))
-        }
-        }
-        #handle renaming if necessary
-        this_out <- df_check(this_out = this_out,
-                             item = item,
-                             entities_identifier = entities$identifier)
-      } else if(is.data.frame(this_item)){
-        if(nrow(this_item)>0){
-          #this_item should have as many rows as identifiers.
-          #add the identifiers as a column.
-          this_out <- cbind(data.frame(identifier = entities$identifier,
-                                       this_item))
-        }else{
-          this_out <- data.frame()
-        }
-
-        this_out <- df_check(this_out,
-                             item = item,
-                             entities_identifier = entities$identifier)
-
-      }else{
-        #if it's not a list and not a data.frame
-        #convert it to a data.frame
-        #and add identifier as a new column, if possible
-        if(length(this_item)>0){
-          this_out <- cbind(data.frame(identifier = entities$identifier,
-                                       as.data.frame(this_item)))
-        }else{
-          this_out <- data.frame()
-        }
-
-        #if any list-columns (this happens for external_descriptors),
-        #then unnest.
-        if(length(this_out)>0){
-        list_cols <- names(this_out)[sapply(this_out, is.list)]
-        if(length(list_cols)>0){
-          this_out <- tidyr::unnest(this_out,
-                                    cols = tidyr::all_of(list_cols))
-        }
-        }
-
-        this_out <- df_check(this_out = this_out,
-                             item = item,
-                             entities_identifier = entities$identifier)
-      }
-    }else if(query_type %in% "inchikey"){
-      #it turns out the steps are the same no matter what the type of the item.
-
-      this_out <- as.data.frame(this_item)
+  if(query_type %in% "structure"){
+    if(is.list(this_item) &
+       !is.data.frame(this_item)){
+      #if a list and not a single data.frame:
+      #convert each list element to a data.frame
+      this_item <- lapply(this_item,
+                          as.data.frame)
+      #
+      #name the list elements after the identifiers
+      names(this_item) <- entities$identifier
+      #rowbind with identifiers as a new variable
+      this_out <- dplyr::bind_rows(this_item,
+                                   .id = "identifier")
 
       #if any list-columns (this happens for external_descriptors),
       #then unnest.
-      if(length(this_out) > 0){
+      if(length(this_out)>0){
+        list_cols <- names(this_out)[sapply(this_out, is.list)]
+        if(length(list_cols)>0){
+          this_out <- tidyr::unnest(this_out,
+                                    cols = tidyr::all_of(list_cols))
+        }
+      }
+      #handle renaming if necessary
+      this_out <- df_check(this_out = this_out,
+                           item = item,
+                           entities_identifier = entities$identifier)
+    } else if(is.data.frame(this_item)){
+      if(nrow(this_item)>0){
+        #this_item should have as many rows as identifiers.
+        #add the identifiers as a column.
+        this_out <- cbind(data.frame(identifier = entities$identifier,
+                                     this_item))
+      }else{
+        this_out <- data.frame()
+      }
+
+      this_out <- df_check(this_out,
+                           item = item,
+                           entities_identifier = entities$identifier)
+
+    }else{
+      #if it's not a list and not a data.frame
+      #convert it to a data.frame
+      #and add identifier as a new column, if possible
+      if(length(this_item)>0){
+        this_out <- cbind(data.frame(identifier = entities$identifier,
+                                     as.data.frame(this_item)))
+      }else{
+        this_out <- data.frame()
+      }
+
+      #if any list-columns (this happens for external_descriptors),
+      #then unnest.
+      if(length(this_out)>0){
         list_cols <- names(this_out)[sapply(this_out, is.list)]
         if(length(list_cols)>0){
           this_out <- tidyr::unnest(this_out,
@@ -1751,30 +1774,49 @@ get_item <- function(entities,
         }
       }
 
-      if(nrow(this_out)>0){
-        #this_item should have as many rows as identifiers.
-        #add the identifiers as a column.
-        this_out <- cbind(data.frame(identifier = entities$identifier,
-                                     this_out))
-      }else{
-        this_out <- data.frame()
-      }
       this_out <- df_check(this_out = this_out,
                            item = item,
                            entities_identifier = entities$identifier)
-    }else{
-      stop("query_type should be either 'structure' or 'inchikey'")
+    }
+  }else if(query_type %in% "inchikey"){
+    #it turns out the steps are the same no matter what the type of the item.
+
+    this_out <- as.data.frame(this_item)
+
+    #if any list-columns (this happens for external_descriptors),
+    #then unnest.
+    if(length(this_out) > 0){
+      list_cols <- names(this_out)[sapply(this_out, is.list)]
+      if(length(list_cols)>0){
+        this_out <- tidyr::unnest(this_out,
+                                  cols = tidyr::all_of(list_cols))
+      }
     }
 
-    this_out <- dplyr::left_join(base_dat,
-                                 this_out,
-                                 by = "identifier")
+    if(nrow(this_out)>0){
+      #this_item should have as many rows as identifiers.
+      #add the identifiers as a column.
+      this_out <- cbind(data.frame(identifier = entities$identifier,
+                                   this_out))
+    }else{
+      this_out <- data.frame()
+    }
+    this_out <- df_check(this_out = this_out,
+                         item = item,
+                         entities_identifier = entities$identifier)
+  }else{
+    stop("query_type should be either 'structure' or 'inchikey'")
+  }
 
-    return(this_out)
-  } #end if/else length(entities)==0
+  this_out <- dplyr::left_join(base_dat,
+                               this_out,
+                               by = "identifier")
+
+  return(this_out)
+
 }
 
-#' @title Parsed data frame check
+#' @title Data frame check
 #'
 #' @description Helper function used by [get_item()]
 #'
@@ -1939,8 +1981,8 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
                    "can't reach",
                    network_check_url,
                    paste0("(",
-                   httr::http_status(test_resp)$message,
-                   ")"))
+                          httr::http_status(test_resp)$message,
+                          ")"))
 
   }else{
     #test to see if ClassyFire is up
@@ -1948,12 +1990,12 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
     test_resp2 <- httr::HEAD(classyfire_check_url)
     test_check2 <- httr::http_error(test_resp2)
     if(test_check2 %in% TRUE){
-    msg <-  paste("ClassyFire appears to be down:",
-                   "can't reach",
-                   classyfire_check_url,
-                  paste0("(",
-                         httr::http_status(test_resp2)$message,
-                         ")"))
+      msg <-  paste("ClassyFire appears to be down:",
+                    "can't reach",
+                    classyfire_check_url,
+                    paste0("(",
+                           httr::http_status(test_resp2)$message,
+                           ")"))
     }
   }
 
