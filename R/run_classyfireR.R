@@ -10,7 +10,7 @@
 #'  This function returns a named `list` of `data.frame(s)` containing the
 #'  various ClassyFire classification results.
 #'
-#' - `classification`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
+#' - `classified`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
 #' - `kingdom`: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
 #' - `superclass`: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
 #' - `class`: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
@@ -33,7 +33,7 @@
 #' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 #' - `classification_version`: Character. The version of ClassyFire used for this classification.
 #'
-#'  Data.frame `classification` contains the following additional labels:
+#'  Data.frame `classified` contains the following additional variables:
 #' - `kingdom`: Character. The kingdom label for each input.
 #' - `superclass`: Character. The superclass label for each input.
 #' - `class`: Character. The class label for each input.
@@ -54,11 +54,16 @@
 #' - `chemont_id`: Character. The ChemOnt ID of each classification label.
 #' - `url`: Character. The URL pointing to the ChemOnt information for each classification label.
 #'
-#'  Data frame `external_descriptors` contains the following additional variables:
+#'  Data frame `external_descriptors` contains the following additional
+#'  variables:
 #' - `source`: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
 #'
+#'  All other `data.frame`s in the output list contain one additional variable
+#'  named the same thing as themselves: `molecular_framework` contains a
+#'  variable named `molecular_framework`, `substituents` contains a variable
+#'  named `substituents`, etc. All of these are of type character.
 #'
 #'  # Data cleaning and filtering
 #'
@@ -255,11 +260,10 @@ classify_inchikeys <- function(inchikeys,
 #'
 #'@details
 #'
-#' # Return value details
-#'This function returns a named `list` of `data.frame(s)` containing the various
-#'ClassyFire classification results.
+#'# Return value details This function returns a named `list` of `data.frame(s)`
+#'containing the various ClassyFire classification results.
 #'
-#' - `classification`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
+#' - `classified`: The full classification for each input, in wide format suitable for use with [treecompareR] functions that require a `data.frame` of classified entities. One row per input.
 #' - `kingdom`: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
 #' - `superclass`: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
 #' - `class`: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
@@ -276,13 +280,21 @@ classify_inchikeys <- function(inchikeys,
 #' - `predicted_lipidmaps_terms`: Predicted terms in Lipid Maps for each input. At least one row per input, but the number of rows per input will vary depending on the number of Lipid Maps terms for each input. If an input has no Lipid Maps terms, it will have one row filled with NAs.
 #'
 #'All `data.frame`s contain the following variables:
-#' - `identifier`: Character. The InChIKey that was queried.
-#' - `entity_type`: Character. Either `queried` (if queried in ClassyFire) or `not queried` (if not queried in ClassyFire due to not being a valid InChIKey).
+#' - `identifier`: Character. An identifier for each structure. (The names of `input` if it had names. If not, it will be the same as `input`.)
+#' - `structure`: Character. The structure itself (SMILES or InChI string).
+#' - `entity_type`: Character. One of `valid` (if queried and ClassyFire found a classification), `invalid` (if queried but ClassyFire could not find a classification), or `not queried` (if not queried in ClassyFire due to being NA or blank).
+#' - `batch`: Integer. If `input` contained more than `sizelim` structures, then they were divided into batches of size `sizelim`, and each batch was queried separately. This column identifies the batches. If the length of `input` was less than `sizelim`, then `batch` will contain 1 for every queried input.
 #' - `smiles`: Character. The SMILES string returned by ClassyFire for this query.
 #' - `inchikey`: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 #' - `classification_version`: Character. The version of ClassyFire used for this classification.
+#' - `report`: Character. The report returned by ClassyFire. Will be NA unless `entity_type` was "invalid," in which case it will contain information on what went wrong.
+#' - `id`: Integer. The ID number of the ClassyFire query. Should appear in `query_url`.
+#' - `label`: Character. The label of the ClassyFire query. Generally this will just be "query."
+#' - `classification_status`: Character. The status of the ClassyFire query: "Done", "Failed", "In Queue," or "Processing."
+#' - `query_url`: The URL of the JSON output.
+#' - `query_status`: The HTTP status of the [httr::GET()] request from `query_url`. If `classification_status` is "Failed", this may help diagnose what went wrong.
 #'
-#'Data.frame `classification` contains the following additional labels:
+#'Data.frame `classified` contains the following additional variables:
 #' - `kingdom`: Character. The kingdom label for each input.
 #' - `superclass`: Character. The superclass label for each input.
 #' - `class`: Character. The class label for each input.
@@ -308,6 +320,11 @@ classify_inchikeys <- function(inchikeys,
 #' - `source_id`: Character: The ID of the descriptor in the external ontology.
 #' - `annotations`: Character. Any annotations associated with the external descriptor.
 #'
+#'All other `data.frame`s in the output list contain one additional variable
+#'named the same thing as themselves: `molecular_framework` contains a variable
+#'named `molecular_framework`, `substituents` contains a variable named
+#'`substituents`, etc. All of these are of type character.
+#'
 #'
 #'# Data cleaning and filtering
 #'
@@ -320,10 +337,9 @@ classify_inchikeys <- function(inchikeys,
 #'
 #'@param input A character vector of structural identifiers: SMILES strings or
 #'  InChi strings. InChI strings should begin with "InChI=". May optionally be
-#'  named. If so, the names will be returned as a column named
-#'  \code{identifier} in the output data.frame. If not named, the vector itself
-#'  will be returned as a column named \code{identifier} in the output
-#'  data.frame
+#'  named. If so, the names will be returned as a column named \code{identifier}
+#'  in the output data.frame. If not named, the vector itself will be returned
+#'  as a column named \code{identifier} in the output data.frame
 #'@param tax_level_labels By default, the list of taxonomy levels for
 #'   ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
 #'   level11}.
@@ -572,7 +588,7 @@ classify_structures <- function (input = NULL,
 
       #Pack all classification outputs into a list
 
-      class_out <- c(list("classification" =  classified),
+      class_out <- c(list("classified" =  classified),
                      more_output)
 
 
@@ -615,7 +631,7 @@ classify_structures <- function (input = NULL,
 
   #combine the output from batches
   all_output <- sapply(
-    c("classification",
+    c("classified",
       "kingdom",
         "superclass",
         "class",

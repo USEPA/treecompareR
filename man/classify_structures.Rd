@@ -15,10 +15,9 @@ classify_structures(
 \arguments{
 \item{input}{A character vector of structural identifiers: SMILES strings or
 InChi strings. InChI strings should begin with "InChI=". May optionally be
-named. If so, the names will be returned as a column named
-\code{identifier} in the output data.frame. If not named, the vector itself
-will be returned as a column named \code{identifier} in the output
-data.frame}
+named. If so, the names will be returned as a column named \code{identifier}
+in the output data.frame. If not named, the vector itself will be returned
+as a column named \code{identifier} in the output data.frame}
 
 \item{tax_level_labels}{By default, the list of taxonomy levels for
 ClassyFire: \code{kingdom, superclass, class, subclass, level5, ...
@@ -41,11 +40,10 @@ This function takes a vector of structural identifiers (SMILES
 strings or InChi strings) and queries the ClassyFire API to get
 classifications for each one.
 }
-\section{Return value details}{
-This function returns a named \code{list} of \code{data.frame(s)} containing the various
-ClassyFire classification results.
+\section{Return value details This function returns a named \code{list} of \code{data.frame(s)}}{
+containing the various ClassyFire classification results.
 \itemize{
-\item \code{classification}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
+\item \code{classified}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
 \item \code{kingdom}: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
 \item \code{superclass}: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
 \item \code{class}: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
@@ -64,14 +62,22 @@ ClassyFire classification results.
 
 All \code{data.frame}s contain the following variables:
 \itemize{
-\item \code{identifier}: Character. The InChIKey that was queried.
-\item \code{entity_type}: Character. Either \code{queried} (if queried in ClassyFire) or \verb{not queried} (if not queried in ClassyFire due to not being a valid InChIKey).
+\item \code{identifier}: Character. An identifier for each structure. (The names of \code{input} if it had names. If not, it will be the same as \code{input}.)
+\item \code{structure}: Character. The structure itself (SMILES or InChI string).
+\item \code{entity_type}: Character. One of \code{valid} (if queried and ClassyFire found a classification), \code{invalid} (if queried but ClassyFire could not find a classification), or \verb{not queried} (if not queried in ClassyFire due to being NA or blank).
+\item \code{batch}: Integer. If \code{input} contained more than \code{sizelim} structures, then they were divided into batches of size \code{sizelim}, and each batch was queried separately. This column identifies the batches. If the length of \code{input} was less than \code{sizelim}, then \code{batch} will contain 1 for every queried input.
 \item \code{smiles}: Character. The SMILES string returned by ClassyFire for this query.
 \item \code{inchikey}: Character. The InChIKey returned by ClassyFire for this query, prefixed with "InChIKey=".
 \item \code{classification_version}: Character. The version of ClassyFire used for this classification.
+\item \code{report}: Character. The report returned by ClassyFire. Will be NA unless \code{entity_type} was "invalid," in which case it will contain information on what went wrong.
+\item \code{id}: Integer. The ID number of the ClassyFire query. Should appear in \code{query_url}.
+\item \code{label}: Character. The label of the ClassyFire query. Generally this will just be "query."
+\item \code{classification_status}: Character. The status of the ClassyFire query: "Done", "Failed", "In Queue," or "Processing."
+\item \code{query_url}: The URL of the JSON output.
+\item \code{query_status}: The HTTP status of the \code{\link[httr:GET]{httr::GET()}} request from \code{query_url}. If \code{classification_status} is "Failed", this may help diagnose what went wrong.
 }
 
-Data.frame \code{classification} contains the following additional labels:
+Data.frame \code{classified} contains the following additional variables:
 \itemize{
 \item \code{kingdom}: Character. The kingdom label for each input.
 \item \code{superclass}: Character. The superclass label for each input.
@@ -102,6 +108,11 @@ Data frame \code{external_descriptors} contains the following additional variabl
 \item \code{source_id}: Character: The ID of the descriptor in the external ontology.
 \item \code{annotations}: Character. Any annotations associated with the external descriptor.
 }
+
+All other \code{data.frame}s in the output list contain one additional variable
+named the same thing as themselves: \code{molecular_framework} contains a variable
+named \code{molecular_framework}, \code{substituents} contains a variable named
+\code{substituents}, etc. All of these are of type character.
 }
 
 \section{Data cleaning and filtering}{

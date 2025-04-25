@@ -58,7 +58,7 @@ InChiKeys to get classifications, using the ClassyFire API.
 This function returns a named \code{list} of \code{data.frame(s)} containing the
 various ClassyFire classification results.
 \itemize{
-\item \code{classification}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
+\item \code{classified}: The full classification for each input, in wide format suitable for use with \link{treecompareR} functions that require a \code{data.frame} of classified entities. One row per input.
 \item \code{kingdom}: The ChemOnt kingdom for each input. One row per input. If no kingdom for a given input, will have NA.
 \item \code{superclass}: The ChemOnt superclass for each input. One row per input. If no superclass for a given input, will have NA.
 \item \code{class}: The ChemOnt class for each input. One row per input. If no class for a given input, will have NA.
@@ -84,7 +84,7 @@ All \code{data.frame}s contain the following variables:
 \item \code{classification_version}: Character. The version of ClassyFire used for this classification.
 }
 
-Data.frame \code{classification} contains the following additional labels:
+Data.frame \code{classified} contains the following additional variables:
 \itemize{
 \item \code{kingdom}: Character. The kingdom label for each input.
 \item \code{superclass}: Character. The superclass label for each input.
@@ -109,12 +109,18 @@ Data.frames \code{kingdom}, \code{superclass}, \code{class}, \code{subclass},
 \item \code{url}: Character. The URL pointing to the ChemOnt information for each classification label.
 }
 
-Data frame \code{external_descriptors} contains the following additional variables:
+Data frame \code{external_descriptors} contains the following additional
+variables:
 \itemize{
 \item \code{source}: Character. Names the source of the external descriptors (e.g. "ChEBI" or "LipidMaps").
 \item \code{source_id}: Character: The ID of the descriptor in the external ontology.
 \item \code{annotations}: Character. Any annotations associated with the external descriptor.
 }
+
+All other \code{data.frame}s in the output list contain one additional variable
+named the same thing as themselves: \code{molecular_framework} contains a
+variable named \code{molecular_framework}, \code{substituents} contains a variable
+named \code{substituents}, etc. All of these are of type character.
 }
 \section{Data cleaning and filtering}{
 Before sending to ClassyFire, input InChIKeys will have leading and trailing

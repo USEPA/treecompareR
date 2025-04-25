@@ -17,8 +17,7 @@ API query (e.g, from the results of \code{\link[=query_structure]{query_structur
 A data.frame consisting of rows corresponding to each classified
 entry from the \code{entities} input. A data.frame with one row for each entity
 identifier, and variables \code{identifier}, \code{smiles}, \code{inchikey}, \code{kingdom},
-\code{superclass}, \code{class}, \code{subclass}, \code{level5}, \code{level6}, ... \code{level11},
-\code{classification_version}, and \code{report}.
+\code{superclass}, \code{class}, \code{subclass}, \code{level5}, \code{level6}, ... \code{level11}.
 }
 \description{
 Parse ClassyFire classification results to a data.frame.
