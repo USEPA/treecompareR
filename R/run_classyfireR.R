@@ -174,8 +174,13 @@ classify_inchikeys <- function(inchikeys,
 
     #get classification results as a list, one for each INCHIKEY
     entities_list <- lapply(
-      INCHIKEYS,
-      function(this_inchikey){
+      seq_along(INCHIKEYS),
+      function(this_inchikey_id){
+        message(paste("InChIKey",
+                    this_inchikey_id,
+                    "of",
+                    length(INCHIKEYS)))
+        this_inchikey <- INCHIKEYS[this_inchikey_id]
         #if inchikey is valid, query ClassyFire API
         this_output <- query_inchikey(inchikey = this_inchikey,
                                       wait_sec_get = wait_sec_get,
@@ -246,11 +251,6 @@ classify_inchikeys <- function(inchikeys,
                         #Get any input structures not handled by ClassyFire
                         #e.g. any duplicates, or batches that failed, etc.
                         #keep their placeholder values.
-                        if("identifier" %in% names(this_out)){
-                          handled_id <- this_out$identifier
-                        }else{
-                          handled_id <- character(0)
-                        }
 
                         this_out$entity_type <- "queried"
 
@@ -433,21 +433,18 @@ classify_structures <- function (input = NULL,
 
   #save original input
   input_orig <- input
-  if(is.null(names(input_orig))){
-    input_names <- input_orig
-    input_names[is.na(input_names)] <- "NA"
-    names(input_orig) <- input_names
-  }
 
   #placeholder output: identifier and structure for all original inputs
-  output <- data.frame("identifier_orig" = input_orig,
-                       "identifier_name_orig" = names(input_orig)) |>
+  output <- data.frame("identifier_orig" = input_orig) |>
     #trim leading/trailing white space
     dplyr::mutate(identifier = trimws(identifier_orig)) |>
     #mark NAs or blanks for exclusion
-    dplyr::mutate(exclude = is.na(identifier) |
-                    !nzchar(identifier))
-
+    dplyr::mutate(exclude = is.na(identifier) | #exclude NAs
+                    !nzchar(identifier) | #exclude blanks
+                    grepl(x= identifier,
+                           pattern = "[^ -~]", #anything other than printable ASCII chars
+                           perl = TRUE)
+                    )
 
   #use the unique, filtered, cleaned inputs
   input <- output |>
@@ -495,6 +492,8 @@ classify_structures <- function (input = NULL,
                     "of",
                     max(batch_id)))
       }
+
+
       #select inputs in this batch
       this_batch_input <- input[batch_id %in% this_batch_id]
       #Now, query ClassyFire with these structures.
@@ -516,15 +515,60 @@ classify_structures <- function (input = NULL,
       #Otherwise, if classification_status is Done, at least one of entities or
       #invalid entities should be non-empty.
 
-      #Now try to parse the ClassyFire output in json_parse into a data.frame.
+      #all identifiers in this batch
+      this_batch_all <- data.frame(identifier = this_batch_input,
+                                   batch = this_batch_id)
 
-      #pull list of valid entities (i.e., those with classifications), if any.
-      #there will be one for each page of output.
+      #Parse invalid entities, if any.
+      #this will be the same for all pages in this batch.
+      browser()
+      invalid <- lapply(json_parse,
+             function(this_page) tryCatch(
+              {
+                tmp <- this_page$invalid_entities |>
+                  as.data.frame() |>
+                 tidyr::unnest(cols = tidyr::any_of("report")) |>
+                  dplyr::mutate(
+                    classification_version = this_page$classification_version,
+                                query_url = gsub(x = this_page$query_url,
+                                                 pattern= "\\?page=\\d*",
+                                                 replacement = ""),
+                                query_status = this_page$query_status
+                    ) |>
+                 as.data.frame()
+
+                if(!("structure" %in% names(tmp))){
+                  tmp$structure <- character(nrow(tmp))
+                }
+
+                tmp
+
+                },
+               error = function(err){
+                 return(data.frame(structure = character(0),
+                                   report = character(0)))
+               }
+             )
+             ) |>
+        dplyr::bind_rows() |>
+        dplyr::distinct() |>
+        dplyr::rename(identifier = structure)
+
+      if(nrow(invalid)>0){
+        invalid$entity_type <- "invalid"
+      }
+
+
+
+      #Now try to parse the ClassyFire output into data.frames.
+
+      #Pull list of valid entities (i.e., those with classifications), if any.
+      #There will be one for each page of output.
       entities_list <- lapply(json_parse,
                               function(x) x$entities)
 
-      #Get the pieces of the classification output.
-      more_output <- sapply(
+      #Get the pieces of the classification output for each page.
+      class_out <- sapply(
         c("classified",
         "kingdom",
           "superclass",
@@ -577,17 +621,8 @@ classify_structures <- function (input = NULL,
                 }
 
                 if(nrow(this_item_df)>0){
-                #insert informational cols
-                #from the json_parse item enclosing this entities page
-                this_item_df[
-                  c("classification_status",
-                    "query_url",
-                    "query_status")
-                ] <- json_parse[[this_page_num]][
-                  c("classification_status",
-                    "query_url",
-                    "query_status")
-                ]
+                #insert page number
+                this_item_df$page <- this_page_num
                 }
 
                 this_item_df
@@ -599,15 +634,8 @@ classify_structures <- function (input = NULL,
                   identifier = this_id
                 )
                 if(nrow(this_item_df)>0){
-                this_item_df[
-                  c("classification_status",
-                    "query_url",
-                    "query_status")
-                ] <- json_parse[[this_page]][
-                  c("classification_status",
-                    "query_url",
-                    "query_status")
-                ]
+                  #insert page number
+                  this_item_df$page <- this_page_num
                 }
 
                   this_item_df
@@ -617,70 +645,97 @@ classify_structures <- function (input = NULL,
           ) #end lapply over entities_list
 
           #rowbind all the pages for this item
-          dplyr::bind_rows(this_item_df_list) |>
-            #add in structures
-            dplyr::mutate(structure = this_batch_input[identifier])
+          dplyr::bind_rows(this_item_df_list)
         },
         simplify = FALSE,
         USE.NAMES = TRUE
-      ) #end sapply over additional items
+      ) #end sapply over classification output items
+
+      #now we should have valid classified entities by page,
+      #and invalid entities for the whole query.
+      #We may also have some individual pages that failed,
+      #or the whole query may have failed.
+      #Any failed pages won't be represented in the classification outputs,
+      #because there won't be any classification output.
+      #If the whole query failed, then both invalid and valid will be empty.
 
 
-      #Parse invalid entities, if any.
-      #this will be the same for all pages, so just pull from the first.
-      #This will be a data.frame or list.
-      invalid <- tryCatch(
-        json_parse[[1]]$invalid_entities,
-        error = function(err){
-          return(data.frame())
-        }
-      )
-      if(length(invalid)==0){ #if no invalid entities,
-        #return zero-row data.frame with the expected variables
-        invalid <- data.frame(identifier = character(0),
-                              structure = character(0),
-                              report = character(0)
+      #mark inputs in this batch as invalid if they are
+      this_batch_all <- this_batch_all |>
+        dplyr::left_join(invalid,
+                         by = "identifier")
+
+      #mark non-invalid inputs by what page they *should* be on
+      browser()
+      this_batch_all <- this_batch_all |>
+        dplyr::group_by(entity_type) |>
+        dplyr::mutate(
+          page = dplyr::if_else(
+            entity_type %in% "invalid",
+            rep(NA_integer_, dplyr::n()),
+            paginate(x = dplyr::n(),
+                     n_per_page = 100)
+          )
+          )|>
+        dplyr::ungroup()
+
+      #Did any individual pages in this batch fail?
+      #Get the status of each page.
+      status_pages <- lapply(json_parse,
+                             function(this_page){
+                               as.data.frame(this_page[
+                                 c("classification_status",
+                                   "query_status",
+                                   "query_url")
+                               ])
+                             }) |>
+        dplyr::bind_rows() |>
+        dplyr::distinct() |>
+        dplyr::mutate(
+          page = as.numeric(
+            stringr::str_match(
+              string = query_url,
+              pattern = "\\?page=(\\d*)"
+            )[,2]
+          )
         )
+
+      if(nrow(status_pages) %in% 1 &
+         all(is.na(status_pages$page)) &
+         !any(status_pages$classification_status %in% "Done")){
+        #if there is only one page, and page number is NA, and status is not Done,
+        #then it means the whole query for this batch failed.
+        this_batch_all[c("classification_status",
+                         "query_url",
+                         "query_status")] <- status_pages[
+                           c("classification_status",
+                             "query_url",
+                             "query_status")
+                         ]
       }else{
-        invalid <- tidyr::unnest(invalid, cols = report)
+        #merge info on status by page
+        this_batch_all <- this_batch_all |>
+          dplyr::left_join(status_pages,
+                           by = c("page",
+                                  "query_url",
+                                  "query_status"))
 
-        #Add identifier column:
-        #(the names of the inputs that were invalid structures)
-        invalid$identifier <- names(this_batch_input)[
-          this_batch_input %in% invalid$structure
-        ]
-      } # if(length(invalid)>0)
+      }
 
-      #Pack all classification outputs into a list
-
-      class_out <- c(list("classified" =  classified),
-                     more_output)
-
-
-      #For each piece of classification output,
-      #row-bind the invalid entities.
-      class_out <- sapply(class_out,
+      #merge classification results
+      class_out <- lapply(class_out,
                           function(this_item){
-                            this_new <- dplyr::bind_rows(
-                              list(
-                                "valid" = this_item,
-                                "invalid" = invalid
-                              ),
-                              .id = "entity_type"
-                            )
+                            this_batch_all |>
+                              dplyr::left_join(this_item,
+                                               by = c("identifier",
+                                               "page"))
+                          })
 
-                            return(this_new)
-                          },
-                          simplify = FALSE,
-                          USE.NAMES = TRUE
-      )
+     return(class_out)
+    } #end function for each batch id
+  ) #end sapply loop over batches
 
-      return(class_out)
-    }, #end function to apply for each batch ID
-    simplify = FALSE,
-    USE.NAMES = TRUE
-  ) #end sapply over batches
-
+  browser()
 
   #combine the output from batches
   all_output <- sapply(
@@ -739,10 +794,10 @@ classify_structures <- function (input = NULL,
 #'
 #'@param inchikey Character: one InChIKey to be queried.
 #'@param retry_get_times Integer: The number of times to retry the query before
-#'  giving up if it returns an HTTP error. Default 3.
+#'  giving up if it returns an HTTP error. Default 10.
 #'@param wait_sec_get Numeric: The number of seconds to pause between retry
 #'  attempts. Default 1, because ClassyFire rate-limits GET requests to 10 per
-#'  second. If set to less than 1, it will be reset to 1, with a message.
+#'  second. If set to less than 0.1, it will be reset to 0.1, with a message.
 #'@param base_url The base URL for ClassyFire API queries. Default
 #'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
 #'  is highly unlikely to work!
@@ -772,7 +827,7 @@ classify_structures <- function (input = NULL,
 #' query_inchikey(inchikey = "PLDWAJLZAAHOGG-UHFFFAOYSA-N")
 #'
 query_inchikey <- function(inchikey,
-                           retry_get_times = 3,
+                           retry_get_times = 10,
                            wait_sec_get = 1,
                            base_url = "http://classyfire.wishartlab.com/entities",
                            ...){
@@ -812,8 +867,10 @@ query_inchikey <- function(inchikey,
 #'@param label An optional text label for the ClassyFire query. Default
 #'  \code{"query"}.
 #'@param type String giving ClassyFire query type. Default \code{"structure"}.
-#'@param retry_get_times Max number of times to retry GET command to ClassyFire
-#'  API to get status of query (with wait time in between tries). Default 10.
+#'@param retry_get_times Maximum number of times to retry GET command to
+#'  ClassyFire API in case of HTTP error (with wait time in between tries).
+#'  Default 10. If the GET command still does not succeed after this many tries,
+#'  the classification will be treated as failed.
 #'@param wait_sec Minimum number of seconds to wait between POST commands.
 #'  Default 5 seconds (because ClassyFire rate-limits POST requests to 12 per
 #'  minute). If less than 5 seconds, will be reset to 5 seconds, with a warning.
@@ -821,24 +878,25 @@ query_inchikey <- function(inchikey,
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #'@param wait_sec_get Minimum number of seconds to wait between GET commands.
-#'  Default 1 seconds (because ClassyFire rate-limits GET requests to 10 per
-#'  second). If less than 1 seconds, will be reset to 1 seconds, with a
-#'  warning. Wait times for multiple retries
+#'  Default 1 second. (ClassyFire documentation says GET requests are
+#'  rate-limited to 10 per second, but trial and error shows that error 429 is
+#'  encountered at this rate.) If less than 0.1 seconds, will be reset to 0.1
+#'  seconds, with a warning. Wait times for multiple retries
 #'   use exponential backoff with full jitter (wait time is \code{runif(1,
 #'   wait_sec, wait_sec * 2^(attempt_number)}).
 #'@param retry_query_times Max number of attempts to retry an "In Queue" or
 #'  "Processing" query (with wait time in between tries). Default 10.
 #'@param processing_wait_per_input Minimum number of seconds to wait *per input
 #'  string* before retrying to retrieve results for a query whose status is
-#'  "Processing." Default 0.1. Uses exponential backoff: effective wait time per
-#'  input = \code{processing_wait_per_input * 2^(attempt number)}. Total wait
-#'  time is either the effective wait time per input times the number of input
+#'  "Processing." Default 0.2; trial and error suggests this is about how long
+#'  it takes. Uses exponential backoff: effective wait time per input =
+#'  \code{processing_wait_per_input * 2^(attempt number)}. Total wait time is
+#'  either the effective wait time per input times the number of input
 #'  structures, or \code{wait_sec} seconds, whichever is greater. (This means
 #'  `processing_wait_per_input` effectively can never be less than
 #'  `wait_sec/length(input)`, even if you set it to a smaller number.)
 #'@param terminate_on Integer vector: List of HTTP status codes which will
-#'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
-#'  421:428, 431, 451, 500:511)`
+#'  immediately terminate with no more retries. Default: `c(400,403,404,410)`
 #'@param base_url The base URL for ClassyFire API queries. Default
 #'  `"http://classyfire.wishartlab.com/entities"`. If you change this, the query
 #'  is highly unlikely to work!
@@ -895,12 +953,8 @@ query_structure <- function(input = NULL,
                             wait_sec = 5,
                             wait_sec_get = 1,
                             retry_query_times = 10,
-                            processing_wait_per_input = 0.1,
-                            terminate_on = c(400:407, #but not 408
-                                             409:418,
-                                             421:428, #but not 429
-                                             431, 451,
-                                             500:511),
+                            processing_wait_per_input = 0.2,
+                            terminate_on = c(400, 403, 404, 410),
                             base_url = "http://classyfire.wishartlab.com/queries",
                             check_avail = TRUE,
                             msg = NULL,
@@ -1208,12 +1262,11 @@ query_structure <- function(input = NULL,
 #'  Default `"query"`.
 #'@param retry_get_times As for [query_classyfire()]. Integer: number of times
 #'  to retry GET query if HTTP error was returned (except for errors in
-#'  `terminate_on`, which will terminate immediately without retrying).
+#'  `terminate_on`, which will terminate immediately without retrying). Default 10.
 #'@param wait_sec_get As for [query_classyfire()]. Numeric: number of seconds to
-#'  wait between retries. Minimum 1.
+#'  wait between retries. Default 1. Minimum 0.1.
 #'@param terminate_on Integer vector: List of HTTP status codes which will
-#'  immediately terminate with no more retries. Default: ` c(400:407, 409:418,
-#'  421:428, 431, 451, 500:511)`
+#'  immediately terminate with no more retries. Default: ` c(400, 403, 404, 410)`
 #'@param type Character: either `'structure'` or `'inchikey'`, depending on
 #'  whether the query is one or more structures, or whether it is a single
 #'  inchikey.
@@ -1241,13 +1294,9 @@ query_structure <- function(input = NULL,
 
 get_results <- function(url,
                         label = "query",
-                        retry_get_times = 3,
+                        retry_get_times = 10,
                         wait_sec_get = 1,
-                        terminate_on = c(400:407, #but not 408
-                                         409:418,
-                                         421:428, #but not 429
-                                         431, 451,
-                                         500:511),
+                        terminate_on = c(400, 403, 404, 410),
                         query_type = "structure",
                         check_avail = TRUE,
                         classyfire_check_url = "http://classyfire.wishartlab.com/",
@@ -1255,11 +1304,11 @@ get_results <- function(url,
                         ...
 ){
 
-  if(wait_sec_get < 1){
+  if(wait_sec_get < 0.1){
     warning(paste("ClassyFire rate-limits GET requests to 10 per second.",
                   "You supplied wait_sec_get =", wait_sec_get,
-                  "; it will be reset to 1 seconds."))
-    wait_sec_get <- 1
+                  "; it will be reset to 0.1 seconds."))
+    wait_sec_get <- 0.1
   }
   #initialize a placeholder json_parse in case everything else fails
 
@@ -1969,7 +2018,7 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
                            classyfire_check_url = "http://classyfire.wishartlab.com/"){
   msg <- NULL
 
-  print("checking resource")
+  message("Checking resource availability...")
   #test to see if a request that should always succeed, does
   Sys.sleep(1)
   test_resp <- httr::HEAD(network_check_url)
@@ -1998,6 +2047,8 @@ check_resource <- function(network_check_url = "http://httpstat.us/200",
                            ")"))
     }
   }
+
+  message("Done checking resource availability.")
 
   return(msg)
 }
